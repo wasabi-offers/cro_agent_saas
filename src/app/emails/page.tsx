@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import { supabase } from "@/lib/supabase";
-import { ChevronRight, Search, X, Loader2, Copy, Check } from "lucide-react";
+import { ChevronRight, Search, X, Loader2, Copy, Check, Download } from "lucide-react";
 
 interface Email {
   id: string;
@@ -203,22 +203,89 @@ export default function EmailsPage() {
     return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
   };
 
+  // Export emails to CSV
+  const exportToCSV = () => {
+    const emailsToExport = searchTerm ? filteredEmails : emails;
+    
+    if (emailsToExport.length === 0) {
+      alert("No emails to export");
+      return;
+    }
+
+    // CSV headers
+    const headers = ["From Name", "From Email", "Subject", "Text Body", "Labels", "Created At"];
+    
+    // Escape CSV field (handle quotes and commas)
+    const escapeCSV = (field: string | null | undefined): string => {
+      if (!field) return "";
+      const str = String(field);
+      // If contains comma, newline, or quote, wrap in quotes and escape internal quotes
+      if (str.includes(",") || str.includes("\n") || str.includes('"')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
+    // Build CSV content
+    const csvRows = [
+      headers.join(","),
+      ...emailsToExport.map((email) =>
+        [
+          escapeCSV(email.from_name),
+          escapeCSV(email.from_email),
+          escapeCSV(email.subject),
+          escapeCSV(email.text_body),
+          escapeCSV(email.labels),
+          escapeCSV(email.created_at),
+        ].join(",")
+      ),
+    ];
+
+    const csvContent = csvRows.join("\n");
+    
+    // Create and download file
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `emails_export_${new Date().toISOString().split("T")[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="min-h-screen bg-black">
       <Header title="E-mails" breadcrumb={["Dashboard", "E-mails"]} />
 
       <div className="p-10">
-        {/* Search Bar */}
+        {/* Search Bar & Export */}
         <div className="mb-16">
-          <div className="relative max-w-md">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#555555]" />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by From Name..."
-              className="w-full bg-[#111111] border border-[#1a1a1a] rounded-[12px] pl-12 pr-4 py-3.5 text-[15px] text-[#fafafa] placeholder-[#555555] focus:outline-none focus:border-[#7c5cff] transition-colors"
-            />
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <div className="relative max-w-md flex-1">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#555555]" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search by From Name..."
+                className="w-full bg-[#111111] border border-[#1a1a1a] rounded-[12px] pl-12 pr-4 py-3.5 text-[15px] text-[#fafafa] placeholder-[#555555] focus:outline-none focus:border-[#7c5cff] transition-colors"
+              />
+            </div>
+            <button
+              onClick={exportToCSV}
+              disabled={isLoading || emails.length === 0}
+              className="flex items-center gap-2 px-5 py-3 bg-[#00d4aa]/20 border border-[#00d4aa]/30 text-[#00d4aa] text-[14px] font-medium rounded-xl hover:bg-[#00d4aa]/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Download className="w-4 h-4" />
+              Export CSV
+              {!isLoading && emails.length > 0 && (
+                <span className="text-[12px] opacity-70">
+                  ({searchTerm ? filteredEmails.length : emails.length})
+                </span>
+              )}
+            </button>
           </div>
           {searchTerm && (
             <p className="mt-2 text-[13px] text-[#666666]">
