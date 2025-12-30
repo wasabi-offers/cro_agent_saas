@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import { supabase } from "@/lib/supabase";
-import { Mail, Users, TrendingUp, Loader2 } from "lucide-react";
+import { Mail, Users, TrendingUp, Loader2, ExternalLink } from "lucide-react";
 
 interface BrandStats {
   name: string;
@@ -12,9 +13,14 @@ interface BrandStats {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [totalEmails, setTotalEmails] = useState<number>(0);
   const [brandStats, setBrandStats] = useState<BrandStats[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const navigateToSenderEmails = (senderName: string) => {
+    router.push(`/emails?sender=${encodeURIComponent(senderName)}`);
+  };
 
   useEffect(() => {
     fetchStats();
@@ -169,19 +175,23 @@ export default function Home() {
                       <th className="px-6 py-3 text-left text-[12px] font-semibold text-[#888888] uppercase tracking-wider w-[200px]">
                         Share
                       </th>
+                      <th className="px-6 py-3 text-center text-[12px] font-semibold text-[#888888] uppercase tracking-wider">
+                        Action
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
                     {brandStats.map((brand, index) => (
                       <tr
                         key={brand.name}
-                        className="hover:bg-white/5 transition-colors"
+                        className="hover:bg-white/5 transition-colors cursor-pointer group"
+                        onClick={() => navigateToSenderEmails(brand.name)}
                       >
                         <td className="px-6 py-4 text-[13px] text-[#555555]">
                           {index + 1}
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-[14px] text-[#fafafa] font-medium">
+                          <span className="text-[14px] text-[#fafafa] font-medium group-hover:text-[#7c5cff] transition-colors">
                             {brand.name}
                           </span>
                         </td>
@@ -202,6 +212,18 @@ export default function Home() {
                               {brand.percentage.toFixed(1)}%
                             </span>
                           </div>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigateToSenderEmails(brand.name);
+                            }}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#7c5cff]/20 text-[#a78bff] text-[12px] font-medium rounded-lg hover:bg-[#7c5cff]/30 transition-all"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            View
+                          </button>
                         </td>
                       </tr>
                     ))}
