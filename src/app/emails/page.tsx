@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
 import { supabase } from "@/lib/supabase";
-import { ChevronRight, Search, X, Loader2, Copy, Check, Download, CheckSquare, Square, Zap, Sparkles } from "lucide-react";
+import { ChevronRight, Search, X, Loader2, Copy, Check, Download, CheckSquare, Square, Zap, Sparkles, Globe, Link2, Target, Megaphone, Palette } from "lucide-react";
 
 interface Email {
   id: string;
@@ -15,6 +15,7 @@ interface Email {
   html_body: string;
   labels: string | null;
   created_at: string;
+  cell_colors: string | null;
 }
 
 // Parse labels string into array
@@ -52,6 +53,17 @@ interface AnalysisResult {
   analysis: string;
   emailSubject: string;
   fromName: string;
+}
+
+interface LinkAnalysis {
+  url: string;
+  title: string;
+  pageType: string;
+  description: string;
+  keyElements: string[];
+  marketingTactics: string[];
+  callToAction: string;
+  error?: string;
 }
 
 // Extract links from HTML content
@@ -94,16 +106,56 @@ function EmailsPageContent() {
   const [analyzingEmailId, setAnalyzingEmailId] = useState<string | null>(null);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [showAnalysisModal, setShowAnalysisModal] = useState(false);
+  
+  // Link analysis states
+  const [analyzingLinksEmailId, setAnalyzingLinksEmailId] = useState<string | null>(null);
+  const [linkAnalysisResults, setLinkAnalysisResults] = useState<LinkAnalysis[]>([]);
+  const [showLinkAnalysisModal, setShowLinkAnalysisModal] = useState(false);
+  
+  // Row color states
+  const [showColorPicker, setShowColorPicker] = useState<string | null>(null);
+  const [rowColors, setRowColors] = useState<Record<string, string>>({});
+  
+  // Available colors for rows
+  const rowColorOptions = [
+    { name: "Nessuno", value: "" },
+    { name: "Rosso", value: "#ff6b6b" },
+    { name: "Arancione", value: "#f59e0b" },
+    { name: "Giallo", value: "#fbbf24" },
+    { name: "Verde", value: "#00d4aa" },
+    { name: "Blu", value: "#3b82f6" },
+    { name: "Viola", value: "#7c5cff" },
+    { name: "Rosa", value: "#ec4899" },
+  ];
 
-  // Track if component has mounted and read URL params
+  // Track if component has mounted and read URL params / localStorage
   useEffect(() => {
     setHasMounted(true);
-    // Read sender from URL query params
+    // Read sender from URL query params (priority)
     const senderParam = searchParams.get("sender");
     if (senderParam) {
       setSearchTerm(senderParam);
+      // Save to localStorage
+      localStorage.setItem("emailSearchTerm", senderParam);
+    } else {
+      // If no URL param, try to restore from localStorage
+      const savedSearch = localStorage.getItem("emailSearchTerm");
+      if (savedSearch) {
+        setSearchTerm(savedSearch);
+      }
     }
   }, [searchParams]);
+
+  // Save search term to localStorage whenever it changes
+  useEffect(() => {
+    if (hasMounted) {
+      if (searchTerm) {
+        localStorage.setItem("emailSearchTerm", searchTerm);
+      } else {
+        localStorage.removeItem("emailSearchTerm");
+      }
+    }
+  }, [searchTerm, hasMounted]);
 
   // Filter emails by from_name
   const filteredEmails = emails.filter((email) =>
@@ -225,17 +277,94 @@ function EmailsPageContent() {
   const formatDate = (dateString: string) => {
     if (!hasMounted) return ""; // Prevent hydration mismatch
     const date = new Date(dateString);
+    
+    const days = ["Domenica", "Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"];
+    const months = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"];
+    
+    const dayName = days[date.getDay()];
+    const day = date.getDate();
+    const month = months[date.getMonth()];
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
     const hours = String(date.getHours()).padStart(2, "0");
     const minutes = String(date.getMinutes()).padStart(2, "0");
-    return `${year}-${month}-${day} ${hours}:${minutes}`;
+    
+    return `${dayName}, ${day} ${month} ${year} ore ${hours}:${minutes}`;
   };
 
   const truncateText = (text: string, maxLength: number = 100) => {
     if (!text) return "";
     return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+  };
+
+  // Load row colors from emails data
+  useEffect(() => {
+    const colors: Record<string, string> = {};
+    emails.forEach((email) => {
+      if (email.cell_colors) {
+        colors[email.id] = email.cell_colors;
+      }
+    });
+    setRowColors(colors);
+  }, [emails]);
+
+  // Save row color to Supabase
+  const handleRowColorChange = async (emailId: string, color: string) => {
+    // Update local state immediately
+    setRowColors((prev) => {
+      if (color) {
+        return { ...prev, [emailId]: color };
+      } else {
+        const newColors = { ...prev };
+        delete newColors[emailId];
+        return newColors;
+      }
+    });
+    setShowColorPicker(null);
+
+    // Save to Supabase
+    const { error } = await supabase
+      .from("emails")
+      .update({ cell_colors: color || null })
+      .eq("id", emailId);
+
+    if (error) {
+      console.error("Error saving row color:", error);
+    }
+  };
+
+  // Handle link analysis
+  const handleAnalyzeLinks = async (email: Email, links: string[]) => {
+    if (links.length === 0) {
+      alert("No links to analyze");
+      return;
+    }
+
+    setAnalyzingLinksEmailId(email.id);
+    setLinkAnalysisResults([]);
+
+    try {
+      const response = await fetch("/api/analyze-links", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ links }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setLinkAnalysisResults(data.analyses);
+        setShowLinkAnalysisModal(true);
+      } else {
+        alert("Link analysis failed: " + (data.error || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Link analysis error:", error);
+      alert("Failed to analyze links");
+    } finally {
+      setAnalyzingLinksEmailId(null);
+    }
   };
 
   // Handle email analysis
@@ -549,6 +678,9 @@ function EmailsPageContent() {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-[#111111]">
+                  <th className="border border-white/30 px-2 py-3 text-center">
+                    <Palette className="w-4 h-4 text-[#666666] mx-auto" />
+                  </th>
                   <th className="border border-white/30 px-4 py-3 text-center">
                     <button
                       onClick={toggleSelectAll}
@@ -597,7 +729,41 @@ function EmailsPageContent() {
                 {filteredEmails.map((email) => {
                   const links = extractLinks(email.html_body);
                   return (
-                    <tr key={email.id} className={`hover:bg-[#0a0a0a] transition-colors ${selectedEmails.has(email.id) ? "bg-[#7c5cff]/10" : ""}`}>
+                    <tr 
+                      key={email.id} 
+                      className={`hover:bg-[#0a0a0a] transition-colors ${selectedEmails.has(email.id) ? "bg-[#7c5cff]/10" : ""}`}
+                      style={rowColors[email.id] ? { backgroundColor: `${rowColors[email.id]}15` } : {}}
+                    >
+                      {/* Color Picker */}
+                      <td className="border border-white/30 px-2 py-3 text-center relative">
+                        <button
+                          onClick={() => setShowColorPicker(showColorPicker === email.id ? null : email.id)}
+                          className="w-6 h-6 rounded-lg border-2 border-white/20 hover:border-white/40 transition-all flex items-center justify-center"
+                          style={rowColors[email.id] ? { backgroundColor: rowColors[email.id] } : { backgroundColor: "#1a1a1a" }}
+                          title="Cambia colore"
+                        >
+                          {!rowColors[email.id] && <Palette className="w-3 h-3 text-[#555555]" />}
+                        </button>
+                        {showColorPicker === email.id && (
+                          <div className="absolute z-50 left-0 top-full mt-1 bg-[#1a1a1a] border border-white/20 rounded-lg p-2 shadow-xl">
+                            <div className="grid grid-cols-4 gap-1">
+                              {rowColorOptions.map((color) => (
+                                <button
+                                  key={color.name}
+                                  onClick={() => handleRowColorChange(email.id, color.value)}
+                                  className={`w-6 h-6 rounded-lg border-2 transition-all ${
+                                    (rowColors[email.id] || "") === color.value
+                                      ? "border-white"
+                                      : "border-transparent hover:border-white/50"
+                                  }`}
+                                  style={{ backgroundColor: color.value || "#333333" }}
+                                  title={color.name}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </td>
                       {/* Checkbox */}
                       <td className="border border-white/30 px-4 py-3 text-center">
                         <button
@@ -670,26 +836,42 @@ function EmailsPageContent() {
 
                       {/* Links */}
                       <td className="border border-white/30 px-4 py-3 text-[13px] text-[#999999] min-w-[200px] max-w-[250px]">
-                        <div
-                          className="relative cursor-pointer"
-                          onMouseEnter={() => setExpandedCell(`links-${email.id}`)}
-                          onMouseLeave={() => setExpandedCell(null)}
-                        >
-                          <div className="text-[#7c5cff]">
-                            {links.length > 0 ? `${links.length} link${links.length > 1 ? "s" : ""}` : "-"}
-                          </div>
-                          {expandedCell === `links-${email.id}` && links.length > 0 && (
-                            <div className="absolute z-50 left-0 top-full mt-2 bg-[#1a1a1a] border border-white/20 rounded-lg p-4 max-w-[500px] max-h-[300px] overflow-y-auto shadow-xl">
-                              <ul className="space-y-2">
-                                {links.map((link, idx) => (
-                                  <li key={idx} className="text-[11px] text-[#7c5cff] break-all hover:underline">
-                                    <a href={link} target="_blank" rel="noopener noreferrer">
-                                      {link}
-                                    </a>
-                                  </li>
-                                ))}
-                              </ul>
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="relative cursor-pointer flex-1"
+                            onMouseEnter={() => setExpandedCell(`links-${email.id}`)}
+                            onMouseLeave={() => setExpandedCell(null)}
+                          >
+                            <div className="text-[#7c5cff]">
+                              {links.length > 0 ? `${links.length} link${links.length > 1 ? "s" : ""}` : "-"}
                             </div>
+                            {expandedCell === `links-${email.id}` && links.length > 0 && (
+                              <div className="absolute z-50 left-0 top-full mt-2 bg-[#1a1a1a] border border-white/20 rounded-lg p-4 max-w-[500px] max-h-[300px] overflow-y-auto shadow-xl">
+                                <ul className="space-y-2">
+                                  {links.map((link, idx) => (
+                                    <li key={idx} className="text-[11px] text-[#7c5cff] break-all hover:underline">
+                                      <a href={link} target="_blank" rel="noopener noreferrer">
+                                        {link}
+                                      </a>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                          {links.length > 0 && (
+                            <button
+                              onClick={() => handleAnalyzeLinks(email, links)}
+                              disabled={analyzingLinksEmailId === email.id}
+                              className="p-1.5 bg-[#7c5cff]/20 text-[#a78bff] rounded-lg hover:bg-[#7c5cff]/30 transition-all disabled:opacity-50"
+                              title="Analizza Links"
+                            >
+                              {analyzingLinksEmailId === email.id ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Globe className="w-3.5 h-3.5" />
+                              )}
+                            </button>
                           )}
                         </div>
                       </td>
@@ -777,6 +959,146 @@ function EmailsPageContent() {
           </div>
         )}
       </div>
+
+      {/* Link Analysis Modal */}
+      {showLinkAnalysisModal && linkAnalysisResults.length > 0 && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#111111] border border-white/20 rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-xl flex items-center justify-center">
+                  <Globe className="w-5 h-5 text-[#7c5cff]" />
+                </div>
+                <div>
+                  <h2 className="text-[20px] font-semibold text-[#fafafa]">
+                    Link Analysis
+                  </h2>
+                  <p className="text-[13px] text-[#666666]">
+                    {linkAnalysisResults.length} pagine analizzate
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setShowLinkAnalysisModal(false);
+                  setLinkAnalysisResults([]);
+                }}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-[#999999]" />
+              </button>
+            </div>
+
+            {/* Results */}
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-100px)] space-y-4">
+              {linkAnalysisResults.map((result, index) => (
+                <div
+                  key={index}
+                  className={`p-5 rounded-xl border ${
+                    result.error
+                      ? "bg-[#ff6b6b]/10 border-[#ff6b6b]/30"
+                      : "bg-[#0a0a0a] border-white/10"
+                  }`}
+                >
+                  {/* URL Header */}
+                  <div className="flex items-start justify-between gap-4 mb-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Link2 className="w-4 h-4 text-[#7c5cff] flex-shrink-0" />
+                        <a
+                          href={result.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[13px] text-[#7c5cff] hover:underline truncate"
+                        >
+                          {result.url}
+                        </a>
+                      </div>
+                      {result.title && (
+                        <p className="text-[15px] text-[#fafafa] font-medium">
+                          {result.title}
+                        </p>
+                      )}
+                    </div>
+                    <span
+                      className={`px-3 py-1 rounded-full text-[11px] font-medium whitespace-nowrap ${
+                        result.error
+                          ? "bg-[#ff6b6b]/20 text-[#ff6b6b]"
+                          : "bg-[#00d4aa]/20 text-[#00d4aa]"
+                      }`}
+                    >
+                      {result.pageType}
+                    </span>
+                  </div>
+
+                  {result.error ? (
+                    <p className="text-[13px] text-[#ff6b6b]">{result.error}</p>
+                  ) : (
+                    <>
+                      {/* Description */}
+                      <p className="text-[14px] text-[#888888] mb-4 leading-relaxed">
+                        {result.description}
+                      </p>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* Key Elements */}
+                        <div className="bg-[#111111] rounded-lg p-3">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Target className="w-4 h-4 text-[#00d4aa]" />
+                            <span className="text-[11px] font-semibold text-[#888888] uppercase">
+                              Elementi Chiave
+                            </span>
+                          </div>
+                          <ul className="space-y-1">
+                            {result.keyElements.map((el, i) => (
+                              <li key={i} className="text-[12px] text-[#cccccc] flex items-start gap-2">
+                                <span className="text-[#00d4aa]">•</span>
+                                {el}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        {/* Marketing Tactics */}
+                        <div className="bg-[#111111] rounded-lg p-3">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Megaphone className="w-4 h-4 text-[#f59e0b]" />
+                            <span className="text-[11px] font-semibold text-[#888888] uppercase">
+                              Tattiche Marketing
+                            </span>
+                          </div>
+                          <ul className="space-y-1">
+                            {result.marketingTactics.map((tactic, i) => (
+                              <li key={i} className="text-[12px] text-[#cccccc] flex items-start gap-2">
+                                <span className="text-[#f59e0b]">•</span>
+                                {tactic}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        {/* CTA */}
+                        <div className="bg-[#111111] rounded-lg p-3">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Zap className="w-4 h-4 text-[#7c5cff]" />
+                            <span className="text-[11px] font-semibold text-[#888888] uppercase">
+                              Call to Action
+                            </span>
+                          </div>
+                          <p className="text-[12px] text-[#cccccc]">
+                            {result.callToAction}
+                          </p>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Analysis Modal */}
       {showAnalysisModal && analysisResult && (

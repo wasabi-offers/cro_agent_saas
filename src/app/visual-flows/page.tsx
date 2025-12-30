@@ -32,6 +32,7 @@ interface FlowStep {
   purpose: string;
   triggerType: string;
   delayFromPrevious: string;
+  textBody?: string;
 }
 
 interface EmailFlow {
@@ -128,6 +129,12 @@ export default function VisualFlowsPage() {
         return;
       }
 
+      // Create a map of email id to text_body for quick lookup
+      const emailTextMap: Record<string, string> = {};
+      emails.forEach((email) => {
+        emailTextMap[email.id] = email.text_body || "";
+      });
+
       // Call the AI analysis API
       const response = await fetch("/api/analyze-flows", {
         method: "POST",
@@ -143,9 +150,18 @@ export default function VisualFlowsPage() {
       const data = await response.json();
 
       if (data.success) {
-        setFlows(data.flows);
+        // Add text_body to each flow step
+        const flowsWithText = data.flows.map((flow: EmailFlow) => ({
+          ...flow,
+          steps: flow.steps.map((step: FlowStep) => ({
+            ...step,
+            textBody: emailTextMap[step.emailId] || "",
+          })),
+        }));
+        
+        setFlows(flowsWithText);
         // Auto-expand all flows
-        setExpandedFlows(new Set(data.flows.map((f: EmailFlow) => f.flowId)));
+        setExpandedFlows(new Set(flowsWithText.map((f: EmailFlow) => f.flowId)));
       } else {
         alert("Analysis failed: " + (data.error || "Unknown error"));
       }
@@ -349,38 +365,54 @@ export default function VisualFlowsPage() {
                                 )
                               }
                             >
-                              <div className="flex items-start justify-between gap-4">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <span className="text-[11px] font-bold text-[#7c5cff] uppercase tracking-wider">
-                                      Step {step.stepNumber}
-                                    </span>
-                                    <span className="text-[#333333]">•</span>
-                                    <div className="flex items-center gap-1 text-[11px] text-[#666666]">
-                                      {getTriggerIcon(step.triggerType)}
-                                      <span>{step.triggerType}</span>
-                                    </div>
-                                  </div>
-                                  <h4 className="text-[14px] font-medium text-[#fafafa] leading-relaxed">
-                                    {step.subject}
-                                  </h4>
-                                  {expandedStep === step.id && (
-                                    <div className="mt-3 pt-3 border-t border-white/10">
-                                      <p className="text-[13px] text-[#888888]">
-                                        <span className="text-[#666666]">Purpose: </span>
-                                        {step.purpose}
-                                      </p>
-                                      {step.delayFromPrevious &&
-                                        step.delayFromPrevious !== "none" && (
-                                          <p className="text-[13px] text-[#888888] mt-1">
-                                            <span className="text-[#666666]">
-                                              Delay from previous:{" "}
-                                            </span>
-                                            {step.delayFromPrevious}
-                                          </p>
-                                        )}
-                                    </div>
-                                  )}
+<div className="flex items-start justify-between gap-4">
+                                                <div className="flex-1">
+                                                  <div className="flex items-center gap-2 mb-2">
+                                                    <span className="text-[11px] font-bold text-[#7c5cff] uppercase tracking-wider">
+                                                      Step {step.stepNumber}
+                                                    </span>
+                                                    <span className="text-[#333333]">•</span>
+                                                    <div className="flex items-center gap-1 text-[11px] text-[#666666]">
+                                                      {getTriggerIcon(step.triggerType)}
+                                                      <span>{step.triggerType}</span>
+                                                    </div>
+                                                    <span className="text-[#333333]">•</span>
+                                                    <span className="text-[11px] text-[#555555]">
+                                                      {expandedStep === step.id ? "Click to collapse" : "Click to view content"}
+                                                    </span>
+                                                  </div>
+                                                  <h4 className="text-[14px] font-medium text-[#fafafa] leading-relaxed">
+                                                    {step.subject}
+                                                  </h4>
+{expandedStep === step.id && (
+                                                    <div className="mt-3 pt-3 border-t border-white/10">
+                                                      <p className="text-[13px] text-[#888888]">
+                                                        <span className="text-[#666666]">Purpose: </span>
+                                                        {step.purpose}
+                                                      </p>
+                                                      {step.delayFromPrevious &&
+                                                        step.delayFromPrevious !== "none" && (
+                                                          <p className="text-[13px] text-[#888888] mt-1">
+                                                            <span className="text-[#666666]">
+                                                              Delay from previous:{" "}
+                                                            </span>
+                                                            {step.delayFromPrevious}
+                                                          </p>
+                                                        )}
+                                                      {step.textBody && (
+                                                        <div className="mt-4">
+                                                          <p className="text-[12px] font-semibold text-[#7c5cff] uppercase tracking-wide mb-2">
+                                                            Email Content
+                                                          </p>
+                                                          <div className="bg-[#0a0a0a] border border-white/10 rounded-lg p-4 max-h-[300px] overflow-y-auto">
+                                                            <p className="text-[13px] text-[#aaaaaa] whitespace-pre-wrap leading-relaxed">
+                                                              {step.textBody}
+                                                            </p>
+                                                          </div>
+                                                        </div>
+                                                      )}
+                                                    </div>
+                                                  )}
                                 </div>
                               </div>
                             </div>

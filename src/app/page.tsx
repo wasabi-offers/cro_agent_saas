@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import { supabase } from "@/lib/supabase";
-import { Mail, Users, TrendingUp, Loader2, ExternalLink } from "lucide-react";
+import { Mail, Users, TrendingUp, Loader2, ExternalLink, Sparkles } from "lucide-react";
 
 interface BrandStats {
   name: string;
@@ -15,6 +15,7 @@ interface BrandStats {
 export default function Home() {
   const router = useRouter();
   const [totalEmails, setTotalEmails] = useState<number>(0);
+  const [analyzedCount, setAnalyzedCount] = useState<number>(0);
   const [brandStats, setBrandStats] = useState<BrandStats[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -30,7 +31,7 @@ export default function Home() {
     setIsLoading(true);
 
     // Fetch all emails to calculate stats
-    let allEmails: { from_name: string }[] = [];
+    let allEmails: { from_name: string; email_analyzed: boolean | null }[] = [];
     let from = 0;
     const batchSize = 1000;
     let hasMore = true;
@@ -38,7 +39,7 @@ export default function Home() {
     while (hasMore) {
       const { data, error } = await supabase
         .from("emails")
-        .select("from_name")
+        .select("from_name, email_analyzed")
         .range(from, from + batchSize - 1);
 
       if (error) {
@@ -57,6 +58,10 @@ export default function Home() {
 
     // Calculate total
     setTotalEmails(allEmails.length);
+    
+    // Calculate analyzed emails count
+    const analyzed = allEmails.filter((email) => email.email_analyzed === true).length;
+    setAnalyzedCount(analyzed);
 
     // Calculate brand/sender stats
     const brandCounts: Record<string, number> = {};
@@ -93,7 +98,7 @@ export default function Home() {
         ) : (
           <>
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
               {/* Total Emails Card */}
               <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6">
                 <div className="flex items-center gap-4">
@@ -123,6 +128,23 @@ export default function Home() {
                     </p>
                     <p className="text-[#fafafa] text-[36px] font-bold leading-tight">
                       {brandStats.length.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Expert Analysis Card */}
+              <div className="bg-gradient-to-br from-[#f59e0b]/20 to-[#f59e0b]/5 border border-[#f59e0b]/30 rounded-2xl p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-[#f59e0b]/20 rounded-xl flex items-center justify-center">
+                    <Sparkles className="w-7 h-7 text-[#f59e0b]" />
+                  </div>
+                  <div>
+                    <p className="text-[#888888] text-[13px] font-medium uppercase tracking-wide">
+                      Expert Analysis
+                    </p>
+                    <p className="text-[#fafafa] text-[36px] font-bold leading-tight">
+                      {analyzedCount.toLocaleString()}
                     </p>
                   </div>
                 </div>
