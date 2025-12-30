@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
 import { supabase } from "@/lib/supabase";
@@ -68,7 +68,7 @@ function extractLinks(html: string): string[] {
   return [...new Set(links)]; // Remove duplicates
 }
 
-export default function EmailsPage() {
+function EmailsPageContent() {
   const searchParams = useSearchParams();
   const [emails, setEmails] = useState<Email[]>([]);
   const [productBriefs, setProductBriefs] = useState<ProductBrief[]>([]);
@@ -1099,6 +1099,24 @@ export default function EmailsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+// Wrap in Suspense for useSearchParams
+export default function EmailsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-black">
+          <Header title="E-mails" breadcrumb={["Dashboard", "E-mails"]} />
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="w-8 h-8 border-2 border-[#7c5cff] border-t-transparent rounded-full animate-spin" />
+          </div>
+        </div>
+      }
+    >
+      <EmailsPageContent />
+    </Suspense>
   );
 }
 
