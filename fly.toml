@@ -4,9 +4,7 @@ app = 'email-reverse-agent-v2'
 primary_region = 'fra'
 
 [build]
-  [build.args]
-    NEXT_PUBLIC_SUPABASE_URL = ""
-    NEXT_PUBLIC_SUPABASE_ANON_KEY = ""
+  builder = "heroku/builder:22"
 
 [http_service]
   internal_port = 3000
