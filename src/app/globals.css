@@ -1,0 +1,138 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Primary colors */
+  --bg-primary: #000000;
+  --bg-secondary: #0a0a0a;
+  --bg-tertiary: #111111;
+  
+  /* Text colors */
+  --text-primary: #fafafa;
+  --text-secondary: #969696;
+  --text-muted: #666666;
+  
+  /* Accent colors */
+  --accent-purple: #7c5cff;
+  --accent-teal: #00d4aa;
+  --accent-orange: #ff9500;
+  
+  /* Border colors */
+  --border-primary: #1a1a1a;
+  --border-secondary: #2a2a2a;
+  
+  /* Gradients */
+  --gradient-purple-teal: linear-gradient(135deg, #7c5cff, #00d4aa);
+  --gradient-purple: linear-gradient(to right bottom, #7c5cff 0%, #5b3fd9 100%);
+}
+
+* {
+  margin: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-family: 'Inter', ui-sans-serif, -apple-system, sans-serif;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings with Space Grotesk */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+h1 {
+  font-size: 72px;
+  font-weight: 700;
+  line-height: 72px;
+  letter-spacing: -1.8px;
+}
+
+h2 {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 48px;
+}
+
+h3 {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 28px;
+}
+
+h4 {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Button styles */
+.btn-primary {
+  background: var(--gradient-purple);
+  color: white;
+  font-weight: 500;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Card styles */
+.card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 16px;
+}
+
+.card-dashed {
+  border: 1px dashed var(--border-secondary);
+  border-radius: 16px;
+}
