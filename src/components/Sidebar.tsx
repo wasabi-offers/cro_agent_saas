@@ -8,11 +8,13 @@ import {
   Package,
   GitBranch,
   Activity,
+  Sparkles,
 } from "lucide-react";
 
 const menuItems = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "E-mails", href: "/emails", icon: Mail },
+  { name: "Esplora AI", href: "/esplora-ai", icon: Sparkles },
   { name: "Monitoring", href: "/monitoring", icon: Activity },
   { name: "Visual Flows", href: "/visual-flows", icon: GitBranch },
   { name: "My Products", href: "/products", icon: Package },
