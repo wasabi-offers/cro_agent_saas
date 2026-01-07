@@ -4,20 +4,20 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  Mail,
-  Package,
-  GitBranch,
-  Activity,
-  Sparkles,
+  BarChart3,
+  FlaskConical,
+  MousePointerClick,
+  Database,
+  TrendingUp,
 } from "lucide-react";
 
 const menuItems = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
-  { name: "E-mails", href: "/emails", icon: Mail },
-  { name: "Esplora AI", href: "/esplora-ai", icon: Sparkles },
-  { name: "Monitoring", href: "/monitoring", icon: Activity },
-  { name: "Visual Flows", href: "/visual-flows", icon: GitBranch },
-  { name: "My Products", href: "/products", icon: Package },
+  { name: "Analytics", href: "/analytics", icon: BarChart3 },
+  { name: "A/B Tests", href: "/ab-tests", icon: FlaskConical },
+  { name: "Heatmaps", href: "/heatmaps", icon: MousePointerClick },
+  { name: "Funnels", href: "/funnels", icon: TrendingUp },
+  { name: "Data Sources", href: "/data-sources", icon: Database },
 ];
 
 export default function Sidebar() {
@@ -28,11 +28,11 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="px-6 py-6 flex items-center gap-4">
         <div className="w-10 h-10 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-[12px] flex items-center justify-center shadow-lg shadow-purple-500/20">
-          <span className="text-white font-bold text-base font-['Space_Grotesk']">E</span>
+          <TrendingUp className="w-5 h-5 text-white" />
         </div>
         <div className="flex flex-col">
-          <span className="font-semibold text-[#fafafa] text-[16px] leading-tight font-['Space_Grotesk']">Email</span>
-          <span className="text-[12px] text-[#666666]">.ai</span>
+          <span className="font-semibold text-[#fafafa] text-[16px] leading-tight font-['Space_Grotesk']">CRO Agent</span>
+          <span className="text-[12px] text-[#666666]">Conversion Optimizer</span>
         </div>
       </div>
 
@@ -51,13 +51,25 @@ export default function Sidebar() {
                   : "text-[#888888] hover:bg-[#121212] hover:text-[#fafafa]"
               }`}
             >
-              <Icon className={`w-5 h-5 ${isActive ? 'text-[#fafafa]' : 'group-hover:text-[#fafafa]'}`} />
+              <Icon className={`w-5 h-5 ${isActive ? 'text-[#7c5cff]' : 'group-hover:text-[#fafafa]'}`} />
               <span className="text-[15px] font-medium">{item.name}</span>
             </Link>
           );
         })}
       </nav>
 
+      {/* Sync Status */}
+      <div className="px-4 py-4 border-t border-[#1a1a1a]">
+        <div className="bg-[#111111] rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-2 h-2 rounded-full bg-[#00d4aa] animate-pulse" />
+            <span className="text-[12px] text-[#888888]">All sources synced</span>
+          </div>
+          <p className="text-[11px] text-[#555555]">
+            Last sync: 2 hours ago
+          </p>
+        </div>
+      </div>
     </aside>
   );
 }

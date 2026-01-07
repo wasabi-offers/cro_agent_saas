@@ -3,8 +3,8 @@ import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 
 export const metadata: Metadata = {
-  title: "Email Reverse Agent",
-  description: "Your SaaS Dashboard",
+  title: "CRO Agent - Conversion Rate Optimization",
+  description: "AI-powered CRO insights from Clarity, Crazy Egg, and Google Analytics",
 };
 
 export default function RootLayout({
