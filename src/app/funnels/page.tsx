@@ -49,9 +49,9 @@ export default function FunnelsListPage() {
   // Generate bounce rate (mock data - in production this comes from API)
   const getBounceRate = (funnelId: string) => {
     const rates: Record<string, number> = {
-      'checkout_funnel': 35.2,
+      'checkout_funnel': 52.8,
       'lead_gen_funnel': 42.8,
-      'blog_to_newsletter': 28.5
+      'blog_to_newsletter': 26.5
     };
     return rates[funnelId] || 30;
   };
