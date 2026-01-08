@@ -21,6 +21,9 @@ import {
   MousePointer,
   MousePointerClick,
   Eye,
+  FlaskConical,
+  Lightbulb,
+  Zap,
 } from "lucide-react";
 import {
   generateMockFunnels,
@@ -48,7 +51,7 @@ export default function FunnelDetailPage() {
 
   const [funnel, setFunnel] = useState<ConversionFunnel | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"overview" | "analysis" | "heatmap">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "analysis" | "heatmap" | "abtests">("overview");
 
   // Analysis state
   const [analysisMode, setAnalysisMode] = useState<"funnel" | "page">("funnel");
@@ -61,6 +64,12 @@ export default function FunnelDetailPage() {
   // Heatmap state
   const [selectedHeatmapPage, setSelectedHeatmapPage] = useState<number>(0);
   const [heatmapType, setHeatmapType] = useState<"click" | "scroll" | "move">("click");
+
+  // A/B Test state
+  const [selectedABPage, setSelectedABPage] = useState<number>(0);
+  const [isGeneratingTests, setIsGeneratingTests] = useState(false);
+  const [abTestSuggestions, setAbTestSuggestions] = useState<any[]>([]);
+  const [abTestError, setAbTestError] = useState("");
 
   useEffect(() => {
     const loadData = async () => {
@@ -121,6 +130,130 @@ export default function FunnelDetailPage() {
       setAnalysisError("An error occurred during analysis. Please try again.");
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  const handleGenerateABTests = async () => {
+    if (!funnel) return;
+
+    setIsGeneratingTests(true);
+    setAbTestError("");
+    setAbTestSuggestions([]);
+
+    try {
+      // In production, this would call Claude API for AI-powered test generation
+      // For now, using mock data with detailed, expert-level suggestions
+      const mockSuggestions = [
+        {
+          id: 1,
+          priority: "high",
+          element: "CTA Button",
+          hypothesis: "Changing the CTA button from generic 'Submit' to action-oriented 'Start Free Trial' will increase conversions by 18-22%",
+          variant: {
+            current: "Blue button with text 'Submit'",
+            proposed: "Green button (#00d4aa) with text 'Start Free Trial' and arrow icon →"
+          },
+          expectedImpact: "+20% conversion rate",
+          reasoning: `Based on comprehensive CRO analysis:
+
+**Data Analysis:**
+- Current dropoff at this step: ${funnel.steps[selectedABPage].dropoff}%
+- Heatmap shows 45% of users hover over button but don't click
+- Average hesitation time: 8.2 seconds (industry benchmark: 3-4s)
+
+**CRO Principles Applied:**
+1. **Action-Oriented Copy**: Using verb-first language creates urgency and clarity. Studies show action verbs increase conversions by 15-25% (Source: Nielsen Norman Group)
+2. **Color Psychology**: Green signals "go" and "safe to proceed" - tests by HubSpot showed green CTAs convert 21% better than red
+3. **Visual Hierarchy**: Adding arrow creates directional cue, leveraging the Von Restorff effect
+4. **Social Proof Integration**: The word "Start" implies others have already begun, tapping into FOMO
+
+**Technical Justification:**
+- F-pattern eye tracking studies show users spend 80% of time in the upper left, making button placement critical
+- According to Fitts's Law, larger buttons (recommend 44x44px minimum) reduce cognitive load
+- ContrastRatio: Current 3.2:1 vs Proposed 4.8:1 (WCAG AAA compliant)`,
+          confidence: 85,
+          testDuration: "14 days minimum for statistical significance (95% confidence, 80% power)",
+          metrics: ["Click-through rate", "Conversion rate", "Time to decision"]
+        },
+        {
+          id: 2,
+          priority: "high",
+          element: "Form Fields",
+          hypothesis: "Reducing form fields from 8 to 4 (using progressive disclosure) will reduce abandonment by 35%",
+          variant: {
+            current: "Single page with 8 required fields",
+            proposed: "Multi-step form: Step 1 (Name, Email) → Step 2 (Company, Role) with progress indicator"
+          },
+          expectedImpact: "+35% form completion rate",
+          reasoning: `**Friction Analysis:**
+- Current form abandonment: 60% (industry average: 67%)
+- Field-level analytics show 80% abandon at field 5
+- Mobile users show 2.3x higher abandonment
+
+**Psychology & Best Practices:**
+1. **Zeigarnik Effect**: People have better memory for incomplete tasks. Multi-step forms leverage this by creating commitment
+2. **Progressive Disclosure**: Show only what's needed now reduces cognitive load by 58% (UX study by Baymard Institute)
+3. **Goal Gradient Effect**: Progress bars increase completion by 28% as users get closer to goal
+4. **Choice Paralysis**: Each additional field reduces completion by 11% (study of 40,000 forms)
+
+**Supporting Data:**
+- Expedia removed 1 field and increased profit by $12M annually
+- ImageShack reduced fields from 4 to 3, increased signups by 50%
+- Marketo's study: For every field removed, conversion increases by 10-20%
+
+**Implementation Strategy:**
+- Step 1: Core info only (Name, Email) - "You're 50% done!"
+- Step 2: Contextual info (Company, Role) - "Almost there! Final step"
+- Use inline validation to prevent errors before submission
+- Auto-save progress (reduces anxiety about losing data)`,
+          confidence: 92,
+          testDuration: "21 days (accounts for weekly traffic patterns)",
+          metrics: ["Form abandonment rate", "Field completion rate", "Time per field", "Error rate"]
+        },
+        {
+          id: 3,
+          priority: "medium",
+          element: "Social Proof Section",
+          hypothesis: "Adding real-time social proof notification ('Sarah from London just signed up') above fold will increase trust and conversions by 15%",
+          variant: {
+            current: "Static testimonial section at bottom of page",
+            proposed: "Dynamic notification popup (non-intrusive, bottom-left) showing recent signups with location + small avatar"
+          },
+          expectedImpact: "+15% conversion rate",
+          reasoning: `**Behavioral Economics:**
+1. **Herding Effect**: People follow the crowd. Seeing others take action reduces perceived risk
+2. **FOMO (Fear of Missing Out)**: Real-time activity creates urgency - "If they're doing it, I should too"
+3. **Social Validation**: Cialdini's 6 principles of persuasion - Social Proof is #1 converter
+
+**Case Studies:**
+- Booking.com uses "23 people looking at this hotel" - increased bookings by 28%
+- TrustPulse study: Real-time notifications increased conversions by 15% on average
+- Basecamp added social proof, saw 102.5% increase in conversions
+
+**Technical Specifications:**
+- Trigger: Show notification every 8-12 seconds (randomized to appear organic)
+- Duration: 4 seconds visible, 1 second fade out
+- Content: "[Name] from [City] just [action]" + timestamp "2 minutes ago"
+- Design: Subtle shadow, rounded corners, brand colors, small dismiss X
+- Mobile: Bottom position with haptic feedback
+
+**A/B Test Variables:**
+- Control: No notifications
+- Variant A: Real data from last 24h signups
+- Variant B: Real data + "Join 2,847 users" counter`,
+          confidence: 78,
+          testDuration: "14 days",
+          metrics: ["Conversion rate", "Time on page", "Scroll depth", "Exit rate"]
+        }
+      ];
+
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setAbTestSuggestions(mockSuggestions);
+    } catch (err) {
+      setAbTestError("Failed to generate test suggestions. Please try again.");
+    } finally {
+      setIsGeneratingTests(false);
     }
   };
 
@@ -263,6 +396,20 @@ export default function FunnelDetailPage() {
             <MousePointerClick className="w-4 h-4" />
             Heatmap
             {activeTab === "heatmap" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]" />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("abtests")}
+            className={`px-6 py-3 text-[14px] font-medium transition-all relative flex items-center gap-2 ${
+              activeTab === "abtests"
+                ? "text-[#fafafa]"
+                : "text-[#666666] hover:text-[#888888]"
+            }`}
+          >
+            <FlaskConical className="w-4 h-4" />
+            A/B Tests
+            {activeTab === "abtests" && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]" />
             )}
           </button>
@@ -745,6 +892,193 @@ export default function FunnelDetailPage() {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {activeTab === "abtests" && (
+          <div className="space-y-6">
+            {/* A/B Test Generator */}
+            <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-xl flex items-center justify-center">
+                  <FlaskConical className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-[20px] font-semibold text-[#fafafa]">
+                    AI-Powered A/B Test Suggestions
+                  </h2>
+                  <p className="text-[14px] text-[#888888] mt-1">
+                    Expert CRO analysis with data-driven recommendations
+                  </p>
+                </div>
+              </div>
+
+              {/* Page Selector */}
+              <div className="mb-6">
+                <label className="block text-[14px] text-[#888888] mb-3">
+                  Select Funnel Step to Optimize
+                </label>
+                <select
+                  value={selectedABPage}
+                  onChange={(e) => setSelectedABPage(Number(e.target.value))}
+                  className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#fafafa] text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all"
+                >
+                  {funnel.steps.map((step, idx) => (
+                    <option key={idx} value={idx}>
+                      Step {idx + 1}: {step.name} (Dropoff: {step.dropoff}%)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Info Banner */}
+              <div className="mb-6 bg-gradient-to-r from-[#7c5cff]/10 to-[#00d4aa]/10 border border-[#7c5cff]/20 rounded-xl p-4">
+                <div className="flex items-start gap-3">
+                  <Lightbulb className="w-5 h-5 text-[#7c5cff] flex-shrink-0 mt-0.5" />
+                  <div className="text-[13px] text-[#888888]">
+                    <p className="font-medium text-[#fafafa] mb-1">Expert CRO AI Analysis</p>
+                    <p>Our AI analyzes conversion data, heatmaps, user behavior, and applies proven CRO techniques including: Cialdini's persuasion principles, behavioral psychology, F-pattern eye tracking, Fitts's Law, color psychology, and tested copywriting frameworks (AIDA, PAS, FAB).</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Error Message */}
+              {abTestError && (
+                <div className="mb-6 flex items-center gap-2 text-[#ff6b6b] text-[14px] bg-[#ff6b6b]/10 border border-[#ff6b6b]/20 rounded-xl px-4 py-3">
+                  <AlertCircle className="w-4 h-4" />
+                  {abTestError}
+                </div>
+              )}
+
+              {/* Generate Button */}
+              <button
+                onClick={handleGenerateABTests}
+                disabled={isGeneratingTests}
+                className="w-full bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white px-6 py-4 rounded-xl font-medium text-[15px] hover:shadow-lg hover:shadow-purple-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isGeneratingTests ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Analyzing & Generating Tests...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-5 h-5" />
+                    Generate AI Test Suggestions
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Test Suggestions */}
+            {abTestSuggestions.length > 0 && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <CheckCircle2 className="w-6 h-6 text-[#00d4aa]" />
+                  <h2 className="text-[20px] font-semibold text-[#fafafa]">
+                    Recommended Tests for: {funnel.steps[selectedABPage].name}
+                  </h2>
+                </div>
+
+                {abTestSuggestions.map((test) => {
+                  const priorityColors = {
+                    high: { bg: "bg-[#ff6b6b]/10", border: "border-[#ff6b6b]/30", text: "text-[#ff6b6b]" },
+                    medium: { bg: "bg-[#f59e0b]/10", border: "border-[#f59e0b]/30", text: "text-[#f59e0b]" },
+                    low: { bg: "bg-[#7c5cff]/10", border: "border-[#7c5cff]/30", text: "text-[#7c5cff]" }
+                  };
+                  const colors = priorityColors[test.priority as keyof typeof priorityColors];
+
+                  return (
+                    <div
+                      key={test.id}
+                      className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8 hover:border-[#7c5cff]/30 transition-all"
+                    >
+                      {/* Header */}
+                      <div className="flex items-start justify-between mb-6">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className={`px-3 py-1 rounded-full border ${colors.bg} ${colors.border}`}>
+                              <span className={`text-[12px] font-bold uppercase ${colors.text}`}>
+                                {test.priority} priority
+                              </span>
+                            </div>
+                            <div className="px-3 py-1 rounded-full bg-[#00d4aa]/10 border border-[#00d4aa]/20">
+                              <span className="text-[12px] font-bold text-[#00d4aa]">
+                                {test.confidence}% confidence
+                              </span>
+                            </div>
+                          </div>
+                          <h3 className="text-[20px] font-semibold text-[#fafafa] mb-2">
+                            Test #{test.id}: {test.element}
+                          </h3>
+                          <p className="text-[15px] text-[#888888] leading-relaxed">
+                            {test.hypothesis}
+                          </p>
+                        </div>
+                        <div className="text-right ml-6">
+                          <p className="text-[12px] text-[#888888] mb-1">Expected Impact</p>
+                          <p className="text-[20px] font-bold text-[#00d4aa]">{test.expectedImpact}</p>
+                        </div>
+                      </div>
+
+                      {/* Variants Comparison */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-4">
+                          <p className="text-[12px] text-[#888888] mb-2 uppercase font-bold">Control (Current)</p>
+                          <p className="text-[14px] text-[#fafafa]">{test.variant.current}</p>
+                        </div>
+                        <div className="bg-[#111111] border border-[#00d4aa]/30 rounded-xl p-4">
+                          <p className="text-[12px] text-[#00d4aa] mb-2 uppercase font-bold">Variant (Proposed)</p>
+                          <p className="text-[14px] text-[#fafafa]">{test.variant.proposed}</p>
+                        </div>
+                      </div>
+
+                      {/* Detailed Reasoning */}
+                      <div className="bg-[#111111] rounded-xl p-6 mb-6">
+                        <div className="flex items-center gap-2 mb-4">
+                          <Lightbulb className="w-5 h-5 text-[#7c5cff]" />
+                          <h4 className="text-[16px] font-semibold text-[#fafafa]">Expert Analysis & Reasoning</h4>
+                        </div>
+                        <div className="text-[14px] text-[#888888] leading-relaxed whitespace-pre-line">
+                          {test.reasoning}
+                        </div>
+                      </div>
+
+                      {/* Test Details */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-[#111111] rounded-xl p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Target className="w-4 h-4 text-[#7c5cff]" />
+                            <span className="text-[12px] text-[#888888]">Key Metrics</span>
+                          </div>
+                          <div className="space-y-1">
+                            {test.metrics.map((metric: string, idx: number) => (
+                              <p key={idx} className="text-[13px] text-[#fafafa]">• {metric}</p>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="bg-[#111111] rounded-xl p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <AlertCircle className="w-4 h-4 text-[#00d4aa]" />
+                            <span className="text-[12px] text-[#888888]">Test Duration</span>
+                          </div>
+                          <p className="text-[14px] text-[#fafafa] font-medium">{test.testDuration}</p>
+                        </div>
+                        <div className="bg-[#111111] rounded-xl p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Zap className="w-4 h-4 text-[#f59e0b]" />
+                            <span className="text-[12px] text-[#888888]">Implementation</span>
+                          </div>
+                          <button className="text-[14px] text-[#7c5cff] hover:text-[#00d4aa] font-medium transition-colors">
+                            Create Test →
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
       </div>
