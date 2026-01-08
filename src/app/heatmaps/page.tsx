@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
+import SessionReplayTimeline from "@/components/SessionReplayTimeline";
+import HeatmapAIInsights from "@/components/HeatmapAIInsights";
 import {
   MousePointerClick,
   Move,
@@ -346,6 +348,19 @@ export default function HeatmapsPage() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* AI Insights */}
+        <div className="mt-10">
+          <HeatmapAIInsights
+            page={selectedPage}
+            heatmapType={selectedType}
+          />
+        </div>
+
+        {/* Session Replay */}
+        <div className="mt-10">
+          <SessionReplayTimeline />
         </div>
       </div>
     </div>

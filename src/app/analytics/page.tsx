@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
+import AnomalyDetection from "@/components/AnomalyDetection";
+import PredictiveAnalytics from "@/components/PredictiveAnalytics";
 import {
   TrendingUp,
   TrendingDown,
@@ -157,6 +159,12 @@ export default function AnalyticsPage() {
             </p>
           </div>
         </div>
+
+        {/* Anomaly Detection */}
+        <AnomalyDetection />
+
+        {/* Predictive Analytics */}
+        <PredictiveAnalytics />
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
