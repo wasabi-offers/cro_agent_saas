@@ -88,7 +88,7 @@ export default function FunnelsListPage() {
     <div className="min-h-screen bg-black">
       <Header title="Funnels" breadcrumb={["Dashboard", "Funnels"]} />
 
-      <div className="p-10 max-w-7xl mx-auto">
+      <div className="p-10 max-w-[1600px] mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
