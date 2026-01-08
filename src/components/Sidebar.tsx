@@ -9,6 +9,7 @@ import {
   MousePointerClick,
   Database,
   TrendingUp,
+  FileSearch,
 } from "lucide-react";
 
 const menuItems = [
@@ -17,6 +18,7 @@ const menuItems = [
   { name: "A/B Tests", href: "/ab-tests", icon: FlaskConical },
   { name: "Heatmaps", href: "/heatmaps", icon: MousePointerClick },
   { name: "Funnels", href: "/funnels", icon: TrendingUp },
+  { name: "Landing Analysis", href: "/landing-analysis", icon: FileSearch },
   { name: "Data Sources", href: "/data-sources", icon: Database },
 ];
 
