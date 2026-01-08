@@ -5,6 +5,9 @@ import { useParams, useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import DateRangePicker from "@/components/DateRangePicker";
 import DeviceFilter from "@/components/DeviceFilter";
+import StatisticalCalculator from "@/components/StatisticalCalculator";
+import ROIEstimator from "@/components/ROIEstimator";
+import AIChatAssistant from "@/components/AIChatAssistant";
 import Link from "next/link";
 import {
   TrendingUp,
@@ -961,6 +964,12 @@ export default function FunnelDetailPage() {
                 </div>
               </div>
 
+              {/* Statistical Tools */}
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <StatisticalCalculator />
+                <ROIEstimator />
+              </div>
+
               {/* Error Message */}
               {abTestError && (
                 <div className="mb-6 flex items-center gap-2 text-[#ff6b6b] text-[14px] bg-[#ff6b6b]/10 border border-[#ff6b6b]/20 rounded-xl px-4 py-3">
@@ -1101,6 +1110,9 @@ export default function FunnelDetailPage() {
           </div>
         )}
       </div>
+
+      {/* AI Chat Assistant */}
+      <AIChatAssistant />
     </div>
   );
 }
