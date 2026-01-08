@@ -4,6 +4,10 @@ import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import DateRangePicker from "@/components/DateRangePicker";
 import DeviceFilter from "@/components/DeviceFilter";
+import AlertsSection from "@/components/AlertsSection";
+import CROHealthScore from "@/components/CROHealthScore";
+import QuickWinsSection from "@/components/QuickWinsSection";
+import GoalsTrackingSection from "@/components/GoalsTrackingSection";
 import {
   TrendingUp,
   TrendingDown,
@@ -168,6 +172,31 @@ export default function Home() {
             <DateRangePicker value={dateRange} onChange={setDateRange} />
           </div>
         </div>
+
+        {/* Alerts & Anomalies */}
+        <AlertsSection />
+
+        {/* CRO Health Score & Goals */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+          <div className="lg:col-span-1">
+            <CROHealthScore
+              score={73}
+              previousScore={68}
+              breakdown={{
+                conversionRate: 75,
+                bounceRate: 65,
+                funnelHealth: 78,
+                testVelocity: 70
+              }}
+            />
+          </div>
+          <div className="lg:col-span-2">
+            <GoalsTrackingSection />
+          </div>
+        </div>
+
+        {/* Quick Wins */}
+        <QuickWinsSection />
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
