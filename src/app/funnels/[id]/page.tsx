@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import DateRangePicker from "@/components/DateRangePicker";
+import DeviceFilter from "@/components/DeviceFilter";
 import Link from "next/link";
 import {
   TrendingUp,
@@ -83,11 +84,12 @@ export default function FunnelDetailPage() {
     };
   };
   const [dateRange, setDateRange] = useState(getDefaultDateRange());
+  const [deviceFilter, setDeviceFilter] = useState<"all" | "desktop" | "mobile">("all");
 
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
-      // In production: const res = await fetch(`/api/funnels/${funnelId}?start=${dateRange.start}&end=${dateRange.end}`);
+      // In production: const res = await fetch(`/api/funnels/${funnelId}?start=${dateRange.start}&end=${dateRange.end}&device=${deviceFilter}`);
       const funnels = generateMockFunnels();
       const found = funnels.find(f => f.id === funnelId);
       setFunnel(found || null);
@@ -95,7 +97,7 @@ export default function FunnelDetailPage() {
     };
 
     loadData();
-  }, [funnelId, dateRange]);
+  }, [funnelId, dateRange, deviceFilter]);
 
   const toggleFilter = (filterId: string) => {
     if (filterId === "all") {
@@ -348,6 +350,8 @@ export default function FunnelDetailPage() {
           </Link>
 
           <div className="flex items-center gap-6">
+            <DeviceFilter value={deviceFilter} onChange={setDeviceFilter} />
+            <div className="h-10 w-px bg-[#2a2a2a]" />
             <DateRangePicker value={dateRange} onChange={setDateRange} />
             <div className="h-10 w-px bg-[#2a2a2a]" />
             <div className="text-right">

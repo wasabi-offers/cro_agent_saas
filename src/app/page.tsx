@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import DateRangePicker from "@/components/DateRangePicker";
+import DeviceFilter from "@/components/DeviceFilter";
 import {
   TrendingUp,
   TrendingDown,
@@ -57,6 +58,7 @@ export default function Home() {
     };
   };
   const [dateRange, setDateRange] = useState(getDefaultDateRange());
+  const [deviceFilter, setDeviceFilter] = useState<"all" | "desktop" | "mobile">("all");
 
   useEffect(() => {
     // Simulate data loading
@@ -64,7 +66,14 @@ export default function Home() {
       setIsLoading(true);
 
       // Generate mock data
-      const sessions = generateMockSessions();
+      // In production: fetch(`/api/sessions?start=${dateRange.start}&end=${dateRange.end}&device=${deviceFilter}`)
+      let allSessions = generateMockSessions();
+
+      // Filter by device
+      const sessions = deviceFilter === "all"
+        ? allSessions
+        : allSessions.filter(s => s.device === deviceFilter);
+
       const dashboardMetrics = calculateDashboardMetrics(sessions);
       const daily = calculateDailyMetrics(sessions);
       const sources = calculateTrafficSources(sessions);
@@ -83,7 +92,7 @@ export default function Home() {
     };
 
     loadData();
-  }, [dateRange]);
+  }, [dateRange, deviceFilter]);
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -147,13 +156,17 @@ export default function Home() {
       <Header title="Dashboard" breadcrumb={["Dashboard"]} />
 
       <div className="p-10">
-        {/* Date Range Filter */}
+        {/* Filters */}
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-[24px] font-bold text-[#fafafa] mb-1">Overview</h2>
             <p className="text-[14px] text-[#888888]">Monitor your CRO performance metrics</p>
           </div>
-          <DateRangePicker value={dateRange} onChange={setDateRange} />
+          <div className="flex items-center gap-4">
+            <DeviceFilter value={deviceFilter} onChange={setDeviceFilter} />
+            <div className="h-10 w-px bg-[#2a2a2a]" />
+            <DateRangePicker value={dateRange} onChange={setDateRange} />
+          </div>
         </div>
 
         {/* Stats Cards */}

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import DateRangePicker from "@/components/DateRangePicker";
+import DeviceFilter from "@/components/DeviceFilter";
 import Link from "next/link";
 import {
   TrendingUp,
@@ -35,18 +36,19 @@ export default function FunnelsListPage() {
     };
   };
   const [dateRange, setDateRange] = useState(getDefaultDateRange());
+  const [deviceFilter, setDeviceFilter] = useState<"all" | "desktop" | "mobile">("all");
 
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
-      // In production: const res = await fetch(`/api/funnels?start=${dateRange.start}&end=${dateRange.end}`);
+      // In production: const res = await fetch(`/api/funnels?start=${dateRange.start}&end=${dateRange.end}&device=${deviceFilter}`);
       const data = generateMockFunnels();
       setFunnels(data);
       setIsLoading(false);
     };
 
     loadData();
-  }, [dateRange]);
+  }, [dateRange, deviceFilter]);
 
   const getFunnelStatus = (funnel: ConversionFunnel) => {
     const hasCriticalDropoff = funnel.steps.some(step => step.dropoff > 50);
@@ -117,7 +119,11 @@ export default function FunnelsListPage() {
               Monitor all your conversion funnels and identify optimization opportunities
             </p>
           </div>
-          <DateRangePicker value={dateRange} onChange={setDateRange} />
+          <div className="flex items-center gap-4">
+            <DeviceFilter value={deviceFilter} onChange={setDeviceFilter} />
+            <div className="h-10 w-px bg-[#2a2a2a]" />
+            <DateRangePicker value={dateRange} onChange={setDateRange} />
+          </div>
         </div>
 
         {/* Funnels Grid */}
