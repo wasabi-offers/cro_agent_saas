@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   ArrowRight,
   ExternalLink,
+  Clock,
 } from "lucide-react";
 import {
   generateMockFunnels,
@@ -45,6 +46,30 @@ export default function FunnelsListPage() {
     );
   };
 
+  // Generate bounce rate (mock data - in production this comes from API)
+  const getBounceRate = (funnelId: string) => {
+    const rates: Record<string, number> = {
+      'checkout_funnel': 35.2,
+      'lead_gen_funnel': 42.8,
+      'blog_to_newsletter': 28.5
+    };
+    return rates[funnelId] || 30;
+  };
+
+  // Determine card border color based on health metrics
+  const getCardBorderClass = (conversionRate: number, bounceRate: number, criticalDropoff: number) => {
+    // Good: High CR (>10%), Low bounce (<35%), Low critical dropoff (<40%)
+    if (conversionRate >= 10 && bounceRate < 35 && criticalDropoff < 40) {
+      return "border-[#00d4aa] hover:border-[#00d4aa]";
+    }
+    // Bad: Low CR (<5%), High bounce (>50%), High critical dropoff (>60%)
+    if (conversionRate < 5 || bounceRate > 50 || criticalDropoff > 60) {
+      return "border-[#ff6b6b] hover:border-[#ff6b6b]";
+    }
+    // Warning: Everything else
+    return "border-[#f59e0b] hover:border-[#f59e0b]";
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black">
@@ -75,19 +100,21 @@ export default function FunnelsListPage() {
         </div>
 
         {/* Funnels Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {funnels.map((funnel) => {
             const firstStep = funnel.steps[0];
             const lastStep = funnel.steps[funnel.steps.length - 1];
             const hasIssues = getFunnelStatus(funnel);
             const criticalStep = getCriticalStep(funnel);
             const totalLost = firstStep.visitors - lastStep.visitors;
+            const bounceRate = getBounceRate(funnel.id);
+            const borderClass = getCardBorderClass(funnel.conversionRate, bounceRate, criticalStep.dropoff);
 
             return (
               <Link
                 key={funnel.id}
                 href={`/funnels/${funnel.id}`}
-                className="group bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6 hover:border-[#7c5cff]/50 transition-all hover:shadow-lg hover:shadow-[#7c5cff]/10"
+                className={`group bg-[#0a0a0a] border-2 rounded-2xl p-8 transition-all hover:shadow-lg ${borderClass}`}
               >
                 {/* Header */}
                 <div className="flex items-start justify-between mb-4">
@@ -121,24 +148,34 @@ export default function FunnelsListPage() {
                 </div>
 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div className="bg-[#111111] rounded-xl p-3">
-                    <div className="flex items-center gap-2 mb-1">
+                <div className="grid grid-cols-3 gap-4 mb-6">
+                  <div className="bg-[#111111] rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-2">
                       <Users className="w-4 h-4 text-[#7c5cff]" />
                       <span className="text-[12px] text-[#888888]">Visitors</span>
                     </div>
-                    <p className="text-[18px] font-bold text-[#fafafa]">
+                    <p className="text-[20px] font-bold text-[#fafafa]">
                       {firstStep.visitors.toLocaleString()}
                     </p>
                   </div>
 
-                  <div className="bg-[#111111] rounded-xl p-3">
-                    <div className="flex items-center gap-2 mb-1">
+                  <div className="bg-[#111111] rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-2">
                       <Target className="w-4 h-4 text-[#00d4aa]" />
                       <span className="text-[12px] text-[#888888]">Converted</span>
                     </div>
-                    <p className="text-[18px] font-bold text-[#00d4aa]">
+                    <p className="text-[20px] font-bold text-[#00d4aa]">
                       {lastStep.visitors.toLocaleString()}
+                    </p>
+                  </div>
+
+                  <div className="bg-[#111111] rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Clock className="w-4 h-4 text-[#f59e0b]" />
+                      <span className="text-[12px] text-[#888888]">Bounce Rate</span>
+                    </div>
+                    <p className={`text-[20px] font-bold ${bounceRate < 35 ? 'text-[#00d4aa]' : bounceRate > 50 ? 'text-[#ff6b6b]' : 'text-[#f59e0b]'}`}>
+                      {bounceRate.toFixed(1)}%
                     </p>
                   </div>
                 </div>
