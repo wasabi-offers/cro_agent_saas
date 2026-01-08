@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
+import DateRangePicker from "@/components/DateRangePicker";
 import {
   TrendingUp,
   TrendingDown,
@@ -45,6 +46,18 @@ export default function Home() {
   const [funnels, setFunnels] = useState<ConversionFunnel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Date range state
+  const getDefaultDateRange = () => {
+    const end = new Date();
+    const start = new Date();
+    start.setDate(start.getDate() - 30); // Default: last 30 days
+    return {
+      start: start.toISOString().split('T')[0],
+      end: end.toISOString().split('T')[0],
+    };
+  };
+  const [dateRange, setDateRange] = useState(getDefaultDateRange());
+
   useEffect(() => {
     // Simulate data loading
     const loadData = async () => {
@@ -70,7 +83,7 @@ export default function Home() {
     };
 
     loadData();
-  }, []);
+  }, [dateRange]);
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -134,6 +147,15 @@ export default function Home() {
       <Header title="Dashboard" breadcrumb={["Dashboard"]} />
 
       <div className="p-10">
+        {/* Date Range Filter */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-[24px] font-bold text-[#fafafa] mb-1">Overview</h2>
+            <p className="text-[14px] text-[#888888]">Monitor your CRO performance metrics</p>
+          </div>
+          <DateRangePicker value={dateRange} onChange={setDateRange} />
+        </div>
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           {/* Sessions Card */}

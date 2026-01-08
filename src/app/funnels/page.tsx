@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
+import DateRangePicker from "@/components/DateRangePicker";
 import Link from "next/link";
 import {
   TrendingUp,
@@ -23,17 +24,29 @@ export default function FunnelsListPage() {
   const [funnels, setFunnels] = useState<ConversionFunnel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Date range state
+  const getDefaultDateRange = () => {
+    const end = new Date();
+    const start = new Date();
+    start.setDate(start.getDate() - 30);
+    return {
+      start: start.toISOString().split('T')[0],
+      end: end.toISOString().split('T')[0],
+    };
+  };
+  const [dateRange, setDateRange] = useState(getDefaultDateRange());
+
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
-      // In production: const res = await fetch('/api/funnels');
+      // In production: const res = await fetch(`/api/funnels?start=${dateRange.start}&end=${dateRange.end}`);
       const data = generateMockFunnels();
       setFunnels(data);
       setIsLoading(false);
     };
 
     loadData();
-  }, []);
+  }, [dateRange]);
 
   const getFunnelStatus = (funnel: ConversionFunnel) => {
     const hasCriticalDropoff = funnel.steps.some(step => step.dropoff > 50);
@@ -104,6 +117,7 @@ export default function FunnelsListPage() {
               Monitor all your conversion funnels and identify optimization opportunities
             </p>
           </div>
+          <DateRangePicker value={dateRange} onChange={setDateRange} />
         </div>
 
         {/* Funnels Grid */}

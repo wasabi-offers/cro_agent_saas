@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Header from "@/components/Header";
+import DateRangePicker from "@/components/DateRangePicker";
 import Link from "next/link";
 import {
   TrendingUp,
@@ -71,10 +72,22 @@ export default function FunnelDetailPage() {
   const [abTestSuggestions, setAbTestSuggestions] = useState<any[]>([]);
   const [abTestError, setAbTestError] = useState("");
 
+  // Date range state
+  const getDefaultDateRange = () => {
+    const end = new Date();
+    const start = new Date();
+    start.setDate(start.getDate() - 30);
+    return {
+      start: start.toISOString().split('T')[0],
+      end: end.toISOString().split('T')[0],
+    };
+  };
+  const [dateRange, setDateRange] = useState(getDefaultDateRange());
+
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
-      // In production: const res = await fetch(`/api/funnels/${funnelId}`);
+      // In production: const res = await fetch(`/api/funnels/${funnelId}?start=${dateRange.start}&end=${dateRange.end}`);
       const funnels = generateMockFunnels();
       const found = funnels.find(f => f.id === funnelId);
       setFunnel(found || null);
@@ -82,7 +95,7 @@ export default function FunnelDetailPage() {
     };
 
     loadData();
-  }, [funnelId]);
+  }, [funnelId, dateRange]);
 
   const toggleFilter = (filterId: string) => {
     if (filterId === "all") {
@@ -335,6 +348,8 @@ export default function FunnelDetailPage() {
           </Link>
 
           <div className="flex items-center gap-6">
+            <DateRangePicker value={dateRange} onChange={setDateRange} />
+            <div className="h-10 w-px bg-[#2a2a2a]" />
             <div className="text-right">
               <p className="text-[12px] text-[#888888]">Conversion Rate</p>
               <p className="text-[24px] font-bold text-[#00d4aa]">
