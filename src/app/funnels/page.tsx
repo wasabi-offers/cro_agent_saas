@@ -49,9 +49,16 @@ export default function FunnelsListPage() {
   // Generate bounce rate (mock data - in production this comes from API)
   const getBounceRate = (funnelId: string) => {
     const rates: Record<string, number> = {
-      'checkout_funnel': 52.8,
-      'lead_gen_funnel': 42.8,
-      'blog_to_newsletter': 26.5
+      'checkout_funnel': 52.8,           // Red - High bounce
+      'lead_gen_funnel': 42.8,           // Yellow - Medium bounce
+      'blog_to_newsletter': 26.5,        // Green - Low bounce
+      'saas_signup': 28.2,               // Green - Low bounce
+      'mobile_app_install': 68.5,        // Red - Very high bounce
+      'webinar_registration': 38.4,      // Yellow - Medium bounce
+      'premium_upgrade': 31.2,           // Green - Low bounce
+      'quote_request': 45.6,             // Yellow - Medium bounce
+      'demo_booking': 58.3,              // Red - High bounce
+      'course_enrollment': 41.7,         // Yellow - Medium bounce
     };
     return rates[funnelId] || 30;
   };

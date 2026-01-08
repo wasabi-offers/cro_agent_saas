@@ -153,8 +153,8 @@ export const generateMockPageMetrics = (): PageMetrics[] => {
 export const generateMockFunnels = (): ConversionFunnel[] => {
   return [
     {
-      id: 'funnel_1',
-      name: 'Checkout Funnel',
+      id: 'checkout_funnel',
+      name: 'E-commerce Checkout',
       steps: [
         { name: 'Product Page', visitors: 5420, dropoff: 0 },
         { name: 'Add to Cart', visitors: 2168, dropoff: 60 },
@@ -165,7 +165,7 @@ export const generateMockFunnels = (): ConversionFunnel[] => {
       conversionRate: 7.7,
     },
     {
-      id: 'funnel_2',
+      id: 'lead_gen_funnel',
       name: 'Lead Generation',
       steps: [
         { name: 'Landing Page', visitors: 8200, dropoff: 0 },
@@ -176,7 +176,7 @@ export const generateMockFunnels = (): ConversionFunnel[] => {
       conversionRate: 10,
     },
     {
-      id: 'funnel_3',
+      id: 'blog_to_newsletter',
       name: 'Blog to Newsletter',
       steps: [
         { name: 'Blog Post', visitors: 12500, dropoff: 0 },
@@ -185,6 +185,89 @@ export const generateMockFunnels = (): ConversionFunnel[] => {
         { name: 'Email Confirmed', visitors: 937, dropoff: 50 },
       ],
       conversionRate: 7.5,
+    },
+    {
+      id: 'saas_signup',
+      name: 'SaaS Free Trial Signup',
+      steps: [
+        { name: 'Pricing Page', visitors: 9800, dropoff: 0 },
+        { name: 'Start Trial Click', visitors: 4900, dropoff: 50 },
+        { name: 'Account Details', visitors: 3920, dropoff: 20 },
+        { name: 'Email Verification', visitors: 2744, dropoff: 30 },
+        { name: 'Onboarding Complete', visitors: 1921, dropoff: 30 },
+      ],
+      conversionRate: 19.6,
+    },
+    {
+      id: 'mobile_app_install',
+      name: 'Mobile App Install',
+      steps: [
+        { name: 'App Store Landing', visitors: 15600, dropoff: 0 },
+        { name: 'Install Click', visitors: 4680, dropoff: 70 },
+        { name: 'App Opened', visitors: 3744, dropoff: 20 },
+        { name: 'Account Created', visitors: 1872, dropoff: 50 },
+      ],
+      conversionRate: 12,
+    },
+    {
+      id: 'webinar_registration',
+      name: 'Webinar Registration',
+      steps: [
+        { name: 'Event Landing Page', visitors: 6400, dropoff: 0 },
+        { name: 'Registration Form', visitors: 3200, dropoff: 50 },
+        { name: 'Form Submitted', visitors: 2240, dropoff: 30 },
+        { name: 'Email Confirmed', visitors: 1568, dropoff: 30 },
+        { name: 'Attended Live', visitors: 628, dropoff: 60 },
+      ],
+      conversionRate: 9.8,
+    },
+    {
+      id: 'premium_upgrade',
+      name: 'Premium Upgrade',
+      steps: [
+        { name: 'Free User Dashboard', visitors: 4200, dropoff: 0 },
+        { name: 'Upgrade CTA Click', visitors: 1260, dropoff: 70 },
+        { name: 'Plan Selection', visitors: 945, dropoff: 25 },
+        { name: 'Payment Info', visitors: 662, dropoff: 30 },
+        { name: 'Upgrade Complete', visitors: 464, dropoff: 30 },
+      ],
+      conversionRate: 11,
+    },
+    {
+      id: 'quote_request',
+      name: 'Enterprise Quote Request',
+      steps: [
+        { name: 'Solutions Page', visitors: 3200, dropoff: 0 },
+        { name: 'Get Quote Click', visitors: 960, dropoff: 70 },
+        { name: 'Company Info', visitors: 672, dropoff: 30 },
+        { name: 'Requirements Form', visitors: 470, dropoff: 30 },
+        { name: 'Quote Submitted', visitors: 329, dropoff: 30 },
+      ],
+      conversionRate: 10.3,
+    },
+    {
+      id: 'demo_booking',
+      name: 'Product Demo Booking',
+      steps: [
+        { name: 'Product Page', visitors: 7800, dropoff: 0 },
+        { name: 'Book Demo Click', visitors: 1560, dropoff: 80 },
+        { name: 'Calendar View', visitors: 1248, dropoff: 20 },
+        { name: 'Time Selected', visitors: 874, dropoff: 30 },
+        { name: 'Booking Confirmed', visitors: 612, dropoff: 30 },
+      ],
+      conversionRate: 7.8,
+    },
+    {
+      id: 'course_enrollment',
+      name: 'Online Course Enrollment',
+      steps: [
+        { name: 'Course Landing', visitors: 11200, dropoff: 0 },
+        { name: 'Curriculum View', visitors: 5600, dropoff: 50 },
+        { name: 'Enroll Click', visitors: 2240, dropoff: 60 },
+        { name: 'Payment Page', visitors: 1568, dropoff: 30 },
+        { name: 'Enrollment Complete', visitors: 1098, dropoff: 30 },
+      ],
+      conversionRate: 9.8,
     },
   ];
 };
