@@ -19,6 +19,8 @@ import {
   Type,
   Palette,
   MousePointer,
+  MousePointerClick,
+  Eye,
 } from "lucide-react";
 import {
   generateMockFunnels,
@@ -46,7 +48,7 @@ export default function FunnelDetailPage() {
 
   const [funnel, setFunnel] = useState<ConversionFunnel | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"overview" | "analysis">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "analysis" | "heatmap">("overview");
 
   // Analysis state
   const [analysisMode, setAnalysisMode] = useState<"funnel" | "page">("funnel");
@@ -55,6 +57,10 @@ export default function FunnelDetailPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResults, setAnalysisResults] = useState<AnalysisResult[]>([]);
   const [analysisError, setAnalysisError] = useState("");
+
+  // Heatmap state
+  const [selectedHeatmapPage, setSelectedHeatmapPage] = useState<number>(0);
+  const [heatmapType, setHeatmapType] = useState<"click" | "scroll" | "move">("click");
 
   useEffect(() => {
     const loadData = async () => {
@@ -243,6 +249,20 @@ export default function FunnelDetailPage() {
             <Sparkles className="w-4 h-4" />
             CRO Analysis
             {activeTab === "analysis" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]" />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("heatmap")}
+            className={`px-6 py-3 text-[14px] font-medium transition-all relative flex items-center gap-2 ${
+              activeTab === "heatmap"
+                ? "text-[#fafafa]"
+                : "text-[#666666] hover:text-[#888888]"
+            }`}
+          >
+            <MousePointerClick className="w-4 h-4" />
+            Heatmap
+            {activeTab === "heatmap" && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]" />
             )}
           </button>
@@ -572,6 +592,159 @@ export default function FunnelDetailPage() {
                 })}
               </div>
             )}
+          </div>
+        )}
+
+        {activeTab === "heatmap" && (
+          <div className="space-y-6">
+            {/* Heatmap Controls */}
+            <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-xl flex items-center justify-center">
+                  <MousePointerClick className="w-5 h-5 text-white" />
+                </div>
+                <h2 className="text-[20px] font-semibold text-[#fafafa]">
+                  Heatmap Visualization
+                </h2>
+              </div>
+
+              {/* Page Selector */}
+              <div className="mb-6">
+                <label className="block text-[14px] text-[#888888] mb-3">
+                  Select Funnel Step
+                </label>
+                <select
+                  value={selectedHeatmapPage}
+                  onChange={(e) => setSelectedHeatmapPage(Number(e.target.value))}
+                  className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#fafafa] text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all"
+                >
+                  {funnel.steps.map((step, idx) => (
+                    <option key={idx} value={idx}>
+                      Step {idx + 1}: {step.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Heatmap Type Selector */}
+              <div className="mb-6">
+                <label className="block text-[14px] text-[#888888] mb-3">
+                  Heatmap Type
+                </label>
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => setHeatmapType("click")}
+                    className={`flex-1 px-6 py-4 rounded-xl text-[14px] font-medium transition-all ${
+                      heatmapType === "click"
+                        ? "bg-[#7c5cff] text-white"
+                        : "bg-[#111111] text-[#888888] border border-[#2a2a2a] hover:border-[#7c5cff]/50"
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <MousePointerClick className="w-5 h-5" />
+                      Click Map
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setHeatmapType("scroll")}
+                    className={`flex-1 px-6 py-4 rounded-xl text-[14px] font-medium transition-all ${
+                      heatmapType === "scroll"
+                        ? "bg-[#7c5cff] text-white"
+                        : "bg-[#111111] text-[#888888] border border-[#2a2a2a] hover:border-[#7c5cff]/50"
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <ChevronDown className="w-5 h-5" />
+                      Scroll Map
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setHeatmapType("move")}
+                    className={`flex-1 px-6 py-4 rounded-xl text-[14px] font-medium transition-all ${
+                      heatmapType === "move"
+                        ? "bg-[#7c5cff] text-white"
+                        : "bg-[#111111] text-[#888888] border border-[#2a2a2a] hover:border-[#7c5cff]/50"
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <Eye className="w-5 h-5" />
+                      Move Map
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Heatmap Visualization */}
+            <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-[18px] font-semibold text-[#fafafa] mb-1">
+                    {funnel.steps[selectedHeatmapPage].name} - {heatmapType.charAt(0).toUpperCase() + heatmapType.slice(1)} Heatmap
+                  </h3>
+                  <p className="text-[14px] text-[#888888]">
+                    Based on {Math.floor(Math.random() * 2000 + 500).toLocaleString()} user sessions
+                  </p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-[#ff6b6b]"></div>
+                    <span className="text-[12px] text-[#888888]">High Activity</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-[#f59e0b]"></div>
+                    <span className="text-[12px] text-[#888888]">Medium</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-[#7c5cff]"></div>
+                    <span className="text-[12px] text-[#888888]">Low Activity</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mock Heatmap Visualization */}
+              <div className="relative bg-[#111111] rounded-xl overflow-hidden" style={{ height: '600px' }}>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
+                    <MousePointerClick className="w-16 h-16 text-[#7c5cff] mx-auto mb-4 opacity-50" />
+                    <p className="text-[16px] text-[#888888] mb-2">
+                      Heatmap visualization will appear here
+                    </p>
+                    <p className="text-[14px] text-[#666666]">
+                      Showing {heatmapType} data for: {funnel.steps[selectedHeatmapPage].name}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Insights */}
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-[#111111] rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <MousePointerClick className="w-4 h-4 text-[#7c5cff]" />
+                    <span className="text-[12px] text-[#888888]">Most Clicked</span>
+                  </div>
+                  <p className="text-[16px] font-semibold text-[#fafafa]">CTA Button</p>
+                  <p className="text-[12px] text-[#666666] mt-1">45% of all clicks</p>
+                </div>
+                <div className="bg-[#111111] rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <ChevronDown className="w-4 h-4 text-[#00d4aa]" />
+                    <span className="text-[12px] text-[#888888]">Avg Scroll Depth</span>
+                  </div>
+                  <p className="text-[16px] font-semibold text-[#fafafa]">68%</p>
+                  <p className="text-[12px] text-[#666666] mt-1">Users reach fold 3</p>
+                </div>
+                <div className="bg-[#111111] rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <AlertCircle className="w-4 h-4 text-[#ff6b6b]" />
+                    <span className="text-[12px] text-[#888888]">Rage Clicks</span>
+                  </div>
+                  <p className="text-[16px] font-semibold text-[#ff6b6b]">23 instances</p>
+                  <p className="text-[12px] text-[#666666] mt-1">On form fields</p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
