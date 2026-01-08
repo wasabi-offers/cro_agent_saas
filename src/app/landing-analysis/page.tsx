@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import Header from "@/components/Header";
+import VisualAnnotations from "@/components/VisualAnnotations";
+import BeforeAfterTracking from "@/components/BeforeAfterTracking";
+import ExportShareButtons from "@/components/ExportShareButtons";
 import {
   FileSearch,
   Loader2,
@@ -12,6 +15,9 @@ import {
   Palette,
   MousePointer,
   Type,
+  Eye,
+  List,
+  Clock,
 } from "lucide-react";
 
 interface AnalysisResult {
@@ -34,6 +40,7 @@ export default function LandingAnalysisPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [results, setResults] = useState<AnalysisResult[]>([]);
   const [error, setError] = useState("");
+  const [viewMode, setViewMode] = useState<"visual" | "list" | "history">("visual");
 
   const filters = [
     { id: "all", label: "Complete Analysis", icon: Sparkles },
@@ -101,6 +108,131 @@ export default function LandingAnalysisPage() {
     if (score >= 60) return "bg-[#ff9500]/10 border-[#ff9500]/20";
     return "bg-[#ff6b6b]/10 border-[#ff6b6b]/20";
   };
+
+  // Mock annotations for visual view
+  const mockAnnotations = [
+    {
+      id: "1",
+      x: 50,
+      y: 15,
+      type: "critical" as const,
+      category: "CRO",
+      title: "Weak Above-the-Fold CTA",
+      description: "The primary call-to-action button lacks visual hierarchy and is difficult to spot. Studies show that 80% of users never scroll below the fold on landing pages.",
+      recommendation: "Increase CTA button size by 50%, use high-contrast colors (purple or teal), and add more whitespace around it. Consider adding a subtle animation or glow effect.",
+      impact: "high" as const,
+    },
+    {
+      id: "2",
+      x: 30,
+      y: 25,
+      type: "warning" as const,
+      category: "Copywriting",
+      title: "Unclear Value Proposition",
+      description: "The headline doesn't clearly communicate what the product does or why users should care. It uses generic language instead of specific benefits.",
+      recommendation: "Rewrite headline to focus on specific outcomes. Example: 'Increase Sales by 40% in 30 Days' instead of 'The Best Marketing Tool'.",
+      impact: "high" as const,
+    },
+    {
+      id: "3",
+      x: 70,
+      y: 35,
+      type: "info" as const,
+      category: "User Experience",
+      title: "Missing Trust Signals",
+      description: "No customer logos, testimonials, or security badges visible in the hero section. This reduces credibility for first-time visitors.",
+      recommendation: "Add 3-5 recognizable customer logos just below the CTA. Include a brief testimonial with a real photo and company name.",
+      impact: "medium" as const,
+    },
+    {
+      id: "4",
+      x: 50,
+      y: 50,
+      type: "critical" as const,
+      category: "CRO",
+      title: "Form Has Too Many Fields",
+      description: "The signup form requires 8 fields including phone number and company size. Each additional field reduces conversion by an average of 11%.",
+      recommendation: "Reduce to 3 essential fields: Name, Email, Password. Collect additional information after signup or make fields optional.",
+      impact: "high" as const,
+    },
+    {
+      id: "5",
+      x: 25,
+      y: 65,
+      type: "warning" as const,
+      category: "Colors",
+      title: "Low Color Contrast",
+      description: "The gray text on light gray background has a contrast ratio of 2.1:1, failing WCAG AA standards (minimum 4.5:1). This hurts readability and accessibility.",
+      recommendation: "Darken text color to #333333 or darker to achieve minimum 4.5:1 contrast ratio. This will improve readability for all users.",
+      impact: "medium" as const,
+    },
+    {
+      id: "6",
+      x: 60,
+      y: 75,
+      type: "success" as const,
+      category: "User Experience",
+      title: "Good Use of Social Proof",
+      description: "The testimonials section uses real photos, full names, and job titles. This builds trust and credibility effectively.",
+      recommendation: "Keep this approach and consider adding video testimonials or case study links for even stronger social proof.",
+      impact: "low" as const,
+    },
+    {
+      id: "7",
+      x: 45,
+      y: 85,
+      type: "info" as const,
+      category: "CRO",
+      title: "Missing Exit-Intent Popup",
+      description: "No exit-intent mechanism to capture abandoning visitors. This is a missed opportunity to convert 10-15% of bouncing traffic.",
+      recommendation: "Implement exit-intent popup offering a lead magnet (free guide, discount, trial extension) in exchange for email.",
+      impact: "medium" as const,
+    },
+  ];
+
+  // Mock historical score data
+  const mockHistory = [
+    {
+      date: "2025-12-15",
+      overallScore: 58,
+      categoryScores: {
+        cro: 52,
+        copy: 60,
+        colors: 55,
+        experience: 65,
+      },
+    },
+    {
+      date: "2026-01-02",
+      overallScore: 64,
+      categoryScores: {
+        cro: 60,
+        copy: 65,
+        colors: 62,
+        experience: 68,
+      },
+      changes: [
+        "Improved CTA button visibility and size",
+        "Added trust badges to hero section",
+      ],
+    },
+    {
+      date: "2026-01-08",
+      overallScore: 73,
+      categoryScores: {
+        cro: 70,
+        copy: 72,
+        colors: 75,
+        experience: 75,
+      },
+      changes: [
+        "Reduced form fields from 8 to 3",
+        "Improved color contrast for WCAG compliance",
+        "Added exit-intent popup",
+      ],
+    },
+  ];
+
 
   return (
     <div className="min-h-screen bg-black">
@@ -190,14 +322,75 @@ export default function LandingAnalysisPage() {
         {/* Results Section */}
         {results.length > 0 && (
           <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-6">
-              <CheckCircle2 className="w-6 h-6 text-[#00d4aa]" />
-              <h2 className="text-[20px] font-semibold text-[#fafafa]">
-                Analysis Results
-              </h2>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="w-6 h-6 text-[#00d4aa]" />
+                <h2 className="text-[20px] font-semibold text-[#fafafa]">
+                  Analysis Results
+                </h2>
+              </div>
+
+              {/* Export/Share Buttons */}
+              <ExportShareButtons pageUrl={url} />
             </div>
 
-            {results.map((result, index) => {
+            {/* View Toggle */}
+            <div className="flex justify-center mb-6">
+              <div className="flex items-center gap-2 bg-[#0a0a0a] border border-[#2a2a2a] rounded-xl p-1">
+                <button
+                  onClick={() => setViewMode("visual")}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${
+                    viewMode === "visual"
+                      ? "bg-[#7c5cff] text-white"
+                      : "text-[#888888] hover:text-[#fafafa]"
+                  }`}
+                >
+                  <Eye className="w-4 h-4" />
+                  Visual
+                </button>
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${
+                    viewMode === "list"
+                      ? "bg-[#7c5cff] text-white"
+                      : "text-[#888888] hover:text-[#fafafa]"
+                  }`}
+                >
+                  <List className="w-4 h-4" />
+                  List
+                </button>
+                <button
+                  onClick={() => setViewMode("history")}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${
+                    viewMode === "history"
+                      ? "bg-[#7c5cff] text-white"
+                      : "text-[#888888] hover:text-[#fafafa]"
+                  }`}
+                >
+                  <Clock className="w-4 h-4" />
+                  History
+                </button>
+              </div>
+            </div>
+
+            {/* Visual Annotations View */}
+            {viewMode === "visual" && (
+              <VisualAnnotations
+                pageUrl={url}
+                annotations={mockAnnotations}
+              />
+            )}
+
+            {/* History View */}
+            {viewMode === "history" && (
+              <BeforeAfterTracking
+                pageUrl={url}
+                history={mockHistory}
+              />
+            )}
+
+            {/* List View */}
+            {viewMode === "list" && results.map((result, index) => {
               const Icon = iconMap[result.icon] || Sparkles;
               return (
                 <div
