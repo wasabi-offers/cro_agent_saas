@@ -51,6 +51,7 @@ export default function FunnelDetailPage() {
   // Analysis state
   const [analysisMode, setAnalysisMode] = useState<"funnel" | "page">("funnel");
   const [selectedPage, setSelectedPage] = useState<number>(0);
+  const [selectedFilters, setSelectedFilters] = useState<string[]>(["all"]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResults, setAnalysisResults] = useState<AnalysisResult[]>([]);
   const [analysisError, setAnalysisError] = useState("");
@@ -67,6 +68,20 @@ export default function FunnelDetailPage() {
 
     loadData();
   }, [funnelId]);
+
+  const toggleFilter = (filterId: string) => {
+    if (filterId === "all") {
+      setSelectedFilters(["all"]);
+    } else {
+      const newFilters = selectedFilters.filter((f) => f !== "all");
+      if (newFilters.includes(filterId)) {
+        const updated = newFilters.filter((f) => f !== filterId);
+        setSelectedFilters(updated.length > 0 ? updated : ["all"]);
+      } else {
+        setSelectedFilters([...newFilters, filterId]);
+      }
+    }
+  };
 
   const handleAnalyze = async () => {
     if (!funnel) return;
@@ -86,7 +101,9 @@ export default function FunnelDetailPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           url,
-          filters: ["cro", "copy", "colors", "experience"]
+          filters: selectedFilters.includes("all")
+            ? ["cro", "copy", "colors", "experience"]
+            : selectedFilters,
         }),
       });
 
@@ -431,6 +448,39 @@ export default function FunnelDetailPage() {
                   </select>
                 </div>
               )}
+
+              {/* Analysis Filters */}
+              <div className="mb-6">
+                <label className="block text-[14px] text-[#888888] mb-3">
+                  Analysis Type
+                </label>
+                <div className="flex flex-wrap gap-3">
+                  {[
+                    { id: "all", label: "Complete Analysis", icon: Sparkles },
+                    { id: "cro", label: "CRO", icon: TrendingUp },
+                    { id: "copy", label: "Copywriting", icon: Type },
+                    { id: "colors", label: "Colors", icon: Palette },
+                    { id: "experience", label: "User Experience", icon: MousePointer },
+                  ].map((filter) => {
+                    const Icon = filter.icon;
+                    const isSelected = selectedFilters.includes(filter.id);
+                    return (
+                      <button
+                        key={filter.id}
+                        onClick={() => toggleFilter(filter.id)}
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-medium transition-all ${
+                          isSelected
+                            ? "bg-[#7c5cff] text-white"
+                            : "bg-[#111111] text-[#888888] border border-[#2a2a2a] hover:border-[#7c5cff]/50"
+                        }`}
+                      >
+                        <Icon className="w-4 h-4" />
+                        {filter.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
               {/* Error Message */}
               {analysisError && (
