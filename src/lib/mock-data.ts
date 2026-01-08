@@ -191,12 +191,12 @@ export const generateMockFunnels = (): ConversionFunnel[] => {
       name: 'SaaS Free Trial Signup',
       steps: [
         { name: 'Pricing Page', visitors: 9800, dropoff: 0 },
-        { name: 'Start Trial Click', visitors: 4900, dropoff: 50 },
-        { name: 'Account Details', visitors: 3920, dropoff: 20 },
-        { name: 'Email Verification', visitors: 2744, dropoff: 30 },
-        { name: 'Onboarding Complete', visitors: 1921, dropoff: 30 },
+        { name: 'Start Trial Click', visitors: 6370, dropoff: 35 },
+        { name: 'Account Details', visitors: 5096, dropoff: 20 },
+        { name: 'Email Verification', visitors: 3567, dropoff: 30 },
+        { name: 'Onboarding Complete', visitors: 2497, dropoff: 30 },
       ],
-      conversionRate: 19.6,
+      conversionRate: 25.5,
     },
     {
       id: 'mobile_app_install',
