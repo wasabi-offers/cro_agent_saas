@@ -28,9 +28,9 @@ const CATEGORY_ICONS = {
 };
 
 const CATEGORY_LABELS = {
-  cro: "CRO & Conversioni",
+  cro: "CRO & Conversions",
   copy: "Copywriting",
-  colors: "Colori e Design",
+  colors: "Colors & Design",
   experience: "User Experience",
 };
 
@@ -63,11 +63,11 @@ export async function POST(request: Request) {
         icon: CATEGORY_ICONS.cro,
         score: 72,
         insights: [
-          "La CTA principale non è sufficientemente visibile above the fold. Considera di aumentare le dimensioni e migliorare il contrasto.",
-          "Manca una value proposition chiara nei primi 3 secondi di visualizzazione. Il 60% degli utenti abbandona prima di capire l'offerta.",
-          "Aggiungi elementi di urgency/scarcity (es. countdown timer, stock limitato) per aumentare il tasso di conversione del 15-25%.",
-          "Implementa exit-intent popup con un'offerta last-minute per recuperare il 10-15% degli utenti in uscita.",
-          "La form richiede troppi campi (8). Riduci a 3-4 campi essenziali per aumentare i completamenti del 30%.",
+          "Primary CTA is not sufficiently visible above the fold. Consider increasing size and improving contrast.",
+          "Missing clear value proposition within first 3 seconds of viewing. 60% of users abandon before understanding the offer.",
+          "Add urgency/scarcity elements (countdown timer, limited stock) to increase conversion rate by 15-25%.",
+          "Implement exit-intent popup with last-minute offer to recover 10-15% of exiting users.",
+          "Form requires too many fields (8). Reduce to 3-4 essential fields to increase completions by 30%.",
         ],
       },
       copy: {
@@ -75,11 +75,11 @@ export async function POST(request: Request) {
         icon: CATEGORY_ICONS.copy,
         score: 65,
         insights: [
-          "L'headline non comunica chiaramente il beneficio principale. Usa la formula: [Risultato desiderato] + [Tempo specifico] + [Senza obiezione comune].",
-          "Il testo è troppo tecnico. Semplifica il linguaggio usando parole che un bambino di 12 anni capirebbe.",
-          "Mancano proof points concreti. Aggiungi numeri specifici: '10.000+ clienti soddisfatti' invece di 'molti clienti'.",
-          "La CTA 'Clicca qui' è generica. Usa copy action-oriented: 'Ottieni il tuo sconto del 30%' o 'Inizia gratis ora'.",
-          "Aggiungi social proof strategico: testimonianze con foto reali vicino alla CTA principale.",
+          "Headline doesn't clearly communicate main benefit. Use formula: [Desired result] + [Specific timeframe] + [Without common objection].",
+          "Text is too technical. Simplify language using words a 12-year-old would understand.",
+          "Missing concrete proof points. Add specific numbers: '10,000+ satisfied customers' instead of 'many customers'.",
+          "Generic CTA 'Click here'. Use action-oriented copy: 'Get your 30% discount' or 'Start free now'.",
+          "Add strategic social proof: testimonials with real photos near primary CTA.",
         ],
       },
       colors: {
@@ -87,11 +87,11 @@ export async function POST(request: Request) {
         icon: CATEGORY_ICONS.colors,
         score: 78,
         insights: [
-          "Il contrasto tra testo e sfondo è 3.2:1. Per WCAG AA compliance serve almeno 4.5:1. Migliora la leggibilità.",
-          "La CTA usa un colore (#4A90E2) che non crea abbastanza urgenza. Testa rosso/arancione per aumentare click del 20-30%.",
-          "Troppi colori nella pagina (7 diverse tonalità). Limita a 3 colori primari + 2 accenti per un design più professionale.",
-          "Il bianco puro (#FFFFFF) affatica la vista. Usa un off-white (#F8F9FA) per ridurre l'affaticamento visivo.",
-          "La gerarchia visiva non è chiara. Usa il colore per guidare l'occhio: CTA principale → benefici secondari → footer.",
+          "Text-background contrast is 3.2:1. WCAG AA compliance requires at least 4.5:1. Improve readability.",
+          "CTA uses color (#4A90E2) that doesn't create enough urgency. Test red/orange to increase clicks by 20-30%.",
+          "Too many colors on page (7 different shades). Limit to 3 primary colors + 2 accents for more professional design.",
+          "Pure white (#FFFFFF) strains eyes. Use off-white (#F8F9FA) to reduce visual fatigue.",
+          "Visual hierarchy is unclear. Use color to guide the eye: Primary CTA → secondary benefits → footer.",
         ],
       },
       experience: {
@@ -99,12 +99,12 @@ export async function POST(request: Request) {
         icon: CATEGORY_ICONS.experience,
         score: 81,
         insights: [
-          "Il tempo di caricamento è 4.2s. Ottimizza immagini e lazy loading per ridurlo sotto i 2s (aumento conversioni del 15%).",
-          "Su mobile (< 375px) alcuni elementi sono cut-off. Testa su iPhone SE e Galaxy Fold per garantire usabilità.",
-          "Il form non ha validation in real-time. Aggiungi feedback immediato per ridurre errori del 40%.",
-          "Manca un chiaro path visivo. Usa directional cues (frecce, sguardi nelle immagini) per guidare verso la CTA.",
-          "La navigazione sticky copre il 15% dello schermo mobile. Riducila o rendila auto-hide per migliorare UX.",
-          "Aggiungi micro-interactions (animazioni al click, hover states) per aumentare engagement del 12%.",
+          "Loading time is 4.2s. Optimize images and lazy loading to reduce below 2s (15% conversion increase).",
+          "On mobile (< 375px) some elements are cut-off. Test on iPhone SE and Galaxy Fold to ensure usability.",
+          "Form lacks real-time validation. Add immediate feedback to reduce errors by 40%.",
+          "Missing clear visual path. Use directional cues (arrows, gazes in images) to guide toward CTA.",
+          "Sticky navigation covers 15% of mobile screen. Reduce or make auto-hide to improve UX.",
+          "Add micro-interactions (click animations, hover states) to increase engagement by 12%.",
         ],
       },
     };
@@ -132,26 +132,26 @@ export async function POST(request: Request) {
 
         if (pageContent) {
           const filtersList = filters.join(", ");
-          const prompt = `Sei un esperto di CRO (Conversion Rate Optimization), UX Design e Marketing. Analizza questa landing page e fornisci insights dettagliati.
+          const prompt = `You are a CRO (Conversion Rate Optimization), UX Design and Marketing expert. Analyze this landing page and provide detailed insights.
 
 URL: ${url}
-Tipo di analisi richiesta: ${filtersList}
+Analysis types requested: ${filtersList}
 
-HTML della pagina (estratto):
+Page HTML (excerpt):
 ${pageContent}
 
-Per ogni categoria richiesta (${filtersList}), fornisci:
-1. Un punteggio da 0 a 100
-2. 4-6 insights specifici e actionable
-3. Dati concreti e percentuali quando possibile
+For each requested category (${filtersList}), provide:
+1. A score from 0 to 100
+2. 4-6 specific and actionable insights
+3. Concrete data and percentages when possible
 
-Categorie:
-- CRO: ottimizzazione conversioni, CTA, form, trust elements, urgency/scarcity
-- Copy: headline, value proposition, benefici, social proof, tono di voce
-- Colors: palette, contrasti, psicologia colori, accessibilità, gerarchia visiva
-- Experience: UX, navigazione, mobile responsiveness, performance, micro-interactions
+Categories:
+- CRO: conversion optimization, CTA, forms, trust elements, urgency/scarcity
+- Copy: headline, value proposition, benefits, social proof, tone of voice
+- Colors: palette, contrast, color psychology, accessibility, visual hierarchy
+- Experience: UX, navigation, mobile responsiveness, performance, micro-interactions
 
-Rispondi in formato JSON con questa struttura:
+Respond in JSON format with this structure:
 {
   "cro": { "score": number, "insights": string[] },
   "copy": { "score": number, "insights": string[] },
@@ -159,11 +159,11 @@ Rispondi in formato JSON con questa struttura:
   "experience": { "score": number, "insights": string[] }
 }
 
-Ogni insight deve essere:
-- Specifico e actionable
-- Includere dati/percentuali quando possibile
-- Scritto in italiano
-- Massimo 150 caratteri`;
+Each insight must be:
+- Specific and actionable
+- Include data/percentages when possible
+- Written in English
+- Maximum 150 characters`;
 
           const message = await client.messages.create({
             model: "claude-sonnet-4-20250514",

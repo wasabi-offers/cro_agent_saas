@@ -36,10 +36,10 @@ export default function LandingAnalysisPage() {
   const [error, setError] = useState("");
 
   const filters = [
-    { id: "all", label: "Analisi Completa", icon: Sparkles },
+    { id: "all", label: "Complete Analysis", icon: Sparkles },
     { id: "cro", label: "CRO", icon: TrendingUp },
     { id: "copy", label: "Copywriting", icon: Type },
-    { id: "colors", label: "Colori", icon: Palette },
+    { id: "colors", label: "Colors", icon: Palette },
     { id: "experience", label: "User Experience", icon: MousePointer },
   ];
 
@@ -59,7 +59,7 @@ export default function LandingAnalysisPage() {
 
   const handleAnalyze = async () => {
     if (!url) {
-      setError("Inserisci un URL valido");
+      setError("Please enter a valid URL");
       return;
     }
 
@@ -79,12 +79,12 @@ export default function LandingAnalysisPage() {
         }),
       });
 
-      if (!response.ok) throw new Error("Errore durante l'analisi");
+      if (!response.ok) throw new Error("Analysis error");
 
       const data = await response.json();
       setResults(data.results);
     } catch (err) {
-      setError("Si è verificato un errore. Riprova più tardi.");
+      setError("An error occurred. Please try again later.");
     } finally {
       setIsAnalyzing(false);
     }
@@ -114,20 +114,20 @@ export default function LandingAnalysisPage() {
               <FileSearch className="w-5 h-5 text-white" />
             </div>
             <h2 className="text-[20px] font-semibold text-[#fafafa]">
-              Analizza Landing Page
+              Analyze Landing Page
             </h2>
           </div>
 
           {/* URL Input */}
           <div className="mb-6">
             <label className="block text-[14px] text-[#888888] mb-2">
-              URL della Landing Page
+              Landing Page URL
             </label>
             <input
               type="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://esempio.com/landing-page"
+              placeholder="https://example.com/landing-page"
               className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#fafafa] text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all"
             />
           </div>
@@ -135,7 +135,7 @@ export default function LandingAnalysisPage() {
           {/* Filters */}
           <div className="mb-6">
             <label className="block text-[14px] text-[#888888] mb-3">
-              Tipo di Analisi
+              Analysis Type
             </label>
             <div className="flex flex-wrap gap-3">
               {filters.map((filter) => {
@@ -176,12 +176,12 @@ export default function LandingAnalysisPage() {
             {isAnalyzing ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                Analisi in corso...
+                Analyzing...
               </>
             ) : (
               <>
                 <Sparkles className="w-5 h-5" />
-                Avvia Analisi
+                Start Analysis
               </>
             )}
           </button>
@@ -193,7 +193,7 @@ export default function LandingAnalysisPage() {
             <div className="flex items-center gap-3 mb-6">
               <CheckCircle2 className="w-6 h-6 text-[#00d4aa]" />
               <h2 className="text-[20px] font-semibold text-[#fafafa]">
-                Risultati Analisi
+                Analysis Results
               </h2>
             </div>
 
