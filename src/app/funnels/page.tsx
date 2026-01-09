@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import DateRangePicker from "@/components/DateRangePicker";
 import DeviceFilter from "@/components/DeviceFilter";
+import CreateFunnelModal, { NewFunnelData } from "@/components/CreateFunnelModal";
 import Link from "next/link";
 import {
   TrendingUp,
@@ -15,6 +16,7 @@ import {
   ArrowRight,
   ExternalLink,
   Clock,
+  Plus,
 } from "lucide-react";
 import {
   generateMockFunnels,
@@ -24,6 +26,7 @@ import {
 export default function FunnelsListPage() {
   const [funnels, setFunnels] = useState<ConversionFunnel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // Date range state
   const getDefaultDateRange = () => {
@@ -92,6 +95,26 @@ export default function FunnelsListPage() {
     return "border-[#f59e0b] hover:border-[#f59e0b]";
   };
 
+  // Handle create new funnel
+  const handleCreateFunnel = (funnelData: NewFunnelData) => {
+    // In production, this would call an API to create the funnel
+    // For now, we'll just add it to the local state
+    const newFunnel: ConversionFunnel = {
+      id: `funnel_${Date.now()}`,
+      name: funnelData.name,
+      conversionRate: 0, // Will be calculated after tracking starts
+      steps: funnelData.steps.map((step, index) => ({
+        name: step.name,
+        visitors: 0,
+        dropoff: 0,
+        avgTime: 0,
+      })),
+    };
+
+    setFunnels([newFunnel, ...funnels]);
+    alert(`✅ Funnel "${funnelData.name}" created successfully! Tracking will begin shortly.`);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black">
@@ -120,6 +143,14 @@ export default function FunnelsListPage() {
             </p>
           </div>
           <div className="flex items-center gap-4">
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:shadow-lg hover:shadow-purple-500/20 transition-all"
+            >
+              <Plus className="w-4 h-4" />
+              Create New Funnel
+            </button>
+            <div className="h-10 w-px bg-[#2a2a2a]" />
             <DeviceFilter value={deviceFilter} onChange={setDeviceFilter} />
             <div className="h-10 w-px bg-[#2a2a2a]" />
             <DateRangePicker value={dateRange} onChange={setDateRange} />
@@ -246,12 +277,23 @@ export default function FunnelsListPage() {
             <p className="text-[14px] text-[#666666] mb-6">
               Create your first conversion funnel to start tracking user journeys
             </p>
-            <button className="px-6 py-3 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white rounded-xl font-medium text-[14px] hover:shadow-lg hover:shadow-purple-500/20 transition-all">
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white rounded-xl font-medium text-[14px] hover:shadow-lg hover:shadow-purple-500/20 transition-all mx-auto"
+            >
+              <Plus className="w-4 h-4" />
               Create Funnel
             </button>
           </div>
         )}
       </div>
+
+      {/* Create Funnel Modal */}
+      <CreateFunnelModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onCreateFunnel={handleCreateFunnel}
+      />
     </div>
   );
 }
