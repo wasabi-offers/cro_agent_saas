@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
+import AIChatAssistant from "@/components/AIChatAssistant";
 
 export const metadata: Metadata = {
   title: "CRO Agent - Conversion Rate Optimization",
@@ -18,6 +19,7 @@ export default function RootLayout({
         <div className="min-h-screen bg-black">
           <Sidebar />
           <main className="pl-[280px]">{children}</main>
+          <AIChatAssistant />
         </div>
       </body>
     </html>

@@ -8,7 +8,6 @@ import AlertsSection from "@/components/AlertsSection";
 import CROHealthScore from "@/components/CROHealthScore";
 import QuickWinsSection from "@/components/QuickWinsSection";
 import GoalsTrackingSection from "@/components/GoalsTrackingSection";
-import AIChatAssistant from "@/components/AIChatAssistant";
 import {
   TrendingUp,
   TrendingDown,
@@ -709,9 +708,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-
-      {/* AI Chat Assistant */}
-      <AIChatAssistant />
     </div>
   );
 }

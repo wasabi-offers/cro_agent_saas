@@ -7,7 +7,6 @@ import DateRangePicker from "@/components/DateRangePicker";
 import DeviceFilter from "@/components/DeviceFilter";
 import StatisticalCalculator from "@/components/StatisticalCalculator";
 import ROIEstimator from "@/components/ROIEstimator";
-import AIChatAssistant from "@/components/AIChatAssistant";
 import Link from "next/link";
 import {
   TrendingUp,
@@ -1110,9 +1109,6 @@ export default function FunnelDetailPage() {
           </div>
         )}
       </div>
-
-      {/* AI Chat Assistant */}
-      <AIChatAssistant />
     </div>
   );
 }
