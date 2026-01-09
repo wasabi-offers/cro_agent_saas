@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
+import Link from "next/link";
 import {
   Database,
   RefreshCw,
@@ -15,29 +16,95 @@ import {
   BarChart3,
   TrendingUp,
   Clock,
-  Play,
   Link2,
+  Brain,
 } from "lucide-react";
-import {
-  generateMockDataSources,
-  DataSource,
-} from "@/lib/mock-data";
+import type { CRODashboardData } from "@/lib/supabase-data";
+
+interface DataSource {
+  id: string;
+  name: string;
+  type: 'clarity' | 'crazy_egg' | 'google_analytics' | 'supabase';
+  status: 'connected' | 'disconnected' | 'error';
+  lastSync: string | null;
+  metrics: {
+    sessions?: number;
+    users?: number;
+    records?: number;
+  };
+}
 
 export default function DataSourcesPage() {
-  const [dataSources, setDataSources] = useState<DataSource[]>([]);
+  const [dashboardData, setDashboardData] = useState<CRODashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [syncingId, setSyncingId] = useState<string | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
-      const data = generateMockDataSources();
-      setDataSources(data);
-      setIsLoading(false);
+      setError(null);
+      
+      try {
+        const response = await fetch('/api/cro-analysis');
+        const result = await response.json();
+        
+        if (result.success) {
+          setDashboardData(result.data);
+        } else {
+          setError(result.error || 'Failed to load data');
+        }
+      } catch (err) {
+        console.error('Error loading data:', err);
+        setError('Failed to connect to server');
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     loadData();
   }, []);
+
+  // Build data sources from real data
+  const dataSources: DataSource[] = dashboardData ? [
+    {
+      id: 'supabase',
+      name: 'Supabase Database',
+      type: 'supabase',
+      status: 'connected',
+      lastSync: new Date().toISOString(),
+      metrics: {
+        records: dashboardData.summary.totalSessions,
+      }
+    },
+    {
+      id: 'clarity',
+      name: 'Microsoft Clarity',
+      type: 'clarity',
+      status: 'connected',
+      lastSync: new Date().toISOString(),
+      metrics: {
+        sessions: dashboardData.summary.totalSessions,
+        users: dashboardData.summary.totalUsers,
+      }
+    },
+    {
+      id: 'crazy_egg',
+      name: 'Crazy Egg',
+      type: 'crazy_egg',
+      status: 'disconnected',
+      lastSync: null,
+      metrics: {}
+    },
+    {
+      id: 'google_analytics',
+      name: 'Google Analytics',
+      type: 'google_analytics',
+      status: 'disconnected',
+      lastSync: null,
+      metrics: {}
+    },
+  ] : [];
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -69,6 +136,8 @@ export default function DataSourcesPage() {
         return <BarChart3 className="w-6 h-6" />;
       case 'google_analytics':
         return <TrendingUp className="w-6 h-6" />;
+      case 'supabase':
+        return <Database className="w-6 h-6" />;
       default:
         return <Database className="w-6 h-6" />;
     }
@@ -82,6 +151,8 @@ export default function DataSourcesPage() {
         return 'from-[#ff6b35] to-[#f7931e]';
       case 'google_analytics':
         return 'from-[#f59e0b] to-[#ea580c]';
+      case 'supabase':
+        return 'from-[#3ECF8E] to-[#24B47E]';
       default:
         return 'from-[#7c5cff] to-[#5b3fd9]';
     }
@@ -103,13 +174,16 @@ export default function DataSourcesPage() {
 
   const handleSync = async (id: string) => {
     setSyncingId(id);
-    // Simulate sync
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setDataSources((prev) =>
-      prev.map((ds) =>
-        ds.id === id ? { ...ds, lastSync: new Date().toISOString() } : ds
-      )
-    );
+    // Simulate sync by reloading data
+    try {
+      const response = await fetch('/api/cro-analysis');
+      const result = await response.json();
+      if (result.success) {
+        setDashboardData(result.data);
+      }
+    } catch (err) {
+      console.error('Sync error:', err);
+    }
     setSyncingId(null);
   };
 
@@ -121,6 +195,26 @@ export default function DataSourcesPage() {
           <div className="flex flex-col items-center gap-4">
             <div className="w-10 h-10 border-2 border-[#7c5cff] border-t-transparent rounded-full animate-spin" />
             <p className="text-[#666666] text-[14px]">Loading data sources...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-black">
+        <Header title="Data Sources" breadcrumb={["Dashboard", "Data Sources"]} />
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="flex flex-col items-center gap-4 p-6 bg-[#0a0a0a] border border-[#ff6b6b]/30 rounded-2xl">
+            <AlertCircle className="w-10 h-10 text-[#ff6b6b]" />
+            <p className="text-[#ff6b6b] text-[14px]">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-[#7c5cff] text-white rounded-lg text-sm hover:bg-[#6b4ee0] transition"
+            >
+              Retry
+            </button>
           </div>
         </div>
       </div>
@@ -139,7 +233,7 @@ export default function DataSourcesPage() {
           <div>
             <h1 className="text-[24px] font-bold text-[#fafafa] mb-2">Data Sources</h1>
             <p className="text-[14px] text-[#666666]">
-              Connect and manage your analytics integrations
+              Connected analytics integrations
             </p>
           </div>
           <button className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#5b3fd9] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all shadow-lg shadow-purple-500/25">
@@ -168,7 +262,7 @@ export default function DataSourcesPage() {
               </div>
               <div>
                 <p className="text-[28px] font-bold text-[#fafafa]">
-                  {dataSources.reduce((acc, ds) => acc + (ds.metrics.sessions || 0), 0).toLocaleString()}
+                  {dashboardData?.summary.totalSessions.toLocaleString() || '0'}
                 </p>
                 <p className="text-[13px] text-[#666666]">Total Sessions</p>
               </div>
@@ -180,8 +274,8 @@ export default function DataSourcesPage() {
                 <Clock className="w-6 h-6 text-[#f59e0b]" />
               </div>
               <div>
-                <p className="text-[28px] font-bold text-[#fafafa]">2h</p>
-                <p className="text-[13px] text-[#666666]">Avg Sync Interval</p>
+                <p className="text-[28px] font-bold text-[#fafafa]">Live</p>
+                <p className="text-[13px] text-[#666666]">Data Status</p>
               </div>
             </div>
           </div>
@@ -227,29 +321,24 @@ export default function DataSourcesPage() {
                           </span>
                         </div>
                       )}
-                      {source.metrics.recordings !== undefined && (
+                      {source.metrics.users !== undefined && (
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 rounded-full bg-[#00d4aa]" />
                           <span className="text-[13px] text-[#888888]">
-                            <span className="text-[#fafafa] font-medium">{source.metrics.recordings.toLocaleString()}</span> recordings
+                            <span className="text-[#fafafa] font-medium">{source.metrics.users.toLocaleString()}</span> users
                           </span>
                         </div>
                       )}
-                      {source.metrics.heatmaps !== undefined && (
+                      {source.metrics.records !== undefined && !source.metrics.sessions && (
                         <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full bg-[#f59e0b]" />
+                          <div className="w-2 h-2 rounded-full bg-[#3ECF8E]" />
                           <span className="text-[13px] text-[#888888]">
-                            <span className="text-[#fafafa] font-medium">{source.metrics.heatmaps}</span> heatmaps
+                            <span className="text-[#fafafa] font-medium">{source.metrics.records.toLocaleString()}</span> records
                           </span>
                         </div>
                       )}
-                      {source.metrics.events !== undefined && (
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full bg-[#ff6b6b]" />
-                          <span className="text-[13px] text-[#888888]">
-                            <span className="text-[#fafafa] font-medium">{source.metrics.events.toLocaleString()}</span> events
-                          </span>
-                        </div>
+                      {source.status === 'disconnected' && (
+                        <span className="text-[13px] text-[#666666]">Not configured</span>
                       )}
                     </div>
                   </div>
@@ -257,19 +346,23 @@ export default function DataSourcesPage() {
 
                 {/* Actions */}
                 <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => handleSync(source.id)}
-                    disabled={syncingId === source.id}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-[#111111] text-[#fafafa] text-[13px] font-medium rounded-lg hover:bg-[#1a1a1a] transition-all disabled:opacity-50"
-                  >
-                    <RefreshCw className={`w-4 h-4 ${syncingId === source.id ? 'animate-spin' : ''}`} />
-                    {syncingId === source.id ? 'Syncing...' : 'Sync Now'}
-                  </button>
+                  {source.status === 'connected' ? (
+                    <button
+                      onClick={() => handleSync(source.id)}
+                      disabled={syncingId === source.id}
+                      className="flex items-center gap-2 px-4 py-2.5 bg-[#111111] text-[#fafafa] text-[13px] font-medium rounded-lg hover:bg-[#1a1a1a] transition-all disabled:opacity-50"
+                    >
+                      <RefreshCw className={`w-4 h-4 ${syncingId === source.id ? 'animate-spin' : ''}`} />
+                      {syncingId === source.id ? 'Syncing...' : 'Sync Now'}
+                    </button>
+                  ) : (
+                    <button className="flex items-center gap-2 px-4 py-2.5 bg-[#7c5cff]/20 text-[#a78bff] text-[13px] font-medium rounded-lg hover:bg-[#7c5cff]/30 transition-all">
+                      <Link2 className="w-4 h-4" />
+                      Connect
+                    </button>
+                  )}
                   <button className="p-2.5 bg-[#111111] text-[#888888] rounded-lg hover:bg-[#1a1a1a] hover:text-[#fafafa] transition-all">
                     <Settings className="w-4 h-4" />
-                  </button>
-                  <button className="p-2.5 bg-[#111111] text-[#888888] rounded-lg hover:bg-[#1a1a1a] hover:text-[#fafafa] transition-all">
-                    <ExternalLink className="w-4 h-4" />
                   </button>
                 </div>
               </div>
@@ -307,25 +400,25 @@ export default function DataSourcesPage() {
           </div>
         </div>
 
-        {/* API Configuration Info */}
+        {/* AI Integration Info */}
         <div className="mt-8 bg-gradient-to-br from-[#7c5cff]/10 to-transparent border border-[#7c5cff]/20 rounded-2xl p-6">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 bg-[#7c5cff]/20 rounded-xl flex items-center justify-center">
-              <Zap className="w-6 h-6 text-[#7c5cff]" />
+              <Brain className="w-6 h-6 text-[#7c5cff]" />
             </div>
             <div>
-              <h3 className="text-[16px] font-semibold text-[#fafafa] mb-2">API Configuration</h3>
+              <h3 className="text-[16px] font-semibold text-[#fafafa] mb-2">AI-Powered Analysis</h3>
               <p className="text-[14px] text-[#888888] mb-4">
-                To connect your real data sources, you'll need to configure API keys for each service. 
-                The CRO Agent will automatically sync data every 2 hours and generate new A/B test suggestions daily.
+                Your data is automatically analyzed by Claude AI to provide actionable CRO insights, 
+                A/B test suggestions, and optimization recommendations. All data is stored securely in Supabase.
               </p>
               <div className="flex gap-3">
-                <button className="px-4 py-2 bg-[#7c5cff]/20 text-[#a78bff] text-[13px] font-medium rounded-lg hover:bg-[#7c5cff]/30 transition-all">
-                  View Documentation
-                </button>
-                <button className="px-4 py-2 bg-white/5 text-[#888888] text-[13px] font-medium rounded-lg hover:bg-white/10 hover:text-[#fafafa] transition-all">
-                  Configure API Keys
-                </button>
+                <Link
+                  href="/explore-ai"
+                  className="px-4 py-2 bg-[#7c5cff]/20 text-[#a78bff] text-[13px] font-medium rounded-lg hover:bg-[#7c5cff]/30 transition-all"
+                >
+                  Explore AI Insights
+                </Link>
               </div>
             </div>
           </div>
@@ -334,5 +427,3 @@ export default function DataSourcesPage() {
     </div>
   );
 }
-
-

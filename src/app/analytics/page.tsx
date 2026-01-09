@@ -2,57 +2,50 @@
 
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
-import AnomalyDetection from "@/components/AnomalyDetection";
-import PredictiveAnalytics from "@/components/PredictiveAnalytics";
+import Link from "next/link";
 import {
   TrendingUp,
-  TrendingDown,
   Users,
   Clock,
   Eye,
   MousePointerClick,
   AlertTriangle,
-  ArrowUpRight,
+  Smartphone,
+  Monitor,
+  Tablet,
+  Activity,
+  Zap,
+  Brain,
+  RefreshCw,
+  AlertCircle,
 } from "lucide-react";
-import {
-  generateMockSessions,
-  generateMockPageMetrics,
-  calculateDailyMetrics,
-  calculateTrafficSources,
-  calculateDeviceBreakdown,
-  Session,
-  PageMetrics,
-  DailyMetric,
-  TrafficSource,
-  DeviceBreakdown,
-} from "@/lib/mock-data";
+import type { CRODashboardData } from "@/lib/supabase-data";
 
 export default function AnalyticsPage() {
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [pageMetrics, setPageMetrics] = useState<PageMetrics[]>([]);
-  const [dailyMetrics, setDailyMetrics] = useState<DailyMetric[]>([]);
-  const [trafficSources, setTrafficSources] = useState<TrafficSource[]>([]);
-  const [deviceBreakdown, setDeviceBreakdown] = useState<DeviceBreakdown[]>([]);
+  const [dashboardData, setDashboardData] = useState<CRODashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '14d' | '30d'>('30d');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
+      setError(null);
       
-      const sessionsData = generateMockSessions();
-      const pages = generateMockPageMetrics();
-      const daily = calculateDailyMetrics(sessionsData);
-      const sources = calculateTrafficSources(sessionsData);
-      const devices = calculateDeviceBreakdown(sessionsData);
-      
-      setSessions(sessionsData);
-      setPageMetrics(pages);
-      setDailyMetrics(daily);
-      setTrafficSources(sources);
-      setDeviceBreakdown(devices);
-      
-      setIsLoading(false);
+      try {
+        const response = await fetch('/api/cro-analysis');
+        const result = await response.json();
+        
+        if (result.success) {
+          setDashboardData(result.data);
+        } else {
+          setError(result.error || 'Failed to load data');
+        }
+      } catch (err) {
+        console.error('Error loading analytics data:', err);
+        setError('Failed to connect to server');
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     loadData();
@@ -64,6 +57,20 @@ export default function AnalyticsPage() {
     return `${mins}m ${secs}s`;
   };
 
+  const getDeviceIcon = (device: string) => {
+    switch (device.toLowerCase()) {
+      case 'mobile':
+        return <Smartphone className="w-5 h-5" />;
+      case 'desktop':
+      case 'pc':
+        return <Monitor className="w-5 h-5" />;
+      case 'tablet':
+        return <Tablet className="w-5 h-5" />;
+      default:
+        return <Activity className="w-5 h-5" />;
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black">
@@ -71,42 +78,55 @@ export default function AnalyticsPage() {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
             <div className="w-10 h-10 border-2 border-[#7c5cff] border-t-transparent rounded-full animate-spin" />
-            <p className="text-[#666666] text-[14px]">Loading analytics...</p>
+            <p className="text-[#666666] text-[14px]">Loading Clarity data...</p>
           </div>
         </div>
       </div>
     );
   }
 
-  // Sort pages by issues (rage clicks + dead clicks)
-  const pagesWithIssues = [...pageMetrics]
-    .sort((a, b) => (b.rageClicks + b.deadClicks) - (a.rageClicks + a.deadClicks))
-    .slice(0, 5);
+  if (error || !dashboardData) {
+    return (
+      <div className="min-h-screen bg-black">
+        <Header title="Analytics" breadcrumb={["Dashboard", "Analytics"]} />
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="flex flex-col items-center gap-4 p-6 bg-[#0a0a0a] border border-[#ff6b6b]/30 rounded-2xl">
+            <AlertCircle className="w-10 h-10 text-[#ff6b6b]" />
+            <p className="text-[#ff6b6b] text-[14px]">{error || 'No data available'}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-[#7c5cff] text-white rounded-lg text-sm hover:bg-[#6b4ee0] transition"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  // Top performing pages by conversion potential
-  const topPages = [...pageMetrics]
-    .sort((a, b) => b.pageViews - a.pageViews);
+  const { summary, trafficByDevice, uxIssues, engagementByDevice } = dashboardData;
 
   return (
     <div className="min-h-screen bg-black">
       <Header title="Analytics" breadcrumb={["Dashboard", "Analytics"]} />
 
       <div className="p-10">
-        {/* Period Selector */}
-        <div className="flex items-center gap-2 mb-8">
-          {(['7d', '14d', '30d'] as const).map((period) => (
-            <button
-              key={period}
-              onClick={() => setSelectedPeriod(period)}
-              className={`px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${
-                selectedPeriod === period
-                  ? 'bg-[#7c5cff] text-white'
-                  : 'bg-[#111111] text-[#888888] hover:bg-[#1a1a1a] hover:text-[#fafafa]'
-              }`}
-            >
-              Last {period.replace('d', ' days')}
-            </button>
-          ))}
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-[24px] font-bold text-[#fafafa] mb-2">Analytics Overview</h1>
+            <p className="text-[14px] text-[#666666]">
+              Real-time data from Microsoft Clarity
+            </p>
+          </div>
+          <Link
+            href="/explore-ai"
+            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
+          >
+            <Brain className="w-4 h-4" />
+            Explore with AI
+          </Link>
         </div>
 
         {/* Quick Stats */}
@@ -114,24 +134,30 @@ export default function AnalyticsPage() {
           <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-5">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
-                <Eye className="w-5 h-5 text-[#7c5cff]" />
+                <Users className="w-5 h-5 text-[#7c5cff]" />
               </div>
-              <span className="text-[13px] text-[#888888]">Total Pageviews</span>
+              <span className="text-[13px] text-[#888888]">Total Sessions</span>
             </div>
             <p className="text-[28px] font-bold text-[#fafafa]">
-              {pageMetrics.reduce((acc, p) => acc + p.pageViews, 0).toLocaleString()}
+              {summary.totalSessions.toLocaleString()}
+            </p>
+            <p className="text-[12px] text-[#666666] mt-1">
+              {summary.totalUsers.toLocaleString()} unique users
             </p>
           </div>
 
           <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-5">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
-                <Users className="w-5 h-5 text-[#00d4aa]" />
+                <Eye className="w-5 h-5 text-[#00d4aa]" />
               </div>
-              <span className="text-[13px] text-[#888888]">Unique Visitors</span>
+              <span className="text-[13px] text-[#888888]">Pages/Session</span>
             </div>
             <p className="text-[28px] font-bold text-[#fafafa]">
-              {pageMetrics.reduce((acc, p) => acc + p.uniqueVisitors, 0).toLocaleString()}
+              {summary.avgPagesPerSession.toFixed(2)}
+            </p>
+            <p className="text-[12px] text-[#666666] mt-1">
+              Scroll depth: {summary.avgScrollDepth.toFixed(0)}%
             </p>
           </div>
 
@@ -140,10 +166,13 @@ export default function AnalyticsPage() {
               <div className="w-10 h-10 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center">
                 <Clock className="w-5 h-5 text-[#f59e0b]" />
               </div>
-              <span className="text-[13px] text-[#888888]">Avg Time on Page</span>
+              <span className="text-[13px] text-[#888888]">Active Time</span>
             </div>
             <p className="text-[28px] font-bold text-[#fafafa]">
-              {formatDuration(pageMetrics.reduce((acc, p) => acc + p.avgTimeOnPage, 0) / pageMetrics.length)}
+              {formatDuration(summary.avgActiveTime)}
+            </p>
+            <p className="text-[12px] text-[#666666] mt-1">
+              Total: {formatDuration(summary.avgTotalTime)}
             </p>
           </div>
 
@@ -152,167 +181,235 @@ export default function AnalyticsPage() {
               <div className="w-10 h-10 bg-[#ff6b6b]/20 rounded-lg flex items-center justify-center">
                 <AlertTriangle className="w-5 h-5 text-[#ff6b6b]" />
               </div>
-              <span className="text-[13px] text-[#888888]">UX Issues Found</span>
+              <span className="text-[13px] text-[#888888]">UX Issues</span>
             </div>
             <p className="text-[28px] font-bold text-[#fafafa]">
-              {pageMetrics.reduce((acc, p) => acc + p.rageClicks + p.deadClicks, 0)}
+              {(summary.totalDeadClicks + summary.totalRageClicks + summary.totalQuickbacks).toLocaleString()}
+            </p>
+            <p className="text-[12px] text-[#666666] mt-1">
+              Clicks & quickbacks
             </p>
           </div>
         </div>
 
-        {/* Anomaly Detection */}
-        <AnomalyDetection />
-
-        {/* Predictive Analytics */}
-        <PredictiveAnalytics />
-
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
-          {/* Pages with UX Issues */}
+          {/* Traffic by Device */}
           <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
             <div className="px-6 py-5 border-b border-white/10">
-              <h2 className="text-[18px] font-semibold text-[#fafafa]">Pages with UX Issues</h2>
-              <p className="text-[13px] text-[#666666] mt-1">Based on rage clicks & dead clicks</p>
+              <h2 className="text-[18px] font-semibold text-[#fafafa]">Traffic by Device</h2>
+              <p className="text-[13px] text-[#666666] mt-1">Sessions and users breakdown</p>
             </div>
-            <div className="divide-y divide-white/5">
-              {pagesWithIssues.map((page) => (
-                <div key={page.page} className="px-6 py-4 hover:bg-white/5 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <p className="text-[14px] text-[#fafafa] font-medium mb-1">{page.page}</p>
-                      <div className="flex items-center gap-4">
-                        <span className="text-[12px] text-[#ff6b6b] flex items-center gap-1">
-                          <MousePointerClick className="w-3.5 h-3.5" />
-                          {page.rageClicks} rage clicks
-                        </span>
-                        <span className="text-[12px] text-[#f59e0b] flex items-center gap-1">
-                          <MousePointerClick className="w-3.5 h-3.5" />
-                          {page.deadClicks} dead clicks
-                        </span>
+            <div className="p-6 space-y-4">
+              {trafficByDevice.map((device) => {
+                const percentage = (device.total_session_count / summary.totalSessions) * 100;
+                const color = device.device === 'Mobile' ? '#7c5cff' : 
+                             device.device === 'Desktop' || device.device === 'PC' ? '#00d4aa' : '#f59e0b';
+                
+                return (
+                  <div key={device.device} className="p-4 bg-[#111111] rounded-xl">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div 
+                          className="w-10 h-10 rounded-lg flex items-center justify-center"
+                          style={{ backgroundColor: `${color}20` }}
+                        >
+                          <div style={{ color }}>{getDeviceIcon(device.device)}</div>
+                        </div>
+                        <div>
+                          <p className="text-[14px] font-medium text-[#fafafa]">{device.device}</p>
+                          <p className="text-[12px] text-[#666666]">{percentage.toFixed(1)}% of traffic</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[16px] font-bold text-[#fafafa]">
+                          {device.total_session_count.toLocaleString()}
+                        </p>
+                        <p className="text-[11px] text-[#666666]">sessions</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-[14px] text-[#fafafa]">{page.bounceRate.toFixed(1)}%</p>
-                      <p className="text-[11px] text-[#666666]">bounce rate</p>
+                    <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all"
+                        style={{ width: `${percentage}%`, backgroundColor: color }}
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 gap-4 mt-3 text-center">
+                      <div>
+                        <p className="text-[12px] text-[#888888]">Users</p>
+                        <p className="text-[13px] font-medium text-[#fafafa]">
+                          {device.distinct_user_count.toLocaleString()}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[12px] text-[#888888]">Pages/Sess</p>
+                        <p className="text-[13px] font-medium text-[#fafafa]">
+                          {device.pages_per_session.toFixed(2)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[12px] text-[#888888]">Bots</p>
+                        <p className="text-[13px] font-medium text-[#f59e0b]">
+                          {device.total_bot_session_count.toLocaleString()}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
-          {/* All Pages Performance */}
+          {/* UX Issues by Device */}
           <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
             <div className="px-6 py-5 border-b border-white/10">
-              <h2 className="text-[18px] font-semibold text-[#fafafa]">Page Performance</h2>
-              <p className="text-[13px] text-[#666666] mt-1">All tracked pages</p>
+              <h2 className="text-[18px] font-semibold text-[#fafafa]">UX Issues by Device</h2>
+              <p className="text-[13px] text-[#666666] mt-1">Click issues and user frustration</p>
             </div>
-            <div className="max-h-[400px] overflow-y-auto">
-              <table className="w-full">
-                <thead className="bg-[#111111] sticky top-0">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#888888] uppercase">Page</th>
-                    <th className="px-4 py-3 text-right text-[11px] font-semibold text-[#888888] uppercase">Views</th>
-                    <th className="px-4 py-3 text-right text-[11px] font-semibold text-[#888888] uppercase">Bounce</th>
-                    <th className="px-4 py-3 text-right text-[11px] font-semibold text-[#888888] uppercase">Scroll</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {topPages.map((page) => (
-                    <tr key={page.page} className="hover:bg-white/5 transition-colors">
-                      <td className="px-6 py-3 text-[13px] text-[#fafafa]">{page.page}</td>
-                      <td className="px-4 py-3 text-[13px] text-[#7c5cff] text-right font-medium">
-                        {page.pageViews.toLocaleString()}
-                      </td>
-                      <td className="px-4 py-3 text-[13px] text-right">
-                        <span className={page.bounceRate > 50 ? 'text-[#ff6b6b]' : 'text-[#00d4aa]'}>
-                          {page.bounceRate.toFixed(1)}%
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-[13px] text-[#888888] text-right">
-                        {page.scrollDepth.toFixed(0)}%
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="divide-y divide-white/5">
+              {uxIssues.slice(0, 10).map((issue, idx) => {
+                const severity = issue.sessions_with_metric_percentage > 20 ? 'high' : 
+                                issue.sessions_with_metric_percentage > 10 ? 'medium' : 'low';
+                const severityColor = severity === 'high' ? '#ff6b6b' : 
+                                     severity === 'medium' ? '#f59e0b' : '#00d4aa';
+                
+                return (
+                  <div key={idx} className="px-6 py-4 hover:bg-white/5 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div 
+                          className="w-8 h-8 rounded-lg flex items-center justify-center"
+                          style={{ backgroundColor: `${severityColor}20` }}
+                        >
+                          {issue.metric_name.includes('Dead') ? (
+                            <MousePointerClick className="w-4 h-4" style={{ color: severityColor }} />
+                          ) : issue.metric_name.includes('Rage') ? (
+                            <Zap className="w-4 h-4" style={{ color: severityColor }} />
+                          ) : (
+                            <AlertTriangle className="w-4 h-4" style={{ color: severityColor }} />
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-[14px] text-[#fafafa] font-medium">
+                            {issue.metric_name.replace('Count', '')}
+                          </p>
+                          <p className="text-[12px] text-[#666666]">{issue.device}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[14px] font-bold text-[#fafafa]">
+                          {issue.sub_total.toLocaleString()}
+                        </p>
+                        <p 
+                          className="text-[11px] font-medium"
+                          style={{ color: severityColor }}
+                        >
+                          {issue.sessions_with_metric_percentage}% of sessions
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
 
-        {/* Traffic & Devices */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Traffic Sources Table */}
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
-            <div className="px-6 py-5 border-b border-white/10">
-              <h2 className="text-[18px] font-semibold text-[#fafafa]">Traffic Sources</h2>
-              <p className="text-[13px] text-[#666666] mt-1">Sessions by source</p>
-            </div>
-            <table className="w-full">
-              <thead className="bg-[#111111]">
-                <tr>
-                  <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#888888] uppercase">Source</th>
-                  <th className="px-4 py-3 text-right text-[11px] font-semibold text-[#888888] uppercase">Sessions</th>
-                  <th className="px-4 py-3 text-right text-[11px] font-semibold text-[#888888] uppercase">Conv.</th>
-                  <th className="px-4 py-3 text-right text-[11px] font-semibold text-[#888888] uppercase">Revenue</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {trafficSources.map((source) => (
-                  <tr key={source.source} className="hover:bg-white/5 transition-colors">
-                    <td className="px-6 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center text-[11px] font-bold text-[#7c5cff] uppercase">
-                          {source.source.charAt(0)}
-                        </div>
-                        <span className="text-[13px] text-[#fafafa] capitalize">{source.source}</span>
+        {/* Engagement by Device */}
+        <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
+          <div className="px-6 py-5 border-b border-white/10">
+            <h2 className="text-[18px] font-semibold text-[#fafafa]">Engagement by Device</h2>
+            <p className="text-[13px] text-[#666666] mt-1">Time on site and engagement rates</p>
+          </div>
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {engagementByDevice.map((device) => {
+                const engagementRate = device.total_time > 0 
+                  ? (device.active_time / device.total_time) * 100 
+                  : 0;
+                const isGood = engagementRate > 50;
+                
+                return (
+                  <div key={device.device} className="p-6 bg-[#111111] rounded-xl">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
+                        {getDeviceIcon(device.device)}
                       </div>
-                    </td>
-                    <td className="px-4 py-3 text-[13px] text-[#fafafa] text-right">
-                      {source.sessions.toLocaleString()}
-                    </td>
-                    <td className="px-4 py-3 text-[13px] text-[#00d4aa] text-right">
-                      {source.conversionRate.toFixed(2)}%
-                    </td>
-                    <td className="px-4 py-3 text-[13px] text-[#f59e0b] text-right">
-                      €{source.revenue.toLocaleString()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      <h3 className="text-[16px] font-semibold text-[#fafafa]">{device.device}</h3>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div className="text-center p-3 bg-[#0a0a0a] rounded-lg">
+                        <p className="text-[20px] font-bold text-[#fafafa]">
+                          {formatDuration(device.total_time)}
+                        </p>
+                        <p className="text-[11px] text-[#888888]">Total Time</p>
+                      </div>
+                      <div className="text-center p-3 bg-[#0a0a0a] rounded-lg">
+                        <p className="text-[20px] font-bold text-[#00d4aa]">
+                          {formatDuration(device.active_time)}
+                        </p>
+                        <p className="text-[11px] text-[#888888]">Active Time</p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between text-[12px] mb-2">
+                        <span className="text-[#888888]">Engagement Rate</span>
+                        <span className={isGood ? 'text-[#00d4aa]' : 'text-[#ff6b6b]'}>
+                          {engagementRate.toFixed(0)}%
+                        </span>
+                      </div>
+                      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${isGood ? 'bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]' : 'bg-[#ff6b6b]'}`}
+                          style={{ width: `${engagementRate}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* UX Issues Summary */}
+        <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-gradient-to-br from-[#ff6b6b]/20 to-[#ff6b6b]/5 border border-[#ff6b6b]/30 rounded-2xl p-6 text-center">
+            <MousePointerClick className="w-8 h-8 text-[#ff6b6b] mx-auto mb-3" />
+            <p className="text-[32px] font-bold text-[#fafafa]">
+              {summary.totalDeadClicks.toLocaleString()}
+            </p>
+            <p className="text-[14px] text-[#888888]">Dead Clicks</p>
+            <p className="text-[12px] text-[#666666] mt-2">
+              Users clicking non-interactive elements
+            </p>
           </div>
 
-          {/* Device Performance */}
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6">
-            <h2 className="text-[18px] font-semibold text-[#fafafa] mb-2">Device Performance</h2>
-            <p className="text-[13px] text-[#666666] mb-6">Conversion rate by device type</p>
+          <div className="bg-gradient-to-br from-[#f59e0b]/20 to-[#f59e0b]/5 border border-[#f59e0b]/30 rounded-2xl p-6 text-center">
+            <Zap className="w-8 h-8 text-[#f59e0b] mx-auto mb-3" />
+            <p className="text-[32px] font-bold text-[#fafafa]">
+              {summary.totalRageClicks.toLocaleString()}
+            </p>
+            <p className="text-[14px] text-[#888888]">Rage Clicks</p>
+            <p className="text-[12px] text-[#666666] mt-2">
+              Frustrated repeated clicking
+            </p>
+          </div>
 
-            <div className="space-y-6">
-              {deviceBreakdown.map((device) => (
-                <div key={device.device}>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-3">
-                      <span className="text-[14px] text-[#fafafa] capitalize font-medium">{device.device}</span>
-                      <span className="text-[12px] text-[#666666]">{device.sessions.toLocaleString()} sessions</span>
-                    </div>
-                    <span className="text-[14px] text-[#00d4aa] font-medium">{device.conversionRate.toFixed(2)}%</span>
-                  </div>
-                  <div className="h-3 bg-white/10 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] rounded-full transition-all"
-                      style={{ width: `${device.percentage}%` }}
-                    />
-                  </div>
-                  <p className="text-[11px] text-[#555555] mt-1">{device.percentage.toFixed(1)}% of total traffic</p>
-                </div>
-              ))}
-            </div>
+          <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6 text-center">
+            <TrendingUp className="w-8 h-8 text-[#7c5cff] mx-auto mb-3 rotate-180" />
+            <p className="text-[32px] font-bold text-[#fafafa]">
+              {summary.totalQuickbacks.toLocaleString()}
+            </p>
+            <p className="text-[14px] text-[#888888]">Quickbacks</p>
+            <p className="text-[12px] text-[#666666] mt-2">
+              Users quickly navigating back
+            </p>
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-

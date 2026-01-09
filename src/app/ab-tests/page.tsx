@@ -2,135 +2,252 @@
 
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
-import TestManagementDashboard from "@/components/TestManagementDashboard";
+import Link from "next/link";
 import {
   FlaskConical,
   TrendingUp,
-  BarChart3,
   MousePointerClick,
   Zap,
-  Play,
-  Pause,
-  Check,
-  X,
-  Calendar,
   Target,
-  ArrowRight,
   Sparkles,
   RefreshCw,
+  Brain,
+  AlertCircle,
+  Smartphone,
+  Monitor,
+  AlertTriangle,
+  ArrowRight,
+  Loader2,
 } from "lucide-react";
-import {
-  generateMockABTestSuggestions,
-  ABTestSuggestion,
-} from "@/lib/mock-data";
-import {
-  prioritizeTests,
-  getRecommendedTests,
-  calculateICEScore,
-} from "@/lib/test-prioritization";
+import type { CRODashboardData } from "@/lib/supabase-data";
+
+interface ABTestSuggestion {
+  id: string;
+  name: string;
+  hypothesis: string;
+  priority: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+  expectedImpact: string;
+  targetDevice: string;
+  basedOn: string;
+  category: string;
+}
 
 export default function ABTestsPage() {
+  const [dashboardData, setDashboardData] = useState<CRODashboardData | null>(null);
   const [suggestions, setSuggestions] = useState<ABTestSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'running' | 'completed'>('all');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [selectedTest, setSelectedTest] = useState<ABTestSuggestion | null>(null);
-  const [autoPrioritize, setAutoPrioritize] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
-      const data = generateMockABTestSuggestions();
-      setSuggestions(data);
-      setIsLoading(false);
+      setError(null);
+      
+      try {
+        const response = await fetch('/api/cro-analysis');
+        const result = await response.json();
+        
+        if (result.success) {
+          setDashboardData(result.data);
+          // Generate initial suggestions based on real data
+          generateSuggestions(result.data);
+        } else {
+          setError(result.error || 'Failed to load data');
+        }
+      } catch (err) {
+        console.error('Error loading data:', err);
+        setError('Failed to connect to server');
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     loadData();
   }, []);
 
+  const generateSuggestions = (data: CRODashboardData) => {
+    const newSuggestions: ABTestSuggestion[] = [];
+    const { summary, uxIssues, trafficByDevice } = data;
+
+    // Mobile dead clicks
+    const mobileDeadClicks = uxIssues.filter(i => i.device === 'Mobile' && i.metric_name === 'DeadClickCount');
+    if (mobileDeadClicks.length > 0) {
+      const total = mobileDeadClicks.reduce((sum, i) => sum + i.sub_total, 0);
+      if (total > 500) {
+        newSuggestions.push({
+          id: 'mobile-touch-targets',
+          name: 'Mobile Touch Targets Optimization',
+          hypothesis: 'By increasing touch target sizes and adding visual feedback, we will reduce dead clicks by 30%',
+          priority: 'HIGH',
+          expectedImpact: '+15-20% mobile conversions',
+          targetDevice: 'Mobile',
+          basedOn: `${total.toLocaleString()} dead clicks detected on mobile`,
+          category: 'UX'
+        });
+      }
+    }
+
+    // Mobile rage clicks
+    const mobileRageClicks = uxIssues.filter(i => i.device === 'Mobile' && i.metric_name === 'RageClickCount');
+    if (mobileRageClicks.length > 0) {
+      const total = mobileRageClicks.reduce((sum, i) => sum + i.sub_total, 0);
+      if (total > 200) {
+        newSuggestions.push({
+          id: 'mobile-loading',
+          name: 'Mobile Loading Speed Optimization',
+          hypothesis: 'By optimizing interactive element response times, we will reduce rage clicks and user frustration',
+          priority: 'HIGH',
+          expectedImpact: '+10-15% conversions, -25% bounce rate',
+          targetDevice: 'Mobile',
+          basedOn: `${total.toLocaleString()} rage clicks detected`,
+          category: 'Performance'
+        });
+      }
+    }
+
+    // Script errors - check uxIssues for script errors
+    const scriptErrors = uxIssues.filter(i => i.metric_name === 'ScriptErrorCount');
+    if (scriptErrors.length > 0) {
+      const totalErrors = scriptErrors.reduce((sum, i) => sum + i.sub_total, 0);
+      const highestPercentage = Math.max(...scriptErrors.map(i => i.sessions_with_metric_percentage));
+      if (totalErrors > 100 || highestPercentage > 40) {
+        newSuggestions.push({
+          id: 'fix-js-errors',
+          name: 'Fix JavaScript Errors',
+          hypothesis: 'By fixing script errors, we will improve user experience and conversions significantly',
+          priority: 'CRITICAL',
+          expectedImpact: '+20-30% conversions',
+          targetDevice: 'All Devices',
+          basedOn: `${totalErrors.toLocaleString()} script errors detected (${highestPercentage.toFixed(0)}% sessions affected)`,
+          category: 'Technical'
+        });
+      }
+    }
+
+    // Quickbacks
+    const quickbacks = uxIssues.filter(i => i.metric_name === 'QuickbackCount');
+    if (quickbacks.length > 0) {
+      const total = quickbacks.reduce((sum, i) => sum + i.sub_total, 0);
+      if (total > 100) {
+        newSuggestions.push({
+          id: 'above-fold',
+          name: 'Above-the-Fold Content Improvement',
+          hypothesis: 'By showing the most relevant content immediately, we will reduce quickbacks and increase engagement',
+          priority: 'MEDIUM',
+          expectedImpact: '+8-12% time on page',
+          targetDevice: 'All Devices',
+          basedOn: `${total.toLocaleString()} quickbacks detected`,
+          category: 'Content'
+        });
+      }
+    }
+
+    // Mobile traffic dominance
+    const mobileTraffic = trafficByDevice.find(d => d.device === 'Mobile');
+    if (mobileTraffic && summary.mobilePercentage > 60) {
+      newSuggestions.push({
+        id: 'mobile-first',
+        name: 'Mobile-First Design Overhaul',
+        hypothesis: 'With mobile at 86.5% of traffic, prioritizing mobile UX will have outsized impact on overall conversions',
+        priority: 'HIGH',
+        expectedImpact: '+15-25% overall conversions',
+        targetDevice: 'Mobile',
+        basedOn: `Mobile represents ${summary.mobilePercentage.toFixed(1)}% of all traffic`,
+        category: 'Design'
+      });
+    }
+
+    // Form optimization
+    newSuggestions.push({
+      id: 'form-simplify',
+      name: 'Mobile Form Simplification',
+      hypothesis: 'By reducing form fields and using autofill, we will increase form completion rates on mobile',
+      priority: 'MEDIUM',
+      expectedImpact: '+10-20% form completion',
+      targetDevice: 'Mobile',
+      basedOn: 'CRO best practices for mobile',
+      category: 'UX'
+    });
+
+    // Low engagement fix
+    if (summary.avgActiveTime < 60) {
+      newSuggestions.push({
+        id: 'engagement-boost',
+        name: 'Engagement Boost Test',
+        hypothesis: 'By adding interactive elements and better content hierarchy, we will increase active time on page',
+        priority: 'MEDIUM',
+        expectedImpact: '+30-50% active time',
+        targetDevice: 'All Devices',
+        basedOn: `Average active time is only ${Math.floor(summary.avgActiveTime)}s`,
+        category: 'Engagement'
+      });
+    }
+
+    setSuggestions(newSuggestions.sort((a, b) => {
+      const priorityOrder = { CRITICAL: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
+      return priorityOrder[a.priority] - priorityOrder[b.priority];
+    }));
+
+    if (newSuggestions.length > 0) {
+      setSelectedTest(newSuggestions[0]);
+    }
+  };
+
+  const refreshSuggestionsWithAI = async () => {
+    setIsGenerating(true);
+    try {
+      const response = await fetch('/api/chat-database', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: 'Generate 5 specific A/B test suggestions based on the current data. For each test provide: name, hypothesis, priority (CRITICAL/HIGH/MEDIUM), expected impact, and target device.',
+          conversationHistory: []
+        }),
+      });
+      
+      // For now, just regenerate from current data
+      if (dashboardData) {
+        generateSuggestions(dashboardData);
+      }
+    } catch (err) {
+      console.error('Error generating suggestions:', err);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high':
+      case 'CRITICAL':
+        return 'bg-[#ff0000]/20 text-[#ff6b6b] border-[#ff0000]/30';
+      case 'HIGH':
         return 'bg-[#ff6b6b]/20 text-[#ff6b6b] border-[#ff6b6b]/30';
-      case 'medium':
+      case 'MEDIUM':
         return 'bg-[#f59e0b]/20 text-[#f59e0b] border-[#f59e0b]/30';
-      case 'low':
+      case 'LOW':
         return 'bg-[#00d4aa]/20 text-[#00d4aa] border-[#00d4aa]/30';
       default:
         return 'bg-[#666666]/20 text-[#666666] border-[#666666]/30';
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return 'bg-[#f59e0b]/20 text-[#f59e0b]';
-      case 'running':
-        return 'bg-[#7c5cff]/20 text-[#7c5cff]';
-      case 'completed':
-        return 'bg-[#00d4aa]/20 text-[#00d4aa]';
-      case 'dismissed':
-        return 'bg-[#666666]/20 text-[#666666]';
-      default:
-        return 'bg-[#666666]/20 text-[#666666]';
-    }
-  };
-
-  const getSourceIcon = (source: string) => {
-    switch (source) {
-      case 'clarity':
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'UX':
         return <MousePointerClick className="w-4 h-4" />;
-      case 'crazy_egg':
-        return <BarChart3 className="w-4 h-4" />;
-      case 'google_analytics':
-        return <TrendingUp className="w-4 h-4" />;
-      default:
+      case 'Performance':
         return <Zap className="w-4 h-4" />;
-    }
-  };
-
-  const getSourceLabel = (source: string) => {
-    switch (source) {
-      case 'clarity':
-        return 'Microsoft Clarity';
-      case 'crazy_egg':
-        return 'Crazy Egg';
-      case 'google_analytics':
-        return 'Google Analytics';
+      case 'Technical':
+        return <AlertTriangle className="w-4 h-4" />;
+      case 'Content':
+        return <Target className="w-4 h-4" />;
+      case 'Design':
+        return <Sparkles className="w-4 h-4" />;
       default:
-        return 'Combined Analysis';
+        return <FlaskConical className="w-4 h-4" />;
     }
-  };
-
-  const filteredSuggestions = (() => {
-    let filtered = suggestions.filter((s) => {
-      if (filter === 'all') return true;
-      return s.status === filter;
-    });
-
-    // Apply automatic prioritization if enabled
-    if (autoPrioritize && filter !== 'completed') {
-      filtered = prioritizeTests(filtered);
-    }
-
-    return filtered;
-  })();
-
-  const updateTestStatus = (id: string, newStatus: ABTestSuggestion['status']) => {
-    setSuggestions((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, status: newStatus } : s))
-    );
-    if (selectedTest?.id === id) {
-      setSelectedTest((prev) => prev ? { ...prev, status: newStatus } : null);
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
   };
 
   if (isLoading) {
@@ -140,7 +257,27 @@ export default function ABTestsPage() {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
             <div className="w-10 h-10 border-2 border-[#7c5cff] border-t-transparent rounded-full animate-spin" />
-            <p className="text-[#666666] text-[14px]">Loading A/B tests...</p>
+            <p className="text-[#666666] text-[14px]">Analyzing data for A/B test suggestions...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-black">
+        <Header title="A/B Tests" breadcrumb={["Dashboard", "A/B Tests"]} />
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="flex flex-col items-center gap-4 p-6 bg-[#0a0a0a] border border-[#ff6b6b]/30 rounded-2xl">
+            <AlertCircle className="w-10 h-10 text-[#ff6b6b]" />
+            <p className="text-[#ff6b6b] text-[14px]">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-[#7c5cff] text-white rounded-lg text-sm hover:bg-[#6b4ee0] transition"
+            >
+              Retry
+            </button>
           </div>
         </div>
       </div>
@@ -152,120 +289,98 @@ export default function ABTestsPage() {
       <Header title="A/B Tests" breadcrumb={["Dashboard", "A/B Tests"]} />
 
       <div className="p-10">
-        {/* Header Section */}
+        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-[24px] font-bold text-[#fafafa] mb-2">A/B Test Suggestions</h1>
             <p className="text-[14px] text-[#666666]">
-              AI-generated test ideas based on your Clarity, Crazy Egg, and GA data
+              Data-driven test ideas based on your Clarity insights
             </p>
           </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setAutoPrioritize(!autoPrioritize)}
-              className={`flex items-center gap-2 px-4 py-2.5 text-[13px] font-medium rounded-xl transition-all border ${
-                autoPrioritize
-                  ? 'bg-[#00d4aa]/20 text-[#00d4aa] border-[#00d4aa]/30'
-                  : 'bg-[#111111] text-[#888888] border-[#2a2a2a]'
-              }`}
+              onClick={refreshSuggestionsWithAI}
+              disabled={isGenerating}
+              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#5b3fd9] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all shadow-lg shadow-purple-500/25 disabled:opacity-50"
             >
-              <Sparkles className="w-4 h-4" />
-              Auto-Prioritize {autoPrioritize && '✓'}
+              {isGenerating ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <RefreshCw className="w-4 h-4" />
+              )}
+              Refresh Suggestions
             </button>
-            <button className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#5b3fd9] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all shadow-lg shadow-purple-500/25">
-              <RefreshCw className="w-4 h-4" />
-              Generate New Ideas
-            </button>
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-4 gap-4 mb-8">
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-xl p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center">
-                <FlaskConical className="w-5 h-5 text-[#f59e0b]" />
-              </div>
-              <div>
-                <p className="text-[24px] font-bold text-[#fafafa]">
-                  {suggestions.filter((s) => s.status === 'pending').length}
-                </p>
-                <p className="text-[12px] text-[#666666]">Pending</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-xl p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
-                <Zap className="w-5 h-5 text-[#7c5cff]" />
-              </div>
-              <div>
-                <p className="text-[24px] font-bold text-[#fafafa]">
-                  {suggestions.filter((s) => s.status === 'running').length}
-                </p>
-                <p className="text-[12px] text-[#666666]">Running</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-xl p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
-                <Check className="w-5 h-5 text-[#00d4aa]" />
-              </div>
-              <div>
-                <p className="text-[24px] font-bold text-[#fafafa]">
-                  {suggestions.filter((s) => s.status === 'completed').length}
-                </p>
-                <p className="text-[12px] text-[#666666]">Completed</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-xl p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#ff6b6b]/20 rounded-lg flex items-center justify-center">
-                <Target className="w-5 h-5 text-[#ff6b6b]" />
-              </div>
-              <div>
-                <p className="text-[24px] font-bold text-[#fafafa]">
-                  {suggestions.filter((s) => s.priority === 'high').length}
-                </p>
-                <p className="text-[12px] text-[#666666]">High Priority</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Test Management Dashboard */}
-        <TestManagementDashboard />
-
-        {/* Divider */}
-        <div className="my-10 border-t border-[#2a2a2a]"></div>
-
-        {/* Filter Tabs */}
-        <div className="flex items-center gap-2 mb-6">
-          {(['all', 'pending', 'running', 'completed'] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setFilter(tab)}
-              className={`px-4 py-2 rounded-lg text-[13px] font-medium transition-all capitalize ${
-                filter === tab
-                  ? 'bg-[#7c5cff] text-white'
-                  : 'bg-[#111111] text-[#888888] hover:bg-[#1a1a1a] hover:text-[#fafafa]'
-              }`}
+            <Link
+              href="/explore-ai"
+              className="flex items-center gap-2 px-5 py-3 bg-[#00d4aa]/20 text-[#00d4aa] border border-[#00d4aa]/30 text-[14px] font-medium rounded-xl hover:bg-[#00d4aa]/30 transition-all"
             >
-              {tab} {tab !== 'all' && `(${suggestions.filter((s) => s.status === tab).length})`}
-            </button>
-          ))}
+              <Brain className="w-4 h-4" />
+              Ask AI for More
+            </Link>
+          </div>
         </div>
+
+        {/* Stats from Real Data */}
+        {dashboardData && (
+          <div className="grid grid-cols-4 gap-4 mb-8">
+            <div className="bg-[#0a0a0a] border border-white/10 rounded-xl p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
+                  <FlaskConical className="w-5 h-5 text-[#7c5cff]" />
+                </div>
+                <div>
+                  <p className="text-[24px] font-bold text-[#fafafa]">{suggestions.length}</p>
+                  <p className="text-[12px] text-[#666666]">Test Ideas</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-[#0a0a0a] border border-white/10 rounded-xl p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-[#ff6b6b]/20 rounded-lg flex items-center justify-center">
+                  <Target className="w-5 h-5 text-[#ff6b6b]" />
+                </div>
+                <div>
+                  <p className="text-[24px] font-bold text-[#fafafa]">
+                    {suggestions.filter(s => s.priority === 'CRITICAL' || s.priority === 'HIGH').length}
+                  </p>
+                  <p className="text-[12px] text-[#666666]">High Priority</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-[#0a0a0a] border border-white/10 rounded-xl p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
+                  <Smartphone className="w-5 h-5 text-[#00d4aa]" />
+                </div>
+                <div>
+                  <p className="text-[24px] font-bold text-[#fafafa]">
+                    {dashboardData.summary.mobilePercentage.toFixed(0)}%
+                  </p>
+                  <p className="text-[12px] text-[#666666]">Mobile Traffic</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-[#0a0a0a] border border-white/10 rounded-xl p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-[#f59e0b]" />
+                </div>
+                <div>
+                  <p className="text-[24px] font-bold text-[#fafafa]">
+                    {(dashboardData.summary.totalDeadClicks + dashboardData.summary.totalRageClicks).toLocaleString()}
+                  </p>
+                  <p className="text-[12px] text-[#666666]">UX Issues</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Tests List */}
           <div className="lg:col-span-2 space-y-4">
-            {filteredSuggestions.map((suggestion, index) => {
-              const iceScore = calculateICEScore(suggestion);
-
-              return (
+            {suggestions.map((suggestion, index) => (
               <div
                 key={suggestion.id}
                 onClick={() => setSelectedTest(suggestion)}
@@ -278,29 +393,21 @@ export default function ABTestsPage() {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-3">
-                      {autoPrioritize && filter !== 'completed' && 'priorityScore' in suggestion && (
-                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white">
-                          #{index + 1} · Score: {(suggestion as any).priorityScore}
-                        </span>
-                      )}
-                      <span className={`px-2.5 py-1 rounded-full text-[11px] font-medium uppercase ${getPriorityColor(suggestion.priority)}`}>
+                      <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white">
+                        #{index + 1}
+                      </span>
+                      <span className={`px-2.5 py-1 rounded-full text-[11px] font-medium border ${getPriorityColor(suggestion.priority)}`}>
                         {suggestion.priority}
                       </span>
-                      <span className={`px-2.5 py-1 rounded-full text-[11px] font-medium capitalize ${getStatusColor(suggestion.status)}`}>
-                        {suggestion.status}
-                      </span>
-                      <span className="text-[12px] text-[#555555] flex items-center gap-1.5">
-                        {getSourceIcon(suggestion.dataSource)}
-                        {getSourceLabel(suggestion.dataSource)}
+                      <span className="text-[12px] text-[#666666] flex items-center gap-1.5">
+                        {getCategoryIcon(suggestion.category)}
+                        {suggestion.category}
                       </span>
                     </div>
 
                     <h3 className="text-[16px] text-[#fafafa] font-semibold mb-2">
-                      {suggestion.element}
+                      {suggestion.name}
                     </h3>
-                    <p className="text-[13px] text-[#666666] mb-1">
-                      Page: <span className="text-[#888888]">{suggestion.page}</span>
-                    </p>
                     <p className="text-[14px] text-[#888888] mb-3">
                       {suggestion.hypothesis}
                     </p>
@@ -310,99 +417,27 @@ export default function ABTestsPage() {
                         <TrendingUp className="w-4 h-4" />
                         {suggestion.expectedImpact}
                       </span>
-                      <span className="text-[12px] text-[#555555] flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5" />
-                        {formatDate(suggestion.createdAt)}
+                      <span className="text-[12px] text-[#666666] flex items-center gap-1.5">
+                        {suggestion.targetDevice === 'Mobile' ? (
+                          <Smartphone className="w-3.5 h-3.5" />
+                        ) : (
+                          <Monitor className="w-3.5 h-3.5" />
+                        )}
+                        {suggestion.targetDevice}
                       </span>
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-2">
-                    {suggestion.status === 'pending' && (
-                      <>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            updateTestStatus(suggestion.id, 'running');
-                          }}
-                          className="flex items-center gap-1.5 px-3 py-2 bg-[#7c5cff]/20 text-[#a78bff] text-[12px] font-medium rounded-lg hover:bg-[#7c5cff]/30 transition-all"
-                        >
-                          <Play className="w-3.5 h-3.5" />
-                          Start
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            updateTestStatus(suggestion.id, 'dismissed');
-                          }}
-                          className="flex items-center gap-1.5 px-3 py-2 bg-white/5 text-[#666666] text-[12px] font-medium rounded-lg hover:bg-white/10 transition-all"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                          Dismiss
-                        </button>
-                      </>
-                    )}
-                    {suggestion.status === 'running' && (
-                      <>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            updateTestStatus(suggestion.id, 'completed');
-                          }}
-                          className="flex items-center gap-1.5 px-3 py-2 bg-[#00d4aa]/20 text-[#00d4aa] text-[12px] font-medium rounded-lg hover:bg-[#00d4aa]/30 transition-all"
-                        >
-                          <Check className="w-3.5 h-3.5" />
-                          Complete
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            updateTestStatus(suggestion.id, 'pending');
-                          }}
-                          className="flex items-center gap-1.5 px-3 py-2 bg-white/5 text-[#666666] text-[12px] font-medium rounded-lg hover:bg-white/10 transition-all"
-                        >
-                          <Pause className="w-3.5 h-3.5" />
-                          Pause
-                        </button>
-                      </>
-                    )}
-                    {suggestion.status === 'completed' && (
-                      <div className="px-3 py-2 bg-[#00d4aa]/10 text-[#00d4aa] text-[12px] font-medium rounded-lg">
-                        ✓ Completed
-                      </div>
-                    )}
-                  </div>
+                  <ArrowRight className="w-5 h-5 text-[#666666]" />
                 </div>
 
-                {/* ICE Score - Show when auto-prioritize is enabled */}
-                {autoPrioritize && filter !== 'completed' && (
-                  <div className="mt-4 pt-4 border-t border-[#2a2a2a]">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] text-[#666666] uppercase">ICE Score</span>
-                      <div className="flex items-center gap-3">
-                        <div className="text-center">
-                          <div className="text-[10px] text-[#888888]">Impact</div>
-                          <div className="text-[13px] font-semibold text-[#fafafa]">{iceScore.impact}</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-[10px] text-[#888888]">Confidence</div>
-                          <div className="text-[13px] font-semibold text-[#fafafa]">{iceScore.confidence}</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-[10px] text-[#888888]">Ease</div>
-                          <div className="text-[13px] font-semibold text-[#fafafa]">{iceScore.ease}</div>
-                        </div>
-                        <div className="text-center px-3 py-1 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] rounded-lg">
-                          <div className="text-[10px] text-white/80">Total</div>
-                          <div className="text-[14px] font-bold text-white">{iceScore.score}</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                <div className="mt-4 pt-4 border-t border-[#2a2a2a]">
+                  <p className="text-[12px] text-[#666666]">
+                    <span className="text-[#888888]">Based on:</span> {suggestion.basedOn}
+                  </p>
+                </div>
               </div>
-              );
-            })}
+            ))}
           </div>
 
           {/* Detail Panel */}
@@ -416,13 +451,8 @@ export default function ABTestsPage() {
 
                 <div className="space-y-5">
                   <div>
-                    <label className="text-[11px] text-[#666666] uppercase tracking-wide">Element</label>
-                    <p className="text-[15px] text-[#fafafa] font-medium mt-1">{selectedTest.element}</p>
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] text-[#666666] uppercase tracking-wide">Page</label>
-                    <p className="text-[14px] text-[#888888] mt-1">{selectedTest.page}</p>
+                    <label className="text-[11px] text-[#666666] uppercase tracking-wide">Test Name</label>
+                    <p className="text-[15px] text-[#fafafa] font-medium mt-1">{selectedTest.name}</p>
                   </div>
 
                   <div>
@@ -431,8 +461,12 @@ export default function ABTestsPage() {
                   </div>
 
                   <div>
-                    <label className="text-[11px] text-[#666666] uppercase tracking-wide">Reasoning</label>
-                    <p className="text-[13px] text-[#888888] mt-1 leading-relaxed">{selectedTest.reasoning}</p>
+                    <label className="text-[11px] text-[#666666] uppercase tracking-wide">Priority</label>
+                    <div className="mt-2">
+                      <span className={`px-3 py-1.5 rounded-full text-[12px] font-medium border ${getPriorityColor(selectedTest.priority)}`}>
+                        {selectedTest.priority}
+                      </span>
+                    </div>
                   </div>
 
                   <div>
@@ -441,25 +475,30 @@ export default function ABTestsPage() {
                   </div>
 
                   <div>
-                    <label className="text-[11px] text-[#666666] uppercase tracking-wide">Metrics to Track</label>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {selectedTest.metrics.map((metric) => (
-                        <span
-                          key={metric}
-                          className="px-2.5 py-1 bg-[#7c5cff]/20 text-[#a78bff] text-[11px] font-medium rounded-full"
-                        >
-                          {metric}
-                        </span>
-                      ))}
+                    <label className="text-[11px] text-[#666666] uppercase tracking-wide">Target Device</label>
+                    <div className="flex items-center gap-2 mt-2">
+                      {selectedTest.targetDevice === 'Mobile' ? (
+                        <Smartphone className="w-4 h-4 text-[#7c5cff]" />
+                      ) : (
+                        <Monitor className="w-4 h-4 text-[#7c5cff]" />
+                      )}
+                      <span className="text-[13px] text-[#fafafa]">{selectedTest.targetDevice}</span>
                     </div>
                   </div>
 
                   <div>
                     <label className="text-[11px] text-[#666666] uppercase tracking-wide">Data Source</label>
-                    <div className="flex items-center gap-2 mt-2">
-                      {getSourceIcon(selectedTest.dataSource)}
-                      <span className="text-[13px] text-[#fafafa]">{getSourceLabel(selectedTest.dataSource)}</span>
-                    </div>
+                    <p className="text-[13px] text-[#888888] mt-1">{selectedTest.basedOn}</p>
+                  </div>
+
+                  <div className="pt-4 border-t border-[#2a2a2a]">
+                    <Link
+                      href="/explore-ai"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#7c5cff]/20 text-[#a78bff] rounded-lg text-[13px] font-medium hover:bg-[#7c5cff]/30 transition-all"
+                    >
+                      <Brain className="w-4 h-4" />
+                      Get AI Implementation Guide
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -477,5 +516,3 @@ export default function ABTestsPage() {
     </div>
   );
 }
-
-
