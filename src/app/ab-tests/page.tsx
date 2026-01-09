@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
+import TestManagementDashboard from "@/components/TestManagementDashboard";
 import {
   FlaskConical,
   TrendingUp,
@@ -22,12 +23,18 @@ import {
   generateMockABTestSuggestions,
   ABTestSuggestion,
 } from "@/lib/mock-data";
+import {
+  prioritizeTests,
+  getRecommendedTests,
+  calculateICEScore,
+} from "@/lib/test-prioritization";
 
 export default function ABTestsPage() {
   const [suggestions, setSuggestions] = useState<ABTestSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'running' | 'completed'>('all');
   const [selectedTest, setSelectedTest] = useState<ABTestSuggestion | null>(null);
+  const [autoPrioritize, setAutoPrioritize] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
@@ -94,10 +101,19 @@ export default function ABTestsPage() {
     }
   };
 
-  const filteredSuggestions = suggestions.filter((s) => {
-    if (filter === 'all') return true;
-    return s.status === filter;
-  });
+  const filteredSuggestions = (() => {
+    let filtered = suggestions.filter((s) => {
+      if (filter === 'all') return true;
+      return s.status === filter;
+    });
+
+    // Apply automatic prioritization if enabled
+    if (autoPrioritize && filter !== 'completed') {
+      filtered = prioritizeTests(filtered);
+    }
+
+    return filtered;
+  })();
 
   const updateTestStatus = (id: string, newStatus: ABTestSuggestion['status']) => {
     setSuggestions((prev) =>
@@ -144,10 +160,23 @@ export default function ABTestsPage() {
               AI-generated test ideas based on your Clarity, Crazy Egg, and GA data
             </p>
           </div>
-          <button className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#5b3fd9] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all shadow-lg shadow-purple-500/25">
-            <RefreshCw className="w-4 h-4" />
-            Generate New Ideas
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setAutoPrioritize(!autoPrioritize)}
+              className={`flex items-center gap-2 px-4 py-2.5 text-[13px] font-medium rounded-xl transition-all border ${
+                autoPrioritize
+                  ? 'bg-[#00d4aa]/20 text-[#00d4aa] border-[#00d4aa]/30'
+                  : 'bg-[#111111] text-[#888888] border-[#2a2a2a]'
+              }`}
+            >
+              <Sparkles className="w-4 h-4" />
+              Auto-Prioritize {autoPrioritize && '✓'}
+            </button>
+            <button className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#5b3fd9] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all shadow-lg shadow-purple-500/25">
+              <RefreshCw className="w-4 h-4" />
+              Generate New Ideas
+            </button>
+          </div>
         </div>
 
         {/* Stats */}
@@ -206,6 +235,12 @@ export default function ABTestsPage() {
           </div>
         </div>
 
+        {/* Test Management Dashboard */}
+        <TestManagementDashboard />
+
+        {/* Divider */}
+        <div className="my-10 border-t border-[#2a2a2a]"></div>
+
         {/* Filter Tabs */}
         <div className="flex items-center gap-2 mb-6">
           {(['all', 'pending', 'running', 'completed'] as const).map((tab) => (
@@ -227,7 +262,10 @@ export default function ABTestsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Tests List */}
           <div className="lg:col-span-2 space-y-4">
-            {filteredSuggestions.map((suggestion) => (
+            {filteredSuggestions.map((suggestion, index) => {
+              const iceScore = calculateICEScore(suggestion);
+
+              return (
               <div
                 key={suggestion.id}
                 onClick={() => setSelectedTest(suggestion)}
@@ -240,6 +278,11 @@ export default function ABTestsPage() {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-3">
+                      {autoPrioritize && filter !== 'completed' && 'priorityScore' in suggestion && (
+                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white">
+                          #{index + 1} · Score: {(suggestion as any).priorityScore}
+                        </span>
+                      )}
                       <span className={`px-2.5 py-1 rounded-full text-[11px] font-medium uppercase ${getPriorityColor(suggestion.priority)}`}>
                         {suggestion.priority}
                       </span>
@@ -330,8 +373,36 @@ export default function ABTestsPage() {
                     )}
                   </div>
                 </div>
+
+                {/* ICE Score - Show when auto-prioritize is enabled */}
+                {autoPrioritize && filter !== 'completed' && (
+                  <div className="mt-4 pt-4 border-t border-[#2a2a2a]">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] text-[#666666] uppercase">ICE Score</span>
+                      <div className="flex items-center gap-3">
+                        <div className="text-center">
+                          <div className="text-[10px] text-[#888888]">Impact</div>
+                          <div className="text-[13px] font-semibold text-[#fafafa]">{iceScore.impact}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-[10px] text-[#888888]">Confidence</div>
+                          <div className="text-[13px] font-semibold text-[#fafafa]">{iceScore.confidence}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-[10px] text-[#888888]">Ease</div>
+                          <div className="text-[13px] font-semibold text-[#fafafa]">{iceScore.ease}</div>
+                        </div>
+                        <div className="text-center px-3 py-1 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] rounded-lg">
+                          <div className="text-[10px] text-white/80">Total</div>
+                          <div className="text-[14px] font-bold text-white">{iceScore.score}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Detail Panel */}

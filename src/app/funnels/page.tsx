@@ -2,53 +2,117 @@
 
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
+import DateRangePicker from "@/components/DateRangePicker";
+import DeviceFilter from "@/components/DeviceFilter";
+import CreateFunnelModal, { NewFunnelData } from "@/components/CreateFunnelModal";
+import Link from "next/link";
 import {
   TrendingUp,
   TrendingDown,
-  ArrowRight,
   Users,
   Target,
-  AlertTriangle,
-  ChevronDown,
-  Lightbulb,
+  AlertCircle,
+  CheckCircle2,
+  ArrowRight,
+  ExternalLink,
+  Clock,
+  Plus,
 } from "lucide-react";
 import {
   generateMockFunnels,
   ConversionFunnel,
 } from "@/lib/mock-data";
 
-export default function FunnelsPage() {
+export default function FunnelsListPage() {
   const [funnels, setFunnels] = useState<ConversionFunnel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedFunnel, setSelectedFunnel] = useState<string | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  // Date range state
+  const getDefaultDateRange = () => {
+    const end = new Date();
+    const start = new Date();
+    start.setDate(start.getDate() - 30);
+    return {
+      start: start.toISOString().split('T')[0],
+      end: end.toISOString().split('T')[0],
+    };
+  };
+  const [dateRange, setDateRange] = useState(getDefaultDateRange());
+  const [deviceFilter, setDeviceFilter] = useState<"all" | "desktop" | "mobile">("all");
 
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
+      // In production: const res = await fetch(`/api/funnels?start=${dateRange.start}&end=${dateRange.end}&device=${deviceFilter}`);
       const data = generateMockFunnels();
       setFunnels(data);
-      if (data.length > 0) {
-        setSelectedFunnel(data[0].id);
-      }
       setIsLoading(false);
     };
 
     loadData();
-  }, []);
+  }, [dateRange, deviceFilter]);
 
-  const activeFunnel = funnels.find((f) => f.id === selectedFunnel);
-
-  // Calculate step-by-step conversion rates
-  const getStepConversion = (currentVisitors: number, previousVisitors: number) => {
-    if (previousVisitors === 0) return 100;
-    return (currentVisitors / previousVisitors) * 100;
+  const getFunnelStatus = (funnel: ConversionFunnel) => {
+    const hasCriticalDropoff = funnel.steps.some(step => step.dropoff > 50);
+    return hasCriticalDropoff;
   };
 
-  // Get color based on dropoff severity
-  const getDropoffColor = (dropoff: number) => {
-    if (dropoff >= 60) return 'text-[#ff6b6b]';
-    if (dropoff >= 40) return 'text-[#f59e0b]';
-    return 'text-[#00d4aa]';
+  const getCriticalStep = (funnel: ConversionFunnel) => {
+    return funnel.steps.reduce((max, step) =>
+      step.dropoff > max.dropoff ? step : max, funnel.steps[0]
+    );
+  };
+
+  // Generate bounce rate (mock data - in production this comes from API)
+  const getBounceRate = (funnelId: string) => {
+    const rates: Record<string, number> = {
+      'checkout_funnel': 52.8,           // Red - High bounce
+      'lead_gen_funnel': 42.8,           // Yellow - Medium bounce
+      'blog_to_newsletter': 26.5,        // Green - Low bounce
+      'saas_signup': 28.2,               // Green - Low bounce
+      'mobile_app_install': 68.5,        // Red - Very high bounce
+      'webinar_registration': 38.4,      // Yellow - Medium bounce
+      'premium_upgrade': 31.2,           // Green - Low bounce
+      'quote_request': 45.6,             // Yellow - Medium bounce
+      'demo_booking': 58.3,              // Red - High bounce
+      'course_enrollment': 41.7,         // Yellow - Medium bounce
+    };
+    return rates[funnelId] || 30;
+  };
+
+  // Determine card border color based on health metrics
+  const getCardBorderClass = (conversionRate: number, bounceRate: number, criticalDropoff: number) => {
+    // Good: High CR (>10%), Low bounce (<35%), Low critical dropoff (<40%)
+    if (conversionRate >= 10 && bounceRate < 35 && criticalDropoff < 40) {
+      return "border-[#00d4aa] hover:border-[#00d4aa]";
+    }
+    // Bad: Low CR (<5%), High bounce (>50%), High critical dropoff (>60%)
+    if (conversionRate < 5 || bounceRate > 50 || criticalDropoff > 60) {
+      return "border-[#ff6b6b] hover:border-[#ff6b6b]";
+    }
+    // Warning: Everything else
+    return "border-[#f59e0b] hover:border-[#f59e0b]";
+  };
+
+  // Handle create new funnel
+  const handleCreateFunnel = (funnelData: NewFunnelData) => {
+    // In production, this would call an API to create the funnel
+    // For now, we'll just add it to the local state
+    const newFunnel: ConversionFunnel = {
+      id: `funnel_${Date.now()}`,
+      name: funnelData.name,
+      conversionRate: 0, // Will be calculated after tracking starts
+      steps: funnelData.steps.map((step, index) => ({
+        name: step.name,
+        visitors: 0,
+        dropoff: 0,
+        avgTime: 0,
+      })),
+    };
+
+    setFunnels([newFunnel, ...funnels]);
+    alert(`✅ Funnel "${funnelData.name}" created successfully! Tracking will begin shortly.`);
   };
 
   if (isLoading) {
@@ -69,212 +133,167 @@ export default function FunnelsPage() {
     <div className="min-h-screen bg-black">
       <Header title="Funnels" breadcrumb={["Dashboard", "Funnels"]} />
 
-      <div className="p-10">
+      <div className="p-10 max-w-[1600px] mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-[24px] font-bold text-[#fafafa] mb-2">Conversion Funnels</h1>
-            <p className="text-[14px] text-[#666666]">
-              Track user journeys and identify drop-off points
+            <h1 className="text-[28px] font-bold text-[#fafafa] mb-2">Conversion Funnels</h1>
+            <p className="text-[15px] text-[#888888]">
+              Monitor all your conversion funnels and identify optimization opportunities
             </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:shadow-lg hover:shadow-purple-500/20 transition-all"
+            >
+              <Plus className="w-4 h-4" />
+              Create New Funnel
+            </button>
+            <div className="h-10 w-px bg-[#2a2a2a]" />
+            <DeviceFilter value={deviceFilter} onChange={setDeviceFilter} />
+            <div className="h-10 w-px bg-[#2a2a2a]" />
+            <DateRangePicker value={dateRange} onChange={setDateRange} />
           </div>
         </div>
 
-        {/* Funnel Selector */}
-        <div className="flex gap-4 mb-8">
-          {funnels.map((funnel) => (
-            <button
-              key={funnel.id}
-              onClick={() => setSelectedFunnel(funnel.id)}
-              className={`px-6 py-4 rounded-xl transition-all ${
-                selectedFunnel === funnel.id
-                  ? 'bg-[#7c5cff]/20 border-2 border-[#7c5cff]'
-                  : 'bg-[#0a0a0a] border-2 border-white/10 hover:border-white/20'
-              }`}
-            >
-              <p className={`text-[14px] font-medium ${selectedFunnel === funnel.id ? 'text-[#fafafa]' : 'text-[#888888]'}`}>
-                {funnel.name}
-              </p>
-              <p className={`text-[24px] font-bold mt-1 ${selectedFunnel === funnel.id ? 'text-[#00d4aa]' : 'text-[#666666]'}`}>
-                {funnel.conversionRate.toFixed(1)}%
-              </p>
-              <p className="text-[11px] text-[#555555]">conversion rate</p>
-            </button>
-          ))}
-        </div>
+        {/* Funnels Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {funnels.map((funnel) => {
+            const firstStep = funnel.steps[0];
+            const lastStep = funnel.steps[funnel.steps.length - 1];
+            const hasIssues = getFunnelStatus(funnel);
+            const criticalStep = getCriticalStep(funnel);
+            const totalLost = firstStep.visitors - lastStep.visitors;
+            const bounceRate = getBounceRate(funnel.id);
+            const borderClass = getCardBorderClass(funnel.conversionRate, bounceRate, criticalStep.dropoff);
 
-        {/* Main Funnel Visualization */}
-        {activeFunnel && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Funnel Steps */}
-            <div className="lg:col-span-2 bg-[#0a0a0a] border border-white/10 rounded-2xl p-8">
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-[18px] font-semibold text-[#fafafa]">{activeFunnel.name}</h2>
-                <div className="flex items-center gap-2">
-                  <Target className="w-5 h-5 text-[#00d4aa]" />
-                  <span className="text-[16px] font-bold text-[#00d4aa]">
-                    {activeFunnel.conversionRate.toFixed(1)}% overall
+            return (
+              <Link
+                key={funnel.id}
+                href={`/funnels/${funnel.id}`}
+                className={`group bg-[#0a0a0a] border-2 rounded-2xl p-8 transition-all hover:shadow-lg ${borderClass}`}
+              >
+                {/* Header */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-xl flex items-center justify-center">
+                      <Target className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-[16px] font-semibold text-[#fafafa] group-hover:text-[#7c5cff] transition-colors">
+                        {funnel.name}
+                      </h3>
+                      <p className="text-[12px] text-[#666666]">{funnel.steps.length} steps</p>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-[#666666] group-hover:text-[#7c5cff] group-hover:translate-x-1 transition-all" />
+                </div>
+
+                {/* Main Metric */}
+                <div className="mb-6">
+                  <div className="flex items-baseline gap-2 mb-1">
+                    <span className="text-[36px] font-bold text-[#fafafa]">
+                      {funnel.conversionRate.toFixed(1)}%
+                    </span>
+                    {funnel.conversionRate >= 10 ? (
+                      <TrendingUp className="w-5 h-5 text-[#00d4aa]" />
+                    ) : (
+                      <TrendingDown className="w-5 h-5 text-[#ff6b6b]" />
+                    )}
+                  </div>
+                  <p className="text-[13px] text-[#888888]">Conversion Rate</p>
+                </div>
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-3 gap-4 mb-6">
+                  <div className="bg-[#111111] rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Users className="w-4 h-4 text-[#7c5cff]" />
+                      <span className="text-[12px] text-[#888888]">Visitors</span>
+                    </div>
+                    <p className="text-[20px] font-bold text-[#fafafa]">
+                      {firstStep.visitors.toLocaleString()}
+                    </p>
+                  </div>
+
+                  <div className="bg-[#111111] rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Target className="w-4 h-4 text-[#00d4aa]" />
+                      <span className="text-[12px] text-[#888888]">Converted</span>
+                    </div>
+                    <p className="text-[20px] font-bold text-[#00d4aa]">
+                      {lastStep.visitors.toLocaleString()}
+                    </p>
+                  </div>
+
+                  <div className="bg-[#111111] rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Clock className="w-4 h-4 text-[#f59e0b]" />
+                      <span className="text-[12px] text-[#888888]">Bounce Rate</span>
+                    </div>
+                    <p className={`text-[20px] font-bold ${bounceRate < 35 ? 'text-[#00d4aa]' : bounceRate > 50 ? 'text-[#ff6b6b]' : 'text-[#f59e0b]'}`}>
+                      {bounceRate.toFixed(1)}%
+                    </p>
+                  </div>
+                </div>
+
+                {/* Status Badge */}
+                <div className="flex items-center justify-between pt-4 border-t border-[#1a1a1a]">
+                  {hasIssues ? (
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#ff6b6b]/20 text-[#ff6b6b] border border-[#ff6b6b]/30">
+                        <AlertCircle className="w-3 h-3" />
+                        ISSUES
+                      </span>
+                      <span className="text-[11px] text-[#666666]">
+                        {criticalStep.name}: -{criticalStep.dropoff}%
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#00d4aa]/20 text-[#00d4aa] border border-[#00d4aa]/30">
+                      <CheckCircle2 className="w-3 h-3" />
+                      HEALTHY
+                    </span>
+                  )}
+
+                  <span className="text-[11px] text-[#888888] flex items-center gap-1">
+                    <ExternalLink className="w-3 h-3" />
+                    View Details
                   </span>
                 </div>
-              </div>
+              </Link>
+            );
+          })}
+        </div>
 
-              {/* Funnel Visualization */}
-              <div className="space-y-4">
-                {activeFunnel.steps.map((step, index) => {
-                  const isFirst = index === 0;
-                  const isLast = index === activeFunnel.steps.length - 1;
-                  const prevStep = index > 0 ? activeFunnel.steps[index - 1] : null;
-                  const stepConversion = prevStep
-                    ? getStepConversion(step.visitors, prevStep.visitors)
-                    : 100;
-                  const widthPercentage = (step.visitors / activeFunnel.steps[0].visitors) * 100;
-
-                  return (
-                    <div key={step.name}>
-                      {/* Drop-off Arrow */}
-                      {!isFirst && (
-                        <div className="flex items-center gap-4 py-2 pl-8">
-                          <ChevronDown className={`w-5 h-5 ${getDropoffColor(step.dropoff)}`} />
-                          <span className={`text-[13px] font-medium ${getDropoffColor(step.dropoff)}`}>
-                            {step.dropoff}% drop-off
-                          </span>
-                          <span className="text-[12px] text-[#555555]">
-                            ({prevStep!.visitors - step.visitors} users lost)
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Step Bar */}
-                      <div className="relative">
-                        <div
-                          className={`h-20 rounded-xl flex items-center px-6 transition-all ${
-                            isLast
-                              ? 'bg-gradient-to-r from-[#00d4aa]/30 to-[#00d4aa]/10 border border-[#00d4aa]/30'
-                              : 'bg-gradient-to-r from-[#7c5cff]/30 to-[#7c5cff]/10 border border-[#7c5cff]/30'
-                          }`}
-                          style={{ width: `${Math.max(widthPercentage, 20)}%` }}
-                        >
-                          <div className="flex items-center justify-between w-full">
-                            <div className="flex items-center gap-4">
-                              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isLast ? 'bg-[#00d4aa]/20' : 'bg-[#7c5cff]/20'}`}>
-                                <span className={`text-[14px] font-bold ${isLast ? 'text-[#00d4aa]' : 'text-[#7c5cff]'}`}>
-                                  {index + 1}
-                                </span>
-                              </div>
-                              <div>
-                                <p className="text-[14px] font-medium text-[#fafafa]">{step.name}</p>
-                                <p className="text-[12px] text-[#666666]">
-                                  {stepConversion.toFixed(1)}% of previous step
-                                </p>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <p className={`text-[20px] font-bold ${isLast ? 'text-[#00d4aa]' : 'text-[#fafafa]'}`}>
-                                {step.visitors.toLocaleString()}
-                              </p>
-                              <p className="text-[11px] text-[#666666]">users</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+        {/* Empty State */}
+        {funnels.length === 0 && (
+          <div className="text-center py-20">
+            <div className="w-16 h-16 bg-[#111111] rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Target className="w-8 h-8 text-[#666666]" />
             </div>
-
-            {/* Insights Panel */}
-            <div className="space-y-6">
-              {/* Summary Stats */}
-              <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6">
-                <h3 className="text-[16px] font-semibold text-[#fafafa] mb-4">Summary</h3>
-                
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center pb-3 border-b border-white/5">
-                    <span className="text-[13px] text-[#888888]">Total Entered</span>
-                    <span className="text-[14px] text-[#fafafa] font-medium">
-                      {activeFunnel.steps[0].visitors.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center pb-3 border-b border-white/5">
-                    <span className="text-[13px] text-[#888888]">Converted</span>
-                    <span className="text-[14px] text-[#00d4aa] font-medium">
-                      {activeFunnel.steps[activeFunnel.steps.length - 1].visitors.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center pb-3 border-b border-white/5">
-                    <span className="text-[13px] text-[#888888]">Lost Users</span>
-                    <span className="text-[14px] text-[#ff6b6b] font-medium">
-                      {(activeFunnel.steps[0].visitors - activeFunnel.steps[activeFunnel.steps.length - 1].visitors).toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[13px] text-[#888888]">Steps</span>
-                    <span className="text-[14px] text-[#fafafa] font-medium">
-                      {activeFunnel.steps.length}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Biggest Drop-offs */}
-              <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <AlertTriangle className="w-5 h-5 text-[#ff6b6b]" />
-                  <h3 className="text-[16px] font-semibold text-[#fafafa]">Biggest Drop-offs</h3>
-                </div>
-                
-                <div className="space-y-3">
-                  {[...activeFunnel.steps]
-                    .filter((s) => s.dropoff > 0)
-                    .sort((a, b) => b.dropoff - a.dropoff)
-                    .slice(0, 3)
-                    .map((step, index) => (
-                      <div
-                        key={step.name}
-                        className="flex items-center justify-between p-3 bg-[#111111] rounded-lg"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="text-[11px] text-[#555555] font-bold">#{index + 1}</span>
-                          <span className="text-[13px] text-[#fafafa]">{step.name}</span>
-                        </div>
-                        <span className={`text-[14px] font-bold ${getDropoffColor(step.dropoff)}`}>
-                          -{step.dropoff}%
-                        </span>
-                      </div>
-                    ))}
-                </div>
-              </div>
-
-              {/* AI Insights */}
-              <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Lightbulb className="w-5 h-5 text-[#f59e0b]" />
-                  <h3 className="text-[16px] font-semibold text-[#fafafa]">AI Insights</h3>
-                </div>
-                
-                <div className="space-y-3">
-                  <div className="p-3 bg-[#0a0a0a]/50 rounded-lg">
-                    <p className="text-[13px] text-[#cccccc] leading-relaxed">
-                      The highest drop-off occurs at the <span className="text-[#7c5cff] font-medium">
-                      {activeFunnel.steps.reduce((max, step) => step.dropoff > max.dropoff ? step : max, activeFunnel.steps[0]).name}
-                      </span> step. Consider simplifying this stage or adding progress indicators.
-                    </p>
-                  </div>
-                  <div className="p-3 bg-[#0a0a0a]/50 rounded-lg">
-                    <p className="text-[13px] text-[#cccccc] leading-relaxed">
-                      Your funnel has a <span className="text-[#00d4aa] font-medium">{activeFunnel.conversionRate.toFixed(1)}%</span> conversion rate. 
-                      Industry average is 3-5% for e-commerce.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <h3 className="text-[18px] font-semibold text-[#fafafa] mb-2">No Funnels Found</h3>
+            <p className="text-[14px] text-[#666666] mb-6">
+              Create your first conversion funnel to start tracking user journeys
+            </p>
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white rounded-xl font-medium text-[14px] hover:shadow-lg hover:shadow-purple-500/20 transition-all mx-auto"
+            >
+              <Plus className="w-4 h-4" />
+              Create Funnel
+            </button>
           </div>
         )}
       </div>
+
+      {/* Create Funnel Modal */}
+      <CreateFunnelModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onCreateFunnel={handleCreateFunnel}
+      />
     </div>
   );
 }
-
-
