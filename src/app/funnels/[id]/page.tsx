@@ -7,6 +7,7 @@ import DateRangePicker from "@/components/DateRangePicker";
 import DeviceFilter from "@/components/DeviceFilter";
 import StatisticalCalculator from "@/components/StatisticalCalculator";
 import ROIEstimator from "@/components/ROIEstimator";
+import TrackingSetup from "@/components/TrackingSetup";
 import Link from "next/link";
 import {
   TrendingUp,
@@ -28,6 +29,7 @@ import {
   FlaskConical,
   Lightbulb,
   Zap,
+  Code,
 } from "lucide-react";
 import {
   generateMockFunnels,
@@ -55,7 +57,7 @@ export default function FunnelDetailPage() {
 
   const [funnel, setFunnel] = useState<ConversionFunnel | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"overview" | "analysis" | "heatmap" | "abtests">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "analysis" | "heatmap" | "abtests" | "setup">("overview");
 
   // Analysis state
   const [analysisMode, setAnalysisMode] = useState<"funnel" | "page">("funnel");
@@ -431,6 +433,20 @@ export default function FunnelDetailPage() {
             <FlaskConical className="w-4 h-4" />
             A/B Tests
             {activeTab === "abtests" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]" />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("setup")}
+            className={`px-6 py-3 text-[14px] font-medium transition-all relative flex items-center gap-2 ${
+              activeTab === "setup"
+                ? "text-[#fafafa]"
+                : "text-[#666666] hover:text-[#888888]"
+            }`}
+          >
+            <Code className="w-4 h-4" />
+            Setup
+            {activeTab === "setup" && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]" />
             )}
           </button>
@@ -1107,6 +1123,18 @@ export default function FunnelDetailPage() {
               </div>
             )}
           </div>
+        )}
+
+        {/* Setup Tab */}
+        {activeTab === "setup" && funnel && (
+          <TrackingSetup
+            funnelId={funnel.id}
+            funnelName={funnel.name}
+            steps={funnel.steps.map((step, index) => ({
+              name: step.name,
+              page: index === 0 ? '/' : `/${step.name.toLowerCase().replace(/\s+/g, '-')}`
+            }))}
+          />
         )}
       </div>
     </div>
