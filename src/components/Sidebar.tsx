@@ -10,10 +10,12 @@ import {
   Database,
   TrendingUp,
   FileSearch,
+  Brain,
 } from "lucide-react";
 
 const menuItems = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
+  { name: "Explore AI", href: "/explore-ai", icon: Brain },
   { name: "Analytics", href: "/analytics", icon: BarChart3 },
   { name: "A/B Tests", href: "/ab-tests", icon: FlaskConical },
   { name: "Heatmaps", href: "/heatmaps", icon: MousePointerClick },
