@@ -52,11 +52,16 @@ export default function Home() {
     const loadData = async () => {
       setIsLoading(true);
       setError(null);
-      
+
       try {
         const response = await fetch('/api/cro-analysis');
+
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+
         const result = await response.json();
-        
+
         if (result.success) {
           setDashboardData(result.data);
         } else {
@@ -64,7 +69,7 @@ export default function Home() {
         }
       } catch (err) {
         console.error('Error loading dashboard data:', err);
-        setError('Failed to connect to server');
+        setError('Failed to connect to server. Please check console for details.');
       } finally {
         setIsLoading(false);
       }
@@ -76,16 +81,20 @@ export default function Home() {
   // Request AI Analysis
   const requestAIAnalysis = async (analysisType: string) => {
     setIsAnalyzing(true);
-    
+
     try {
       const response = await fetch('/api/cro-analysis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ analysisType }),
       });
-      
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
       const result = await response.json();
-      
+
       if (result.success) {
         setAiAnalysis(result.analysis);
       } else {
@@ -93,7 +102,7 @@ export default function Home() {
       }
     } catch (err) {
       console.error('Error requesting AI analysis:', err);
-      setError('Failed to get AI analysis');
+      setError('Failed to get AI analysis. Please check console for details.');
     } finally {
       setIsAnalyzing(false);
     }
