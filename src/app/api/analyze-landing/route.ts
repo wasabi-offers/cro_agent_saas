@@ -166,7 +166,7 @@ Each insight must be:
 - Maximum 150 characters`;
 
           const message = await client.messages.create({
-            model: "claude-sonnet-4-20250514",
+            model: "claude-3-haiku-20240307",
             max_tokens: 4000,
             messages: [
               {

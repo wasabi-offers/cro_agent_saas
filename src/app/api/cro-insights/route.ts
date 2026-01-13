@@ -50,7 +50,7 @@ ${JSON.stringify(data, null, 2)}
 Provide specific, data-driven insights with recommendations. Keep each insight to 2-3 sentences.`;
 
         const message = await client.messages.create({
-          model: "claude-sonnet-4-20250514",
+          model: "claude-3-haiku-20240307",
           max_tokens: 1000,
           messages: [
             {
