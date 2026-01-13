@@ -9,7 +9,8 @@ export const isSupabaseConfigured = () => {
 };
 
 // Create client only if configured, otherwise return null
-export const supabase = isSupabaseConfigured()
+// IMPORTANT: Use fake URL if not configured to prevent Supabase SDK error
+export const supabase = supabaseUrl && supabaseAnonKey
   ? createClient(supabaseUrl, supabaseAnonKey)
-  : null;
+  : createClient("https://placeholder.supabase.co", "placeholder-key");
 
