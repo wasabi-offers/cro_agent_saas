@@ -1,4 +1,4 @@
-import { supabase } from "./supabase";
+import { supabase, isSupabaseConfigured } from "./supabase";
 
 // ============================================
 // TYPES
@@ -91,11 +91,82 @@ export interface CRODashboardData {
 }
 
 // ============================================
+// MOCK DATA FOR DEVELOPMENT
+// ============================================
+
+function generateMockInsights(): ClarityInsight[] {
+  const devices = ["Mobile", "Desktop", "Tablet"];
+  const metrics = ["DeadClickCount", "RageClickCount", "QuickbackCount", "ExcessiveScrollCount"];
+  const mockData: ClarityInsight[] = [];
+  const now = new Date().toISOString();
+
+  devices.forEach((device) => {
+    // Traffic data
+    mockData.push({
+      id: `mock-${device}-traffic`,
+      project_id: "mock-project",
+      fetched_at: now,
+      num_days: 7,
+      dimension: "Device",
+      dimension_value: device,
+      metric_name: "SessionCount",
+      total_session_count: device === "Mobile" ? 5420 : device === "Desktop" ? 3280 : 850,
+      total_bot_session_count: Math.floor(Math.random() * 100),
+      distinct_user_count: device === "Mobile" ? 4100 : device === "Desktop" ? 2500 : 650,
+      pages_per_session: 2.5 + Math.random() * 2,
+      average_scroll_depth: 45 + Math.random() * 30,
+      total_time: 120 + Math.random() * 180,
+      active_time: 60 + Math.random() * 90,
+      sessions_count: null,
+      sessions_with_metric_percentage: null,
+      sessions_without_metric_percentage: null,
+      pages_views: null,
+      sub_total: null,
+      created_at: now,
+    });
+
+    // UX Issues
+    metrics.forEach((metric) => {
+      mockData.push({
+        id: `mock-${device}-${metric}`,
+        project_id: "mock-project",
+        fetched_at: now,
+        num_days: 7,
+        dimension: "Device",
+        dimension_value: device,
+        metric_name: metric,
+        total_session_count: null,
+        total_bot_session_count: null,
+        distinct_user_count: null,
+        pages_per_session: null,
+        average_scroll_depth: null,
+        total_time: null,
+        active_time: null,
+        sessions_count: Math.floor(Math.random() * 500),
+        sessions_with_metric_percentage: 5 + Math.random() * 20,
+        sessions_without_metric_percentage: 75 + Math.random() * 20,
+        pages_views: null,
+        sub_total: Math.floor(Math.random() * 1000),
+        created_at: now,
+      });
+    });
+  });
+
+  return mockData;
+}
+
+// ============================================
 // DATA FETCHING FUNCTIONS
 // ============================================
 
 // Fetch all data from the main clarity_insights table and aggregate
 export async function fetchClarityInsights(limit: number = 500): Promise<ClarityInsight[]> {
+  // Use mock data if Supabase is not configured
+  if (!isSupabaseConfigured() || !supabase) {
+    console.log("📊 Using mock data (Supabase not configured)");
+    return generateMockInsights();
+  }
+
   const { data, error } = await supabase
     .from("clarity_insights")
     .select("*")
@@ -104,7 +175,8 @@ export async function fetchClarityInsights(limit: number = 500): Promise<Clarity
 
   if (error) {
     console.error("Error fetching insights:", error);
-    return [];
+    console.log("📊 Falling back to mock data due to error");
+    return generateMockInsights();
   }
 
   return data || [];

@@ -97,7 +97,7 @@ For each suggestion, provide:
 Format your response as JSON array.`;
 
         const message = await client.messages.create({
-          model: "claude-sonnet-4-20250514",
+          model: "claude-3-haiku-20240307",
           max_tokens: 2000,
           messages: [
             {
