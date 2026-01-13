@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "description": "AI-powered CRO Agent - Conversion Rate Optimization insights from Clarity, Crazy Egg, and Google Analytics",
+  "engines": {
+    "node": ">=18.18.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
