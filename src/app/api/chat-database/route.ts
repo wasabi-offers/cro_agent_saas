@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { fetchClarityInsights } from "@/lib/supabase-data";
 
 // ============================================
 // CONFIGURAZIONE
@@ -9,11 +10,6 @@ import { NextRequest, NextResponse } from "next/server";
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 // ============================================
 // DEFINIZIONE TOOLS PER CRO
@@ -211,6 +207,15 @@ async function executeToolCall(
   toolName: string,
   toolInput: Record<string, unknown>
 ): Promise<unknown> {
+  // Check if Supabase is configured
+  if (!isSupabaseConfigured()) {
+    return {
+      error: "Database not configured",
+      message: "Supabase connection is not configured. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your environment variables.",
+      mockDataAvailable: true
+    };
+  }
+
   try {
     switch (toolName) {
       // -----------------------------------------
