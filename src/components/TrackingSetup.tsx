@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Code, Copy, CheckCircle2, ExternalLink, Zap, AlertCircle } from "lucide-react";
+import { Code, Copy, CheckCircle2, ExternalLink, Zap, AlertCircle, Link as LinkIcon } from "lucide-react";
 
 interface TrackingSetupProps {
   funnelId: string;
@@ -12,6 +12,7 @@ interface TrackingSetupProps {
 export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingSetupProps) {
   const [copied, setCopied] = useState(false);
   const [copiedStep, setCopiedStep] = useState<number | null>(null);
+  const [stepUrls, setStepUrls] = useState<Record<number, string>>({});
 
   // Generate tracking script
   const trackingScript = `<!-- CRO Agent Tracking Script -->
@@ -170,42 +171,71 @@ export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingS
 
       {/* Funnel Steps Configuration */}
       <div className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-2xl p-6">
-        <h4 className="text-[16px] font-semibold text-[#fafafa] mb-4">Tracked Steps</h4>
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="text-[16px] font-semibold text-[#fafafa]">Tracked Steps & URLs</h4>
+          <p className="text-[12px] text-[#888888]">Inserisci gli URL reali di ogni step</p>
+        </div>
         <div className="space-y-3">
           {steps.map((step, index) => (
             <div
               key={index}
-              className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-4 flex items-center justify-between"
+              className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-4"
             >
-              <div className="flex items-center gap-4">
-                <div className="w-8 h-8 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
+              <div className="flex items-start gap-4 mb-3">
+                <div className="w-8 h-8 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center flex-shrink-0">
                   <span className="text-[13px] font-bold text-[#7c5cff]">{index + 1}</span>
                 </div>
-                <div>
-                  <p className="text-[14px] font-medium text-[#fafafa]">{step.name}</p>
-                  <p className="text-[12px] text-[#666666]">
+                <div className="flex-1">
+                  <p className="text-[14px] font-medium text-[#fafafa] mb-1">{step.name}</p>
+                  <p className="text-[12px] text-[#666666] mb-3">
                     Page: <code className="text-[#00d4aa]">{step.page}</code>
                   </p>
+
+                  {/* URL Input */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 relative">
+                      <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#666666]" />
+                      <input
+                        type="url"
+                        placeholder="https://tuosito.com/landing-page"
+                        value={stepUrls[index] || ''}
+                        onChange={(e) => setStepUrls({ ...stepUrls, [index]: e.target.value })}
+                        className="w-full pl-10 pr-4 py-2.5 bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg text-[13px] text-[#fafafa] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                      />
+                    </div>
+                    <button
+                      onClick={() =>
+                        copyToClipboard(`window.croAgent.trackStep("${step.name}");`, true, index)
+                      }
+                      className="flex items-center gap-2 px-3 py-2.5 bg-[#0a0a0a] hover:bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg transition-all text-[12px] text-[#888888]"
+                    >
+                      {copiedStep === index ? (
+                        <>
+                          <CheckCircle2 className="w-3 h-3 text-[#00d4aa]" />
+                          Copied
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3 h-3" />
+                          Copy Event
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {stepUrls[index] && (
+                    <a
+                      href={stepUrls[index]}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 mt-2 text-[11px] text-[#7c5cff] hover:text-[#00d4aa] transition-colors"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                      Apri in una nuova tab
+                    </a>
+                  )}
                 </div>
               </div>
-              <button
-                onClick={() =>
-                  copyToClipboard(`window.croAgent.trackStep("${step.name}");`, true, index)
-                }
-                className="flex items-center gap-2 px-3 py-2 bg-[#0a0a0a] hover:bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg transition-all text-[12px] text-[#888888]"
-              >
-                {copiedStep === index ? (
-                  <>
-                    <CheckCircle2 className="w-3 h-3 text-[#00d4aa]" />
-                    Copied
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3 h-3" />
-                    Copy Event
-                  </>
-                )}
-              </button>
             </div>
           ))}
         </div>
