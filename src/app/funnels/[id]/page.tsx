@@ -35,6 +35,9 @@ import {
   generateMockFunnels,
   ConversionFunnel,
 } from "@/lib/mock-data";
+import CROComparisonTable from "@/components/CROComparisonTable";
+import SaveItemDialog from "@/components/SaveItemDialog";
+import { CROTableRow, SavedFunnel, funnelStorage } from "@/lib/saved-items";
 
 interface AnalysisResult {
   category: string;
@@ -66,6 +69,8 @@ export default function FunnelDetailPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResults, setAnalysisResults] = useState<AnalysisResult[]>([]);
   const [analysisError, setAnalysisError] = useState("");
+  const [croTableRows, setCroTableRows] = useState<CROTableRow[]>([]);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
 
   // Heatmap state
   const [selectedHeatmapPage, setSelectedHeatmapPage] = useState<number>(0);
@@ -123,6 +128,7 @@ export default function FunnelDetailPage() {
     setIsAnalyzing(true);
     setAnalysisError("");
     setAnalysisResults([]);
+    setCroTableRows([]);
 
     try {
       // Mock URL - in production this would be real page URLs
@@ -130,21 +136,38 @@ export default function FunnelDetailPage() {
         ? `https://example.com/${funnel.name.toLowerCase().replace(/\s+/g, '-')}`
         : `https://example.com${funnel.steps[selectedPage].name.toLowerCase().replace(/\s+/g, '-')}`;
 
-      const response = await fetch("/api/analyze-landing", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          url,
-          filters: selectedFilters.includes("all")
-            ? ["cro", "copy", "colors", "experience"]
-            : selectedFilters,
+      // Run both analysis in parallel
+      const [analysisResponse, croTableResponse] = await Promise.all([
+        fetch("/api/analyze-landing", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            url,
+            filters: selectedFilters.includes("all")
+              ? ["cro", "copy", "colors", "experience"]
+              : selectedFilters,
+          }),
         }),
-      });
+        fetch("/api/generate-cro-table", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            url,
+            type: analysisMode === "funnel" ? 'funnel' : 'landing',
+          }),
+        }),
+      ]);
 
-      if (!response.ok) throw new Error("Analysis error");
+      if (!analysisResponse.ok) throw new Error("Analysis error");
 
-      const data = await response.json();
-      setAnalysisResults(data.results);
+      const analysisData = await analysisResponse.json();
+      setAnalysisResults(analysisData.results);
+
+      // CRO table is optional - don't fail if it errors
+      if (croTableResponse.ok) {
+        const croTableData = await croTableResponse.json();
+        setCroTableRows(croTableData.rows);
+      }
     } catch (err) {
       setAnalysisError("An error occurred during analysis. Please try again.");
     } finally {
@@ -274,6 +297,38 @@ export default function FunnelDetailPage() {
     } finally {
       setIsGeneratingTests(false);
     }
+  };
+
+  const handleSave = (data: { name: string; categoryId: string; url?: string }) => {
+    if (!funnel) return;
+
+    const savedFunnel: SavedFunnel = {
+      id: `funnel_${Date.now()}`,
+      name: data.name,
+      categoryId: data.categoryId,
+      url: data.url,
+      steps: funnel.steps.map(step => ({
+        name: step.name,
+        url: `https://example.com/${step.name.toLowerCase().replace(/\s+/g, '-')}`,
+        visitors: step.visitors,
+        dropoff: step.dropoff,
+      })),
+      analysis: croTableRows.length > 0 ? {
+        generatedAt: new Date().toISOString(),
+        comparisonTable: croTableRows,
+        summary: `Analysis of ${data.name}`,
+        expectedImpact: {
+          totalLift: '+18-30%',
+          confidence: 82,
+        },
+      } : undefined,
+      savedAt: new Date().toISOString(),
+      lastUpdated: new Date().toISOString(),
+    };
+
+    funnelStorage.save(savedFunnel);
+    alert('Funnel saved successfully!');
+    setShowSaveDialog(false);
   };
 
   const getStepConversion = (currentVisitors: number, previousVisitors: number) => {
@@ -774,6 +829,25 @@ export default function FunnelDetailPage() {
                     </div>
                   );
                 })}
+
+                {/* CRO Comparison Table */}
+                {croTableRows.length > 0 && (
+                  <div className="mt-8">
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-[20px] font-semibold text-[#fafafa]">
+                        CRO Decision Table
+                      </h3>
+                      <button
+                        onClick={() => setShowSaveDialog(true)}
+                        className="flex items-center gap-2 px-4 py-2.5 bg-[#00d4aa] text-white rounded-xl text-[14px] font-medium hover:bg-[#00c499] transition-all"
+                      >
+                        <Zap className="w-4 h-4" />
+                        Save Funnel Analysis
+                      </button>
+                    </div>
+                    <CROComparisonTable rows={croTableRows} />
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -1137,6 +1211,18 @@ export default function FunnelDetailPage() {
           />
         )}
       </div>
+
+      {/* Save Dialog */}
+      {funnel && (
+        <SaveItemDialog
+          isOpen={showSaveDialog}
+          onClose={() => setShowSaveDialog(false)}
+          onSave={handleSave}
+          type="funnel"
+          defaultName={funnel.name}
+          defaultUrl={`https://example.com/${funnel.name.toLowerCase().replace(/\s+/g, '-')}`}
+        />
+      )}
     </div>
   );
 }
