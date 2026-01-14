@@ -212,42 +212,87 @@ export default function FunnelBuilder({ onSave, onCancel }: FunnelBuilderProps) 
       return;
     }
 
-    // Build step order based on connections
+    if (edges.length === 0) {
+      setError('❌ Collega gli step: trascina dal cerchio verde (→) di uno step al cerchio viola (←) di un altro step');
+      return;
+    }
+
+    // Validate that all nodes are connected (no isolated nodes)
+    const connectedNodes = new Set<string>();
+    edges.forEach(edge => {
+      connectedNodes.add(edge.source);
+      connectedNodes.add(edge.target);
+    });
+
+    const isolatedNodes = nodes.filter(n => !connectedNodes.has(n.id));
+    if (isolatedNodes.length > 0) {
+      setError(`❌ Alcuni step non sono collegati: ${isolatedNodes.map(n => n.data.label).join(', ')}. Collega tutti gli step al funnel.`);
+      return;
+    }
+
+    // Find starting nodes (nodes with no incoming edges)
+    const incomingEdges = new Set(edges.map(e => e.target));
+    const startNodes = nodes.filter(n => !incomingEdges.has(n.id));
+
+    if (startNodes.length === 0) {
+      setError('❌ Il funnel deve avere almeno uno step iniziale (senza frecce in entrata)');
+      return;
+    }
+
+    // Perform topological sort to order steps (supports branching and merging)
     const stepOrder: string[] = [];
     const visited = new Set<string>();
+    const visiting = new Set<string>();
 
-    // Find the starting node (no incoming edges)
-    const incomingEdges = new Set(edges.map(e => e.target));
-    const startNode = nodes.find(n => !incomingEdges.has(n.id));
+    const visit = (nodeId: string): boolean => {
+      if (visited.has(nodeId)) return true;
+      if (visiting.has(nodeId)) {
+        setError('❌ Il funnel contiene un ciclo (loop). Rimuovi le connessioni circolari.');
+        return false;
+      }
 
-    if (!startNode) {
-      setError('❌ Collega gli step in ordine: trascina dal cerchio verde (→) di uno step al cerchio viola (←) dello step successivo');
-      return;
-    }
+      visiting.add(nodeId);
 
-    // Build ordered list
-    let currentId: string | undefined = startNode.id;
-    while (currentId && !visited.has(currentId)) {
-      stepOrder.push(currentId);
-      visited.add(currentId);
+      // Visit all nodes that this node points to
+      const outgoingEdges = edges.filter(e => e.source === nodeId);
+      for (const edge of outgoingEdges) {
+        if (!visit(edge.target)) return false;
+      }
 
-      const nextEdge = edges.find(e => e.source === currentId);
-      currentId = nextEdge?.target;
-    }
+      visiting.delete(nodeId);
+      visited.add(nodeId);
+      stepOrder.unshift(nodeId); // Add to beginning for correct order
+      return true;
+    };
 
-    if (stepOrder.length !== nodes.length) {
-      setError('❌ Tutti gli step devono essere collegati in un flusso lineare. Assicurati che ogni step sia collegato al successivo.');
-      return;
+    // Start from all starting nodes
+    for (const startNode of startNodes) {
+      if (!visit(startNode.id)) return;
     }
 
     // Generate funnel with mock data
+    // For non-linear funnels, we calculate visitors based on depth level
     const steps: FunnelStep[] = stepOrder.map((id, index) => {
       const node = nodes.find(n => n.id === id)!;
+
+      // Calculate depth (distance from start)
+      const getDepth = (nodeId: string): number => {
+        const incoming = edges.filter(e => e.target === nodeId);
+        if (incoming.length === 0) return 0;
+        return Math.max(...incoming.map(e => getDepth(e.source))) + 1;
+      };
+
+      const depth = getDepth(id);
       const baseVisitors = 10000;
-      const dropoffRate = 0.25; // 25% dropoff per step
-      const visitors = Math.round(baseVisitors * Math.pow(1 - dropoffRate, index));
-      const previousVisitors = index === 0 ? baseVisitors : Math.round(baseVisitors * Math.pow(1 - dropoffRate, index - 1));
-      const dropoff = index === 0 ? 0 : ((previousVisitors - visitors) / previousVisitors) * 100;
+      const dropoffRate = 0.20; // 20% dropoff per level
+      const visitors = Math.round(baseVisitors * Math.pow(1 - dropoffRate, depth));
+
+      // Calculate dropoff based on previous level
+      const previousDepth = depth - 1;
+      const previousVisitors = previousDepth >= 0
+        ? Math.round(baseVisitors * Math.pow(1 - dropoffRate, previousDepth))
+        : baseVisitors;
+      const dropoff = depth === 0 ? 0 : ((previousVisitors - visitors) / previousVisitors) * 100;
 
       return {
         name: node.data.label,
@@ -347,7 +392,7 @@ export default function FunnelBuilder({ onSave, onCancel }: FunnelBuilderProps) 
                 Collega le Card
               </h4>
               <p className="text-[13px] text-[#888888]">
-                Trascina dal <span className="text-[#00d4aa] font-semibold">cerchio verde (→)</span> di una card al <span className="text-[#7c5cff] font-semibold">cerchio viola (←)</span> della card successiva
+                Trascina dal <span className="text-[#00d4aa] font-semibold">cerchio verde (→)</span> di una card al <span className="text-[#7c5cff] font-semibold">cerchio viola (←)</span> della card successiva. <span className="text-[#fafafa] font-semibold">Puoi creare più percorsi e ramificazioni!</span>
               </p>
             </div>
             <div className="bg-[#0a0a0a]/50 border border-white/10 rounded-xl p-4">
@@ -360,6 +405,23 @@ export default function FunnelBuilder({ onSave, onCancel }: FunnelBuilderProps) 
               <p className="text-[13px] text-[#888888]">
                 Doppio click sul nome per modificare, trascina per riposizionare, usa il cestino per eliminare
               </p>
+            </div>
+          </div>
+          <div className="mt-4 bg-[#0a0a0a]/80 border border-[#00d4aa]/30 rounded-xl p-4">
+            <p className="text-[12px] text-[#888888] mb-2">💡 <span className="text-[#fafafa] font-semibold">Esempi di funnel che puoi creare:</span></p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px] text-[#888888]">
+              <div>
+                <span className="text-[#00d4aa]">→</span> <span className="text-[#fafafa]">Lineare:</span> Landing → Checkout → Thank You
+              </div>
+              <div>
+                <span className="text-[#00d4aa]">→</span> <span className="text-[#fafafa]">Ramificato:</span> Landing → (Product A / Product B) → Checkout
+              </div>
+              <div>
+                <span className="text-[#00d4aa]">→</span> <span className="text-[#fafafa]">Convergente:</span> (Landing A / Landing B) → Checkout → Thank You
+              </div>
+              <div>
+                <span className="text-[#00d4aa]">→</span> <span className="text-[#fafafa]">Complesso:</span> Più percorsi che si uniscono e si dividono
+              </div>
             </div>
           </div>
         </div>
