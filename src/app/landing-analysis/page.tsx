@@ -87,23 +87,41 @@ export default function LandingAnalysisPage() {
     setIsAnalyzing(true);
     setError("");
     setResults([]);
+    setCroTableRows([]);
 
     try {
-      const response = await fetch("/api/analyze-landing", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          url,
-          filters: selectedFilters.includes("all")
-            ? ["cro", "copy", "colors", "experience"]
-            : selectedFilters,
+      // Run both analysis in parallel
+      const [analysisResponse, croTableResponse] = await Promise.all([
+        fetch("/api/analyze-landing", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            url,
+            filters: selectedFilters.includes("all")
+              ? ["cro", "copy", "colors", "experience"]
+              : selectedFilters,
+          }),
         }),
-      });
+        fetch("/api/generate-cro-table", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            url,
+            type: 'landing',
+          }),
+        }),
+      ]);
 
-      if (!response.ok) throw new Error("Analysis error");
+      if (!analysisResponse.ok) throw new Error("Analysis error");
 
-      const data = await response.json();
-      setResults(data.results);
+      const analysisData = await analysisResponse.json();
+      setResults(analysisData.results);
+
+      // CRO table is optional - don't fail if it errors
+      if (croTableResponse.ok) {
+        const croTableData = await croTableResponse.json();
+        setCroTableRows(croTableData.rows);
+      }
     } catch (err) {
       setError("An error occurred. Please try again later.");
     } finally {
