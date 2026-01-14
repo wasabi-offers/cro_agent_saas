@@ -37,6 +37,7 @@ import {
 } from "@/lib/mock-data";
 import CROComparisonTable from "@/components/CROComparisonTable";
 import SaveItemDialog from "@/components/SaveItemDialog";
+import FunnelVisualizer from "@/components/FunnelVisualizer";
 import { CROTableRow, SavedFunnel, funnelStorage } from "@/lib/saved-items";
 
 interface AnalysisResult {
@@ -432,6 +433,11 @@ export default function FunnelDetailPage() {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Funnel Visualizer */}
+        <div className="mb-8">
+          <FunnelVisualizer steps={funnel.steps} name={funnel.name} />
         </div>
 
         {/* Tabs */}

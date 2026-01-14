@@ -16,12 +16,14 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { generateMockFunnels, ConversionFunnel } from "@/lib/mock-data";
+import FunnelBuilder from "@/components/FunnelBuilder";
 
 export default function FunnelsListPage() {
   const [funnels, setFunnels] = useState<ConversionFunnel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"name" | "conversion" | "visitors">("conversion");
+  const [showBuilder, setShowBuilder] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -34,6 +36,20 @@ export default function FunnelsListPage() {
 
     loadData();
   }, []);
+
+  const handleSaveFunnel = (funnel: { name: string; steps: any[] }) => {
+    // In production, this would POST to API
+    const newFunnel: ConversionFunnel = {
+      id: `funnel_${Date.now()}`,
+      name: funnel.name,
+      steps: funnel.steps,
+      conversionRate: (funnel.steps[funnel.steps.length - 1].visitors / funnel.steps[0].visitors) * 100,
+    };
+
+    setFunnels([newFunnel, ...funnels]);
+    setShowBuilder(false);
+    alert('Funnel created successfully!');
+  };
 
   const filteredFunnels = funnels
     .filter((funnel) =>
@@ -85,7 +101,10 @@ export default function FunnelsListPage() {
               Analyze user journeys and optimize conversion paths
             </p>
           </div>
-          <button className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all">
+          <button
+            onClick={() => setShowBuilder(true)}
+            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
+          >
             <Plus className="w-4 h-4" />
             Create Funnel
           </button>
@@ -142,8 +161,16 @@ export default function FunnelsListPage() {
           </div>
         </div>
 
-        {/* Search and Filter */}
-        <div className="flex items-center gap-4 mb-8">
+        {/* Funnel Builder */}
+        {showBuilder ? (
+          <FunnelBuilder
+            onSave={handleSaveFunnel}
+            onCancel={() => setShowBuilder(false)}
+          />
+        ) : (
+          <>
+            {/* Search and Filter */}
+            <div className="flex items-center gap-4 mb-8">
           <div className="flex-1 relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#666666]" />
             <input
@@ -269,6 +296,8 @@ export default function FunnelsListPage() {
               );
             })}
           </div>
+        )}
+          </>
         )}
       </div>
     </div>
