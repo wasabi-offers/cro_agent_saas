@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { fetchClarityInsights } from "@/lib/supabase-data";
 
 // ============================================
 // CONFIGURAZIONE
@@ -9,11 +10,6 @@ import { NextRequest, NextResponse } from "next/server";
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 // ============================================
 // DEFINIZIONE TOOLS PER CRO
@@ -217,13 +213,7 @@ async function executeToolCall(
       // CLARITY OVERVIEW
       // -----------------------------------------
       case "get_clarity_overview": {
-        const { data: insights, error } = await supabase
-          .from("clarity_insights")
-          .select("*")
-          .order("fetched_at", { ascending: false })
-          .limit(500);
-
-        if (error) throw error;
+        const insights = await fetchClarityInsights(500);
 
         // Calculate overview
         const deviceData = new Map<string, { sessions: number; users: number; pagesPerSession: number; bots: number }>();
@@ -232,7 +222,7 @@ async function executeToolCall(
         let activeTime = 0;
         let timeCount = 0;
 
-        insights?.forEach((insight) => {
+        insights.forEach((insight) => {
           if (insight.dimension === "Device" && insight.dimension_value) {
             const device = insight.dimension_value;
             
@@ -283,7 +273,7 @@ async function executeToolCall(
           deviceBreakdown: devices,
           uxIssuesSummary: uxIssues,
           totalUxIssues: uxIssues.deadClicks + uxIssues.rageClicks + uxIssues.quickbacks + uxIssues.scriptErrors,
-          dataPoints: insights?.length || 0,
+          dataPoints: insights.length,
         };
       }
 
@@ -291,14 +281,8 @@ async function executeToolCall(
       // TRAFFIC BY DEVICE
       // -----------------------------------------
       case "get_traffic_by_device": {
-        const { data: insights, error } = await supabase
-          .from("clarity_insights")
-          .select("*")
-          .eq("dimension", "Device")
-          .order("fetched_at", { ascending: false })
-          .limit(200);
-
-        if (error) throw error;
+        const insights = await fetchClarityInsights(200);
+        const filteredInsights = insights.filter(i => i.dimension === "Device");
 
         const deviceMap = new Map<string, {
           sessions: number;
@@ -308,7 +292,7 @@ async function executeToolCall(
           scrollDepth: number;
         }>();
 
-        insights?.forEach((insight) => {
+        filteredInsights.forEach((insight) => {
           if (insight.dimension_value && insight.total_session_count) {
             const existing = deviceMap.get(insight.dimension_value);
             if (!existing || insight.total_session_count > existing.sessions) {
@@ -345,18 +329,14 @@ async function executeToolCall(
       // UX ISSUES
       // -----------------------------------------
       case "get_ux_issues": {
-        let query = supabase
-          .from("clarity_insights")
-          .select("*")
-          .eq("dimension", "Device")
-          .in("metric_name", ["DeadClickCount", "RageClickCount", "QuickbackCount", "ScriptErrorCount", "ExcessiveScrollCount"])
-          .order("sub_total", { ascending: false });
+        const allInsights = await fetchClarityInsights((toolInput.limit as number) || 50);
+        const uxMetrics = ["DeadClickCount", "RageClickCount", "QuickbackCount", "ScriptErrorCount", "ExcessiveScrollCount"];
 
-        const { data: issues, error } = await query.limit((toolInput.limit as number) || 50);
+        const issues = allInsights
+          .filter(i => i.dimension === "Device" && uxMetrics.includes(i.metric_name))
+          .sort((a, b) => (b.sub_total || 0) - (a.sub_total || 0));
 
-        if (error) throw error;
-
-        let result = issues?.filter(i => i.sessions_count && i.sessions_count > 0) || [];
+        let result = issues.filter(i => i.sessions_count && i.sessions_count > 0);
 
         // Filter by device
         if (toolInput.device) {
@@ -383,15 +363,8 @@ async function executeToolCall(
       // ENGAGEMENT METRICS
       // -----------------------------------------
       case "get_engagement_metrics": {
-        const { data: insights, error } = await supabase
-          .from("clarity_insights")
-          .select("*")
-          .eq("dimension", "Device")
-          .not("total_time", "is", null)
-          .order("fetched_at", { ascending: false })
-          .limit(100);
-
-        if (error) throw error;
+        const insights = await fetchClarityInsights(100);
+        const filteredInsights = insights.filter(i => i.dimension === "Device" && i.total_time !== null);
 
         const deviceMap = new Map<string, {
           totalTime: number;
@@ -400,7 +373,7 @@ async function executeToolCall(
           pagesPerSession: number;
         }>();
 
-        insights?.forEach((insight) => {
+        filteredInsights.forEach((insight) => {
           if (insight.dimension_value && insight.total_time) {
             const existing = deviceMap.get(insight.dimension_value);
             if (!existing || insight.total_time > existing.totalTime) {
@@ -434,33 +407,31 @@ async function executeToolCall(
       // SEARCH INSIGHTS
       // -----------------------------------------
       case "search_insights": {
-        let query = supabase
-          .from("clarity_insights")
-          .select("*")
-          .order("fetched_at", { ascending: false });
+        const limit = Math.min((toolInput.limit as number) || 50, 100);
+        let insights = await fetchClarityInsights(limit * 2);
 
+        // Apply filters
         if (toolInput.dimension) {
-          query = query.eq("dimension", toolInput.dimension);
+          insights = insights.filter(i => i.dimension === toolInput.dimension);
         }
         if (toolInput.dimension_value) {
-          query = query.ilike("dimension_value", `%${toolInput.dimension_value}%`);
+          insights = insights.filter(i =>
+            i.dimension_value?.toLowerCase().includes((toolInput.dimension_value as string).toLowerCase())
+          );
         }
         if (toolInput.metric_name) {
-          query = query.ilike("metric_name", `%${toolInput.metric_name}%`);
+          insights = insights.filter(i =>
+            i.metric_name?.toLowerCase().includes((toolInput.metric_name as string).toLowerCase())
+          );
         }
         if (toolInput.date_from) {
-          query = query.gte("fetched_at", toolInput.date_from);
+          insights = insights.filter(i => i.fetched_at >= (toolInput.date_from as string));
         }
         if (toolInput.date_to) {
-          query = query.lte("fetched_at", toolInput.date_to);
+          insights = insights.filter(i => i.fetched_at <= (toolInput.date_to as string));
         }
 
-        const limit = Math.min((toolInput.limit as number) || 50, 100);
-        const { data, error } = await query.limit(limit);
-
-        if (error) throw error;
-
-        return data?.map(insight => ({
+        return insights.slice(0, limit).map(insight => ({
           id: insight.id,
           dimension: insight.dimension,
           dimensionValue: insight.dimension_value,
@@ -477,20 +448,13 @@ async function executeToolCall(
       // STATISTICS
       // -----------------------------------------
       case "get_statistics": {
-        const { data: allInsights, error } = await supabase
-          .from("clarity_insights")
-          .select("*")
-          .order("fetched_at", { ascending: false })
-          .limit(500);
-
-        if (error) throw error;
-
+        const allInsights = await fetchClarityInsights(500);
         const limit = (toolInput.limit as number) || 10;
 
         switch (toolInput.stat_type) {
           case "total_sessions": {
             const deviceSessions = new Map<string, number>();
-            allInsights?.forEach(i => {
+            allInsights.forEach(i => {
               if (i.dimension === "Device" && i.total_session_count) {
                 const existing = deviceSessions.get(i.dimension_value) || 0;
                 if (i.total_session_count > existing) {
@@ -504,7 +468,7 @@ async function executeToolCall(
 
           case "total_users": {
             const deviceUsers = new Map<string, number>();
-            allInsights?.forEach(i => {
+            allInsights.forEach(i => {
               if (i.dimension === "Device" && i.distinct_user_count) {
                 const existing = deviceUsers.get(i.dimension_value) || 0;
                 if (i.distinct_user_count > existing) {
@@ -518,7 +482,7 @@ async function executeToolCall(
 
           case "sessions_by_device": {
             const deviceData = new Map<string, { sessions: number; users: number; percentage: number }>();
-            allInsights?.forEach(i => {
+            allInsights.forEach(i => {
               if (i.dimension === "Device" && i.total_session_count) {
                 const existing = deviceData.get(i.dimension_value);
                 if (!existing || i.total_session_count > existing.sessions) {
@@ -543,7 +507,7 @@ async function executeToolCall(
 
           case "ux_issues_summary": {
             const issues: Record<string, number> = {};
-            allInsights?.forEach(i => {
+            allInsights.forEach(i => {
               if (i.dimension === "Device" && i.sub_total) {
                 const metric = i.metric_name;
                 if (metric.includes("Click") || metric.includes("Quickback") || metric.includes("Error") || metric.includes("Scroll")) {
@@ -558,7 +522,7 @@ async function executeToolCall(
 
           case "top_ux_issues": {
             const issuesByDevice: Array<{ device: string; issue: string; count: number; percentage: number }> = [];
-            allInsights?.forEach(i => {
+            allInsights.forEach(i => {
               if (i.dimension === "Device" && i.sub_total && i.sessions_with_metric_percentage) {
                 const metric = i.metric_name;
                 if (metric.includes("Click") || metric.includes("Quickback") || metric.includes("Error")) {
@@ -576,7 +540,7 @@ async function executeToolCall(
 
           case "engagement_by_device": {
             const engagement = new Map<string, { totalTime: number; activeTime: number }>();
-            allInsights?.forEach(i => {
+            allInsights.forEach(i => {
               if (i.dimension === "Device" && i.total_time) {
                 const existing = engagement.get(i.dimension_value);
                 if (!existing || i.total_time > existing.totalTime) {
@@ -597,7 +561,7 @@ async function executeToolCall(
 
           case "bot_traffic": {
             const bots = new Map<string, number>();
-            allInsights?.forEach(i => {
+            allInsights.forEach(i => {
               if (i.dimension === "Device" && i.total_bot_session_count) {
                 const existing = bots.get(i.dimension_value) || 0;
                 if (i.total_bot_session_count > existing) {
@@ -610,7 +574,7 @@ async function executeToolCall(
 
           case "daily_trends": {
             const daily = new Map<string, { sessions: number; issues: number }>();
-            allInsights?.forEach(i => {
+            allInsights.forEach(i => {
               const date = i.fetched_at?.split("T")[0];
               if (date) {
                 const existing = daily.get(date) || { sessions: 0, issues: 0 };
@@ -638,13 +602,7 @@ async function executeToolCall(
       // FIND CRO PATTERNS
       // -----------------------------------------
       case "find_cro_patterns": {
-        const { data: allInsights, error } = await supabase
-          .from("clarity_insights")
-          .select("*")
-          .order("fetched_at", { ascending: false })
-          .limit(500);
-
-        if (error) throw error;
+        const allInsights = await fetchClarityInsights(500);
 
         switch (toolInput.pattern_type) {
           case "device_comparison": {
@@ -658,7 +616,7 @@ async function executeToolCall(
               rageClicks: number;
             }>();
 
-            allInsights?.forEach(i => {
+            allInsights.forEach(i => {
               if (i.dimension === "Device" && i.dimension_value) {
                 const existing = devices.get(i.dimension_value) || {
                   sessions: 0, users: 0, pagesPerSession: 0, totalTime: 0, activeTime: 0, deadClicks: 0, rageClicks: 0
@@ -695,7 +653,7 @@ async function executeToolCall(
             const mobile = { sessions: 0, users: 0, deadClicks: 0, rageClicks: 0, totalTime: 0, activeTime: 0 };
             const desktop = { sessions: 0, users: 0, deadClicks: 0, rageClicks: 0, totalTime: 0, activeTime: 0 };
 
-            allInsights?.forEach(i => {
+            allInsights.forEach(i => {
               if (i.dimension === "Device") {
                 const target = i.dimension_value === "Mobile" ? mobile : 
                               i.dimension_value === "Desktop" || i.dimension_value === "PC" ? desktop : null;
@@ -749,7 +707,7 @@ async function executeToolCall(
               impact: string;
             }> = [];
 
-            allInsights?.forEach(i => {
+            allInsights.forEach(i => {
               if (i.dimension === "Device" && i.sub_total && i.sessions_with_metric_percentage) {
                 if (i.sessions_with_metric_percentage > 15) {
                   issues.push({
@@ -769,7 +727,7 @@ async function executeToolCall(
           case "conversion_blockers": {
             const blockers: Array<{ issue: string; device: string; impact: string; recommendation: string }> = [];
             
-            allInsights?.forEach(i => {
+            allInsights.forEach(i => {
               if (i.dimension === "Device" && i.sessions_with_metric_percentage && i.sessions_with_metric_percentage > 20) {
                 let recommendation = "";
                 
@@ -808,18 +766,12 @@ async function executeToolCall(
       // COMPARE DEVICES
       // -----------------------------------------
       case "compare_devices": {
-        const { data: allInsights, error } = await supabase
-          .from("clarity_insights")
-          .select("*")
-          .eq("dimension", "Device")
-          .order("fetched_at", { ascending: false })
-          .limit(300);
-
-        if (error) throw error;
+        const allInsights = await fetchClarityInsights(300);
+        const filteredInsights = allInsights.filter(i => i.dimension === "Device");
 
         const devices = new Map<string, Record<string, number | string>>();
 
-        allInsights?.forEach(i => {
+        filteredInsights.forEach(i => {
           if (i.dimension_value) {
             const existing = devices.get(i.dimension_value) || { device: i.dimension_value };
 
@@ -859,13 +811,7 @@ async function executeToolCall(
       // A/B TEST SUGGESTIONS
       // -----------------------------------------
       case "get_ab_test_suggestions": {
-        const { data: allInsights, error } = await supabase
-          .from("clarity_insights")
-          .select("*")
-          .order("fetched_at", { ascending: false })
-          .limit(300);
-
-        if (error) throw error;
+        const allInsights = await fetchClarityInsights(300);
 
         const suggestions: Array<{
           name: string;
@@ -880,7 +826,7 @@ async function executeToolCall(
         const mobileIssues: Record<string, number> = {};
         const desktopIssues: Record<string, number> = {};
 
-        allInsights?.forEach(i => {
+        allInsights.forEach(i => {
           if (i.dimension === "Device" && i.sub_total) {
             if (i.dimension_value === "Mobile") {
               mobileIssues[i.metric_name] = (mobileIssues[i.metric_name] || 0) + i.sub_total;
