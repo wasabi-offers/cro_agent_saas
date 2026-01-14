@@ -10,7 +10,6 @@ import ReactFlow, {
   useEdgesState,
   Background,
   Controls,
-  MiniMap,
   ConnectionMode,
   Handle,
   Position,
@@ -27,6 +26,7 @@ interface FunnelStep {
 interface FunnelBuilderProps {
   onSave: (funnel: { name: string; steps: FunnelStep[] }) => void;
   onCancel: () => void;
+  initialFunnel?: { name: string; steps: FunnelStep[] };
 }
 
 interface StepNodeData {
@@ -135,12 +135,53 @@ const nodeTypes = {
   stepNode: StepNode,
 };
 
-export default function FunnelBuilder({ onSave, onCancel }: FunnelBuilderProps) {
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [funnelName, setFunnelName] = useState('');
+export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: FunnelBuilderProps) {
+  // Initialize nodes and edges from existing funnel if provided
+  const initializeFromFunnel = () => {
+    if (!initialFunnel) return { nodes: [], edges: [] };
+
+    const nodes: Node[] = initialFunnel.steps.map((step, index) => ({
+      id: `step-${index + 1}`,
+      type: 'stepNode',
+      position: { x: index * 300, y: 100 },
+      data: {
+        label: step.name,
+        onDelete: deleteNode,
+        onEdit: editNode,
+      },
+    }));
+
+    const edges: Edge[] = initialFunnel.steps.slice(0, -1).map((_, index) => ({
+      id: `edge-${index}`,
+      source: `step-${index + 1}`,
+      target: `step-${index + 2}`,
+      type: 'smoothstep',
+      animated: true,
+      style: {
+        stroke: '#7c5cff',
+        strokeWidth: 3,
+      },
+      label: '→',
+      labelStyle: {
+        fill: '#00d4aa',
+        fontSize: 14,
+        fontWeight: 700,
+      },
+      labelBgStyle: {
+        fill: '#0a0a0a',
+        fillOpacity: 0.8,
+      },
+    }));
+
+    return { nodes, edges };
+  };
+
+  const initialData = initializeFromFunnel();
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialData.nodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialData.edges);
+  const [funnelName, setFunnelName] = useState(initialFunnel?.name || '');
   const [error, setError] = useState('');
-  const [showTutorial, setShowTutorial] = useState(true);
+  const [showTutorial, setShowTutorial] = useState(!initialFunnel);
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -313,7 +354,7 @@ export default function FunnelBuilder({ onSave, onCancel }: FunnelBuilderProps) 
       <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-[20px] font-semibold text-[#fafafa]">
-            Build Your Funnel
+            {initialFunnel ? 'Modifica Funnel' : 'Costruisci il tuo Funnel'}
           </h2>
           <button
             onClick={onCancel}
@@ -468,11 +509,6 @@ export default function FunnelBuilder({ onSave, onCancel }: FunnelBuilderProps) 
           >
             <Background color="#333" gap={16} />
             <Controls className="bg-[#0a0a0a] border border-white/10 rounded-lg" />
-            <MiniMap
-              className="bg-[#0a0a0a] border border-white/10 rounded-lg"
-              nodeColor="#7c5cff"
-              maskColor="rgba(0, 0, 0, 0.6)"
-            />
           </ReactFlow>
 
           {/* Empty State */}
@@ -508,7 +544,7 @@ export default function FunnelBuilder({ onSave, onCancel }: FunnelBuilderProps) 
           className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white rounded-xl text-[14px] font-medium hover:shadow-lg hover:shadow-purple-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Save className="w-4 h-4" />
-          Crea Funnel
+          {initialFunnel ? 'Salva Modifiche' : 'Crea Funnel'}
         </button>
       </div>
     </div>
