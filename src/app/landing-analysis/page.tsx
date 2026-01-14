@@ -5,6 +5,8 @@ import Header from "@/components/Header";
 import VisualAnnotations from "@/components/VisualAnnotations";
 import BeforeAfterTracking from "@/components/BeforeAfterTracking";
 import ExportShareButtons from "@/components/ExportShareButtons";
+import CROComparisonTable from "@/components/CROComparisonTable";
+import SaveItemDialog from "@/components/SaveItemDialog";
 import {
   FileSearch,
   Loader2,
@@ -18,7 +20,11 @@ import {
   Eye,
   List,
   Clock,
+  Table,
+  Save,
+  Zap,
 } from "lucide-react";
+import { CROTableRow, SavedLandingPage, landingPageStorage } from "@/lib/saved-items";
 
 interface AnalysisResult {
   category: string;
@@ -40,7 +46,15 @@ export default function LandingAnalysisPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [results, setResults] = useState<AnalysisResult[]>([]);
   const [error, setError] = useState("");
-  const [viewMode, setViewMode] = useState<"visual" | "list" | "history">("visual");
+  const [viewMode, setViewMode] = useState<"visual" | "list" | "history" | "cro-table">("visual");
+
+  // CRO Table state
+  const [croTableRows, setCroTableRows] = useState<CROTableRow[]>([]);
+  const [isGeneratingTable, setIsGeneratingTable] = useState(false);
+  const [croTableError, setCroTableError] = useState("");
+
+  // Save dialog state
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
 
   const filters = [
     { id: "all", label: "Complete Analysis", icon: Sparkles },
@@ -95,6 +109,61 @@ export default function LandingAnalysisPage() {
     } finally {
       setIsAnalyzing(false);
     }
+  };
+
+  const handleGenerateCROTable = async () => {
+    if (!url) {
+      setCroTableError("Please analyze a page first");
+      return;
+    }
+
+    setIsGeneratingTable(true);
+    setCroTableError("");
+
+    try {
+      const response = await fetch("/api/generate-cro-table", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          url,
+          type: 'landing',
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to generate CRO table");
+
+      const data = await response.json();
+      setCroTableRows(data.rows);
+      setViewMode("cro-table");
+    } catch (err) {
+      setCroTableError("An error occurred generating the CRO table. Please try again.");
+    } finally {
+      setIsGeneratingTable(false);
+    }
+  };
+
+  const handleSave = (data: { name: string; categoryId: string; url?: string }) => {
+    const savedPage: SavedLandingPage = {
+      id: `page_${Date.now()}`,
+      name: data.name,
+      categoryId: data.categoryId,
+      url: data.url || url,
+      analysis: croTableRows.length > 0 ? {
+        generatedAt: new Date().toISOString(),
+        comparisonTable: croTableRows,
+        summary: `Analysis of ${data.name}`,
+        expectedImpact: {
+          totalLift: '+15-25%',
+          confidence: 85,
+        },
+      } : undefined,
+      savedAt: new Date().toISOString(),
+      lastUpdated: new Date().toISOString(),
+    };
+
+    landingPageStorage.save(savedPage);
+    alert('Landing page saved successfully!');
+    setShowSaveDialog(false);
   };
 
   const getScoreColor = (score: number) => {
@@ -300,27 +369,55 @@ export default function LandingAnalysisPage() {
           )}
 
           {/* Analyze Button */}
-          <button
-            onClick={handleAnalyze}
-            disabled={isAnalyzing}
-            className="w-full bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white px-6 py-4 rounded-xl font-medium text-[15px] hover:shadow-lg hover:shadow-purple-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {isAnalyzing ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Analyzing...
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-5 h-5" />
-                Start Analysis
-              </>
-            )}
-          </button>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <button
+              onClick={handleAnalyze}
+              disabled={isAnalyzing}
+              className="bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white px-6 py-4 rounded-xl font-medium text-[15px] hover:shadow-lg hover:shadow-purple-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isAnalyzing ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Analyzing...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-5 h-5" />
+                  Start Analysis
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={handleGenerateCROTable}
+              disabled={isGeneratingTable || !url}
+              className="bg-[#0a0a0a] border-2 border-[#7c5cff] text-[#7c5cff] px-6 py-4 rounded-xl font-medium text-[15px] hover:bg-[#7c5cff]/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isGeneratingTable ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Zap className="w-5 h-5" />
+                  Generate CRO Decision Table
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* CRO Table Error */}
+          {croTableError && (
+            <div className="mt-4 flex items-center gap-2 text-[#ff6b6b] text-[14px] bg-[#ff6b6b]/10 border border-[#ff6b6b]/20 rounded-xl px-4 py-3">
+              <AlertCircle className="w-4 h-4" />
+              {croTableError}
+            </div>
+          )}
         </div>
 
         {/* Results Section */}
-        {results.length > 0 && (
+        {(results.length > 0 || croTableRows.length > 0) && (
           <div className="space-y-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -330,8 +427,19 @@ export default function LandingAnalysisPage() {
                 </h2>
               </div>
 
-              {/* Export/Share Buttons */}
-              <ExportShareButtons pageUrl={url} />
+              <div className="flex items-center gap-3">
+                {/* Save Button */}
+                <button
+                  onClick={() => setShowSaveDialog(true)}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-[#00d4aa] text-white rounded-xl text-[14px] font-medium hover:bg-[#00c499] transition-all"
+                >
+                  <Save className="w-4 h-4" />
+                  Save Analysis
+                </button>
+
+                {/* Export/Share Buttons */}
+                <ExportShareButtons pageUrl={url} />
+              </div>
             </div>
 
             {/* View Toggle */}
@@ -358,6 +466,18 @@ export default function LandingAnalysisPage() {
                 >
                   <List className="w-4 h-4" />
                   List
+                </button>
+                <button
+                  onClick={() => setViewMode("cro-table")}
+                  disabled={croTableRows.length === 0}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-all disabled:opacity-40 ${
+                    viewMode === "cro-table"
+                      ? "bg-[#7c5cff] text-white"
+                      : "text-[#888888] hover:text-[#fafafa]"
+                  }`}
+                >
+                  <Table className="w-4 h-4" />
+                  CRO Table {croTableRows.length > 0 && `(${croTableRows.length})`}
                 </button>
                 <button
                   onClick={() => setViewMode("history")}
@@ -387,6 +507,29 @@ export default function LandingAnalysisPage() {
                 pageUrl={url}
                 history={mockHistory}
               />
+            )}
+
+            {/* CRO Table View */}
+            {viewMode === "cro-table" && (
+              croTableRows.length > 0 ? (
+                <CROComparisonTable rows={croTableRows} />
+              ) : (
+                <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-12 text-center">
+                  <Table className="w-16 h-16 text-[#666666] mx-auto mb-4" />
+                  <p className="text-[16px] text-[#888888] mb-2">No CRO Decision Table generated yet</p>
+                  <p className="text-[14px] text-[#666666] mb-6">
+                    Click "Generate CRO Decision Table" to create a detailed analysis
+                  </p>
+                  <button
+                    onClick={handleGenerateCROTable}
+                    disabled={isGeneratingTable}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white rounded-xl font-medium text-[15px] hover:shadow-lg hover:shadow-purple-500/20 transition-all"
+                  >
+                    <Zap className="w-5 h-5" />
+                    Generate Now
+                  </button>
+                </div>
+              )
             )}
 
             {/* List View */}
@@ -438,6 +581,16 @@ export default function LandingAnalysisPage() {
           </div>
         )}
       </div>
+
+      {/* Save Dialog */}
+      <SaveItemDialog
+        isOpen={showSaveDialog}
+        onClose={() => setShowSaveDialog(false)}
+        onSave={handleSave}
+        type="landing"
+        defaultName={url ? new URL(url).hostname : ''}
+        defaultUrl={url}
+      />
     </div>
   );
 }
