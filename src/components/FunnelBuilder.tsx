@@ -15,12 +15,13 @@ import ReactFlow, {
   Position,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { Plus, Trash2, Save, X, ArrowRight } from 'lucide-react';
+import { Plus, Trash2, Save, X, ArrowRight, Link as LinkIcon, ExternalLink } from 'lucide-react';
 
 interface FunnelStep {
   name: string;
   visitors: number;
   dropoff: number;
+  url?: string;
 }
 
 interface FunnelBuilderProps {
@@ -31,17 +32,19 @@ interface FunnelBuilderProps {
 
 interface StepNodeData {
   label: string;
+  url?: string;
   onDelete: (id: string) => void;
-  onEdit: (id: string, label: string) => void;
+  onEdit: (id: string, label: string, url?: string) => void;
 }
 
 function StepNode({ data, id }: { data: StepNodeData; id: string }) {
   const [isEditing, setIsEditing] = useState(false);
   const [label, setLabel] = useState(data.label);
+  const [url, setUrl] = useState(data.url || '');
 
   const handleSave = () => {
     if (label.trim()) {
-      data.onEdit(id, label);
+      data.onEdit(id, label, url);
       setIsEditing(false);
     }
   };
@@ -60,20 +63,46 @@ function StepNode({ data, id }: { data: StepNodeData; id: string }) {
         <div className="flex flex-col gap-2">
           {isEditing ? (
             <div className="space-y-2">
-              <input
-                type="text"
-                value={label}
-                onChange={(e) => setLabel(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleSave();
-                  if (e.key === 'Escape') {
-                    setLabel(data.label);
-                    setIsEditing(false);
-                  }
-                }}
-                className="w-full px-2 py-1 bg-[#111111] border border-[#7c5cff] rounded text-[14px] text-[#fafafa] focus:outline-none"
-                autoFocus
-              />
+              <div>
+                <label className="text-[11px] text-[#888888] mb-1 block">Nome Step</label>
+                <input
+                  type="text"
+                  value={label}
+                  onChange={(e) => setLabel(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && e.ctrlKey) handleSave();
+                    if (e.key === 'Escape') {
+                      setLabel(data.label);
+                      setUrl(data.url || '');
+                      setIsEditing(false);
+                    }
+                  }}
+                  className="w-full px-2 py-1 bg-[#111111] border border-[#7c5cff] rounded text-[14px] text-[#fafafa] focus:outline-none"
+                  autoFocus
+                  placeholder="e.g., Landing Page"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] text-[#888888] mb-1 block">URL (opzionale)</label>
+                <div className="relative">
+                  <LinkIcon className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#666666]" />
+                  <input
+                    type="url"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && e.ctrlKey) handleSave();
+                      if (e.key === 'Escape') {
+                        setLabel(data.label);
+                        setUrl(data.url || '');
+                        setIsEditing(false);
+                      }
+                    }}
+                    className="w-full pl-8 pr-2 py-1 bg-[#111111] border border-[#7c5cff] rounded text-[13px] text-[#fafafa] focus:outline-none"
+                    placeholder="https://..."
+                  />
+                </div>
+              </div>
               <div className="flex gap-2">
                 <button
                   onClick={handleSave}
@@ -84,6 +113,7 @@ function StepNode({ data, id }: { data: StepNodeData; id: string }) {
                 <button
                   onClick={() => {
                     setLabel(data.label);
+                    setUrl(data.url || '');
                     setIsEditing(false);
                   }}
                   className="flex-1 px-2 py-1 bg-[#666666] text-white rounded text-[12px] hover:bg-[#555555] transition-colors"
@@ -91,6 +121,7 @@ function StepNode({ data, id }: { data: StepNodeData; id: string }) {
                   Cancel
                 </button>
               </div>
+              <p className="text-[10px] text-[#666666]">Ctrl+Enter per salvare</p>
             </div>
           ) : (
             <>
@@ -108,6 +139,33 @@ function StepNode({ data, id }: { data: StepNodeData; id: string }) {
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
+
+              {/* URL Display */}
+              {data.url ? (
+                <div className="mb-2 bg-[#111111] border border-[#2a2a2a] rounded-lg p-2">
+                  <div className="flex items-center gap-2">
+                    <LinkIcon className="w-3 h-3 text-[#00d4aa] flex-shrink-0" />
+                    <span className="text-[11px] text-[#888888] truncate flex-1" title={data.url}>
+                      {data.url}
+                    </span>
+                    <a
+                      href={data.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex-shrink-0 text-[#7c5cff] hover:text-[#00d4aa] transition-colors"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                </div>
+              ) : (
+                <div className="mb-2 flex items-center gap-1 text-[10px] text-[#666666]">
+                  <LinkIcon className="w-3 h-3" />
+                  <span>Nessun URL impostato</span>
+                </div>
+              )}
+
               <p className="text-[11px] text-[#666666]">
                 Double-click to edit
               </p>
@@ -146,6 +204,7 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
       position: { x: index * 300, y: 100 },
       data: {
         label: step.name,
+        url: step.url,
         onDelete: deleteNode,
         onEdit: editNode,
       },
@@ -218,6 +277,7 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
       position: { x: nodes.length * 300, y: 100 },
       data: {
         label: `Step ${nodes.length + 1}`,
+        url: '',
         onDelete: deleteNode,
         onEdit: editNode,
       },
@@ -230,11 +290,11 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
     setEdges((eds) => eds.filter((edge) => edge.source !== id && edge.target !== id));
   };
 
-  const editNode = (id: string, label: string) => {
+  const editNode = (id: string, label: string, url?: string) => {
     setNodes((nds) =>
       nds.map((node) =>
         node.id === id
-          ? { ...node, data: { ...node.data, label } }
+          ? { ...node, data: { ...node.data, label, url } }
           : node
       )
     );
@@ -339,6 +399,7 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
         name: node.data.label,
         visitors,
         dropoff,
+        url: node.data.url || undefined,
       };
     });
 
