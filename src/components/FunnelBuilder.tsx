@@ -12,9 +12,11 @@ import ReactFlow, {
   Controls,
   MiniMap,
   ConnectionMode,
+  Handle,
+  Position,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { Plus, Trash2, Save, X } from 'lucide-react';
+import { Plus, Trash2, Save, X, ArrowRight } from 'lucide-react';
 
 interface FunnelStep {
   name: string;
@@ -45,64 +47,86 @@ function StepNode({ data, id }: { data: StepNodeData; id: string }) {
   };
 
   return (
-    <div className="bg-[#0a0a0a] border-2 border-[#7c5cff] rounded-xl p-4 min-w-[200px] shadow-lg hover:border-[#00d4aa] transition-all">
-      <div className="flex flex-col gap-2">
-        {isEditing ? (
-          <div className="space-y-2">
-            <input
-              type="text"
-              value={label}
-              onChange={(e) => setLabel(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleSave();
-                if (e.key === 'Escape') {
-                  setLabel(data.label);
-                  setIsEditing(false);
-                }
-              }}
-              className="w-full px-2 py-1 bg-[#111111] border border-[#7c5cff] rounded text-[14px] text-[#fafafa] focus:outline-none"
-              autoFocus
-            />
-            <div className="flex gap-2">
-              <button
-                onClick={handleSave}
-                className="flex-1 px-2 py-1 bg-[#00d4aa] text-white rounded text-[12px] hover:bg-[#00c499] transition-colors"
-              >
-                Save
-              </button>
-              <button
-                onClick={() => {
-                  setLabel(data.label);
-                  setIsEditing(false);
+    <div className="relative">
+      {/* Input Handle (Left) - Where connections come IN */}
+      <Handle
+        type="target"
+        position={Position.Left}
+        className="w-4 h-4 !bg-[#7c5cff] border-2 border-white"
+        style={{ left: -8 }}
+      />
+
+      <div className="bg-[#0a0a0a] border-2 border-[#7c5cff] rounded-xl p-4 min-w-[220px] shadow-lg hover:border-[#00d4aa] transition-all">
+        <div className="flex flex-col gap-2">
+          {isEditing ? (
+            <div className="space-y-2">
+              <input
+                type="text"
+                value={label}
+                onChange={(e) => setLabel(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSave();
+                  if (e.key === 'Escape') {
+                    setLabel(data.label);
+                    setIsEditing(false);
+                  }
                 }}
-                className="flex-1 px-2 py-1 bg-[#666666] text-white rounded text-[12px] hover:bg-[#555555] transition-colors"
-              >
-                Cancel
-              </button>
+                className="w-full px-2 py-1 bg-[#111111] border border-[#7c5cff] rounded text-[14px] text-[#fafafa] focus:outline-none"
+                autoFocus
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={handleSave}
+                  className="flex-1 px-2 py-1 bg-[#00d4aa] text-white rounded text-[12px] hover:bg-[#00c499] transition-colors"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => {
+                    setLabel(data.label);
+                    setIsEditing(false);
+                  }}
+                  className="flex-1 px-2 py-1 bg-[#666666] text-white rounded text-[12px] hover:bg-[#555555] transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
-          </div>
-        ) : (
-          <>
-            <div className="flex items-center justify-between">
-              <h3
-                className="text-[14px] font-semibold text-[#fafafa] cursor-pointer"
-                onDoubleClick={() => setIsEditing(true)}
-              >
-                {data.label}
-              </h3>
-              <button
-                onClick={() => data.onDelete(id)}
-                className="w-6 h-6 flex items-center justify-center rounded hover:bg-[#ff6b6b]/10 text-[#ff6b6b] transition-colors"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
-            <p className="text-[11px] text-[#666666]">
-              Double-click to edit
-            </p>
-          </>
-        )}
+          ) : (
+            <>
+              <div className="flex items-center justify-between mb-1">
+                <h3
+                  className="text-[14px] font-semibold text-[#fafafa] cursor-pointer flex-1"
+                  onDoubleClick={() => setIsEditing(true)}
+                >
+                  {data.label}
+                </h3>
+                <button
+                  onClick={() => data.onDelete(id)}
+                  className="w-6 h-6 flex items-center justify-center rounded hover:bg-[#ff6b6b]/10 text-[#ff6b6b] transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <p className="text-[11px] text-[#666666]">
+                Double-click to edit
+              </p>
+              <div className="flex items-center gap-1 text-[10px] text-[#7c5cff] mt-1">
+                <ArrowRight className="w-3 h-3" />
+                <span>Drag from circle to connect</span>
+              </div>
+            </>
+          )}
+        </div>
       </div>
+
+      {/* Output Handle (Right) - Where connections go OUT */}
+      <Handle
+        type="source"
+        position={Position.Right}
+        className="w-4 h-4 !bg-[#00d4aa] border-2 border-white"
+        style={{ right: -8 }}
+      />
     </div>
   );
 }
@@ -116,17 +140,32 @@ export default function FunnelBuilder({ onSave, onCancel }: FunnelBuilderProps) 
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [funnelName, setFunnelName] = useState('');
   const [error, setError] = useState('');
+  const [showTutorial, setShowTutorial] = useState(true);
 
   const onConnect = useCallback(
-    (params: Connection) => setEdges((eds) => addEdge({
-      ...params,
-      type: 'smoothstep',
-      animated: true,
-      style: {
-        stroke: '#7c5cff',
-        strokeWidth: 2,
-      },
-    }, eds)),
+    (params: Connection) => {
+      setEdges((eds) => addEdge({
+        ...params,
+        type: 'smoothstep',
+        animated: true,
+        style: {
+          stroke: '#7c5cff',
+          strokeWidth: 3,
+        },
+        label: '→',
+        labelStyle: {
+          fill: '#00d4aa',
+          fontSize: 14,
+          fontWeight: 700,
+        },
+        labelBgStyle: {
+          fill: '#0a0a0a',
+          fillOpacity: 0.8,
+        },
+      }, eds));
+      // Visual feedback
+      setError('');
+    },
     [setEdges]
   );
 
@@ -164,12 +203,12 @@ export default function FunnelBuilder({ onSave, onCancel }: FunnelBuilderProps) 
     setError('');
 
     if (!funnelName.trim()) {
-      setError('Please enter a funnel name');
+      setError('❌ Inserisci un nome per il funnel');
       return;
     }
 
     if (nodes.length < 2) {
-      setError('Please add at least 2 steps to your funnel');
+      setError('❌ Aggiungi almeno 2 step al tuo funnel');
       return;
     }
 
@@ -182,7 +221,7 @@ export default function FunnelBuilder({ onSave, onCancel }: FunnelBuilderProps) 
     const startNode = nodes.find(n => !incomingEdges.has(n.id));
 
     if (!startNode) {
-      setError('Please connect your funnel steps in order (drag from one step to another)');
+      setError('❌ Collega gli step in ordine: trascina dal cerchio verde (→) di uno step al cerchio viola (←) dello step successivo');
       return;
     }
 
@@ -197,7 +236,7 @@ export default function FunnelBuilder({ onSave, onCancel }: FunnelBuilderProps) 
     }
 
     if (stepOrder.length !== nodes.length) {
-      setError('All steps must be connected in a linear flow');
+      setError('❌ Tutti gli step devono essere collegati in un flusso lineare. Assicurati che ogni step sia collegato al successivo.');
       return;
     }
 
@@ -259,10 +298,10 @@ export default function FunnelBuilder({ onSave, onCancel }: FunnelBuilderProps) 
               className="flex items-center gap-2 px-4 py-2.5 bg-[#7c5cff] text-white rounded-xl text-[14px] font-medium hover:bg-[#6b4ee6] transition-all"
             >
               <Plus className="w-4 h-4" />
-              Add Step
+              Aggiungi Step
             </button>
             <p className="text-[13px] text-[#666666]">
-              {nodes.length} step{nodes.length !== 1 ? 's' : ''} added • Drag from one step to another to connect them
+              {nodes.length} step{nodes.length !== 1 ? 's' : ''} aggiunt{nodes.length !== 1 ? 'i' : 'o'}
             </p>
           </div>
 
@@ -274,14 +313,83 @@ export default function FunnelBuilder({ onSave, onCancel }: FunnelBuilderProps) 
         </div>
       </div>
 
+      {/* Tutorial Banner */}
+      {showTutorial && nodes.length === 0 && (
+        <div className="bg-gradient-to-r from-[#7c5cff]/20 to-[#00d4aa]/20 border border-[#7c5cff]/30 rounded-2xl p-6">
+          <div className="flex items-start justify-between mb-4">
+            <h3 className="text-[18px] font-semibold text-[#fafafa]">
+              👋 Come costruire il tuo funnel
+            </h3>
+            <button
+              onClick={() => setShowTutorial(false)}
+              className="w-6 h-6 flex items-center justify-center rounded hover:bg-white/10 text-[#888888] hover:text-[#fafafa] transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-[#0a0a0a]/50 border border-white/10 rounded-xl p-4">
+              <div className="w-10 h-10 bg-[#7c5cff] rounded-lg flex items-center justify-center text-white font-bold mb-3">
+                1
+              </div>
+              <h4 className="text-[14px] font-semibold text-[#fafafa] mb-2">
+                Aggiungi Steps
+              </h4>
+              <p className="text-[13px] text-[#888888]">
+                Clicca "Aggiungi Step" per creare le card del tuo funnel (Landing Page, Checkout, Thank You, ecc.)
+              </p>
+            </div>
+            <div className="bg-[#0a0a0a]/50 border border-white/10 rounded-xl p-4">
+              <div className="w-10 h-10 bg-[#00d4aa] rounded-lg flex items-center justify-center text-white font-bold mb-3">
+                2
+              </div>
+              <h4 className="text-[14px] font-semibold text-[#fafafa] mb-2">
+                Collega le Card
+              </h4>
+              <p className="text-[13px] text-[#888888]">
+                Trascina dal <span className="text-[#00d4aa] font-semibold">cerchio verde (→)</span> di una card al <span className="text-[#7c5cff] font-semibold">cerchio viola (←)</span> della card successiva
+              </p>
+            </div>
+            <div className="bg-[#0a0a0a]/50 border border-white/10 rounded-xl p-4">
+              <div className="w-10 h-10 bg-[#f59e0b] rounded-lg flex items-center justify-center text-white font-bold mb-3">
+                3
+              </div>
+              <h4 className="text-[14px] font-semibold text-[#fafafa] mb-2">
+                Personalizza
+              </h4>
+              <p className="text-[13px] text-[#888888]">
+                Doppio click sul nome per modificare, trascina per riposizionare, usa il cestino per eliminare
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Canvas */}
       <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-white/10">
-          <p className="text-[14px] text-[#888888]">
-            Drag and drop to rearrange • Double-click steps to rename • Connect steps by dragging from one to another
-          </p>
+        <div className="px-6 py-4 border-b border-white/10 bg-[#111111]/50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#00d4aa]"></div>
+                <span className="text-[12px] text-[#888888]">Cerchio verde = Uscita (trascina da qui)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#7c5cff]"></div>
+                <span className="text-[12px] text-[#888888]">Cerchio viola = Entrata (collega qui)</span>
+              </div>
+            </div>
+            {nodes.length > 0 && (
+              <button
+                onClick={() => setShowTutorial(true)}
+                className="text-[12px] text-[#7c5cff] hover:text-[#00d4aa] transition-colors"
+              >
+                Mostra tutorial
+              </button>
+            )}
+          </div>
         </div>
-        <div style={{ width: '100%', height: '500px' }}>
+        <div style={{ width: '100%', height: '500px' }} className="relative">
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -304,6 +412,23 @@ export default function FunnelBuilder({ onSave, onCancel }: FunnelBuilderProps) 
               maskColor="rgba(0, 0, 0, 0.6)"
             />
           </ReactFlow>
+
+          {/* Empty State */}
+          {nodes.length === 0 && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-[#7c5cff]/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Plus className="w-8 h-8 text-[#7c5cff]" />
+                </div>
+                <h3 className="text-[18px] font-semibold text-[#fafafa] mb-2">
+                  Inizia aggiungendo il primo step
+                </h3>
+                <p className="text-[14px] text-[#888888]">
+                  Clicca "Aggiungi Step" sopra per creare la tua prima card
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -313,14 +438,15 @@ export default function FunnelBuilder({ onSave, onCancel }: FunnelBuilderProps) 
           onClick={onCancel}
           className="px-6 py-3 bg-[#111111] border border-white/10 text-[#888888] rounded-xl text-[14px] font-medium hover:text-[#fafafa] hover:border-[#7c5cff]/50 transition-all"
         >
-          Cancel
+          Annulla
         </button>
         <button
           onClick={handleSave}
-          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white rounded-xl text-[14px] font-medium hover:shadow-lg hover:shadow-purple-500/20 transition-all"
+          disabled={nodes.length < 2}
+          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white rounded-xl text-[14px] font-medium hover:shadow-lg hover:shadow-purple-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Save className="w-4 h-4" />
-          Create Funnel
+          Crea Funnel
         </button>
       </div>
     </div>
