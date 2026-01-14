@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import ReactFlow, {
   Node,
   Edge,
@@ -194,11 +194,35 @@ const nodeTypes = {
 };
 
 export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: FunnelBuilderProps) {
-  // Initialize nodes and edges from existing funnel if provided
-  const initializeFromFunnel = () => {
-    if (!initialFunnel) return { nodes: [], edges: [] };
+  const [funnelName, setFunnelName] = useState(initialFunnel?.name || '');
+  const [error, setError] = useState('');
+  const [showTutorial, setShowTutorial] = useState(!initialFunnel);
 
-    const nodes: Node[] = initialFunnel.steps.map((step, index) => ({
+  // Initialize state hooks first
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  // Define node functions after state hooks
+  const deleteNode = useCallback((id: string) => {
+    setNodes((nds) => nds.filter((node) => node.id !== id));
+    setEdges((eds) => eds.filter((edge) => edge.source !== id && edge.target !== id));
+  }, [setNodes, setEdges]);
+
+  const editNode = useCallback((id: string, label: string, url?: string) => {
+    setNodes((nds) =>
+      nds.map((node) =>
+        node.id === id
+          ? { ...node, data: { ...node.data, label, url } }
+          : node
+      )
+    );
+  }, [setNodes]);
+
+  // Initialize from existing funnel using useEffect
+  useEffect(() => {
+    if (!initialFunnel) return;
+
+    const initialNodes: Node[] = initialFunnel.steps.map((step, index) => ({
       id: `step-${index + 1}`,
       type: 'stepNode',
       position: { x: index * 300, y: 100 },
@@ -210,7 +234,7 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
       },
     }));
 
-    const edges: Edge[] = initialFunnel.steps.slice(0, -1).map((_, index) => ({
+    const initialEdges: Edge[] = initialFunnel.steps.slice(0, -1).map((_, index) => ({
       id: `edge-${index}`,
       source: `step-${index + 1}`,
       target: `step-${index + 2}`,
@@ -232,15 +256,9 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
       },
     }));
 
-    return { nodes, edges };
-  };
-
-  const initialData = initializeFromFunnel();
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialData.nodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialData.edges);
-  const [funnelName, setFunnelName] = useState(initialFunnel?.name || '');
-  const [error, setError] = useState('');
-  const [showTutorial, setShowTutorial] = useState(!initialFunnel);
+    setNodes(initialNodes);
+    setEdges(initialEdges);
+  }, [initialFunnel, deleteNode, editNode, setNodes, setEdges]);
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -283,21 +301,6 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
       },
     };
     setNodes((nds) => [...nds, newNode]);
-  };
-
-  const deleteNode = (id: string) => {
-    setNodes((nds) => nds.filter((node) => node.id !== id));
-    setEdges((eds) => eds.filter((edge) => edge.source !== id && edge.target !== id));
-  };
-
-  const editNode = (id: string, label: string, url?: string) => {
-    setNodes((nds) =>
-      nds.map((node) =>
-        node.id === id
-          ? { ...node, data: { ...node.data, label, url } }
-          : node
-      )
-    );
   };
 
   const handleSave = () => {
