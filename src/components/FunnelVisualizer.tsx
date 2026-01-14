@@ -6,7 +6,6 @@ import ReactFlow, {
   Edge,
   Background,
   Controls,
-  MiniMap,
   useNodesState,
   useEdgesState,
   ConnectionMode,
@@ -147,11 +146,6 @@ export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps)
           >
             <Background color="#333" gap={16} />
             <Controls className="bg-[#0a0a0a] border border-white/10 rounded-lg" />
-            <MiniMap
-              className="bg-[#0a0a0a] border border-white/10 rounded-lg"
-              nodeColor="#7c5cff"
-              maskColor="rgba(0, 0, 0, 0.6)"
-            />
           </ReactFlow>
         </div>
       </div>

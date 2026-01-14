@@ -38,6 +38,7 @@ import {
 import CROComparisonTable from "@/components/CROComparisonTable";
 import SaveItemDialog from "@/components/SaveItemDialog";
 import FunnelVisualizer from "@/components/FunnelVisualizer";
+import FunnelBuilder from "@/components/FunnelBuilder";
 import { CROTableRow, SavedFunnel, funnelStorage } from "@/lib/saved-items";
 
 interface AnalysisResult {
@@ -62,6 +63,7 @@ export default function FunnelDetailPage() {
   const [funnel, setFunnel] = useState<ConversionFunnel | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"overview" | "analysis" | "heatmap" | "abtests" | "setup">("overview");
+  const [showEditBuilder, setShowEditBuilder] = useState(false);
 
   // Analysis state
   const [analysisMode, setAnalysisMode] = useState<"funnel" | "page">("funnel");
@@ -300,6 +302,20 @@ export default function FunnelDetailPage() {
     }
   };
 
+  const handleEditFunnel = (updatedFunnel: { name: string; steps: any[] }) => {
+    // In production, this would PUT to API
+    const updatedConversionFunnel: ConversionFunnel = {
+      id: funnelId,
+      name: updatedFunnel.name,
+      steps: updatedFunnel.steps,
+      conversionRate: (updatedFunnel.steps[updatedFunnel.steps.length - 1].visitors / updatedFunnel.steps[0].visitors) * 100,
+    };
+
+    setFunnel(updatedConversionFunnel);
+    setShowEditBuilder(false);
+    alert('Funnel modificato con successo!');
+  };
+
   const handleSave = (data: { name: string; categoryId: string; url?: string }) => {
     if (!funnel) return;
 
@@ -432,15 +448,37 @@ export default function FunnelDetailPage() {
                 {lastStep.visitors.toLocaleString()}
               </p>
             </div>
+            <div className="h-10 w-px bg-[#2a2a2a]" />
+            <button
+              onClick={() => setShowEditBuilder(true)}
+              className="px-4 py-2.5 bg-[#7c5cff] text-white rounded-xl text-[14px] font-medium hover:bg-[#6b4ee6] transition-all flex items-center gap-2"
+            >
+              <FileSearch className="w-4 h-4" />
+              Modifica Funnel
+            </button>
           </div>
         </div>
 
+        {/* Edit Builder */}
+        {showEditBuilder && (
+          <div className="mb-8">
+            <FunnelBuilder
+              initialFunnel={{ name: funnel.name, steps: funnel.steps }}
+              onSave={handleEditFunnel}
+              onCancel={() => setShowEditBuilder(false)}
+            />
+          </div>
+        )}
+
         {/* Funnel Visualizer */}
-        <div className="mb-8">
-          <FunnelVisualizer steps={funnel.steps} name={funnel.name} />
-        </div>
+        {!showEditBuilder && (
+          <div className="mb-8">
+            <FunnelVisualizer steps={funnel.steps} name={funnel.name} />
+          </div>
+        )}
 
         {/* Tabs */}
+        {!showEditBuilder && (
         <div className="flex items-center gap-4 mb-8 border-b border-[#1a1a1a]">
           <button
             onClick={() => setActiveTab("overview")}
@@ -512,8 +550,11 @@ export default function FunnelDetailPage() {
             )}
           </button>
         </div>
+        )}
 
         {/* Tab Content */}
+        {!showEditBuilder && (
+        <>
         {activeTab === "overview" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Funnel Steps */}
@@ -1215,6 +1256,8 @@ export default function FunnelDetailPage() {
               page: index === 0 ? '/' : `/${step.name.toLowerCase().replace(/\s+/g, '-')}`
             }))}
           />
+        )}
+        </>
         )}
       </div>
 
