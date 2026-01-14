@@ -1,0 +1,118 @@
+═══════════════════════════════════════════════════════════
+📧 MESSAGGIO DA INVIARE AL PROGRAMMATORE
+═══════════════════════════════════════════════════════════
+
+Copia questo messaggio e invialo al programmatore via email/Slack/altro.
+
+
+─────────────────────────────────────────────────────────
+SUBJECT: Setup Supabase per CRO Agent SaaS
+─────────────────────────────────────────────────────────
+
+
+Ciao [NOME],
+
+Ho completato l'integrazione Supabase per salvare i dati permanentemente nel CRO Agent.
+
+🔗 Branch: claude/review-repository-5h35l
+
+✅ Cosa ho fatto:
+• Risolto bug React Flow nel funnel builder
+• Aggiunto campo URL nelle card drag-and-drop
+• Integrato Supabase per persistenza dati
+• Creato schema database (6 tabelle)
+• Scritto documentazione completa
+
+📋 Cosa devi fare tu:
+
+1️⃣ PULL DEL BRANCH
+   git fetch origin
+   git checkout claude/review-repository-5h35l
+
+2️⃣ MERGE SU MAIN (quando pronto)
+   git checkout main
+   git merge claude/review-repository-5h35l
+   git push origin main
+
+3️⃣ SETUP SUPABASE (10 minuti)
+   Segui uno di questi file (dalla più veloce alla più dettagliata):
+   • COMANDI_SUPABASE.txt         ← Checklist super veloce
+   • SETUP_SUPABASE_VELOCE.md     ← Guida passo-passo (10 min)
+   • SUPABASE_SETUP.md            ← Guida completa con troubleshooting
+
+📄 File Importanti:
+• supabase-schema.sql           → Schema database da eseguire
+• src/lib/supabase-funnels.ts   → Funzioni helper CRUD
+• .env.local                    → Aggiungi credenziali Supabase qui
+
+🧪 Come Testare:
+1. Configura Supabase (segui SETUP_SUPABASE_VELOCE.md)
+2. Aggiungi credenziali in .env.local
+3. Riavvia: npm run dev
+4. Vai su /funnels e crea un funnel
+5. Ricarica pagina → Se funnel è ancora lì, funziona! ✅
+
+⚠️ IMPORTANTE:
+• Il codice funziona ANCHE senza Supabase (usa mock data)
+• NON committare .env.local su Git
+• Se hai problemi, leggi sezione Troubleshooting nei file
+
+📊 Recap Commit:
+• d656015 - Fix React Flow error
+• 34757d2 - Add URL input in funnel builder
+• c3f022a - Supabase integration
+• 709e934 - Handoff documentation
+• 76fe5d6 - Quick setup guides
+
+⏱️ Tempo Stimato:
+• Review codice: 10 min
+• Merge branch: 2 min
+• Setup Supabase: 10 min
+• Test: 5 min
+• TOTALE: ~30 minuti
+
+❓ Domande?
+Leggi HANDOFF_PROGRAMMATORE.md per tutti i dettagli.
+
+Fammi sapere quando hai fatto il merge!
+
+Grazie,
+[TUO NOME]
+
+
+═══════════════════════════════════════════════════════════
+📝 VERSIONE CORTA (per Slack/Chat)
+═══════════════════════════════════════════════════════════
+
+Hey! Ho pushato l'integrazione Supabase sul branch `claude/review-repository-5h35l`
+
+✅ Cosa c'è:
+• Fix bug React Flow
+• Campo URL nei funnel
+• Integrazione Supabase completa
+• Schema DB + documentazione
+
+🚀 Cosa fare:
+1. Pull branch
+2. Merge su main
+3. Setup Supabase (10 min) → segui `SETUP_SUPABASE_VELOCE.md`
+
+Tutto funziona anche senza Supabase (fallback a mock data).
+
+Leggi `HANDOFF_PROGRAMMATORE.md` per dettagli completi.
+
+Branch: https://github.com/wasabi-offers/cro_agent_saas/tree/claude/review-repository-5h35l
+
+
+═══════════════════════════════════════════════════════════
+📱 VERSIONE BREVISSIMA (per SMS/WhatsApp)
+═══════════════════════════════════════════════════════════
+
+Pushato integrazione Supabase su branch claude/review-repository-5h35l
+
+Leggi SETUP_SUPABASE_VELOCE.md nella root per setup (10 min)
+
+Tutto pronto per merge!
+
+
+═══════════════════════════════════════════════════════════
