@@ -434,6 +434,40 @@ export default function LandingAnalysisPage() {
           )}
         </div>
 
+        {/* Preview Section */}
+        {url && !isAnalyzing && (results.length > 0 || croTableRows.length > 0) && (
+          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6 mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Eye className="w-5 h-5 text-[#7c5cff]" />
+                <h3 className="text-[18px] font-semibold text-[#fafafa]">
+                  Anteprima Landing Page
+                </h3>
+              </div>
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[13px] text-[#7c5cff] hover:text-[#00d4aa] transition-colors flex items-center gap-1"
+              >
+                Apri in una nuova tab
+                <AlertCircle className="w-3.5 h-3.5" />
+              </a>
+            </div>
+            <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl overflow-hidden" style={{ height: '600px' }}>
+              <iframe
+                src={url}
+                className="w-full h-full"
+                title="Landing Page Preview"
+                sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+              />
+            </div>
+            <p className="text-[11px] text-[#666666] mt-3">
+              💡 Alcuni siti potrebbero bloccare l'anteprima per motivi di sicurezza. In quel caso, apri il link in una nuova tab.
+            </p>
+          </div>
+        )}
+
         {/* Results Section */}
         {(results.length > 0 || croTableRows.length > 0) && (
           <div className="space-y-6">

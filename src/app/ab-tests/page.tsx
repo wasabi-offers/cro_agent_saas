@@ -40,6 +40,10 @@ export default function ABTestsPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedTest, setSelectedTest] = useState<ABTestSuggestion | null>(null);
 
+  // Filtri
+  const [selectedFunnel, setSelectedFunnel] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"priority" | "date">("priority");
+
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
@@ -290,33 +294,93 @@ export default function ABTestsPage() {
 
       <div className="p-10">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-[24px] font-bold text-[#fafafa] mb-2">A/B Test Suggestions</h1>
-            <p className="text-[14px] text-[#666666]">
-              Data-driven test ideas based on your Clarity insights
-            </p>
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-[24px] font-bold text-[#fafafa] mb-2">A/B Test Suggestions</h1>
+              <p className="text-[14px] text-[#666666]">
+                Data-driven test ideas based on your Clarity insights
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={refreshSuggestionsWithAI}
+                disabled={isGenerating}
+                className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#5b3fd9] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all shadow-lg shadow-purple-500/25 disabled:opacity-50"
+              >
+                {isGenerating ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-4 h-4" />
+                )}
+                Refresh Suggestions
+              </button>
+              <Link
+                href="/explore-ai"
+                className="flex items-center gap-2 px-5 py-3 bg-[#00d4aa]/20 text-[#00d4aa] border border-[#00d4aa]/30 text-[14px] font-medium rounded-xl hover:bg-[#00d4aa]/30 transition-all"
+              >
+                <Brain className="w-4 h-4" />
+                Ask AI for More
+              </Link>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={refreshSuggestionsWithAI}
-              disabled={isGenerating}
-              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#5b3fd9] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all shadow-lg shadow-purple-500/25 disabled:opacity-50"
-            >
-              {isGenerating ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <RefreshCw className="w-4 h-4" />
-              )}
-              Refresh Suggestions
-            </button>
-            <Link
-              href="/explore-ai"
-              className="flex items-center gap-2 px-5 py-3 bg-[#00d4aa]/20 text-[#00d4aa] border border-[#00d4aa]/30 text-[14px] font-medium rounded-xl hover:bg-[#00d4aa]/30 transition-all"
-            >
-              <Brain className="w-4 h-4" />
-              Ask AI for More
-            </Link>
+
+          {/* Filtri */}
+          <div className="bg-[#0a0a0a] border border-white/10 rounded-xl p-4 flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Target className="w-4 h-4 text-[#888888]" />
+              <span className="text-[13px] text-[#888888]">Funnel:</span>
+              <select
+                value={selectedFunnel}
+                onChange={(e) => setSelectedFunnel(e.target.value)}
+                className="px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[13px] text-[#fafafa] focus:outline-none focus:border-[#7c5cff] transition-all"
+              >
+                <option value="all">Tutti i Funnel</option>
+                <option value="funnel_1">E-commerce Checkout</option>
+                <option value="funnel_2">SaaS Free Trial</option>
+                <option value="funnel_3">Lead Generation</option>
+                <option value="funnel_4">Mobile App Onboarding</option>
+                <option value="funnel_5">Newsletter Signup</option>
+              </select>
+            </div>
+
+            <div className="h-6 w-px bg-[#2a2a2a]" />
+
+            <div className="flex items-center gap-2">
+              <span className="text-[13px] text-[#888888]">Ordina per:</span>
+              <button
+                onClick={() => setSortBy("priority")}
+                className={`px-3 py-2 rounded-lg text-[13px] font-medium transition-all ${
+                  sortBy === "priority"
+                    ? "bg-[#7c5cff] text-white"
+                    : "bg-[#111111] text-[#888888] border border-[#2a2a2a]"
+                }`}
+              >
+                Priorità
+              </button>
+              <button
+                onClick={() => setSortBy("date")}
+                className={`px-3 py-2 rounded-lg text-[13px] font-medium transition-all ${
+                  sortBy === "date"
+                    ? "bg-[#7c5cff] text-white"
+                    : "bg-[#111111] text-[#888888] border border-[#2a2a2a]"
+                }`}
+              >
+                Cronologia
+              </button>
+            </div>
+
+            {suggestions.filter(s => s.priority === 'CRITICAL').length > 0 && (
+              <>
+                <div className="h-6 w-px bg-[#2a2a2a]" />
+                <div className="flex items-center gap-2 px-3 py-2 bg-[#ff0000]/10 border border-[#ff0000]/30 rounded-lg animate-pulse">
+                  <AlertTriangle className="w-4 h-4 text-[#ff6b6b]" />
+                  <span className="text-[12px] text-[#ff6b6b] font-medium">
+                    {suggestions.filter(s => s.priority === 'CRITICAL').length} test CRITICI urgenti
+                  </span>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -380,16 +444,29 @@ export default function ABTestsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Tests List */}
           <div className="lg:col-span-2 space-y-4">
-            {suggestions.map((suggestion, index) => (
+            {suggestions.map((suggestion, index) => {
+              const isCritical = suggestion.priority === 'CRITICAL';
+              const isUrgent = suggestion.priority === 'CRITICAL' || suggestion.priority === 'HIGH';
+
+              return (
               <div
                 key={suggestion.id}
                 onClick={() => setSelectedTest(suggestion)}
-                className={`bg-[#0a0a0a] border rounded-2xl p-6 cursor-pointer transition-all hover:bg-[#111111] ${
+                className={`bg-[#0a0a0a] rounded-2xl p-6 cursor-pointer transition-all hover:bg-[#111111] relative ${
                   selectedTest?.id === suggestion.id
-                    ? 'border-[#7c5cff]'
-                    : 'border-white/10'
+                    ? 'border-2 border-[#7c5cff]'
+                    : isCritical
+                    ? 'border-2 border-[#ff0000] animate-pulse'
+                    : isUrgent
+                    ? 'border-2 border-[#ff6b6b]/50'
+                    : 'border border-white/10'
                 }`}
               >
+                {isCritical && (
+                  <div className="absolute -top-3 -right-3 w-8 h-8 bg-[#ff0000] rounded-full flex items-center justify-center animate-bounce">
+                    <AlertTriangle className="w-4 h-4 text-white" />
+                  </div>
+                )}
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-3">
@@ -437,7 +514,8 @@ export default function ABTestsPage() {
                   </p>
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
 
           {/* Detail Panel */}
