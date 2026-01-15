@@ -11,10 +11,16 @@ export interface FunnelStep {
   url?: string;
 }
 
+export interface FunnelConnection {
+  source: string;  // Node ID (e.g., "step-1")
+  target: string;  // Node ID (e.g., "step-2")
+}
+
 export interface ConversionFunnel {
   id: string;
   name: string;
   steps: FunnelStep[];
+  connections?: FunnelConnection[];  // Optional for backwards compatibility
   conversionRate: number;
 }
 
@@ -125,6 +131,17 @@ export async function fetchFunnels(): Promise<ConversionFunnel[]> {
       return getMockFunnels();
     }
 
+    // Fetch connections for all funnels
+    const { data: connectionsData, error: connectionsError } = await supabase
+      .from("funnel_connections")
+      .select("*")
+      .in("funnel_id", funnelIds);
+
+    if (connectionsError) {
+      console.error("Error fetching funnel connections:", connectionsError);
+      // Continue without connections
+    }
+
     // Group steps by funnel_id
     const stepsByFunnelId = new Map<string, FunnelStepDB[]>();
     stepsData?.forEach((step) => {
@@ -134,18 +151,47 @@ export async function fetchFunnels(): Promise<ConversionFunnel[]> {
       stepsByFunnelId.get(step.funnel_id)!.push(step);
     });
 
-    // Combine funnels with their steps
-    const funnels: ConversionFunnel[] = funnelsData.map((funnel) => ({
-      id: funnel.id,
-      name: funnel.name,
-      conversionRate: Number(funnel.conversion_rate),
-      steps: (stepsByFunnelId.get(funnel.id) || []).map((step) => ({
-        name: step.name,
-        visitors: step.visitors,
-        dropoff: Number(step.dropoff),
-        url: step.url || undefined,
-      })),
-    }));
+    // Group connections by funnel_id
+    const connectionsByFunnelId = new Map<string, FunnelConnectionDB[]>();
+    connectionsData?.forEach((conn) => {
+      if (!connectionsByFunnelId.has(conn.funnel_id)) {
+        connectionsByFunnelId.set(conn.funnel_id, []);
+      }
+      connectionsByFunnelId.get(conn.funnel_id)!.push(conn);
+    });
+
+    // Combine funnels with their steps and connections
+    const funnels: ConversionFunnel[] = funnelsData.map((funnel) => {
+      const steps = stepsByFunnelId.get(funnel.id) || [];
+
+      // Create a map of database step IDs to node IDs for this funnel
+      const dbIdToNodeId = new Map<string, string>();
+      steps.forEach((step, index) => {
+        const nodeId = `step-${index + 1}`;
+        dbIdToNodeId.set(step.id, nodeId);
+      });
+
+      // Convert connections from database IDs to node IDs
+      const connections: FunnelConnection[] = (connectionsByFunnelId.get(funnel.id) || [])
+        .map(conn => ({
+          source: dbIdToNodeId.get(conn.source_step_id) || '',
+          target: dbIdToNodeId.get(conn.target_step_id) || '',
+        }))
+        .filter(conn => conn.source && conn.target);
+
+      return {
+        id: funnel.id,
+        name: funnel.name,
+        conversionRate: Number(funnel.conversion_rate),
+        steps: steps.map((step) => ({
+          name: step.name,
+          visitors: step.visitors,
+          dropoff: Number(step.dropoff),
+          url: step.url || undefined,
+        })),
+        connections: connections.length > 0 ? connections : undefined,
+      };
+    });
 
     return funnels;
   } catch (error) {
@@ -191,6 +237,32 @@ export async function fetchFunnel(funnelId: string): Promise<ConversionFunnel | 
       return null;
     }
 
+    // Fetch connections
+    const { data: connectionsData, error: connectionsError } = await supabase
+      .from("funnel_connections")
+      .select("*")
+      .eq("funnel_id", funnelId);
+
+    if (connectionsError) {
+      console.error("Error fetching funnel connections:", connectionsError);
+      // Don't fail, just proceed without connections
+    }
+
+    // Create a map of database step IDs to node IDs
+    const dbIdToNodeId = new Map<string, string>();
+    (stepsData || []).forEach((step, index) => {
+      const nodeId = `step-${index + 1}`;
+      dbIdToNodeId.set(step.id, nodeId);
+    });
+
+    // Convert connections from database IDs to node IDs
+    const connections: FunnelConnection[] = (connectionsData || [])
+      .map(conn => ({
+        source: dbIdToNodeId.get(conn.source_step_id) || '',
+        target: dbIdToNodeId.get(conn.target_step_id) || '',
+      }))
+      .filter(conn => conn.source && conn.target);
+
     return {
       id: funnelData.id,
       name: funnelData.name,
@@ -201,6 +273,7 @@ export async function fetchFunnel(funnelId: string): Promise<ConversionFunnel | 
         dropoff: Number(step.dropoff),
         url: step.url || undefined,
       })),
+      connections: connections.length > 0 ? connections : undefined,
     };
   } catch (error) {
     console.error("Unexpected error fetching funnel:", error);
@@ -215,6 +288,7 @@ export async function fetchFunnel(funnelId: string): Promise<ConversionFunnel | 
 export async function createFunnel(funnel: {
   name: string;
   steps: FunnelStep[];
+  connections?: FunnelConnection[];
 }): Promise<ConversionFunnel | null> {
   // Cannot create if Supabase is not configured
   if (!isSupabaseConfigured() || !supabase) {
@@ -271,11 +345,42 @@ export async function createFunnel(funnel: {
       return null;
     }
 
+    // Insert connections if provided
+    if (funnel.connections && funnel.connections.length > 0) {
+      // Create a map of step node IDs to database IDs
+      const stepIdMap = new Map<string, string>();
+      funnel.steps.forEach((step, index) => {
+        const nodeId = `step-${index + 1}`;  // ReactFlow node ID
+        const dbId = `${funnelId}_step_${index + 1}`;  // Database ID
+        stepIdMap.set(nodeId, dbId);
+      });
+
+      const connectionsToInsert = funnel.connections.map((conn, index) => ({
+        id: `${funnelId}_conn_${index + 1}`,
+        funnel_id: funnelId,
+        source_step_id: stepIdMap.get(conn.source) || '',
+        target_step_id: stepIdMap.get(conn.target) || '',
+      })).filter(conn => conn.source_step_id && conn.target_step_id);
+
+      if (connectionsToInsert.length > 0) {
+        const { error: connectionsError } = await supabase
+          .from("funnel_connections")
+          .insert(connectionsToInsert);
+
+        if (connectionsError) {
+          console.error("Error creating funnel connections:", connectionsError);
+          // Don't fail the entire operation, just log the error
+          console.warn("⚠️ Funnel created but connections failed to save");
+        }
+      }
+    }
+
     return {
       id: funnelId,
       name: funnel.name,
       conversionRate: conversionRate,
       steps: funnel.steps,
+      connections: funnel.connections,
     };
   } catch (error) {
     console.error("Unexpected error creating funnel:", error);
@@ -293,6 +398,7 @@ export async function updateFunnel(
   funnel: {
     name: string;
     steps: FunnelStep[];
+    connections?: FunnelConnection[];
   }
 ): Promise<boolean> {
   // Cannot update if Supabase is not configured
@@ -354,6 +460,41 @@ export async function updateFunnel(
       console.error("Error creating new steps:", stepsError);
       alert("❌ Errore durante la creazione dei nuovi step");
       return false;
+    }
+
+    // Delete existing connections
+    await supabase
+      .from("funnel_connections")
+      .delete()
+      .eq("funnel_id", funnelId);
+
+    // Insert new connections if provided
+    if (funnel.connections && funnel.connections.length > 0) {
+      // Create a map of step node IDs to database IDs
+      const stepIdMap = new Map<string, string>();
+      funnel.steps.forEach((step, index) => {
+        const nodeId = `step-${index + 1}`;
+        const dbId = stepsToInsert[index].id;
+        stepIdMap.set(nodeId, dbId);
+      });
+
+      const connectionsToInsert = funnel.connections.map((conn, index) => ({
+        id: `${funnelId}_conn_${index + 1}_${Date.now()}`,
+        funnel_id: funnelId,
+        source_step_id: stepIdMap.get(conn.source) || '',
+        target_step_id: stepIdMap.get(conn.target) || '',
+      })).filter(conn => conn.source_step_id && conn.target_step_id);
+
+      if (connectionsToInsert.length > 0) {
+        const { error: connectionsError } = await supabase
+          .from("funnel_connections")
+          .insert(connectionsToInsert);
+
+        if (connectionsError) {
+          console.error("Error creating funnel connections:", connectionsError);
+          console.warn("⚠️ Funnel updated but connections failed to save");
+        }
+      }
     }
 
     return true;

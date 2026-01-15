@@ -406,9 +406,16 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
       };
     });
 
+    // Convert edges to simple connection format for database
+    const connections = edges.map(edge => ({
+      source: edge.source,
+      target: edge.target,
+    }));
+
     onSave({
       name: funnelName,
       steps,
+      connections,
     });
   };
 

@@ -20,9 +20,15 @@ interface FunnelStep {
   dropoff: number;
 }
 
+interface FunnelConnection {
+  source: string;  // Node ID (e.g., "step-1")
+  target: string;  // Node ID (e.g., "step-2")
+}
+
 interface FunnelVisualizerProps {
   steps: FunnelStep[];
   name: string;
+  connections?: FunnelConnection[];  // Optional connections from database
 }
 
 interface StepData {
@@ -62,7 +68,7 @@ const nodeTypes = {
   stepNode: StepNode,
 };
 
-export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps) {
+export default function FunnelVisualizer({ steps, name, connections }: FunnelVisualizerProps) {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
 
   // DEBUG: Log per verificare i dati ricevuti
@@ -107,18 +113,52 @@ export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps)
       };
     });
 
-    // Create edges - FORZANDO VISIBILITA' MASSIMA PER DEBUG
-    const newEdges: Edge[] = steps.slice(0, -1).map((_, index) => ({
-      id: `edge-${index}`,
-      source: `step-${index + 1}`,
-      target: `step-${index + 2}`,
-      type: 'default', // Prova tipo 'default' invece di 'smoothstep'
-      animated: false, // Prova senza animazione
-      style: {
-        stroke: '#00ff00', // VERDE BRILLANTE per debug
-        strokeWidth: 10,   // MEGA SPESSO per debug
-      },
-    }));
+    // Create edges - use connections from database if available, otherwise generate linear flow
+    const newEdges: Edge[] = connections && connections.length > 0
+      ? // Use connections from database
+        connections.map((conn, index) => ({
+          id: `edge-${index}`,
+          source: conn.source,
+          target: conn.target,
+          type: 'smoothstep',
+          animated: true,
+          style: {
+            stroke: '#7c5cff',
+            strokeWidth: 3,
+          },
+          label: '→',
+          labelStyle: {
+            fill: '#00d4aa',
+            fontSize: 14,
+            fontWeight: 700,
+          },
+          labelBgStyle: {
+            fill: '#0a0a0a',
+            fillOpacity: 0.8,
+          },
+        }))
+      : // Generate linear flow (fallback for old funnels without connections)
+        steps.slice(0, -1).map((_, index) => ({
+          id: `edge-${index}`,
+          source: `step-${index + 1}`,
+          target: `step-${index + 2}`,
+          type: 'smoothstep',
+          animated: true,
+          style: {
+            stroke: '#7c5cff',
+            strokeWidth: 3,
+          },
+          label: '→',
+          labelStyle: {
+            fill: '#00d4aa',
+            fontSize: 14,
+            fontWeight: 700,
+          },
+          labelBgStyle: {
+            fill: '#0a0a0a',
+            fillOpacity: 0.8,
+          },
+        }));
 
     console.log('🔧 Nodes creati:', newNodes.length);
     console.log('🔧 Node IDs:', newNodes.map(n => n.id));
@@ -129,7 +169,8 @@ export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps)
     setEdges(newEdges);
 
     console.log('✅ Nodes e edges impostati!');
-  }, [steps, setNodes, setEdges]);
+    console.log('🔍 Connections from database:', connections);
+  }, [steps, connections, setNodes, setEdges]);
 
   // DEBUG: Log dopo inizializzazione state (RENDER-TIME)
   console.log('🔍 RENDER - Nodes in state:', nodes.length, nodes);
