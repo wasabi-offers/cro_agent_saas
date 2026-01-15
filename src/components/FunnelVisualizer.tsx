@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import ReactFlow, {
   Node,
   Edge,
@@ -80,59 +80,67 @@ export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps)
     );
   }
 
-  // Calculate positions and create nodes
-  const initialNodes: Node[] = steps.map((step, index) => {
-    const conversionRate = index === 0
-      ? 100
-      : ((step.visitors / steps[0].visitors) * 100);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-    return {
-      id: `step-${index}`,
-      type: 'stepNode',
-      position: { x: index * 300, y: 100 },
-      data: {
-        label: step.name,
-        visitors: step.visitors,
-        dropoff: step.dropoff,
-        conversionRate,
+  // Inizializza nodes ed edges quando cambiano gli steps (COPIATO DA FunnelBuilder)
+  useEffect(() => {
+    console.log('🔧 FunnelVisualizer - useEffect triggered, steps:', steps.length);
+
+    // Create nodes
+    const newNodes: Node[] = steps.map((step, index) => {
+      const conversionRate = index === 0
+        ? 100
+        : ((step.visitors / steps[0].visitors) * 100);
+
+      return {
+        id: `step-${index}`,
+        type: 'stepNode',
+        position: { x: index * 300, y: 100 },
+        data: {
+          label: step.name,
+          visitors: step.visitors,
+          dropoff: step.dropoff,
+          conversionRate,
+        },
+      };
+    });
+
+    // Create edges
+    const newEdges: Edge[] = steps.slice(0, -1).map((_, index) => ({
+      id: `edge-${index}`,
+      source: `step-${index}`,
+      target: `step-${index + 1}`,
+      type: 'smoothstep',
+      animated: true,
+      style: {
+        stroke: '#7c5cff',
+        strokeWidth: 3,
       },
-    };
-  });
+      markerEnd: {
+        type: 'arrowclosed',
+        color: '#7c5cff',
+      },
+      label: '→',
+      labelStyle: {
+        fill: '#00d4aa',
+        fontSize: 14,
+        fontWeight: 700,
+      },
+      labelBgStyle: {
+        fill: '#0a0a0a',
+        fillOpacity: 0.8,
+      },
+    }));
 
-  // Create edges connecting the steps - COPIATO DA FunnelBuilder
-  const initialEdges: Edge[] = steps.slice(0, -1).map((_, index) => ({
-    id: `edge-${index}`,
-    source: `step-${index}`,
-    target: `step-${index + 1}`,
-    type: 'smoothstep',
-    animated: true,
-    style: {
-      stroke: '#7c5cff',
-      strokeWidth: 3,
-    },
-    label: '→',
-    labelStyle: {
-      fill: '#00d4aa',
-      fontSize: 14,
-      fontWeight: 700,
-    },
-    labelBgStyle: {
-      fill: '#0a0a0a',
-      fillOpacity: 0.8,
-    },
-  }));
+    console.log('🔧 Nodes creati:', newNodes.length);
+    console.log('🔧 Edges creati:', newEdges.length);
 
-  // DEBUG: Log per verificare nodes e edges creati
-  console.log('🔍 FunnelVisualizer - Nodes creati:', initialNodes);
-  console.log('🔍 FunnelVisualizer - Edges creati:', initialEdges);
-  console.log('🔍 FunnelVisualizer - Numero edges:', initialEdges.length);
+    setNodes(newNodes);
+    setEdges(newEdges);
 
-  if (initialEdges.length === 0) {
-    console.warn('⚠️ FunnelVisualizer - Nessuna edge creata! Verifica che ci siano almeno 2 step');
-  }
-
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+    console.log('✅ Nodes e edges impostati!');
+  }, [steps, setNodes, setEdges]);
 
   // DEBUG: Log dopo inizializzazione state
   console.log('🔍 FunnelVisualizer - Nodes in state:', nodes.length);
