@@ -92,7 +92,8 @@ export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps)
     animated: true,
     style: {
       stroke: '#7c5cff',
-      strokeWidth: 2,
+      strokeWidth: 3,
+      strokeDasharray: '5, 5', // Linee tratteggiate animate
     },
     label: `${((steps[index + 1].visitors / steps[index].visitors) * 100).toFixed(1)}%`,
     labelStyle: {

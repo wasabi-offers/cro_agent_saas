@@ -31,15 +31,13 @@ import {
   Zap,
   Code,
 } from "lucide-react";
-import {
-  generateMockFunnels,
-  ConversionFunnel,
-} from "@/lib/mock-data";
+import { ConversionFunnel } from "@/lib/mock-data";
 import CROComparisonTable from "@/components/CROComparisonTable";
 import SaveItemDialog from "@/components/SaveItemDialog";
 import FunnelVisualizer from "@/components/FunnelVisualizer";
 import FunnelBuilder from "@/components/FunnelBuilder";
 import { CROTableRow, SavedFunnel, funnelStorage } from "@/lib/saved-items";
+import { fetchFunnel, updateFunnel } from "@/lib/supabase-funnels";
 
 interface AnalysisResult {
   category: string;
@@ -101,10 +99,8 @@ export default function FunnelDetailPage() {
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
-      // In production: const res = await fetch(`/api/funnels/${funnelId}?start=${dateRange.start}&end=${dateRange.end}&device=${deviceFilter}`);
-      const funnels = generateMockFunnels();
-      const found = funnels.find(f => f.id === funnelId);
-      setFunnel(found || null);
+      const funnelData = await fetchFunnel(funnelId);
+      setFunnel(funnelData);
       setIsLoading(false);
     };
 
@@ -302,18 +298,26 @@ export default function FunnelDetailPage() {
     }
   };
 
-  const handleEditFunnel = (updatedFunnel: { name: string; steps: any[] }) => {
-    // In production, this would PUT to API
-    const updatedConversionFunnel: ConversionFunnel = {
-      id: funnelId,
-      name: updatedFunnel.name,
-      steps: updatedFunnel.steps,
-      conversionRate: (updatedFunnel.steps[updatedFunnel.steps.length - 1].visitors / updatedFunnel.steps[0].visitors) * 100,
-    };
+  const handleEditFunnel = async (updatedFunnel: { name: string; steps: any[] }) => {
+    const success = await updateFunnel(funnelId, updatedFunnel);
 
-    setFunnel(updatedConversionFunnel);
-    setShowEditBuilder(false);
-    alert('Funnel modificato con successo!');
+    if (success) {
+      // Reload funnel data from database
+      const funnelData = await fetchFunnel(funnelId);
+      setFunnel(funnelData);
+      setShowEditBuilder(false);
+      alert('✅ Funnel modificato con successo!');
+    } else {
+      // If Supabase not configured, update locally
+      const updatedConversionFunnel: ConversionFunnel = {
+        id: funnelId,
+        name: updatedFunnel.name,
+        steps: updatedFunnel.steps,
+        conversionRate: (updatedFunnel.steps[updatedFunnel.steps.length - 1].visitors / updatedFunnel.steps[0].visitors) * 100,
+      };
+      setFunnel(updatedConversionFunnel);
+      setShowEditBuilder(false);
+    }
   };
 
   const handleSave = (data: { name: string; categoryId: string; url?: string }) => {

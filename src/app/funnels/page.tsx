@@ -15,8 +15,9 @@ import {
   Filter,
   ChevronDown,
 } from "lucide-react";
-import { generateMockFunnels, ConversionFunnel } from "@/lib/mock-data";
+import { ConversionFunnel } from "@/lib/mock-data";
 import FunnelBuilder from "@/components/FunnelBuilder";
+import { fetchFunnels, createFunnel } from "@/lib/supabase-funnels";
 
 export default function FunnelsListPage() {
   const [funnels, setFunnels] = useState<ConversionFunnel[]>([]);
@@ -28,27 +29,32 @@ export default function FunnelsListPage() {
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
-      // In production: const response = await fetch('/api/funnels');
-      const mockFunnels = generateMockFunnels();
-      setFunnels(mockFunnels);
+      const funnelsData = await fetchFunnels();
+      setFunnels(funnelsData);
       setIsLoading(false);
     };
 
     loadData();
   }, []);
 
-  const handleSaveFunnel = (funnel: { name: string; steps: any[] }) => {
-    // In production, this would POST to API
-    const newFunnel: ConversionFunnel = {
-      id: `funnel_${Date.now()}`,
-      name: funnel.name,
-      steps: funnel.steps,
-      conversionRate: (funnel.steps[funnel.steps.length - 1].visitors / funnel.steps[0].visitors) * 100,
-    };
+  const handleSaveFunnel = async (funnel: { name: string; steps: any[] }) => {
+    const newFunnel = await createFunnel(funnel);
 
-    setFunnels([newFunnel, ...funnels]);
-    setShowBuilder(false);
-    alert('Funnel created successfully!');
+    if (newFunnel) {
+      setFunnels([newFunnel, ...funnels]);
+      setShowBuilder(false);
+      alert('✅ Funnel creato con successo!');
+    } else {
+      // If Supabase not configured, still add locally
+      const localFunnel: ConversionFunnel = {
+        id: `funnel_${Date.now()}`,
+        name: funnel.name,
+        steps: funnel.steps,
+        conversionRate: (funnel.steps[funnel.steps.length - 1].visitors / funnel.steps[0].visitors) * 100,
+      };
+      setFunnels([localFunnel, ...funnels]);
+      setShowBuilder(false);
+    }
   };
 
   const filteredFunnels = funnels
