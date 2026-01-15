@@ -37,7 +37,7 @@ export default function FunnelsListPage() {
     loadData();
   }, []);
 
-  const handleSaveFunnel = async (funnel: { name: string; steps: any[] }) => {
+  const handleSaveFunnel = async (funnel: { name: string; steps: any[]; connections?: any[] }) => {
     const newFunnel = await createFunnel(funnel);
 
     if (newFunnel) {
@@ -50,6 +50,7 @@ export default function FunnelsListPage() {
         id: `funnel_${Date.now()}`,
         name: funnel.name,
         steps: funnel.steps,
+        connections: funnel.connections,
         conversionRate: (funnel.steps[funnel.steps.length - 1].visitors / funnel.steps[0].visitors) * 100,
       };
       setFunnels([localFunnel, ...funnels]);

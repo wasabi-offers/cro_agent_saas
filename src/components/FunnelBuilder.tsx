@@ -24,10 +24,15 @@ interface FunnelStep {
   url?: string;
 }
 
+interface FunnelConnection {
+  source: string;  // Node ID (e.g., "step-1")
+  target: string;  // Node ID (e.g., "step-2")
+}
+
 interface FunnelBuilderProps {
-  onSave: (funnel: { name: string; steps: FunnelStep[] }) => void;
+  onSave: (funnel: { name: string; steps: FunnelStep[]; connections?: FunnelConnection[] }) => void;
   onCancel: () => void;
-  initialFunnel?: { name: string; steps: FunnelStep[] };
+  initialFunnel?: { name: string; steps: FunnelStep[]; connections?: FunnelConnection[] };
 }
 
 interface StepNodeData {
@@ -234,27 +239,52 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
       },
     }));
 
-    const initialEdges: Edge[] = initialFunnel.steps.slice(0, -1).map((_, index) => ({
-      id: `edge-${index}`,
-      source: `step-${index + 1}`,
-      target: `step-${index + 2}`,
-      type: 'smoothstep',
-      animated: true,
-      style: {
-        stroke: '#7c5cff',
-        strokeWidth: 3,
-      },
-      label: '→',
-      labelStyle: {
-        fill: '#00d4aa',
-        fontSize: 14,
-        fontWeight: 700,
-      },
-      labelBgStyle: {
-        fill: '#0a0a0a',
-        fillOpacity: 0.8,
-      },
-    }));
+    // Use connections from database if available, otherwise create linear flow
+    const initialEdges: Edge[] = initialFunnel.connections && initialFunnel.connections.length > 0
+      ? // Load connections from database
+        initialFunnel.connections.map((conn, index) => ({
+          id: `edge-${index}`,
+          source: conn.source,
+          target: conn.target,
+          type: 'smoothstep',
+          animated: true,
+          style: {
+            stroke: '#7c5cff',
+            strokeWidth: 3,
+          },
+          label: '→',
+          labelStyle: {
+            fill: '#00d4aa',
+            fontSize: 14,
+            fontWeight: 700,
+          },
+          labelBgStyle: {
+            fill: '#0a0a0a',
+            fillOpacity: 0.8,
+          },
+        }))
+      : // Fallback: create linear flow for old funnels
+        initialFunnel.steps.slice(0, -1).map((_, index) => ({
+          id: `edge-${index}`,
+          source: `step-${index + 1}`,
+          target: `step-${index + 2}`,
+          type: 'smoothstep',
+          animated: true,
+          style: {
+            stroke: '#7c5cff',
+            strokeWidth: 3,
+          },
+          label: '→',
+          labelStyle: {
+            fill: '#00d4aa',
+            fontSize: 14,
+            fontWeight: 700,
+          },
+          labelBgStyle: {
+            fill: '#0a0a0a',
+            fillOpacity: 0.8,
+          },
+        }));
 
     setNodes(initialNodes);
     setEdges(initialEdges);
