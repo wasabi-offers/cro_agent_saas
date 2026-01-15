@@ -310,6 +310,7 @@ export async function createFunnel(funnel: {
     }
 
     // Insert connections if provided
+    console.log('🔧 CREATE FUNNEL - Connections to save:', funnel.connections);
     if (funnel.connections && funnel.connections.length > 0) {
       // Create a map of step node IDs to database IDs
       const stepIdMap = new Map<string, string>();
@@ -326,17 +327,22 @@ export async function createFunnel(funnel: {
         target_step_id: stepIdMap.get(conn.target) || '',
       })).filter(conn => conn.source_step_id && conn.target_step_id);
 
+      console.log('🔧 Connections to insert in DB:', connectionsToInsert);
+
       if (connectionsToInsert.length > 0) {
         const { error: connectionsError } = await supabase
           .from("funnel_connections")
           .insert(connectionsToInsert);
 
         if (connectionsError) {
-          console.error("Error creating funnel connections:", connectionsError);
-          // Don't fail the entire operation, just log the error
+          console.error("❌ Error creating funnel connections:", connectionsError);
           console.warn("⚠️ Funnel created but connections failed to save");
+        } else {
+          console.log('✅ Connections saved successfully!');
         }
       }
+    } else {
+      console.log('⚠️ No connections provided, skipping');
     }
 
     return {
