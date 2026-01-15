@@ -87,14 +87,14 @@ export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps)
   useEffect(() => {
     console.log('🔧 FunnelVisualizer - useEffect triggered, steps:', steps.length);
 
-    // Create nodes
+    // Create nodes - IDs DEVONO INIZIARE DA 1 (come FunnelBuilder) !!!
     const newNodes: Node[] = steps.map((step, index) => {
       const conversionRate = index === 0
         ? 100
         : ((step.visitors / steps[0].visitors) * 100);
 
       return {
-        id: `step-${index}`,
+        id: `step-${index + 1}`,  // ← FIX CRITICO: era step-${index}
         type: 'stepNode',
         position: { x: index * 300, y: 100 },
         data: {
@@ -106,11 +106,11 @@ export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps)
       };
     });
 
-    // Create edges
+    // Create edges - source/target DEVONO MATCHARE gli ID dei nodi !!!
     const newEdges: Edge[] = steps.slice(0, -1).map((_, index) => ({
       id: `edge-${index}`,
-      source: `step-${index}`,
-      target: `step-${index + 1}`,
+      source: `step-${index + 1}`,  // ← FIX CRITICO: era step-${index}
+      target: `step-${index + 2}`,  // ← FIX CRITICO: era step-${index + 1}
       type: 'smoothstep',
       animated: true,
       style: {
