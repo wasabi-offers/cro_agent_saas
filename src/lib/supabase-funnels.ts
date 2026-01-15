@@ -56,47 +56,14 @@ export interface FunnelConnectionDB {
 }
 
 // ============================================
-// MOCK DATA FOR DEVELOPMENT (when Supabase not configured)
-// ============================================
-
-function getMockFunnels(): ConversionFunnel[] {
-  return [
-    {
-      id: "funnel_1",
-      name: "E-commerce Checkout",
-      conversionRate: 24.5,
-      steps: [
-        { name: "Landing Page", visitors: 10000, dropoff: 0, url: "https://example.com" },
-        { name: "Product Page", visitors: 7500, dropoff: 25, url: "https://example.com/product" },
-        { name: "Add to Cart", visitors: 5000, dropoff: 33.3, url: "https://example.com/cart" },
-        { name: "Checkout", visitors: 3000, dropoff: 40, url: "https://example.com/checkout" },
-        { name: "Thank You", visitors: 2450, dropoff: 18.3, url: "https://example.com/thanks" },
-      ],
-    },
-    {
-      id: "funnel_2",
-      name: "SaaS Free Trial",
-      conversionRate: 18.3,
-      steps: [
-        { name: "Homepage", visitors: 8000, dropoff: 0, url: "https://saas.example.com" },
-        { name: "Pricing Page", visitors: 5600, dropoff: 30, url: "https://saas.example.com/pricing" },
-        { name: "Sign Up", visitors: 3360, dropoff: 40, url: "https://saas.example.com/signup" },
-        { name: "Onboarding", visitors: 2016, dropoff: 40, url: "https://saas.example.com/onboarding" },
-        { name: "Trial Started", visitors: 1464, dropoff: 27.4, url: "https://saas.example.com/trial" },
-      ],
-    },
-  ];
-}
-
-// ============================================
 // FETCH FUNNELS
 // ============================================
 
 export async function fetchFunnels(): Promise<ConversionFunnel[]> {
-  // Use mock data if Supabase is not configured
+  // Return empty array if Supabase is not configured
   if (!isSupabaseConfigured() || !supabase) {
-    console.log("📊 Using mock funnels data (Supabase not configured)");
-    return getMockFunnels();
+    console.error("❌ Supabase not configured - cannot fetch funnels");
+    return [];
   }
 
   try {
@@ -108,13 +75,12 @@ export async function fetchFunnels(): Promise<ConversionFunnel[]> {
 
     if (funnelsError) {
       console.error("Error fetching funnels:", funnelsError);
-      console.log("📊 Falling back to mock data");
-      return getMockFunnels();
+      return [];
     }
 
     if (!funnelsData || funnelsData.length === 0) {
-      console.log("📊 No funnels found in database, returning mock data");
-      return getMockFunnels();
+      console.log("📊 No funnels found in database");
+      return [];
     }
 
     // Fetch steps for all funnels
@@ -127,8 +93,7 @@ export async function fetchFunnels(): Promise<ConversionFunnel[]> {
 
     if (stepsError) {
       console.error("Error fetching funnel steps:", stepsError);
-      console.log("📊 Falling back to mock data");
-      return getMockFunnels();
+      return [];
     }
 
     // Fetch connections for all funnels
@@ -196,7 +161,7 @@ export async function fetchFunnels(): Promise<ConversionFunnel[]> {
     return funnels;
   } catch (error) {
     console.error("Unexpected error fetching funnels:", error);
-    return getMockFunnels();
+    return [];
   }
 }
 
@@ -205,11 +170,10 @@ export async function fetchFunnels(): Promise<ConversionFunnel[]> {
 // ============================================
 
 export async function fetchFunnel(funnelId: string): Promise<ConversionFunnel | null> {
-  // Use mock data if Supabase is not configured
+  // Return null if Supabase is not configured
   if (!isSupabaseConfigured() || !supabase) {
-    console.log("📊 Using mock funnel data (Supabase not configured)");
-    const mockFunnels = getMockFunnels();
-    return mockFunnels.find((f) => f.id === funnelId) || null;
+    console.error("❌ Supabase not configured - cannot fetch funnel");
+    return null;
   }
 
   try {
