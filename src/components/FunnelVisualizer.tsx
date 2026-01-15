@@ -9,6 +9,7 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   ConnectionMode,
+  ReactFlowProvider,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { Users, TrendingDown, Percent, X } from 'lucide-react';
@@ -106,26 +107,16 @@ export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps)
       };
     });
 
-    // Create edges - COPIATO ESATTAMENTE DA FunnelBuilder (linee 237-257)
+    // Create edges - FORZANDO VISIBILITA' MASSIMA PER DEBUG
     const newEdges: Edge[] = steps.slice(0, -1).map((_, index) => ({
       id: `edge-${index}`,
       source: `step-${index + 1}`,
       target: `step-${index + 2}`,
-      type: 'smoothstep',
-      animated: true,
+      type: 'default', // Prova tipo 'default' invece di 'smoothstep'
+      animated: false, // Prova senza animazione
       style: {
-        stroke: '#7c5cff',
-        strokeWidth: 3,
-      },
-      label: '→',
-      labelStyle: {
-        fill: '#00d4aa',
-        fontSize: 14,
-        fontWeight: 700,
-      },
-      labelBgStyle: {
-        fill: '#0a0a0a',
-        fillOpacity: 0.8,
+        stroke: '#00ff00', // VERDE BRILLANTE per debug
+        strokeWidth: 10,   // MEGA SPESSO per debug
       },
     }));
 
@@ -153,6 +144,7 @@ export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps)
   };
 
   return (
+    <ReactFlowProvider>
     <div className="relative">
       <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
         <div className="px-6 py-4 border-b border-white/10">
@@ -249,5 +241,6 @@ export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps)
         </div>
       )}
     </div>
+    </ReactFlowProvider>
   );
 }
