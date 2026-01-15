@@ -130,7 +130,9 @@ export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps)
     }));
 
     console.log('🔧 Nodes creati:', newNodes.length);
+    console.log('🔧 Node IDs:', newNodes.map(n => n.id));
     console.log('🔧 Edges creati:', newEdges.length);
+    console.log('🔧 Edge details:', newEdges.map(e => `${e.id}: ${e.source} → ${e.target}`));
 
     setNodes(newNodes);
     setEdges(newEdges);
