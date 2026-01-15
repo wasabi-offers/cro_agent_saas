@@ -64,6 +64,10 @@ const nodeTypes = {
 export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps) {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
 
+  // DEBUG: Log per verificare i dati ricevuti
+  console.log('🔍 FunnelVisualizer - Steps ricevuti:', steps);
+  console.log('🔍 FunnelVisualizer - Nome funnel:', name);
+
   // Calculate positions and create nodes
   const initialNodes: Node[] = steps.map((step, index) => {
     const conversionRate = index === 0
@@ -106,6 +110,10 @@ export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps)
       fillOpacity: 0.9,
     },
   }));
+
+  // DEBUG: Log per verificare nodes e edges creati
+  console.log('🔍 FunnelVisualizer - Nodes creati:', initialNodes);
+  console.log('🔍 FunnelVisualizer - Edges creati:', initialEdges);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
