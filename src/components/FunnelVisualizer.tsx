@@ -67,6 +67,18 @@ export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps)
   // DEBUG: Log per verificare i dati ricevuti
   console.log('🔍 FunnelVisualizer - Steps ricevuti:', steps);
   console.log('🔍 FunnelVisualizer - Nome funnel:', name);
+  console.log('🔍 FunnelVisualizer - Numero steps:', steps?.length);
+
+  // VALIDAZIONE: Verifica che ci siano step
+  if (!steps || steps.length === 0) {
+    console.error('❌ FunnelVisualizer - Nessuno step ricevuto!');
+    return (
+      <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8 text-center">
+        <p className="text-[#ff6b6b] text-[16px]">⚠️ Errore: Nessuno step trovato nel funnel</p>
+        <p className="text-[#888888] text-[13px] mt-2">Controlla che il funnel sia stato creato correttamente</p>
+      </div>
+    );
+  }
 
   // Calculate positions and create nodes
   const initialNodes: Node[] = steps.map((step, index) => {
@@ -114,9 +126,18 @@ export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps)
   // DEBUG: Log per verificare nodes e edges creati
   console.log('🔍 FunnelVisualizer - Nodes creati:', initialNodes);
   console.log('🔍 FunnelVisualizer - Edges creati:', initialEdges);
+  console.log('🔍 FunnelVisualizer - Numero edges:', initialEdges.length);
+
+  if (initialEdges.length === 0) {
+    console.warn('⚠️ FunnelVisualizer - Nessuna edge creata! Verifica che ci siano almeno 2 step');
+  }
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  // DEBUG: Log dopo inizializzazione state
+  console.log('🔍 FunnelVisualizer - Nodes in state:', nodes.length);
+  console.log('🔍 FunnelVisualizer - Edges in state:', edges.length);
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
     setSelectedNode(node);
