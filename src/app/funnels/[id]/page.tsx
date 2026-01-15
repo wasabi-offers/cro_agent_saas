@@ -468,7 +468,7 @@ export default function FunnelDetailPage() {
         {showEditBuilder && (
           <div className="mb-8">
             <FunnelBuilder
-              initialFunnel={{ name: funnel.name, steps: funnel.steps }}
+              initialFunnel={{ name: funnel.name, steps: funnel.steps, connections: funnel.connections }}
               onSave={handleEditFunnel}
               onCancel={() => setShowEditBuilder(false)}
             />
