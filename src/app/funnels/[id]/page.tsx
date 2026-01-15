@@ -298,7 +298,7 @@ export default function FunnelDetailPage() {
     }
   };
 
-  const handleEditFunnel = async (updatedFunnel: { name: string; steps: any[] }) => {
+  const handleEditFunnel = async (updatedFunnel: { name: string; steps: any[]; connections?: any[] }) => {
     const success = await updateFunnel(funnelId, updatedFunnel);
 
     if (success) {
@@ -313,6 +313,7 @@ export default function FunnelDetailPage() {
         id: funnelId,
         name: updatedFunnel.name,
         steps: updatedFunnel.steps,
+        connections: updatedFunnel.connections,
         conversionRate: (updatedFunnel.steps[updatedFunnel.steps.length - 1].visitors / updatedFunnel.steps[0].visitors) * 100,
       };
       setFunnel(updatedConversionFunnel);
