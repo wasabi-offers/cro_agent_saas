@@ -99,22 +99,18 @@ export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps)
     };
   });
 
-  // Create edges connecting the steps
+  // Create edges connecting the steps - COPIATO DA FunnelBuilder
   const initialEdges: Edge[] = steps.slice(0, -1).map((_, index) => ({
     id: `edge-${index}`,
     source: `step-${index}`,
     target: `step-${index + 1}`,
-    type: 'default', // Cambiato da 'smoothstep' a 'default' per test
+    type: 'smoothstep',
     animated: true,
     style: {
-      stroke: '#00d4aa', // Cambiato colore per visibilità
-      strokeWidth: 5, // Aumentato da 3 a 5
+      stroke: '#7c5cff',
+      strokeWidth: 3,
     },
-    markerEnd: {
-      type: 'arrowclosed',
-      color: '#00d4aa',
-    },
-    label: `${((steps[index + 1].visitors / steps[index].visitors) * 100).toFixed(1)}%`,
+    label: '→',
     labelStyle: {
       fill: '#00d4aa',
       fontSize: 14,
@@ -122,7 +118,7 @@ export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps)
     },
     labelBgStyle: {
       fill: '#0a0a0a',
-      fillOpacity: 0.9,
+      fillOpacity: 0.8,
     },
   }));
 
@@ -161,7 +157,7 @@ export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps)
             Click on any step to view detailed metrics
           </p>
         </div>
-        <div style={{ width: '100%', height: '500px' }}>
+        <div style={{ width: '100%', height: '500px' }} className="relative">
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -171,12 +167,10 @@ export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps)
             nodeTypes={nodeTypes}
             connectionMode={ConnectionMode.Loose}
             fitView
-            fitViewOptions={{ padding: 0.3 }}
-            minZoom={0.3}
-            maxZoom={2}
-            defaultViewport={{ x: 0, y: 0, zoom: 1 }}
+            fitViewOptions={{ padding: 0.2 }}
+            minZoom={0.5}
+            maxZoom={1.5}
             proOptions={{ hideAttribution: true }}
-            elementsSelectable={true}
           >
             <Background color="#333" gap={16} />
             <Controls className="bg-[#0a0a0a] border border-white/10 rounded-lg" />
