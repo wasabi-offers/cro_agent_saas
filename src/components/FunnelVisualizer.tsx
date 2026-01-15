@@ -104,18 +104,21 @@ export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps)
     id: `edge-${index}`,
     source: `step-${index}`,
     target: `step-${index + 1}`,
-    type: 'smoothstep',
+    type: 'default', // Cambiato da 'smoothstep' a 'default' per test
     animated: true,
     style: {
-      stroke: '#7c5cff',
-      strokeWidth: 3,
-      strokeDasharray: '5, 5', // Linee tratteggiate animate
+      stroke: '#00d4aa', // Cambiato colore per visibilità
+      strokeWidth: 5, // Aumentato da 3 a 5
+    },
+    markerEnd: {
+      type: 'arrowclosed',
+      color: '#00d4aa',
     },
     label: `${((steps[index + 1].visitors / steps[index].visitors) * 100).toFixed(1)}%`,
     labelStyle: {
       fill: '#00d4aa',
-      fontSize: 12,
-      fontWeight: 600,
+      fontSize: 14,
+      fontWeight: 700,
     },
     labelBgStyle: {
       fill: '#0a0a0a',
@@ -158,7 +161,7 @@ export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps)
             Click on any step to view detailed metrics
           </p>
         </div>
-        <div style={{ width: '100%', height: '400px' }}>
+        <div style={{ width: '100%', height: '500px' }}>
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -168,11 +171,12 @@ export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps)
             nodeTypes={nodeTypes}
             connectionMode={ConnectionMode.Loose}
             fitView
-            fitViewOptions={{ padding: 0.2 }}
-            minZoom={0.5}
-            maxZoom={1.5}
-            defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
+            fitViewOptions={{ padding: 0.3 }}
+            minZoom={0.3}
+            maxZoom={2}
+            defaultViewport={{ x: 0, y: 0, zoom: 1 }}
             proOptions={{ hideAttribution: true }}
+            elementsSelectable={true}
           >
             <Background color="#333" gap={16} />
             <Controls className="bg-[#0a0a0a] border border-white/10 rounded-lg" />
