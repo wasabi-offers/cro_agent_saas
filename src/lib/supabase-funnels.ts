@@ -202,14 +202,18 @@ export async function fetchFunnel(funnelId: string): Promise<ConversionFunnel | 
     }
 
     // Fetch connections
+    console.log('🔧 FETCH FUNNEL - Fetching connections for funnel:', funnelId);
     const { data: connectionsData, error: connectionsError } = await supabase
       .from("funnel_connections")
       .select("*")
       .eq("funnel_id", funnelId);
 
     if (connectionsError) {
-      console.error("Error fetching funnel connections:", connectionsError);
+      console.error("❌ Error fetching funnel connections:", connectionsError);
       // Don't fail, just proceed without connections
+    } else {
+      console.log('🔧 FETCH FUNNEL - Connections from DB:', connectionsData);
+      console.log('🔧 FETCH FUNNEL - Number of connections:', connectionsData?.length || 0);
     }
 
     // Create a map of database step IDs to node IDs
@@ -217,6 +221,7 @@ export async function fetchFunnel(funnelId: string): Promise<ConversionFunnel | 
     (stepsData || []).forEach((step, index) => {
       const nodeId = `step-${index + 1}`;
       dbIdToNodeId.set(step.id, nodeId);
+      console.log(`🔧 FETCH FUNNEL - Mapping DB ID to Node ID: ${step.id} → ${nodeId}`);
     });
 
     // Convert connections from database IDs to node IDs
@@ -226,6 +231,9 @@ export async function fetchFunnel(funnelId: string): Promise<ConversionFunnel | 
         target: dbIdToNodeId.get(conn.target_step_id) || '',
       }))
       .filter(conn => conn.source && conn.target);
+
+    console.log('🔧 FETCH FUNNEL - Converted connections (node IDs):', connections);
+    console.log('🔧 FETCH FUNNEL - Number of converted connections:', connections.length);
 
     return {
       id: funnelData.id,
@@ -379,6 +387,10 @@ export async function updateFunnel(
   }
 
   try {
+    console.log('🔧 UPDATE FUNNEL - Starting update for:', funnelId);
+    console.log('🔧 UPDATE FUNNEL - Connections received:', funnel.connections);
+    console.log('🔧 UPDATE FUNNEL - Number of connections:', funnel.connections?.length || 0);
+
     // Calculate conversion rate
     const conversionRate = funnel.steps.length > 1
       ? (funnel.steps[funnel.steps.length - 1].visitors / funnel.steps[0].visitors) * 100
@@ -394,10 +406,12 @@ export async function updateFunnel(
       .eq("id", funnelId);
 
     if (funnelError) {
-      console.error("Error updating funnel:", funnelError);
+      console.error("❌ Error updating funnel:", funnelError);
       alert("❌ Errore durante l'aggiornamento del funnel");
       return false;
     }
+
+    console.log('✅ Funnel metadata updated');
 
     // Delete existing steps
     const { error: deleteError } = await supabase
@@ -406,10 +420,12 @@ export async function updateFunnel(
       .eq("funnel_id", funnelId);
 
     if (deleteError) {
-      console.error("Error deleting old steps:", deleteError);
+      console.error("❌ Error deleting old steps:", deleteError);
       alert("❌ Errore durante l'eliminazione dei vecchi step");
       return false;
     }
+
+    console.log('✅ Old steps deleted');
 
     // Insert new steps
     const stepsToInsert = funnel.steps.map((step, index) => ({
@@ -422,30 +438,43 @@ export async function updateFunnel(
       step_order: index + 1,
     }));
 
+    console.log('🔧 Steps to insert:', stepsToInsert.length);
+
     const { error: stepsError } = await supabase
       .from("funnel_steps")
       .insert(stepsToInsert);
 
     if (stepsError) {
-      console.error("Error creating new steps:", stepsError);
+      console.error("❌ Error creating new steps:", stepsError);
       alert("❌ Errore durante la creazione dei nuovi step");
       return false;
     }
 
+    console.log('✅ New steps inserted');
+
     // Delete existing connections
-    await supabase
+    const { error: deleteConnectionsError } = await supabase
       .from("funnel_connections")
       .delete()
       .eq("funnel_id", funnelId);
 
+    if (deleteConnectionsError) {
+      console.log('⚠️ Error deleting old connections (might not exist):', deleteConnectionsError);
+    } else {
+      console.log('✅ Old connections deleted');
+    }
+
     // Insert new connections if provided
     if (funnel.connections && funnel.connections.length > 0) {
+      console.log('🔧 Processing connections for update...');
+
       // Create a map of step node IDs to database IDs
       const stepIdMap = new Map<string, string>();
       funnel.steps.forEach((step, index) => {
         const nodeId = `step-${index + 1}`;
         const dbId = stepsToInsert[index].id;
         stepIdMap.set(nodeId, dbId);
+        console.log(`🔧 Mapping: ${nodeId} → ${dbId}`);
       });
 
       const connectionsToInsert = funnel.connections.map((conn, index) => ({
@@ -455,18 +484,28 @@ export async function updateFunnel(
         target_step_id: stepIdMap.get(conn.target) || '',
       })).filter(conn => conn.source_step_id && conn.target_step_id);
 
+      console.log('🔧 Connections to insert in DB:', connectionsToInsert);
+      console.log('🔧 Number of connections to insert:', connectionsToInsert.length);
+
       if (connectionsToInsert.length > 0) {
         const { error: connectionsError } = await supabase
           .from("funnel_connections")
           .insert(connectionsToInsert);
 
         if (connectionsError) {
-          console.error("Error creating funnel connections:", connectionsError);
+          console.error("❌ Error creating funnel connections:", connectionsError);
           console.warn("⚠️ Funnel updated but connections failed to save");
+        } else {
+          console.log('✅ Connections saved successfully!');
         }
+      } else {
+        console.log('⚠️ No valid connections to insert after filtering');
       }
+    } else {
+      console.log('⚠️ No connections provided in update, skipping');
     }
 
+    console.log('✅ UPDATE FUNNEL - Complete!');
     return true;
   } catch (error) {
     console.error("Unexpected error updating funnel:", error);
