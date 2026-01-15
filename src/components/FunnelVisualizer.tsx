@@ -140,9 +140,9 @@ export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps)
     console.log('✅ Nodes e edges impostati!');
   }, [steps, setNodes, setEdges]);
 
-  // DEBUG: Log dopo inizializzazione state
-  console.log('🔍 FunnelVisualizer - Nodes in state:', nodes.length);
-  console.log('🔍 FunnelVisualizer - Edges in state:', edges.length);
+  // DEBUG: Log dopo inizializzazione state (RENDER-TIME)
+  console.log('🔍 RENDER - Nodes in state:', nodes.length, nodes);
+  console.log('🔍 RENDER - Edges in state:', edges.length, edges);
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
     setSelectedNode(node);
