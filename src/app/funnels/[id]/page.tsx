@@ -477,7 +477,7 @@ export default function FunnelDetailPage() {
         {/* Funnel Visualizer */}
         {!showEditBuilder && (
           <div className="mb-8">
-            <FunnelVisualizer steps={funnel.steps} name={funnel.name} />
+            <FunnelVisualizer steps={funnel.steps} name={funnel.name} connections={funnel.connections} />
           </div>
         )}
 
