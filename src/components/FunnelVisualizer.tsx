@@ -106,20 +106,16 @@ export default function FunnelVisualizer({ steps, name }: FunnelVisualizerProps)
       };
     });
 
-    // Create edges - source/target DEVONO MATCHARE gli ID dei nodi !!!
+    // Create edges - COPIATO ESATTAMENTE DA FunnelBuilder (linee 237-257)
     const newEdges: Edge[] = steps.slice(0, -1).map((_, index) => ({
       id: `edge-${index}`,
-      source: `step-${index + 1}`,  // ← FIX CRITICO: era step-${index}
-      target: `step-${index + 2}`,  // ← FIX CRITICO: era step-${index + 1}
+      source: `step-${index + 1}`,
+      target: `step-${index + 2}`,
       type: 'smoothstep',
       animated: true,
       style: {
         stroke: '#7c5cff',
         strokeWidth: 3,
-      },
-      markerEnd: {
-        type: 'arrowclosed',
-        color: '#7c5cff',
       },
       label: '→',
       labelStyle: {
