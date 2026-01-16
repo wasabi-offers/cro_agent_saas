@@ -137,7 +137,7 @@ Make recommendations SPECIFIC and ACTIONABLE. Include real psychological princip
 
         const message = await client.messages.create({
           model: "claude-3-haiku-20240307",
-          max_tokens: 6000,
+          max_tokens: 4096, // Haiku max output tokens
           system: systemPrompt,
           messages: [
             {
