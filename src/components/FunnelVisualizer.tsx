@@ -12,6 +12,7 @@ import ReactFlow, {
   ReactFlowProvider,
   Handle,
   Position,
+  MarkerType,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { Users, TrendingDown, Percent, X } from 'lucide-react';
@@ -146,6 +147,12 @@ export default function FunnelVisualizer({ steps, name, connections }: FunnelVis
             stroke: '#7c5cff',
             strokeWidth: 3,
           },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            color: '#7c5cff',
+            width: 20,
+            height: 20,
+          },
           label: '→',
           labelStyle: {
             fill: '#00d4aa',
@@ -167,6 +174,12 @@ export default function FunnelVisualizer({ steps, name, connections }: FunnelVis
           style: {
             stroke: '#7c5cff',
             strokeWidth: 3,
+          },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            color: '#7c5cff',
+            width: 20,
+            height: 20,
           },
           label: '→',
           labelStyle: {
