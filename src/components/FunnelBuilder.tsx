@@ -13,6 +13,7 @@ import ReactFlow, {
   ConnectionMode,
   Handle,
   Position,
+  MarkerType,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { Plus, Trash2, Save, X, ArrowRight, Link as LinkIcon, ExternalLink } from 'lucide-react';
@@ -252,6 +253,12 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
             stroke: '#7c5cff',
             strokeWidth: 3,
           },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            color: '#7c5cff',
+            width: 20,
+            height: 20,
+          },
           label: '→',
           labelStyle: {
             fill: '#00d4aa',
@@ -273,6 +280,12 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
           style: {
             stroke: '#7c5cff',
             strokeWidth: 3,
+          },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            color: '#7c5cff',
+            width: 20,
+            height: 20,
           },
           label: '→',
           labelStyle: {
@@ -299,6 +312,12 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
         style: {
           stroke: '#7c5cff',
           strokeWidth: 3,
+        },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: '#7c5cff',
+          width: 20,
+          height: 20,
         },
         label: '→',
         labelStyle: {

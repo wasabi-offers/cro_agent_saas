@@ -12,6 +12,7 @@ import ReactFlow, {
   ReactFlowProvider,
   Handle,
   Position,
+  MarkerType,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { Users, TrendingDown, Percent, X } from 'lucide-react';
@@ -134,6 +135,13 @@ export default function FunnelVisualizer({ steps, name, connections }: FunnelVis
     });
 
     // Create edges - use connections from database if available, otherwise generate linear flow
+    if (connections && connections.length > 0) {
+      console.warn('✅✅✅ Using CUSTOM connections from database! Count:', connections.length);
+      console.warn('✅✅✅ Connections:', JSON.stringify(connections));
+    } else {
+      console.warn('⚠️⚠️⚠️ NO connections found! Using LINEAR fallback!');
+    }
+
     const newEdges: Edge[] = connections && connections.length > 0
       ? // Use connections from database
         connections.map((conn, index) => ({
@@ -145,6 +153,12 @@ export default function FunnelVisualizer({ steps, name, connections }: FunnelVis
           style: {
             stroke: '#7c5cff',
             strokeWidth: 3,
+          },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            color: '#7c5cff',
+            width: 20,
+            height: 20,
           },
           label: '→',
           labelStyle: {
@@ -167,6 +181,12 @@ export default function FunnelVisualizer({ steps, name, connections }: FunnelVis
           style: {
             stroke: '#7c5cff',
             strokeWidth: 3,
+          },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            color: '#7c5cff',
+            width: 20,
+            height: 20,
           },
           label: '→',
           labelStyle: {
