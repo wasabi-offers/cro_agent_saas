@@ -273,8 +273,11 @@ export async function createFunnel(funnel: {
     const funnelId = `funnel_${Date.now()}`;
 
     // Calculate conversion rate (last step visitors / first step visitors)
-    const conversionRate = funnel.steps.length > 1
-      ? (funnel.steps[funnel.steps.length - 1].visitors / funnel.steps[0].visitors) * 100
+    // Handle case where visitors is 0 (no tracking data yet)
+    const firstStepVisitors = funnel.steps[0]?.visitors || 0;
+    const lastStepVisitors = funnel.steps[funnel.steps.length - 1]?.visitors || 0;
+    const conversionRate = firstStepVisitors > 0
+      ? (lastStepVisitors / firstStepVisitors) * 100
       : 0;
 
     // Insert funnel
@@ -392,8 +395,11 @@ export async function updateFunnel(
     console.log('🔧 UPDATE FUNNEL - Number of connections:', funnel.connections?.length || 0);
 
     // Calculate conversion rate
-    const conversionRate = funnel.steps.length > 1
-      ? (funnel.steps[funnel.steps.length - 1].visitors / funnel.steps[0].visitors) * 100
+    // Handle case where visitors is 0 (no tracking data yet)
+    const firstStepVisitors = funnel.steps[0]?.visitors || 0;
+    const lastStepVisitors = funnel.steps[funnel.steps.length - 1]?.visitors || 0;
+    const conversionRate = firstStepVisitors > 0
+      ? (lastStepVisitors / firstStepVisitors) * 100
       : 0;
 
     // Update funnel

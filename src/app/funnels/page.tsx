@@ -51,7 +51,9 @@ export default function FunnelsListPage() {
         name: funnel.name,
         steps: funnel.steps,
         connections: funnel.connections,
-        conversionRate: (funnel.steps[funnel.steps.length - 1].visitors / funnel.steps[0].visitors) * 100,
+        conversionRate: funnel.steps[0].visitors > 0
+          ? (funnel.steps[funnel.steps.length - 1].visitors / funnel.steps[0].visitors) * 100
+          : 0,
       };
       setFunnels([localFunnel, ...funnels]);
       setShowBuilder(false);

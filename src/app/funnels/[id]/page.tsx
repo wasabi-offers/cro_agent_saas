@@ -325,7 +325,9 @@ export default function FunnelDetailPage() {
         name: updatedFunnel.name,
         steps: updatedFunnel.steps,
         connections: updatedFunnel.connections,
-        conversionRate: (updatedFunnel.steps[updatedFunnel.steps.length - 1].visitors / updatedFunnel.steps[0].visitors) * 100,
+        conversionRate: updatedFunnel.steps[0].visitors > 0
+          ? (updatedFunnel.steps[updatedFunnel.steps.length - 1].visitors / updatedFunnel.steps[0].visitors) * 100
+          : 0,
       };
       setFunnel(updatedConversionFunnel);
       setShowEditBuilder(false);
