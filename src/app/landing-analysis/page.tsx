@@ -130,6 +130,9 @@ export default function LandingAnalysisPage() {
       } else {
         const errorData = await croTableResponse.json();
         console.error("❌ CRO Table API error:", errorData);
+        if (errorData.rawResponse) {
+          console.log("📝 Raw AI response:", errorData.rawResponse);
+        }
         setCroTableError(errorData.error || "API request failed");
       }
     } catch (err) {
@@ -171,9 +174,12 @@ export default function LandingAnalysisPage() {
       } else {
         throw new Error(data.error || "Failed to generate CRO table");
       }
-    } catch (err) {
+    } catch (err: any) {
       const errorMsg = err instanceof Error ? err.message : "An error occurred generating the CRO table";
       console.error("❌ CRO Table generation error:", errorMsg);
+      if (err.rawResponse) {
+        console.log("📝 Raw AI response:", err.rawResponse);
+      }
       setCroTableError(errorMsg);
     } finally {
       setIsGeneratingTable(false);

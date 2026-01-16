@@ -105,7 +105,9 @@ Generate 5-8 high-impact optimization opportunities based on the ACTUAL page con
 
 8. **Priority**: "high", "medium", or "low" based on impact vs effort
 
-Return ONLY a JSON array of objects with this structure:
+CRITICAL: Return ONLY a valid JSON array. No explanatory text before or after. Just the JSON array starting with [ and ending with ].
+
+Expected JSON structure:
 [
   {
     "id": 1,
@@ -125,7 +127,14 @@ Return ONLY a JSON array of objects with this structure:
   }
 ]
 
-Make recommendations SPECIFIC and ACTIONABLE. Include real psychological principles, case study references, and concrete numbers.`;
+IMPORTANT INSTRUCTIONS:
+- Return ONLY the JSON array above
+- NO explanatory text before the JSON
+- NO explanatory text after the JSON
+- NO markdown code blocks (no \`\`\`json)
+- Start your response with [ and end with ]
+- Make recommendations SPECIFIC and ACTIONABLE based on the ACTUAL page content
+- Include real psychological principles, case study references, and concrete numbers`;
 
     // If API key available, use Claude
     if (process.env.ANTHROPIC_API_KEY) {
@@ -154,12 +163,23 @@ Make recommendations SPECIFIC and ACTIONABLE. Include real psychological princip
           try {
             // Parse JSON from Claude's response
             let jsonText = textContent.text.trim();
+            console.log("Raw response length:", jsonText.length);
+            console.log("First 200 chars:", jsonText.substring(0, 200));
 
             // Remove markdown code blocks if present
             if (jsonText.startsWith('```json')) {
               jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?$/g, '');
             } else if (jsonText.startsWith('```')) {
               jsonText = jsonText.replace(/```\n?/g, '');
+            }
+
+            // Try to extract JSON array even if there's text before/after
+            const jsonMatch = jsonText.match(/\[\s*\{[\s\S]*\}\s*\]/);
+            if (jsonMatch) {
+              console.log("✅ Found JSON array with regex");
+              jsonText = jsonMatch[0];
+            } else {
+              console.log("⚠️ No JSON array found with regex, trying direct parse");
             }
 
             const aiRows = JSON.parse(jsonText);
