@@ -466,14 +466,21 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
 
     // Convert edges to simple connection format - NO REMAPPING NEEDED!
     // Since we're saving steps in original order, connection IDs remain valid
-    const connections = edges.map(edge => ({
-      source: edge.source,
-      target: edge.target,
-    }));
+    // CRITICAL: Filter out connections that reference non-existent nodes
+    const nodeIds = new Set(nodes.map(n => n.id));
+    const connections = edges
+      .filter(edge => nodeIds.has(edge.source) && nodeIds.has(edge.target))
+      .map(edge => ({
+        source: edge.source,
+        target: edge.target,
+      }));
 
+    console.log('🔧 FUNNEL BUILDER - Nodes in state:', nodes.length);
+    console.log('🔧 FUNNEL BUILDER - Node IDs:', nodes.map(n => n.id));
     console.log('🔧 FUNNEL BUILDER - Edges in state:', edges.length);
     console.log('🔧 FUNNEL BUILDER - Edges details:', edges.map(e => `${e.id}: ${e.source} → ${e.target}`));
-    console.log('🔧 FUNNEL BUILDER - Connections after remapping:', connections);
+    console.log('🔧 FUNNEL BUILDER - Connections after filtering:', connections);
+    console.log('🔧 FUNNEL BUILDER - Filtered out:', edges.length - connections.length, 'invalid connections');
     console.log('🔧 FUNNEL BUILDER - Steps being saved:', steps.map(s => s.name));
 
     onSave({
