@@ -71,6 +71,7 @@ function StepNode({ data }: { data: StepData }) {
             <span>{data.dropoff.toFixed(1)}% dropoff</span>
           </div>
         )}
+        </div>
       </div>
 
       {/* Output Handle (Right) - Where connections go OUT */}
