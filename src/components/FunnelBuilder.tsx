@@ -455,15 +455,25 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
       };
     });
 
-    // Convert edges to simple connection format for database
+    // CRITICAL: Create mapping from old node IDs to new node IDs after topological sort
+    // The topological sort reorders the steps, so the node IDs no longer match the array indices
+    // We need to remap the connections to use the new indices
+    const oldIdToNewId = new Map<string, string>();
+    stepOrder.forEach((oldNodeId, newIndex) => {
+      const newNodeId = `step-${newIndex + 1}`;
+      oldIdToNewId.set(oldNodeId, newNodeId);
+      console.log(`🔧 FUNNEL BUILDER - Remapping: ${oldNodeId} → ${newNodeId}`);
+    });
+
+    // Convert edges to simple connection format for database with remapped IDs
     const connections = edges.map(edge => ({
-      source: edge.source,
-      target: edge.target,
+      source: oldIdToNewId.get(edge.source) || edge.source,
+      target: oldIdToNewId.get(edge.target) || edge.target,
     }));
 
     console.log('🔧 FUNNEL BUILDER - Edges in state:', edges.length);
     console.log('🔧 FUNNEL BUILDER - Edges details:', edges.map(e => `${e.id}: ${e.source} → ${e.target}`));
-    console.log('🔧 FUNNEL BUILDER - Connections being passed to onSave:', connections);
+    console.log('🔧 FUNNEL BUILDER - Connections after remapping:', connections);
     console.log('🔧 FUNNEL BUILDER - Steps being saved:', steps.map(s => s.name));
 
     onSave({
