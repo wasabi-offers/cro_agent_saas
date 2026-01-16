@@ -231,7 +231,10 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
     const initialNodes: Node[] = initialFunnel.steps.map((step, index) => ({
       id: `step-${index + 1}`,
       type: 'stepNode',
-      position: { x: index * 300, y: 100 },
+      position: {
+        x: step.x !== undefined ? step.x : index * 300,  // Use saved position or default
+        y: step.y !== undefined ? step.y : 100            // Use saved position or default
+      },
       data: {
         label: step.name,
         url: step.url,
@@ -436,6 +439,7 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
 
     // Generate steps in ORIGINAL order (sorted by node ID: step-1, step-2, step-3...)
     // Initialize with ZERO visitors - real data will come from tracking system
+    // SAVE POSITIONS so visual layout is preserved!
     const steps: FunnelStep[] = nodes
       .slice() // Create copy to avoid mutating original
       .sort((a, b) => {
@@ -450,6 +454,8 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
           visitors: 0,  // Will be populated from tracking data
           dropoff: 0,   // Will be calculated from tracking data
           url: node.data.url || undefined,
+          x: node.position.x,  // Save visual position X
+          y: node.position.y,  // Save visual position Y
         };
       });
 

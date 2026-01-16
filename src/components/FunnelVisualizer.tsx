@@ -125,7 +125,10 @@ export default function FunnelVisualizer({ steps, name, connections }: FunnelVis
       return {
         id: `step-${index + 1}`,  // ← FIX CRITICO: era step-${index}
         type: 'stepNode',
-        position: { x: index * 300, y: 100 },
+        position: {
+          x: step.x !== undefined ? step.x : index * 300,  // Use saved position or default
+          y: step.y !== undefined ? step.y : 100            // Use saved position or default
+        },
         data: {
           label: step.name,
           visitors: step.visitors,
