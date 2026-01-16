@@ -15,9 +15,8 @@ import {
   Filter,
   ChevronDown,
 } from "lucide-react";
-import { ConversionFunnel } from "@/lib/mock-data";
 import FunnelBuilder from "@/components/FunnelBuilder";
-import { fetchFunnels, createFunnel } from "@/lib/supabase-funnels";
+import { ConversionFunnel, fetchFunnels, createFunnel } from "@/lib/supabase-funnels";
 
 export default function FunnelsListPage() {
   const [funnels, setFunnels] = useState<ConversionFunnel[]>([]);
