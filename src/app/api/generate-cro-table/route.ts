@@ -38,12 +38,42 @@ Generate a CRO Decision Table with these exact columns:
 - KPI to Observe: Metrics to track
 - Run Test: Status tracking`;
 
-    const userPrompt = `Analyze this ${type} and generate a detailed CRO Decision Table:
+    // Fetch the actual landing page HTML content
+    let pageContent = "";
+    try {
+      const pageResponse = await fetch(url, {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (compatible; CROAgent/1.0; +https://croagent.com/bot)",
+        },
+      });
+      pageContent = await pageResponse.text();
+      // Limit content to avoid token limits
+      pageContent = pageContent.substring(0, 50000);
+    } catch (fetchError) {
+      console.error("Error fetching page:", fetchError);
+      // If we can't fetch the page, still try to analyze with URL only
+    }
+
+    const userPrompt = `Analyze this ${type} and generate a detailed CRO Decision Table based on REAL page content:
 
 URL: ${url}
 ${context ? `Context: ${context}` : ''}
 
-Generate 5-8 high-impact optimization opportunities. For EACH opportunity provide:
+${pageContent ? `ACTUAL PAGE HTML (first 50k chars):
+${pageContent}
+
+CRITICAL: Analyze the REAL content above. Look at:
+- Actual headlines, copy, and messaging
+- Real CTAs and their placement
+- Actual trust signals, testimonials, social proof
+- Real form fields and their labels
+- Actual colors, images, and visual hierarchy
+- Real page structure and sections
+
+Base your recommendations on what you ACTUALLY see in the HTML, not generic assumptions.
+` : 'WARNING: Could not fetch page content. Provide generic best practices.'}
+
+Generate 5-8 high-impact optimization opportunities based on the ACTUAL page content. For EACH opportunity provide:
 
 1. **Metric Observed**: Specific data point with percentage (e.g., "Scroll depth median 42%. 68% users never reach reviews")
 
@@ -53,11 +83,13 @@ Generate 5-8 high-impact optimization opportunities. For EACH opportunity provid
 
 4. **Wrong Assumption**: Common mistake (e.g., "People don't care about reviews" or "Bad UX only")
 
-5. **Practical Test**: EXACT change to test
+5. **Practical Test**: EXACT change to test based on ACTUAL page content
    - Title: Test name (e.g., "Strategic Test - Hero Reframe")
-   - FROM: Current version (e.g., "Restore Your Energy Naturally")
-   - TO: Proposed version (e.g., "Restore Your Energy in 7 Days — Using the Same Cellular Trigger Doctors Ignore")
-   - Details: Additional implementation steps (array of strings)
+   - FROM: EXACT current copy/element from the page (quote the actual text you see in the HTML)
+   - TO: Your proposed improved version (write the EXACT new copy/change)
+   - Details: Step-by-step implementation instructions (array of specific actionable steps)
+
+   IMPORTANT: The FROM field MUST contain actual text/elements from the page HTML. Don't make up examples - use real content!
 
 6. **Expected Lift**: Specific prediction (e.g., "+10-18% RPV", "+6-12% ATC")
 
