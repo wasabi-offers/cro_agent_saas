@@ -98,7 +98,11 @@ export default function FunnelDetailPage() {
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
+      console.warn('🔄🔄🔄 PAGE [ID] - Loading funnel data for:', funnelId);
       const funnelData = await fetchFunnel(funnelId);
+      console.warn('🔄🔄🔄 PAGE [ID] - Funnel data loaded:', funnelData);
+      console.warn('🔄🔄🔄 PAGE [ID] - Connections in loaded data:', funnelData?.connections);
+      console.warn('🔄🔄🔄 PAGE [ID] - Number of connections:', funnelData?.connections?.length || 0);
       setFunnel(funnelData);
       setIsLoading(false);
     };
@@ -298,15 +302,23 @@ export default function FunnelDetailPage() {
   };
 
   const handleEditFunnel = async (updatedFunnel: { name: string; steps: any[]; connections?: any[] }) => {
+    console.warn('💾💾💾 HANDLE EDIT FUNNEL - Received from builder:', updatedFunnel);
+    console.warn('💾💾💾 HANDLE EDIT FUNNEL - Connections:', updatedFunnel.connections);
+    console.warn('💾💾💾 HANDLE EDIT FUNNEL - Number of connections:', updatedFunnel.connections?.length || 0);
+
     const success = await updateFunnel(funnelId, updatedFunnel);
 
     if (success) {
+      console.warn('💾💾💾 HANDLE EDIT FUNNEL - Update successful! Reloading from database...');
       // Reload funnel data from database
       const funnelData = await fetchFunnel(funnelId);
+      console.warn('💾💾💾 HANDLE EDIT FUNNEL - Reloaded data:', funnelData);
+      console.warn('💾💾💾 HANDLE EDIT FUNNEL - Reloaded connections:', funnelData?.connections);
       setFunnel(funnelData);
       setShowEditBuilder(false);
       alert('✅ Funnel modificato con successo!');
     } else {
+      console.warn('💾💾💾 HANDLE EDIT FUNNEL - Update failed, using local data');
       // If Supabase not configured, update locally
       const updatedConversionFunnel: ConversionFunnel = {
         id: funnelId,
