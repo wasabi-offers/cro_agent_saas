@@ -9,6 +9,8 @@ export interface FunnelStep {
   visitors: number;
   dropoff: number;
   url?: string;
+  x?: number;  // Visual position X coordinate
+  y?: number;  // Visual position Y coordinate
 }
 
 export interface FunnelConnection {
@@ -244,6 +246,8 @@ export async function fetchFunnel(funnelId: string): Promise<ConversionFunnel | 
         visitors: step.visitors,
         dropoff: Number(step.dropoff),
         url: step.url || undefined,
+        x: step.position_x,  // Load visual position X
+        y: step.position_y,  // Load visual position Y
       })),
       connections: connections.length > 0 ? connections : undefined,
     };
@@ -297,7 +301,7 @@ export async function createFunnel(funnel: {
       return null;
     }
 
-    // Insert steps
+    // Insert steps with visual positions
     const stepsToInsert = funnel.steps.map((step, index) => ({
       id: `${funnelId}_step_${index + 1}`,
       funnel_id: funnelId,
@@ -306,6 +310,8 @@ export async function createFunnel(funnel: {
       visitors: step.visitors,
       dropoff: step.dropoff,
       step_order: index + 1,
+      position_x: step.x || index * 300,  // Save X position or default
+      position_y: step.y || 100,          // Save Y position or default
     }));
 
     const { error: stepsError } = await supabase
@@ -433,7 +439,7 @@ export async function updateFunnel(
 
     console.log('✅ Old steps deleted');
 
-    // Insert new steps with STABLE IDs (no timestamp)
+    // Insert new steps with STABLE IDs (no timestamp) and visual positions
     // CRITICAL: Step IDs must remain stable across edits so connections remain valid
     const stepsToInsert = funnel.steps.map((step, index) => ({
       id: `${funnelId}_step_${index + 1}`,  // NO TIMESTAMP!
@@ -443,6 +449,8 @@ export async function updateFunnel(
       visitors: step.visitors,
       dropoff: step.dropoff,
       step_order: index + 1,
+      position_x: step.x || index * 300,  // Save X position or default
+      position_y: step.y || 100,          // Save Y position or default
     }));
 
     console.log('🔧 Steps to insert:', stepsToInsert.length);
