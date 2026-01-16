@@ -56,7 +56,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Mock results for demo (will be replaced with real AI analysis)
+    /* REMOVED: Mock data - using only real AI analysis now
     const mockResults: Record<string, AnalysisResult> = {
       cro: {
         category: CATEGORY_LABELS.cro,
@@ -128,32 +128,73 @@ export async function POST(request: Request) {
           "No breadcrumb navigation or clear back button on deep pages. Users feel lost. 34% bounce when can't find way back. Add breadcrumbs, persistent navigation. Amazon: breadcrumbs reduced navigation-related exits 22%.",
         ],
       },
-    };
+    }; */
 
-    // If API key is available, use Claude for real analysis
-    if (process.env.ANTHROPIC_API_KEY) {
-      try {
-        const client = new Anthropic();
+    // Claude API analysis - REQUIRED (no mock fallback)
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "ANTHROPIC_API_KEY not configured. Cannot analyze landing page.",
+        },
+        { status: 500 }
+      );
+    }
 
-        // Fetch the landing page HTML (in production, use a proper scraping service)
-        let pageContent = "";
-        try {
-          const pageResponse = await fetch(url, {
-            headers: {
-              "User-Agent": "Mozilla/5.0 (compatible; CROAgent/1.0; +https://croagent.com/bot)",
-            },
-          });
-          pageContent = await pageResponse.text();
-          // Limit content to first 50000 chars to avoid token limits
-          pageContent = pageContent.substring(0, 50000);
-        } catch (fetchError) {
-          console.error("Error fetching page:", fetchError);
-          // Continue with mock data if fetch fails
-        }
+    console.log("🌐 Fetching page content from:", url);
+    let pageContent = "";
+    try {
+      const pageResponse = await fetch(url, {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (compatible; CROAgent/1.0; +https://croagent.com/bot)",
+        },
+      });
 
-        if (pageContent) {
-          const filtersList = filters.join(", ");
-          const prompt = `You are THE WORLD'S #1 CRO (Conversion Rate Optimization) EXPERT with 20+ years of experience. You have:
+      if (!pageResponse.ok) {
+        console.error(`❌ Failed to fetch page: ${pageResponse.status} ${pageResponse.statusText}`);
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Failed to fetch page: ${pageResponse.status} ${pageResponse.statusText}`,
+          },
+          { status: 500 }
+        );
+      }
+
+      pageContent = await pageResponse.text();
+      console.log(`✅ Fetched ${pageContent.length} characters`);
+      // Limit content to first 50000 chars to avoid token limits
+      pageContent = pageContent.substring(0, 50000);
+      console.log(`📝 Using first ${pageContent.length} characters for analysis`);
+    } catch (fetchError) {
+      console.error("❌ Error fetching page:", fetchError);
+      return NextResponse.json(
+        {
+          success: false,
+          error: fetchError instanceof Error ? fetchError.message : "Failed to fetch page",
+        },
+        { status: 500 }
+      );
+    }
+
+    if (!pageContent) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Failed to fetch page content",
+        },
+        { status: 500 }
+      );
+    }
+
+    console.log("🤖 Calling Claude API for landing page analysis...");
+    try {
+      const client = new Anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+      });
+
+      const filtersList = filters.join(", ");
+      const prompt = `You are THE WORLD'S #1 CRO (Conversion Rate Optimization) EXPERT with 20+ years of experience. You have:
 - Optimized 1000+ landing pages generating $500M+ in revenue
 - Mastery of ALL CRO techniques: Cialdini's 6 principles, behavioral economics (Kahneman & Tversky), neuromarketing, persuasion architecture
 - Deep knowledge of: AIDA, PAS, FAB frameworks, Jobs-to-be-Done theory, hook models, gamification, scarcity/urgency psychology
@@ -187,7 +228,7 @@ Categories deep-dive:
 - Colors: Assess contrast ratios (WCAG compliance), color psychology application, CTA button color effectiveness, visual hierarchy strength, attention flow guidance, emotional response triggers, brand consistency, accessibility for color-blind users
 - Experience: Navigation cognitive load, mobile responsiveness (touch targets 44px+), page speed (LCP, FID, CLS), scroll depth optimization, distraction analysis, white space usage, visual clarity, micro-interactions presence, error prevention/recovery
 
-Respond ONLY in this JSON format:
+Respond ONLY in this JSON format (no text before or after, no markdown):
 {
   "cro": { "score": number, "insights": ["detailed 200-300 char insight with data, principle, and impact prediction", ...] },
   "copy": { "score": number, "insights": [...] },
@@ -195,65 +236,101 @@ Respond ONLY in this JSON format:
   "experience": { "score": number, "insights": [...] }
 }
 
-BE BRUTAL. BE SPECIFIC. NO GENERIC ADVICE. Include percentages, psychology principles, case studies, and exact recommendations.`;
+IMPORTANT:
+- Return ONLY the JSON object above
+- NO explanatory text before the JSON
+- NO explanatory text after the JSON
+- NO markdown code blocks
+- Start with { and end with }
+- BE BRUTAL. BE SPECIFIC. NO GENERIC ADVICE.
+- Include percentages, psychology principles, case studies, and exact recommendations based on the ACTUAL page content.`;
 
-          const message = await client.messages.create({
-            model: "claude-3-haiku-20240307",
-            max_tokens: 8000,
-            messages: [
-              {
-                role: "user",
-                content: prompt,
-              },
-            ],
-          });
+      const message = await client.messages.create({
+        model: "claude-3-haiku-20240307",
+        max_tokens: 4096, // Haiku max output tokens
+        messages: [
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+      });
 
-          // Parse Claude's response
-          const textContent = message.content.find((c) => c.type === "text");
-          if (textContent && textContent.type === "text") {
-            try {
-              const aiAnalysis = JSON.parse(textContent.text);
+      console.log("✅ Received response from Claude");
+      const textContent = message.content.find((c) => c.type === "text");
+      if (textContent && textContent.type === "text") {
+        console.log("📄 Parsing JSON response...");
+        let jsonText = textContent.text.trim();
+        console.log("Raw response length:", jsonText.length);
+        console.log("First 200 chars:", jsonText.substring(0, 200));
 
-              // Transform AI response to match our format
-              const results: AnalysisResult[] = filters.map((filter) => {
-                const data = aiAnalysis[filter];
-                return {
-                  category: CATEGORY_LABELS[filter as keyof typeof CATEGORY_LABELS],
-                  icon: CATEGORY_ICONS[filter as keyof typeof CATEGORY_ICONS],
-                  score: data.score,
-                  insights: data.insights,
-                };
-              });
-
-              return NextResponse.json({
-                success: true,
-                results,
-                analyzedAt: new Date().toISOString(),
-                source: "ai",
-              });
-            } catch (parseError) {
-              console.error("Error parsing AI response:", parseError);
-              // Fall back to mock data
-            }
+        try {
+          // Remove markdown code blocks if present
+          if (jsonText.startsWith('```json')) {
+            jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?$/g, '');
+          } else if (jsonText.startsWith('```')) {
+            jsonText = jsonText.replace(/```\n?/g, '');
           }
+
+          // Try to extract JSON object even if there's text before/after
+          const jsonMatch = jsonText.match(/\{\s*"[^"]+"\s*:\s*\{[\s\S]*\}\s*\}/);
+          if (jsonMatch) {
+            console.log("✅ Found JSON object with regex");
+            jsonText = jsonMatch[0];
+          } else {
+            console.log("⚠️ No JSON object found with regex, trying direct parse");
+          }
+
+          const aiAnalysis = JSON.parse(jsonText);
+          console.log("✅ Parsed AI analysis successfully");
+
+          // Transform AI response to match our format
+          const results: AnalysisResult[] = filters.map((filter) => {
+            const data = aiAnalysis[filter];
+            if (!data) {
+              console.error(`❌ Missing data for filter: ${filter}`);
+              return null;
+            }
+            return {
+              category: CATEGORY_LABELS[filter as keyof typeof CATEGORY_LABELS],
+              icon: CATEGORY_ICONS[filter as keyof typeof CATEGORY_ICONS],
+              score: data.score,
+              insights: data.insights,
+            };
+          }).filter(Boolean) as AnalysisResult[];
+
+          console.log(`✅ Generated ${results.length} analysis categories`);
+
+          return NextResponse.json({
+            success: true,
+            results,
+            analyzedAt: new Date().toISOString(),
+            source: "ai",
+          });
+        } catch (parseError) {
+          console.error("❌ Error parsing AI response:", parseError);
+          console.log("📝 Raw response:", textContent.text);
+          return NextResponse.json(
+            {
+              success: false,
+              error: "Failed to parse AI response. Check server logs for details.",
+              rawResponse: textContent.text.substring(0, 500),
+            },
+            { status: 500 }
+          );
         }
-      } catch (aiError) {
-        console.error("AI analysis error:", aiError);
-        // Fall back to mock data
       }
+    } catch (aiError) {
+      console.error("❌ AI analysis error:", aiError);
+      return NextResponse.json(
+        {
+          success: false,
+          error: aiError instanceof Error ? aiError.message : "AI analysis failed",
+          details: "Check that ANTHROPIC_API_KEY is valid and has credits",
+        },
+        { status: 500 }
+      );
     }
-
-    // Return mock results
-    const results: AnalysisResult[] = filters.map((filter) =>
-      mockResults[filter as keyof typeof mockResults]
-    ).filter(Boolean);
-
-    return NextResponse.json({
-      success: true,
-      results,
-      analyzedAt: new Date().toISOString(),
-      source: "mock",
-    });
   } catch (error) {
     console.error("Landing analysis error:", error);
     return NextResponse.json(
