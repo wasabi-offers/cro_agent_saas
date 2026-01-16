@@ -442,6 +442,11 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
       target: edge.target,
     }));
 
+    console.log('🔧 FUNNEL BUILDER - Edges in state:', edges.length);
+    console.log('🔧 FUNNEL BUILDER - Edges details:', edges.map(e => `${e.id}: ${e.source} → ${e.target}`));
+    console.log('🔧 FUNNEL BUILDER - Connections being passed to onSave:', connections);
+    console.log('🔧 FUNNEL BUILDER - Steps being saved:', steps.map(s => s.name));
+
     onSave({
       name: funnelName,
       steps,
