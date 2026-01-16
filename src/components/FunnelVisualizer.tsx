@@ -10,6 +10,8 @@ import ReactFlow, {
   useEdgesState,
   ConnectionMode,
   ReactFlowProvider,
+  Handle,
+  Position,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { Users, TrendingDown, Percent, X } from 'lucide-react';
@@ -40,11 +42,20 @@ interface StepData {
 
 function StepNode({ data }: { data: StepData }) {
   return (
-    <div className="bg-[#0a0a0a] border-2 border-[#7c5cff] rounded-xl p-4 min-w-[200px] shadow-lg hover:border-[#00d4aa] transition-all cursor-pointer">
-      <div className="flex flex-col gap-2">
-        <h3 className="text-[14px] font-semibold text-[#fafafa] mb-2">
-          {data.label}
-        </h3>
+    <div className="relative">
+      {/* Input Handle (Left) - Where connections come IN */}
+      <Handle
+        type="target"
+        position={Position.Left}
+        className="w-3 h-3 !bg-[#7c5cff] border-2 border-white"
+        style={{ left: -6 }}
+      />
+
+      <div className="bg-[#0a0a0a] border-2 border-[#7c5cff] rounded-xl p-4 min-w-[200px] shadow-lg hover:border-[#00d4aa] transition-all cursor-pointer">
+        <div className="flex flex-col gap-2">
+          <h3 className="text-[14px] font-semibold text-[#fafafa] mb-2">
+            {data.label}
+          </h3>
         <div className="flex items-center gap-2 text-[12px] text-[#888888]">
           <Users className="w-3.5 h-3.5 text-[#7c5cff]" />
           <span>{data.visitors.toLocaleString()} visitors</span>
@@ -60,6 +71,14 @@ function StepNode({ data }: { data: StepData }) {
           </div>
         )}
       </div>
+
+      {/* Output Handle (Right) - Where connections go OUT */}
+      <Handle
+        type="source"
+        position={Position.Right}
+        className="w-3 h-3 !bg-[#00d4aa] border-2 border-white"
+        style={{ right: -6 }}
+      />
     </div>
   );
 }
@@ -93,6 +112,7 @@ export default function FunnelVisualizer({ steps, name, connections }: FunnelVis
   // Inizializza nodes ed edges quando cambiano gli steps (COPIATO DA FunnelBuilder)
   useEffect(() => {
     console.log('🔧 FunnelVisualizer - useEffect triggered, steps:', steps.length);
+    console.log('🔧 FunnelVisualizer - Connections from database:', connections);
 
     // Create nodes - IDs DEVONO INIZIARE DA 1 (come FunnelBuilder) !!!
     const newNodes: Node[] = steps.map((step, index) => {
@@ -209,6 +229,14 @@ export default function FunnelVisualizer({ steps, name, connections }: FunnelVis
             fitViewOptions={{ padding: 0.2 }}
             minZoom={0.5}
             maxZoom={1.5}
+            defaultEdgeOptions={{
+              animated: true,
+              style: { stroke: '#7c5cff', strokeWidth: 3 },
+            }}
+            elementsSelectable={true}
+            nodesConnectable={false}
+            nodesDraggable={false}
+            edgesFocusable={false}
             proOptions={{ hideAttribution: true }}
           >
             <Background color="#333" gap={16} />
