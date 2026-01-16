@@ -435,6 +435,7 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
     };
 
     // Generate steps in ORIGINAL order (sorted by node ID: step-1, step-2, step-3...)
+    // Initialize with ZERO visitors - real data will come from tracking system
     const steps: FunnelStep[] = nodes
       .slice() // Create copy to avoid mutating original
       .sort((a, b) => {
@@ -444,22 +445,10 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
         return numA - numB;
       })
       .map(node => {
-        const depth = getDepth(node.id);
-        const baseVisitors = 10000;
-        const dropoffRate = 0.20; // 20% dropoff per level
-        const visitors = Math.round(baseVisitors * Math.pow(1 - dropoffRate, depth));
-
-        // Calculate dropoff based on previous level
-        const previousDepth = depth - 1;
-        const previousVisitors = previousDepth >= 0
-          ? Math.round(baseVisitors * Math.pow(1 - dropoffRate, previousDepth))
-          : baseVisitors;
-        const dropoff = depth === 0 ? 0 : ((previousVisitors - visitors) / previousVisitors) * 100;
-
         return {
           name: node.data.label,
-          visitors,
-          dropoff,
+          visitors: 0,  // Will be populated from tracking data
+          dropoff: 0,   // Will be calculated from tracking data
           url: node.data.url || undefined,
         };
       });
