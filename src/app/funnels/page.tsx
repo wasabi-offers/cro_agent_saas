@@ -14,9 +14,10 @@ import {
   Search,
   Filter,
   ChevronDown,
+  Trash2,
 } from "lucide-react";
 import FunnelBuilder from "@/components/FunnelBuilder";
-import { ConversionFunnel, fetchFunnels, createFunnel } from "@/lib/supabase-funnels";
+import { ConversionFunnel, fetchFunnels, createFunnel, deleteFunnel } from "@/lib/supabase-funnels";
 
 export default function FunnelsListPage() {
   const [funnels, setFunnels] = useState<ConversionFunnel[]>([]);
@@ -54,6 +55,23 @@ export default function FunnelsListPage() {
       };
       setFunnels([localFunnel, ...funnels]);
       setShowBuilder(false);
+    }
+  };
+
+  const handleDeleteFunnel = async (funnelId: string, funnelName: string) => {
+    if (!confirm(`Sei sicuro di voler eliminare il funnel "${funnelName}"? Questa azione non può essere annullata.`)) {
+      return;
+    }
+
+    const success = await deleteFunnel(funnelId);
+
+    if (success) {
+      // Remove from local state
+      setFunnels(funnels.filter(f => f.id !== funnelId));
+      alert('✅ Funnel eliminato con successo!');
+    } else {
+      // If Supabase not configured, still remove locally
+      setFunnels(funnels.filter(f => f.id !== funnelId));
     }
   };
 
@@ -234,14 +252,27 @@ export default function FunnelsListPage() {
                         {funnel.steps.length} steps
                       </p>
                     </div>
-                    <div
-                      className={`px-3 py-1 rounded-full text-[12px] font-bold ${
-                        isGoodConversion
-                          ? "bg-[#00d4aa]/10 text-[#00d4aa]"
-                          : "bg-[#f59e0b]/10 text-[#f59e0b]"
-                      }`}
-                    >
-                      {funnel.conversionRate.toFixed(1)}%
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={`px-3 py-1 rounded-full text-[12px] font-bold ${
+                          isGoodConversion
+                            ? "bg-[#00d4aa]/10 text-[#00d4aa]"
+                            : "bg-[#f59e0b]/10 text-[#f59e0b]"
+                        }`}
+                      >
+                        {funnel.conversionRate.toFixed(1)}%
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleDeleteFunnel(funnel.id, funnel.name);
+                        }}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#ff6b6b]/10 text-[#666666] hover:text-[#ff6b6b] transition-colors"
+                        title="Elimina funnel"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
 

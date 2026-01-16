@@ -423,52 +423,52 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
       if (!visit(startNode.id)) return;
     }
 
-    // Generate funnel with mock data
-    // For non-linear funnels, we calculate visitors based on depth level
-    const steps: FunnelStep[] = stepOrder.map((id, index) => {
-      const node = nodes.find(n => n.id === id)!;
+    // CRITICAL FIX: Save steps in their ORIGINAL order (by node ID), not topologically sorted!
+    // The topological sort is only for validation, not for reordering the saved data
+    // This prevents connection IDs from becoming mismatched when reloading
 
-      // Calculate depth (distance from start)
-      const getDepth = (nodeId: string): number => {
-        const incoming = edges.filter(e => e.target === nodeId);
-        if (incoming.length === 0) return 0;
-        return Math.max(...incoming.map(e => getDepth(e.source))) + 1;
-      };
+    // Calculate depth for each node (for metrics calculation)
+    const getDepth = (nodeId: string): number => {
+      const incoming = edges.filter(e => e.target === nodeId);
+      if (incoming.length === 0) return 0;
+      return Math.max(...incoming.map(e => getDepth(e.source))) + 1;
+    };
 
-      const depth = getDepth(id);
-      const baseVisitors = 10000;
-      const dropoffRate = 0.20; // 20% dropoff per level
-      const visitors = Math.round(baseVisitors * Math.pow(1 - dropoffRate, depth));
+    // Generate steps in ORIGINAL order (sorted by node ID: step-1, step-2, step-3...)
+    const steps: FunnelStep[] = nodes
+      .slice() // Create copy to avoid mutating original
+      .sort((a, b) => {
+        // Extract numeric part from "step-X" and sort numerically
+        const numA = parseInt(a.id.split('-')[1]);
+        const numB = parseInt(b.id.split('-')[1]);
+        return numA - numB;
+      })
+      .map(node => {
+        const depth = getDepth(node.id);
+        const baseVisitors = 10000;
+        const dropoffRate = 0.20; // 20% dropoff per level
+        const visitors = Math.round(baseVisitors * Math.pow(1 - dropoffRate, depth));
 
-      // Calculate dropoff based on previous level
-      const previousDepth = depth - 1;
-      const previousVisitors = previousDepth >= 0
-        ? Math.round(baseVisitors * Math.pow(1 - dropoffRate, previousDepth))
-        : baseVisitors;
-      const dropoff = depth === 0 ? 0 : ((previousVisitors - visitors) / previousVisitors) * 100;
+        // Calculate dropoff based on previous level
+        const previousDepth = depth - 1;
+        const previousVisitors = previousDepth >= 0
+          ? Math.round(baseVisitors * Math.pow(1 - dropoffRate, previousDepth))
+          : baseVisitors;
+        const dropoff = depth === 0 ? 0 : ((previousVisitors - visitors) / previousVisitors) * 100;
 
-      return {
-        name: node.data.label,
-        visitors,
-        dropoff,
-        url: node.data.url || undefined,
-      };
-    });
+        return {
+          name: node.data.label,
+          visitors,
+          dropoff,
+          url: node.data.url || undefined,
+        };
+      });
 
-    // CRITICAL: Create mapping from old node IDs to new node IDs after topological sort
-    // The topological sort reorders the steps, so the node IDs no longer match the array indices
-    // We need to remap the connections to use the new indices
-    const oldIdToNewId = new Map<string, string>();
-    stepOrder.forEach((oldNodeId, newIndex) => {
-      const newNodeId = `step-${newIndex + 1}`;
-      oldIdToNewId.set(oldNodeId, newNodeId);
-      console.log(`🔧 FUNNEL BUILDER - Remapping: ${oldNodeId} → ${newNodeId}`);
-    });
-
-    // Convert edges to simple connection format for database with remapped IDs
+    // Convert edges to simple connection format - NO REMAPPING NEEDED!
+    // Since we're saving steps in original order, connection IDs remain valid
     const connections = edges.map(edge => ({
-      source: oldIdToNewId.get(edge.source) || edge.source,
-      target: oldIdToNewId.get(edge.target) || edge.target,
+      source: edge.source,
+      target: edge.target,
     }));
 
     console.log('🔧 FUNNEL BUILDER - Edges in state:', edges.length);
