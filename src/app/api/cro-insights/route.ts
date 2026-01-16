@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     const body = await request.json() as InsightRequest;
     const { type, data } = body;
 
-    // Mock insights based on type
+    /* REMOVED: Mock insights - using only real AI analysis now
     const mockInsights: Record<string, string[]> = {
       page_analysis: [
         "The checkout page has a 45% drop-off rate, significantly higher than the 30% industry average. Consider simplifying the form.",
@@ -35,54 +35,75 @@ export async function POST(request: Request) {
         "Your bounce rate has decreased 5% this month, indicating improved content relevance.",
         "Traffic from social media has 2x higher conversion than organic. Consider increasing social spend.",
       ],
-    };
+    }; */
 
-    // If API key is available, use Claude for real insights
-    if (process.env.ANTHROPIC_API_KEY) {
-      try {
-        const client = new Anthropic();
-        
-        const prompt = `You are a CRO analyst. Based on the following ${type} data, provide 3 actionable insights:
+    // Claude API analysis - REQUIRED (no mock fallback)
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "ANTHROPIC_API_KEY not configured. Cannot generate insights.",
+        },
+        { status: 500 }
+      );
+    }
+
+    console.log("🤖 Calling Claude API for CRO insights...");
+    try {
+      const client = new Anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+      });
+
+
+      const prompt = `You are a CRO analyst. Based on the following ${type} data, provide 3 actionable insights:
 
 Data:
 ${JSON.stringify(data, null, 2)}
 
 Provide specific, data-driven insights with recommendations. Keep each insight to 2-3 sentences.`;
 
-        const message = await client.messages.create({
-          model: "claude-3-haiku-20240307",
-          max_tokens: 1000,
-          messages: [
-            {
-              role: "user",
-              content: prompt,
-            },
-          ],
+      const message = await client.messages.create({
+        model: "claude-3-haiku-20240307",
+        max_tokens: 1000,
+        messages: [
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+      });
+
+      console.log("✅ Received response from Claude");
+      const textContent = message.content.find((c) => c.type === "text");
+      if (textContent && textContent.type === "text") {
+        const insights = textContent.text.split("\n").filter((line) => line.trim());
+        console.log(`✅ Generated ${insights.length} insights`);
+        return NextResponse.json({
+          success: true,
+          insights,
+          type,
+          generatedAt: new Date().toISOString(),
+          source: "ai",
         });
-
-        const textContent = message.content.find((c) => c.type === "text");
-        if (textContent && textContent.type === "text") {
-          const insights = textContent.text.split("\n").filter((line) => line.trim());
-          return NextResponse.json({
-            success: true,
-            insights,
-            type,
-            generatedAt: new Date().toISOString(),
-            source: "ai",
-          });
-        }
-      } catch (aiError) {
-        console.error("AI insight error:", aiError);
       }
-    }
 
-    return NextResponse.json({
-      success: true,
-      insights: mockInsights[type] || mockInsights.general,
-      type,
-      generatedAt: new Date().toISOString(),
-      source: "mock",
-    });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "No text content in Claude response",
+        },
+        { status: 500 }
+      );
+    } catch (aiError) {
+      console.error("❌ AI insight error:", aiError);
+      return NextResponse.json(
+        {
+          success: false,
+          error: aiError instanceof Error ? aiError.message : "AI analysis failed",
+        },
+        { status: 500 }
+      );
+    }
   } catch (error) {
     console.error("CRO insights error:", error);
     return NextResponse.json(
