@@ -164,26 +164,52 @@ IMPORTANT INSTRUCTIONS:
             // Parse JSON from Claude's response
             let jsonText = textContent.text.trim();
             console.log("Raw response length:", jsonText.length);
-            console.log("First 200 chars:", jsonText.substring(0, 200));
+            console.log("First 500 chars:", jsonText.substring(0, 500));
+            console.log("Last 200 chars:", jsonText.substring(Math.max(0, jsonText.length - 200)));
 
             // Remove markdown code blocks if present
-            if (jsonText.startsWith('```json')) {
-              jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?$/g, '');
-            } else if (jsonText.startsWith('```')) {
-              jsonText = jsonText.replace(/```\n?/g, '');
+            if (jsonText.includes('```json')) {
+              jsonText = jsonText.replace(/```json\s*/g, '').replace(/```\s*$/g, '');
+              console.log("Removed ```json markers");
+            } else if (jsonText.includes('```')) {
+              jsonText = jsonText.replace(/```\s*/g, '');
+              console.log("Removed ``` markers");
             }
 
-            // Try to extract JSON array even if there's text before/after
-            const jsonMatch = jsonText.match(/\[\s*\{[\s\S]*\}\s*\]/);
+            // Try multiple regex patterns to extract JSON array
+            let jsonMatch = null;
+
+            // Pattern 1: Most permissive - finds [ ... ] with anything inside
+            jsonMatch = jsonText.match(/\[[\s\S]*\]/);
             if (jsonMatch) {
-              console.log("✅ Found JSON array with regex");
+              console.log("✅ Found JSON array with pattern 1 (permissive)");
               jsonText = jsonMatch[0];
             } else {
-              console.log("⚠️ No JSON array found with regex, trying direct parse");
+              // Pattern 2: Look for array of objects
+              jsonMatch = jsonText.match(/\[\s*\{[\s\S]*?\}\s*\]/);
+              if (jsonMatch) {
+                console.log("✅ Found JSON array with pattern 2 (objects)");
+                jsonText = jsonMatch[0];
+              } else {
+                console.log("⚠️ No JSON array found with regex, trying to clean text");
+                // Remove any text before first [ and after last ]
+                const firstBracket = jsonText.indexOf('[');
+                const lastBracket = jsonText.lastIndexOf(']');
+                if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
+                  jsonText = jsonText.substring(firstBracket, lastBracket + 1);
+                  console.log("✅ Extracted text between [ and ]");
+                }
+              }
             }
 
+            console.log("Attempting to parse JSON...");
             const aiRows = JSON.parse(jsonText);
-            console.log(`✅ Parsed ${aiRows.length} CRO recommendations`);
+            console.log(`✅ Successfully parsed JSON with ${aiRows.length} CRO recommendations`);
+
+            // Validate that it's an array
+            if (!Array.isArray(aiRows)) {
+              throw new Error("Response is not an array");
+            }
 
             // Transform to CROTableRow format
             const rows: CROTableRow[] = aiRows.map((row: any) => ({
@@ -208,16 +234,29 @@ IMPORTANT INSTRUCTIONS:
             });
           } catch (parseError) {
             console.error("❌ Error parsing AI response:", parseError);
-            console.log("📝 Raw response:", textContent.text);
+            console.log("📝 Full raw response:");
+            console.log(textContent.text);
+            console.log("---END OF RESPONSE---");
+
             return NextResponse.json(
               {
                 success: false,
                 error: "Failed to parse AI response. Check server logs for details.",
-                rawResponse: textContent.text.substring(0, 500),
+                rawResponse: textContent.text.substring(0, 1000),
+                parseError: parseError instanceof Error ? parseError.message : "Unknown parse error",
               },
               { status: 500 }
             );
           }
+        } else {
+          console.error("❌ No text content in Claude response");
+          return NextResponse.json(
+            {
+              success: false,
+              error: "No text content in Claude response",
+            },
+            { status: 500 }
+          );
         }
       } catch (aiError) {
         console.error("❌ AI error:", aiError);
