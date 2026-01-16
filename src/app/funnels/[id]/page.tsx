@@ -31,13 +31,12 @@ import {
   Zap,
   Code,
 } from "lucide-react";
-import { ConversionFunnel } from "@/lib/mock-data";
 import CROComparisonTable from "@/components/CROComparisonTable";
 import SaveItemDialog from "@/components/SaveItemDialog";
 import FunnelVisualizer from "@/components/FunnelVisualizer";
 import FunnelBuilder from "@/components/FunnelBuilder";
 import { CROTableRow, SavedFunnel, funnelStorage } from "@/lib/saved-items";
-import { fetchFunnel, updateFunnel } from "@/lib/supabase-funnels";
+import { ConversionFunnel, fetchFunnel, updateFunnel } from "@/lib/supabase-funnels";
 
 interface AnalysisResult {
   category: string;
