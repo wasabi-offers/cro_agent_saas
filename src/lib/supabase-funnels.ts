@@ -427,9 +427,10 @@ export async function updateFunnel(
 
     console.log('✅ Old steps deleted');
 
-    // Insert new steps
+    // Insert new steps with STABLE IDs (no timestamp)
+    // CRITICAL: Step IDs must remain stable across edits so connections remain valid
     const stepsToInsert = funnel.steps.map((step, index) => ({
-      id: `${funnelId}_step_${index + 1}_${Date.now()}`,
+      id: `${funnelId}_step_${index + 1}`,  // NO TIMESTAMP!
       funnel_id: funnelId,
       name: step.name,
       url: step.url || null,
