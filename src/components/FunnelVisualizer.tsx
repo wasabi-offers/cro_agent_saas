@@ -47,8 +47,8 @@ function StepNode({ data }: { data: StepData }) {
       <Handle
         type="target"
         position={Position.Left}
-        className="w-3 h-3 !bg-[#7c5cff] border-2 border-white"
-        style={{ left: -6 }}
+        className="w-4 h-4 !bg-[#7c5cff] border-2 border-white"
+        style={{ left: -8 }}
       />
 
       <div className="bg-[#0a0a0a] border-2 border-[#7c5cff] rounded-xl p-4 min-w-[200px] shadow-lg hover:border-[#00d4aa] transition-all cursor-pointer">
@@ -76,8 +76,8 @@ function StepNode({ data }: { data: StepData }) {
       <Handle
         type="source"
         position={Position.Right}
-        className="w-3 h-3 !bg-[#00d4aa] border-2 border-white"
-        style={{ right: -6 }}
+        className="w-4 h-4 !bg-[#00d4aa] border-2 border-white"
+        style={{ right: -8 }}
       />
     </div>
   );
