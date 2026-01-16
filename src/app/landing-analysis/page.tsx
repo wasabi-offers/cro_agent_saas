@@ -120,7 +120,17 @@ export default function LandingAnalysisPage() {
       // CRO table is optional - don't fail if it errors
       if (croTableResponse.ok) {
         const croTableData = await croTableResponse.json();
-        setCroTableRows(croTableData.rows);
+        if (croTableData.success) {
+          setCroTableRows(croTableData.rows);
+          console.log("✅ CRO Table generated successfully");
+        } else {
+          console.error("❌ CRO Table generation failed:", croTableData.error);
+          setCroTableError(croTableData.error || "Failed to generate CRO table");
+        }
+      } else {
+        const errorData = await croTableResponse.json();
+        console.error("❌ CRO Table API error:", errorData);
+        setCroTableError(errorData.error || "API request failed");
       }
     } catch (err) {
       setError("An error occurred. Please try again later.");
@@ -148,13 +158,23 @@ export default function LandingAnalysisPage() {
         }),
       });
 
-      if (!response.ok) throw new Error("Failed to generate CRO table");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to generate CRO table");
+      }
 
       const data = await response.json();
-      setCroTableRows(data.rows);
-      setViewMode("cro-table");
+      if (data.success) {
+        setCroTableRows(data.rows);
+        setViewMode("cro-table");
+        console.log("✅ CRO Table generated with real data");
+      } else {
+        throw new Error(data.error || "Failed to generate CRO table");
+      }
     } catch (err) {
-      setCroTableError("An error occurred generating the CRO table. Please try again.");
+      const errorMsg = err instanceof Error ? err.message : "An error occurred generating the CRO table";
+      console.error("❌ CRO Table generation error:", errorMsg);
+      setCroTableError(errorMsg);
     } finally {
       setIsGeneratingTable(false);
     }

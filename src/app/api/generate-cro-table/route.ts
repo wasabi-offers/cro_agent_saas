@@ -39,6 +39,7 @@ Generate a CRO Decision Table with these exact columns:
 - Run Test: Status tracking`;
 
     // Fetch the actual landing page HTML content
+    console.log("🌐 Fetching page content from:", url);
     let pageContent = "";
     try {
       const pageResponse = await fetch(url, {
@@ -46,11 +47,18 @@ Generate a CRO Decision Table with these exact columns:
           "User-Agent": "Mozilla/5.0 (compatible; CROAgent/1.0; +https://croagent.com/bot)",
         },
       });
-      pageContent = await pageResponse.text();
-      // Limit content to avoid token limits
-      pageContent = pageContent.substring(0, 50000);
+
+      if (!pageResponse.ok) {
+        console.error(`❌ Failed to fetch page: ${pageResponse.status} ${pageResponse.statusText}`);
+      } else {
+        pageContent = await pageResponse.text();
+        console.log(`✅ Fetched ${pageContent.length} characters`);
+        // Limit content to avoid token limits
+        pageContent = pageContent.substring(0, 50000);
+        console.log(`📝 Using first ${pageContent.length} characters for analysis`);
+      }
     } catch (fetchError) {
-      console.error("Error fetching page:", fetchError);
+      console.error("❌ Error fetching page:", fetchError);
       // If we can't fetch the page, still try to analyze with URL only
     }
 
@@ -121,6 +129,7 @@ Make recommendations SPECIFIC and ACTIONABLE. Include real psychological princip
 
     // If API key available, use Claude
     if (process.env.ANTHROPIC_API_KEY) {
+      console.log("🤖 Calling Claude API for CRO analysis...");
       try {
         const client = new Anthropic({
           apiKey: process.env.ANTHROPIC_API_KEY,
@@ -138,8 +147,10 @@ Make recommendations SPECIFIC and ACTIONABLE. Include real psychological princip
           ],
         });
 
+        console.log("✅ Received response from Claude");
         const textContent = message.content.find((c) => c.type === "text");
         if (textContent && textContent.type === "text") {
+          console.log("📄 Parsing JSON response...");
           try {
             // Parse JSON from Claude's response
             let jsonText = textContent.text.trim();
@@ -152,6 +163,7 @@ Make recommendations SPECIFIC and ACTIONABLE. Include real psychological princip
             }
 
             const aiRows = JSON.parse(jsonText);
+            console.log(`✅ Parsed ${aiRows.length} CRO recommendations`);
 
             // Transform to CROTableRow format
             const rows: CROTableRow[] = aiRows.map((row: any) => ({
@@ -175,18 +187,41 @@ Make recommendations SPECIFIC and ACTIONABLE. Include real psychological princip
               source: "ai",
             });
           } catch (parseError) {
-            console.error("Error parsing AI response:", parseError);
-            console.log("Raw response:", textContent.text);
-            // Fall through to mock data
+            console.error("❌ Error parsing AI response:", parseError);
+            console.log("📝 Raw response:", textContent.text);
+            return NextResponse.json(
+              {
+                success: false,
+                error: "Failed to parse AI response. Check server logs for details.",
+                rawResponse: textContent.text.substring(0, 500),
+              },
+              { status: 500 }
+            );
           }
         }
       } catch (aiError) {
-        console.error("AI error:", aiError);
-        // Fall through to mock data
+        console.error("❌ AI error:", aiError);
+        return NextResponse.json(
+          {
+            success: false,
+            error: aiError instanceof Error ? aiError.message : "AI analysis failed",
+            details: "Check that ANTHROPIC_API_KEY is valid and has credits",
+          },
+          { status: 500 }
+        );
       }
     }
 
-    // Mock data fallback
+    // No API key configured
+    return NextResponse.json(
+      {
+        success: false,
+        error: "ANTHROPIC_API_KEY not configured. Cannot generate CRO analysis.",
+      },
+      { status: 500 }
+    );
+
+    /* REMOVED: Mock data fallback - we want real analysis only
     const mockRows: CROTableRow[] = [
       {
         id: 1,
@@ -315,14 +350,7 @@ Make recommendations SPECIFIC and ACTIONABLE. Include real psychological princip
           status: 'not-started',
         },
       },
-    ];
-
-    return NextResponse.json({
-      success: true,
-      rows: mockRows,
-      generatedAt: new Date().toISOString(),
-      source: "mock",
-    });
+    ]; */
   } catch (error) {
     console.error("CRO table generation error:", error);
     return NextResponse.json(
