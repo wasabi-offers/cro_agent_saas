@@ -65,6 +65,10 @@ export default function DataSourcesPage() {
     loadData();
   }, []);
 
+  // Check if Clarity is configured
+  const clarityProjectId = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID;
+  const isClarityConnected = !!clarityProjectId;
+
   // Build data sources from real data
   const dataSources: DataSource[] = dashboardData ? [
     {
@@ -81,12 +85,14 @@ export default function DataSourcesPage() {
       id: 'clarity',
       name: 'Microsoft Clarity',
       type: 'clarity',
-      status: 'connected',
-      lastSync: new Date().toISOString(),
-      metrics: {
-        sessions: dashboardData.summary.totalSessions,
-        users: dashboardData.summary.totalUsers,
-      }
+      status: isClarityConnected ? 'connected' : 'disconnected',
+      lastSync: isClarityConnected ? new Date().toISOString() : null,
+      metrics: isClarityConnected ? {
+        // Note: Clarity doesn't provide API access to these metrics
+        // These would need to be manually entered or synced via Clarity dashboard
+        sessions: undefined,
+        users: undefined,
+      } : {}
     },
     {
       id: 'crazy_egg',
