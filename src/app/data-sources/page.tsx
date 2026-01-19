@@ -18,6 +18,7 @@ import {
   Clock,
   Link2,
   Brain,
+  X,
 } from "lucide-react";
 import type { CRODashboardData } from "@/lib/supabase-data";
 
@@ -39,6 +40,7 @@ export default function DataSourcesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [syncingId, setSyncingId] = useState<string | null>(null);
+  const [showConnectModal, setShowConnectModal] = useState<string | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -193,6 +195,15 @@ export default function DataSourcesPage() {
     setSyncingId(null);
   };
 
+  const handleConnect = (sourceId: string) => {
+    setShowConnectModal(sourceId);
+  };
+
+  const handleSettings = (sourceId: string) => {
+    // Per ora mostra un alert, può essere esteso con un modal
+    alert(`Settings for ${sourceId}\n\nThis feature is coming soon!`);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black">
@@ -242,7 +253,10 @@ export default function DataSourcesPage() {
               Connected analytics integrations
             </p>
           </div>
-          <button className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#5b3fd9] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all shadow-lg shadow-purple-500/25">
+          <button
+            onClick={() => alert('Select an integration from the "Available Integrations" section below')}
+            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#5b3fd9] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all shadow-lg shadow-purple-500/25"
+          >
             <Link2 className="w-4 h-4" />
             Add Integration
           </button>
@@ -362,12 +376,18 @@ export default function DataSourcesPage() {
                       {syncingId === source.id ? 'Syncing...' : 'Sync Now'}
                     </button>
                   ) : (
-                    <button className="flex items-center gap-2 px-4 py-2.5 bg-[#7c5cff]/20 text-[#a78bff] text-[13px] font-medium rounded-lg hover:bg-[#7c5cff]/30 transition-all">
+                    <button
+                      onClick={() => handleConnect(source.id)}
+                      className="flex items-center gap-2 px-4 py-2.5 bg-[#7c5cff]/20 text-[#a78bff] text-[13px] font-medium rounded-lg hover:bg-[#7c5cff]/30 transition-all"
+                    >
                       <Link2 className="w-4 h-4" />
                       Connect
                     </button>
                   )}
-                  <button className="p-2.5 bg-[#111111] text-[#888888] rounded-lg hover:bg-[#1a1a1a] hover:text-[#fafafa] transition-all">
+                  <button
+                    onClick={() => handleSettings(source.id)}
+                    className="p-2.5 bg-[#111111] text-[#888888] rounded-lg hover:bg-[#1a1a1a] hover:text-[#fafafa] transition-all"
+                  >
                     <Settings className="w-4 h-4" />
                   </button>
                 </div>
@@ -429,6 +449,71 @@ export default function DataSourcesPage() {
             </div>
           </div>
         </div>
+
+        {/* Connection Modal */}
+        {showConnectModal && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-6">
+            <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8 max-w-2xl w-full">
+              <div className="flex items-start justify-between mb-6">
+                <div>
+                  <h2 className="text-[20px] font-semibold text-[#fafafa] mb-2">
+                    Connect {dataSources.find(s => s.id === showConnectModal)?.name}
+                  </h2>
+                  <p className="text-[14px] text-[#888888]">
+                    Follow these steps to connect your data source
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowConnectModal(null)}
+                  className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5 text-[#888888] hover:text-[#fafafa] transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {showConnectModal === 'clarity' && (
+                <div className="space-y-4">
+                  <div className="bg-[#111111] border border-white/10 rounded-xl p-4">
+                    <h3 className="text-[16px] font-semibold text-[#fafafa] mb-3">Setup Instructions</h3>
+                    <ol className="space-y-3 text-[14px] text-[#888888] list-decimal list-inside">
+                      <li>Go to <a href="https://clarity.microsoft.com" target="_blank" rel="noopener noreferrer" className="text-[#7c5cff] hover:underline">Microsoft Clarity</a></li>
+                      <li>Create a new project and copy your Project ID</li>
+                      <li>Add it to your <code className="px-2 py-1 bg-[#0a0a0a] rounded text-[#00d4aa]">.env.local</code> file:</li>
+                    </ol>
+                    <div className="mt-3 bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg p-3">
+                      <code className="text-[13px] text-[#00d4aa] font-mono">
+                        NEXT_PUBLIC_CLARITY_PROJECT_ID=your_project_id
+                      </code>
+                    </div>
+                    <p className="text-[13px] text-[#888888] mt-3">
+                      ℹ️ See <code className="px-1.5 py-0.5 bg-[#111111] rounded text-[#7c5cff]">CLARITY_SETUP.md</code> for complete instructions
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {(showConnectModal === 'crazy_egg' || showConnectModal === 'google_analytics') && (
+                <div className="bg-[#111111] border border-white/10 rounded-xl p-6 text-center">
+                  <p className="text-[14px] text-[#888888] mb-4">
+                    Integration for {dataSources.find(s => s.id === showConnectModal)?.name} is coming soon!
+                  </p>
+                  <p className="text-[13px] text-[#666666]">
+                    We're working on adding more data source integrations.
+                  </p>
+                </div>
+              )}
+
+              <div className="mt-6 flex justify-end">
+                <button
+                  onClick={() => setShowConnectModal(null)}
+                  className="px-6 py-2.5 bg-[#7c5cff] text-white text-[14px] font-medium rounded-lg hover:bg-[#6b4ee6] transition-all"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
