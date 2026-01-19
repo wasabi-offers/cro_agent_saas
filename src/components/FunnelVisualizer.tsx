@@ -13,6 +13,7 @@ import ReactFlow, {
   Handle,
   Position,
   MarkerType,
+  useReactFlow,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { Users, TrendingDown, Percent, X } from 'lucide-react';
@@ -89,8 +90,10 @@ const nodeTypes = {
   stepNode: StepNode,
 };
 
-export default function FunnelVisualizer({ steps, name, connections }: FunnelVisualizerProps) {
+// Componente interno con accesso a ReactFlow
+function FunnelVisualizerInner({ steps, name, connections }: FunnelVisualizerProps) {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const { fitView } = useReactFlow();
 
   // DEBUG: Log per verificare i dati ricevuti
   console.log('🔍 FunnelVisualizer - Steps ricevuti:', steps);
@@ -216,6 +219,20 @@ export default function FunnelVisualizer({ steps, name, connections }: FunnelVis
     console.log('🔍 Connections from database:', connections);
   }, [steps, connections, setNodes, setEdges]);
 
+  // FitView automatico quando i nodi cambiano
+  useEffect(() => {
+    if (nodes.length > 0) {
+      // Usa setTimeout per dare tempo a ReactFlow di renderizzare
+      setTimeout(() => {
+        fitView({
+          padding: 0.3,
+          includeHiddenNodes: false,
+          duration: 400
+        });
+      }, 100);
+    }
+  }, [nodes, fitView]);
+
   // DEBUG: Log dopo inizializzazione state (RENDER-TIME)
   console.log('🔍 RENDER - Nodes in state:', nodes.length, nodes);
   console.log('🔍 RENDER - Edges in state:', edges.length, edges);
@@ -229,7 +246,6 @@ export default function FunnelVisualizer({ steps, name, connections }: FunnelVis
   };
 
   return (
-    <ReactFlowProvider>
     <div className="relative">
       <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
         <div className="px-6 py-4 border-b border-white/10">
@@ -250,8 +266,8 @@ export default function FunnelVisualizer({ steps, name, connections }: FunnelVis
             nodeTypes={nodeTypes}
             connectionMode={ConnectionMode.Loose}
             fitView
-            fitViewOptions={{ padding: 0.2 }}
-            minZoom={0.5}
+            fitViewOptions={{ padding: 0.3 }}
+            minZoom={0.3}
             maxZoom={1.5}
             defaultEdgeOptions={{
               animated: true,
@@ -334,6 +350,14 @@ export default function FunnelVisualizer({ steps, name, connections }: FunnelVis
         </div>
       )}
     </div>
+  );
+}
+
+// Componente wrapper con ReactFlowProvider
+export default function FunnelVisualizer(props: FunnelVisualizerProps) {
+  return (
+    <ReactFlowProvider>
+      <FunnelVisualizerInner {...props} />
     </ReactFlowProvider>
   );
 }
