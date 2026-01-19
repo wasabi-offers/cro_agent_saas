@@ -6,13 +6,22 @@ import { Code, Copy, CheckCircle2, ExternalLink, Zap, AlertCircle, Link as LinkI
 interface TrackingSetupProps {
   funnelId: string;
   funnelName: string;
-  steps: { name: string; page: string }[];
+  steps: { name: string; page: string; url?: string }[];
 }
 
 export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingSetupProps) {
   const [copied, setCopied] = useState(false);
   const [copiedStep, setCopiedStep] = useState<number | null>(null);
-  const [stepUrls, setStepUrls] = useState<Record<number, string>>({});
+  // Initialize stepUrls with existing URLs from saved steps
+  const [stepUrls, setStepUrls] = useState<Record<number, string>>(() => {
+    const initialUrls: Record<number, string> = {};
+    steps.forEach((step, index) => {
+      if (step.url) {
+        initialUrls[index] = step.url;
+      }
+    });
+    return initialUrls;
+  });
 
   // Generate tracking script
   const trackingScript = `<!-- CRO Agent Tracking Script -->
