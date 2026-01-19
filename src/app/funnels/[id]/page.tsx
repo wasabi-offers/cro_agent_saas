@@ -210,9 +210,46 @@ export default function FunnelDetailPage() {
     setAbTestSuggestions([]);
 
     try {
-      // In production, this would call Claude API for AI-powered test generation
-      // For now, using mock data with detailed, expert-level suggestions
-      const mockSuggestions = [
+      const step = funnel.steps[selectedABPage];
+
+      // Check if URL exists
+      if (!step.url) {
+        setAbTestError(`❌ No URL configured for "${step.name}". Please edit the funnel and add a URL for this step.`);
+        setIsGeneratingTests(false);
+        return;
+      }
+
+      // Call AI to generate real A/B test suggestions
+      const response = await fetch('/api/generate-ab-tests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: step.url,
+          pageName: step.name,
+          dropoff: step.dropoff,
+          funnelName: funnel.name,
+          stepIndex: selectedABPage,
+          totalSteps: funnel.steps.length,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Failed to generate A/B tests');
+      }
+
+      const data = await response.json();
+      setAbTestSuggestions(data.tests);
+    } catch (err: any) {
+      console.error('A/B test generation error:', err);
+      setAbTestError(err.message || "An error occurred while generating tests. Please try again.");
+    } finally {
+      setIsGeneratingTests(false);
+    }
+  };
+
+  // Old mock implementation removed
+  const _oldMockData = [
         {
           id: 1,
           priority: "high",
@@ -315,16 +352,6 @@ export default function FunnelDetailPage() {
           metrics: ["Conversion rate", "Time on page", "Scroll depth", "Exit rate"]
         }
       ];
-
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      setAbTestSuggestions(mockSuggestions);
-    } catch (err) {
-      setAbTestError("Failed to generate test suggestions. Please try again.");
-    } finally {
-      setIsGeneratingTests(false);
-    }
-  };
 
   const handleEditFunnel = async (updatedFunnel: { name: string; steps: any[]; connections?: any[] }) => {
     console.warn('💾💾💾 HANDLE EDIT FUNNEL - Received from builder:', updatedFunnel);
