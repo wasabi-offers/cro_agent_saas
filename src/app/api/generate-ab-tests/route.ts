@@ -7,7 +7,7 @@ const anthropic = new Anthropic({
 
 export async function POST(request: NextRequest) {
   try {
-    const { url, pageName, dropoff, funnelName, stepIndex, totalSteps } = await request.json();
+    const { url, pageName, dropoff, funnelName, stepIndex, totalSteps, analysisInsights } = await request.json();
 
     if (!url) {
       return NextResponse.json(
@@ -15,6 +15,25 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    if (!analysisInsights || analysisInsights.length === 0) {
+      return NextResponse.json(
+        { error: 'Analysis insights are required. Please run CRO analysis first.' },
+        { status: 400 }
+      );
+    }
+
+    // Format analysis insights for the prompt
+    const analysisContext = analysisInsights.map((result: any) => {
+      const insights = result.insights?.join('\n- ') || '';
+      const proposals = result.proposals?.map((p: any) =>
+        `  • ${p.element}: Current "${p.current}" → Proposed "${p.proposed}" (${p.impact})`
+      ).join('\n') || '';
+
+      return `${result.category} (Score: ${result.score}/100):
+- ${insights}
+${proposals ? '\nProposed Changes:\n' + proposals : ''}`;
+    }).join('\n\n');
 
     const prompt = `You are an expert CRO (Conversion Rate Optimization) consultant analyzing a funnel step to generate A/B test recommendations.
 
@@ -24,8 +43,11 @@ export async function POST(request: NextRequest) {
 - Current Dropoff: ${dropoff}%
 - Page URL: ${url}
 
+**CRO Analysis Results:**
+${analysisContext}
+
 **Your Task:**
-Generate 3-4 high-impact A/B test suggestions for this funnel step. For each test, provide:
+Based on the CRO analysis above, generate 3-4 high-impact A/B test suggestions that directly address the issues and proposals identified in the analysis. The A/B tests MUST be correlated with the analysis insights - address the same problems with specific, testable solutions. For each test, provide:
 
 1. **Element**: The specific element to test (e.g., "CTA Button", "Form Fields", "Hero Section")
 2. **Priority**: high/medium/low based on expected impact
@@ -45,10 +67,15 @@ Generate 3-4 high-impact A/B test suggestions for this funnel step. For each tes
 12. **ScreenDescription**: Brief description of what to look for in the screenshot
 
 **Important Guidelines:**
+- **CRITICAL**: Every A/B test MUST directly address issues identified in the CRO analysis above
+- Use the proposed changes from the analysis as the basis for your A/B test variants
+- If the analysis identified headline issues, create tests for headlines
+- If the analysis identified CTA problems, create tests for CTAs
+- Maintain consistency - don't suggest tests for elements not mentioned in the analysis
 - Focus on high-impact, evidence-based recommendations
 - Reference real CRO studies and frameworks (Nielsen Norman Group, Baymard Institute, etc.)
 - Consider the funnel position (this is step ${stepIndex + 1} of ${totalSteps})
-- Address the ${dropoff}% dropoff with specific solutions
+- Address the ${dropoff}% dropoff with specific solutions from the analysis
 - Be specific and actionable, not generic
 
 Return ONLY valid JSON in this exact format:
