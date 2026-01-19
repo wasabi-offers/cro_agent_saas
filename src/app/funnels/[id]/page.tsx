@@ -870,7 +870,9 @@ export default function FunnelDetailPage() {
                         </div>
                       </div>
 
-                      <div className="space-y-3">
+                      {/* Insights */}
+                      <div className="space-y-3 mb-6">
+                        <h4 className="text-[14px] font-semibold text-[#fafafa] mb-3">📊 Analysis</h4>
                         {result.insights.map((insight, idx) => (
                           <div
                             key={idx}
@@ -881,6 +883,40 @@ export default function FunnelDetailPage() {
                           </div>
                         ))}
                       </div>
+
+                      {/* Proposals */}
+                      {result.proposals && result.proposals.length > 0 && (
+                        <div className="space-y-3">
+                          <h4 className="text-[14px] font-semibold text-[#00d4aa] mb-3">💡 Concrete Proposals</h4>
+                          {result.proposals.map((proposal: any, idx: number) => (
+                            <div
+                              key={idx}
+                              className="bg-[#111111] border border-[#00d4aa]/20 rounded-xl p-5"
+                            >
+                              <div className="flex items-start justify-between mb-3">
+                                <h5 className="text-[15px] font-semibold text-[#fafafa]">{proposal.element}</h5>
+                                <span className="text-[12px] font-bold text-[#00d4aa] bg-[#00d4aa]/10 px-3 py-1 rounded-full">
+                                  {proposal.impact}
+                                </span>
+                              </div>
+
+                              <div className="space-y-3">
+                                <div>
+                                  <p className="text-[12px] text-[#888888] mb-1">Current:</p>
+                                  <p className="text-[14px] text-[#fafafa] bg-[#0a0a0a] p-3 rounded-lg">{proposal.current}</p>
+                                </div>
+
+                                <div>
+                                  <p className="text-[12px] text-[#888888] mb-1">Proposed:</p>
+                                  <div className="text-[14px] text-[#00d4aa] bg-[#0a0a0a] p-3 rounded-lg whitespace-pre-line">
+                                    {proposal.proposed}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
