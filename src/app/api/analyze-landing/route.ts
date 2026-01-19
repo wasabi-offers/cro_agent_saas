@@ -16,6 +16,12 @@ interface AnalysisRequest {
 interface AnalysisResult {
   category: string;
   insights: string[];
+  proposals: Array<{
+    element: string;
+    current: string;
+    proposed: string;
+    impact: string;
+  }>;
   score: number;
   icon: string;
 }
@@ -221,6 +227,11 @@ For each category (${filtersList}), provide:
 1. Score 0-100 (be critical - score below 70 means serious issues)
 2. 8-12 COMPREHENSIVE insights (not generic - be specific!)
 3. Each insight 200-300 characters with concrete data
+4. 3-5 CONCRETE PROPOSALS with:
+   - element: Which element to change (e.g., "Headline", "CTA Button", "Hero Section")
+   - current: What it currently says/looks like
+   - proposed: Specific alternative(s) to test (e.g., 3 headline variations, 2 CTA button texts)
+   - impact: Expected improvement with percentage
 
 Categories deep-dive:
 - CRO: Analyze CTA visibility/hierarchy, form friction, trust signals placement, urgency/scarcity tactics, exit-intent strategy, micro-commitments, progressive disclosure, social proof positioning, guarantee/risk reversal, checkout flow optimization, mobile conversion optimization
@@ -230,10 +241,21 @@ Categories deep-dive:
 
 Respond ONLY in this JSON format (no text before or after, no markdown):
 {
-  "cro": { "score": number, "insights": ["detailed 200-300 char insight with data, principle, and impact prediction", ...] },
-  "copy": { "score": number, "insights": [...] },
-  "colors": { "score": number, "insights": [...] },
-  "experience": { "score": number, "insights": [...] }
+  "cro": {
+    "score": number,
+    "insights": ["detailed 200-300 char insight with data, principle, and impact prediction", ...],
+    "proposals": [
+      {
+        "element": "Headline",
+        "current": "Current headline text",
+        "proposed": "Option 1: [new headline]\\nOption 2: [alternative]\\nOption 3: [another option]",
+        "impact": "+25-35% conversion rate"
+      }
+    ]
+  },
+  "copy": { "score": number, "insights": [...], "proposals": [...] },
+  "colors": { "score": number, "insights": [...], "proposals": [...] },
+  "experience": { "score": number, "insights": [...], "proposals": [...] }
 }
 
 IMPORTANT:
@@ -296,6 +318,7 @@ IMPORTANT:
               icon: CATEGORY_ICONS[filter as keyof typeof CATEGORY_ICONS],
               score: data.score,
               insights: data.insights,
+              proposals: data.proposals || [],
             };
           }).filter(Boolean) as AnalysisResult[];
 

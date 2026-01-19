@@ -41,6 +41,8 @@ Generate 3-4 high-impact A/B test suggestions for this funnel step. For each tes
 8. **Confidence**: 0-100 confidence score
 9. **Test Duration**: Recommended test duration for statistical significance
 10. **Metrics**: 2-4 key metrics to track
+11. **ScreenSelector**: CSS selector for the element to screenshot (e.g., "#cta-button", ".hero-section", "header")
+12. **ScreenDescription**: Brief description of what to look for in the screenshot
 
 **Important Guidelines:**
 - Focus on high-impact, evidence-based recommendations
@@ -64,7 +66,9 @@ Return ONLY valid JSON in this exact format:
       "reasoning": "string (can use markdown)",
       "confidence": number,
       "testDuration": "string",
-      "metrics": ["string", "string", ...]
+      "metrics": ["string", "string", ...],
+      "screenSelector": "string (CSS selector like '#hero', '.cta-button', 'nav')",
+      "screenDescription": "string (what to look for in screenshot)"
     }
   ]
 }`;
