@@ -44,6 +44,7 @@ export default function DataSourcesPage() {
   const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
   const [tempApiKey, setTempApiKey] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [clarityData, setClarityData] = useState<{ sessions: number; users: number; lastSync: string } | null>(null);
 
   // Load API keys from localStorage on mount
   useEffect(() => {
@@ -104,13 +105,11 @@ export default function DataSourcesPage() {
       name: 'Microsoft Clarity',
       type: 'clarity',
       status: isClarityConnected ? 'connected' : 'disconnected',
-      lastSync: isClarityConnected ? new Date().toISOString() : null,
-      metrics: isClarityConnected ? {
-        // Note: Clarity doesn't provide API access to these metrics
-        // These would need to be manually entered or synced via Clarity dashboard
-        sessions: undefined,
-        users: undefined,
-      } : {}
+      lastSync: clarityData?.lastSync || (isClarityConnected ? new Date().toISOString() : null),
+      metrics: clarityData ? {
+        sessions: clarityData.sessions,
+        users: clarityData.users,
+      } : (isClarityConnected ? {} : {})
     },
     {
       id: 'crazy_egg',
@@ -198,16 +197,39 @@ export default function DataSourcesPage() {
 
   const handleSync = async (id: string) => {
     setSyncingId(id);
-    // Simulate sync by reloading data
+
     try {
-      const response = await fetch('/api/cro-analysis');
-      const result = await response.json();
-      if (result.success) {
-        setDashboardData(result.data);
+      if (id === 'clarity' && apiKeys.clarity) {
+        // Sync Clarity data using API
+        const response = await fetch('/api/clarity-import', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            apiKey: apiKeys.clarity,
+            numOfDays: 1,
+            dimensions: ['Browser', 'Device', 'Country/Region'],
+          }),
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          setClarityData(result.data.summary);
+        } else {
+          alert(`Clarity sync failed: ${result.error}`);
+        }
+      } else {
+        // Default sync for other sources
+        const response = await fetch('/api/cro-analysis');
+        const result = await response.json();
+        if (result.success) {
+          setDashboardData(result.data);
+        }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Sync error:', err);
+      alert(`Sync failed: ${err.message}`);
     }
+
     setSyncingId(null);
   };
 
