@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
 // This API provides heatmap data for landing pages
-// Currently returns demo data, but will be connected to real tracking data
 
 interface HeatmapPoint {
   x: number;
@@ -15,10 +15,24 @@ interface HeatmapData {
   max: number; // Max value for normalization
 }
 
+// Initialize Supabase client
+function getSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    return null;
+  }
+
+  return createClient(supabaseUrl, supabaseKey);
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const landingId = searchParams.get("landingId");
+    const dateFrom = searchParams.get("dateFrom") || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const dateTo = searchParams.get("dateTo") || new Date().toISOString();
 
     if (!landingId) {
       return NextResponse.json(
@@ -30,14 +44,116 @@ export async function GET(request: Request) {
       );
     }
 
-    // TODO: Replace with real database query
-    // const trackingData = await supabase
-    //   .from('landing_tracking')
-    //   .select('*')
-    //   .eq('landing_id', landingId);
+    const supabase = getSupabaseClient();
 
-    // For now, return demo data
-    // In production, this will fetch real user interaction data
+    // Try to fetch real data from database
+    if (supabase) {
+      try {
+        console.log(`📊 Fetching heatmap data for landing ${landingId} from ${dateFrom} to ${dateTo}`);
+
+        // Fetch from pre-aggregated table for performance
+        const { data: heatmapData, error } = await supabase
+          .from('tracking_heatmap_data')
+          .select('event_type, x_position, y_position, intensity')
+          .eq('landing_id', landingId)
+          .gte('date', dateFrom.split('T')[0])
+          .lte('date', dateTo.split('T')[0]);
+
+        if (error) {
+          console.error("❌ Supabase error:", error);
+          // Fall back to demo data
+        } else if (heatmapData && heatmapData.length > 0) {
+          console.log(`✅ Found ${heatmapData.length} aggregated data points`);
+
+          // Transform database data to heatmap format
+          const clickPoints: HeatmapPoint[] = [];
+          const movementPoints: HeatmapPoint[] = [];
+          let maxClick = 0;
+          let maxMovement = 0;
+
+          heatmapData.forEach(point => {
+            const heatmapPoint: HeatmapPoint = {
+              x: point.x_position,
+              y: point.y_position,
+              value: point.intensity,
+            };
+
+            if (point.event_type === 'click') {
+              clickPoints.push(heatmapPoint);
+              maxClick = Math.max(maxClick, point.intensity);
+            } else if (point.event_type === 'movement') {
+              movementPoints.push(heatmapPoint);
+              maxMovement = Math.max(maxMovement, point.intensity);
+            }
+          });
+
+          // Fetch scroll data separately (not aggregated)
+          const { data: scrollData, error: scrollError } = await supabase
+            .from('tracking_events')
+            .select('y_position, scroll_percentage')
+            .eq('landing_id', landingId)
+            .eq('event_type', 'scroll')
+            .gte('created_at', dateFrom)
+            .lte('created_at', dateTo)
+            .limit(500);
+
+          const scrollPoints: HeatmapPoint[] = [];
+          let maxScroll = 0;
+
+          if (scrollData && scrollData.length > 0) {
+            // Group scroll events by y position bands
+            const scrollBands: Record<number, number> = {};
+
+            scrollData.forEach(scroll => {
+              const band = Math.floor(scroll.y_position / 50) * 50; // 50px bands
+              scrollBands[band] = (scrollBands[band] || 0) + 1;
+            });
+
+            Object.entries(scrollBands).forEach(([y, count]) => {
+              scrollPoints.push({
+                x: 600, // Center x position
+                y: parseInt(y),
+                value: count,
+              });
+              maxScroll = Math.max(maxScroll, count);
+            });
+          }
+
+          return NextResponse.json({
+            success: true,
+            landingId,
+            click: {
+              type: "click",
+              points: clickPoints,
+              max: maxClick || 100,
+            },
+            scroll: {
+              type: "scroll",
+              points: scrollPoints,
+              max: maxScroll || 100,
+            },
+            movement: {
+              type: "movement",
+              points: movementPoints,
+              max: maxMovement || 100,
+            },
+            generatedAt: new Date().toISOString(),
+            source: "database",
+            stats: {
+              totalClicks: clickPoints.length,
+              totalMovements: movementPoints.length,
+              totalScrolls: scrollPoints.length,
+            },
+          });
+        }
+      } catch (dbError) {
+        console.error("❌ Database error:", dbError);
+        // Fall through to demo data
+      }
+    }
+
+    // Fallback: return demo data if no real data or database not configured
+    console.log("📊 Using demo heatmap data");
     const heatmapData: Record<string, HeatmapData> = generateDemoHeatmapData();
 
     return NextResponse.json({
@@ -45,7 +161,7 @@ export async function GET(request: Request) {
       landingId,
       ...heatmapData,
       generatedAt: new Date().toISOString(),
-      source: "demo", // Will be "database" in production
+      source: "demo",
     });
   } catch (error) {
     console.error("Heatmap data error:", error);
