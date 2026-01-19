@@ -1245,74 +1245,40 @@ export default function FunnelDetailPage() {
                       {test.screenSelector && funnel.steps[selectedABPage]?.url && (
                         <div className="mb-6">
                           <div className="flex items-center justify-between mb-3">
-                            <h4 className="text-[14px] font-semibold text-[#fafafa]">📸 Element Preview</h4>
+                            <h4 className="text-[14px] font-semibold text-[#fafafa]">📍 Element Location</h4>
                             <p className="text-[12px] text-[#888888]">{test.screenDescription || 'Target element'}</p>
                           </div>
-                          <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl overflow-hidden">
-                            <div className="relative w-full" style={{ height: '300px' }}>
-                              <iframe
-                                src={`/api/proxy-page?url=${encodeURIComponent(funnel.steps[selectedABPage].url)}`}
-                                className="absolute inset-0 w-full h-full bg-white"
-                                title={`Preview of ${test.element}`}
-                                sandbox="allow-same-origin allow-scripts"
-                                style={{
-                                  border: 'none',
-                                  transform: 'scale(1)',
-                                  transformOrigin: 'top left',
-                                }}
-                                onLoad={(e) => {
-                                  try {
-                                    const iframe = e.currentTarget;
-                                    const doc = iframe.contentDocument || iframe.contentWindow?.document;
-                                    if (doc && test.screenSelector) {
-                                      const element = doc.querySelector(test.screenSelector) as HTMLElement;
-                                      if (element) {
-                                        // Hide everything except the target element
-                                        const style = doc.createElement('style');
-                                        style.textContent = `
-                                          body * {
-                                            visibility: hidden !important;
-                                          }
-                                          ${test.screenSelector},
-                                          ${test.screenSelector} * {
-                                            visibility: visible !important;
-                                          }
-                                          body {
-                                            background: white !important;
-                                          }
-                                        `;
-                                        doc.head.appendChild(style);
-
-                                        // Highlight the element
-                                        element.style.outline = '3px solid #00d4aa';
-                                        element.style.outlineOffset = '4px';
-                                        element.style.boxShadow = '0 0 30px rgba(0, 212, 170, 0.3)';
-
-                                        // Scroll to element
-                                        element.scrollIntoView({ behavior: 'instant', block: 'center', inline: 'center' });
-
-                                        // Calculate zoom to fit element
-                                        const rect = element.getBoundingClientRect();
-                                        const iframeRect = iframe.getBoundingClientRect();
-                                        const scaleX = iframeRect.width / (rect.width + 100);
-                                        const scaleY = 300 / (rect.height + 100);
-                                        const scale = Math.min(scaleX, scaleY, 2); // Max zoom 2x
-
-                                        if (scale < 1) {
-                                          iframe.style.transform = `scale(${scale})`;
-                                          iframe.style.width = `${100 / scale}%`;
-                                          iframe.style.height = `${300 / scale}px`;
-                                        }
-                                      }
-                                    }
-                                  } catch (err) {
-                                    console.log('Could not process element:', err);
-                                  }
-                                }}
-                              />
+                          <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-6">
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex-1">
+                                <p className="text-[14px] text-[#888888] mb-2">
+                                  CSS Selector for this element:
+                                </p>
+                                <code className="text-[13px] text-[#7c5cff] bg-[#0a0a0a] px-3 py-2 rounded-lg inline-block">
+                                  {test.screenSelector}
+                                </code>
+                              </div>
+                              <a
+                                href={funnel.steps[selectedABPage].url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white rounded-xl text-[14px] font-medium hover:shadow-lg hover:shadow-purple-500/20 transition-all flex-shrink-0 ml-4"
+                              >
+                                <Eye className="w-4 h-4" />
+                                View on Page →
+                              </a>
                             </div>
-                            <div className="p-3 bg-[#0a0a0a] border-t border-[#2a2a2a] text-[12px] text-[#888888]">
-                              <span className="text-[#00d4aa]">●</span> Target: <code className="text-[#7c5cff]">{test.screenSelector}</code>
+                            <div className="p-4 bg-[#0a0a0a] rounded-lg border border-[#2a2a2a]">
+                              <div className="flex items-start gap-3">
+                                <span className="text-[20px]">💡</span>
+                                <div className="text-[12px] text-[#888888] leading-relaxed">
+                                  <span className="text-[#00d4aa] font-semibold">How to find this element:</span><br/>
+                                  1. Click "View on Page" to open the landing page<br/>
+                                  2. Press <kbd className="px-2 py-0.5 bg-[#1a1a1a] border border-[#333] rounded text-[11px] text-[#fafafa]">F12</kbd> to open DevTools<br/>
+                                  3. Press <kbd className="px-2 py-0.5 bg-[#1a1a1a] border border-[#333] rounded text-[11px] text-[#fafafa]">Ctrl+F</kbd> (or Cmd+F) in the Elements tab<br/>
+                                  4. Paste the selector above to find and highlight the element
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
