@@ -5,7 +5,6 @@ import { useParams, useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import DateRangePicker from "@/components/DateRangePicker";
 import DeviceFilter from "@/components/DeviceFilter";
-import StatisticalCalculator from "@/components/StatisticalCalculator";
 import ROIEstimator from "@/components/ROIEstimator";
 import TrackingSetup from "@/components/TrackingSetup";
 import Link from "next/link";
@@ -43,6 +42,12 @@ import { ConversionFunnel, fetchFunnel, updateFunnel } from "@/lib/supabase-funn
 interface AnalysisResult {
   category: string;
   insights: string[];
+  proposals: Array<{
+    element: string;
+    current: string;
+    proposed: string;
+    impact: string;
+  }>;
   score: number;
   icon: string;
 }
@@ -219,7 +224,14 @@ export default function FunnelDetailPage() {
         return;
       }
 
-      // Call AI to generate real A/B test suggestions
+      // Check if analysis has been run
+      if (!analysisResults || analysisResults.length === 0) {
+        setAbTestError(`❌ Please run the CRO Analysis first. A/B tests are generated based on analysis insights.`);
+        setIsGeneratingTests(false);
+        return;
+      }
+
+      // Call AI to generate real A/B test suggestions based on analysis
       const response = await fetch('/api/generate-ab-tests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -230,6 +242,7 @@ export default function FunnelDetailPage() {
           funnelName: funnel.name,
           stepIndex: selectedABPage,
           totalSteps: funnel.steps.length,
+          analysisInsights: analysisResults, // Pass analysis results for correlation
         }),
       });
 
@@ -1144,9 +1157,8 @@ export default function FunnelDetailPage() {
                 </div>
               </div>
 
-              {/* Statistical Tools */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <StatisticalCalculator />
+              {/* ROI Estimator */}
+              <div className="mb-6">
                 <ROIEstimator />
               </div>
 
