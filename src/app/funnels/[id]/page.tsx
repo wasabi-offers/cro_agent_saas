@@ -30,11 +30,13 @@ import {
   Lightbulb,
   Zap,
   Code,
+  List,
 } from "lucide-react";
 import CROComparisonTable from "@/components/CROComparisonTable";
 import SaveItemDialog from "@/components/SaveItemDialog";
 import FunnelVisualizer from "@/components/FunnelVisualizer";
 import FunnelBuilder from "@/components/FunnelBuilder";
+import VisualAnnotations from "@/components/VisualAnnotations";
 import { CROTableRow, SavedFunnel, funnelStorage } from "@/lib/saved-items";
 import { ConversionFunnel, fetchFunnel, updateFunnel } from "@/lib/supabase-funnels";
 
@@ -71,6 +73,7 @@ export default function FunnelDetailPage() {
   const [analysisError, setAnalysisError] = useState("");
   const [croTableRows, setCroTableRows] = useState<CROTableRow[]>([]);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [viewMode, setViewMode] = useState<"visual" | "list">("list");
 
   // Heatmap state
   const [selectedHeatmapPage, setSelectedHeatmapPage] = useState<number>(0);
@@ -859,19 +862,60 @@ export default function FunnelDetailPage() {
             {/* Analysis Results */}
             {analysisResults.length > 0 && (
               <div className="space-y-6">
-                <div className="flex items-center gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-[#00d4aa]" />
-                  <h2 className="text-[20px] font-semibold text-[#fafafa]">
-                    Analysis Results
-                    {analysisMode === "page" && (
-                      <span className="text-[16px] text-[#888888] ml-2">
-                        - {funnel.steps[selectedPage].name}
-                      </span>
-                    )}
-                  </h2>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle2 className="w-6 h-6 text-[#00d4aa]" />
+                    <h2 className="text-[20px] font-semibold text-[#fafafa]">
+                      Analysis Results
+                      {analysisMode === "page" && (
+                        <span className="text-[16px] text-[#888888] ml-2">
+                          - {funnel.steps[selectedPage].name}
+                        </span>
+                      )}
+                    </h2>
+                  </div>
+
+                  {/* View Mode Toggle */}
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setViewMode("visual")}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${
+                        viewMode === "visual"
+                          ? "bg-[#7c5cff] text-white"
+                          : "text-[#888888] hover:text-[#fafafa]"
+                      }`}
+                    >
+                      <Eye className="w-4 h-4" />
+                      Visual
+                    </button>
+                    <button
+                      onClick={() => setViewMode("list")}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${
+                        viewMode === "list"
+                          ? "bg-[#7c5cff] text-white"
+                          : "text-[#888888] hover:text-[#fafafa]"
+                      }`}
+                    >
+                      <List className="w-4 h-4" />
+                      List
+                    </button>
+                  </div>
                 </div>
 
-                {analysisResults.map((result, index) => {
+                {/* Visual View */}
+                {viewMode === "visual" && (
+                  <VisualAnnotations
+                    pageUrl={
+                      analysisMode === "page"
+                        ? funnel.steps[selectedPage].url || ""
+                        : funnel.steps[0].url || ""
+                    }
+                    annotations={[]}
+                  />
+                )}
+
+                {/* List View */}
+                {viewMode === "list" && analysisResults.map((result, index) => {
                   const Icon = iconMap[result.icon] || Sparkles;
                   return (
                     <div
