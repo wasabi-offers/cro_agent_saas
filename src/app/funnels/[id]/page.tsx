@@ -1271,7 +1271,8 @@ export default function FunnelDetailPage() {
             funnelName={funnel.name}
             steps={funnel.steps.map((step, index) => ({
               name: step.name,
-              page: index === 0 ? '/' : `/${step.name.toLowerCase().replace(/\s+/g, '-')}`
+              page: index === 0 ? '/' : `/${step.name.toLowerCase().replace(/\s+/g, '-')}`,
+              url: step.url // Pass the saved URL if it exists
             }))}
           />
         )}
