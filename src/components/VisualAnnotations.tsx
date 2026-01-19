@@ -146,7 +146,7 @@ export default function VisualAnnotations({
             />
           ) : pageUrl ? (
             <iframe
-              src={pageUrl}
+              src={`/api/proxy-page?url=${encodeURIComponent(pageUrl)}`}
               className="w-full h-[800px] bg-white border border-[#2a2a2a]"
               title="Page preview"
               sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
