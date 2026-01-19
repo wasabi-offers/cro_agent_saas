@@ -16,7 +16,8 @@ import ReactFlow, {
   MarkerType,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { Plus, Trash2, Save, X, ArrowRight, Link as LinkIcon, ExternalLink } from 'lucide-react';
+import { Plus, Trash2, Save, X, ArrowRight, Link as LinkIcon, ExternalLink, Code, Copy, Check } from 'lucide-react';
+import { generateTrackingScript } from '@/lib/tracking-script';
 
 interface FunnelStep {
   name: string;
@@ -203,6 +204,8 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
   const [funnelName, setFunnelName] = useState(initialFunnel?.name || '');
   const [error, setError] = useState('');
   const [showTutorial, setShowTutorial] = useState(!initialFunnel);
+  const [showTrackingSetup, setShowTrackingSetup] = useState(false);
+  const [copiedScriptId, setCopiedScriptId] = useState<string | null>(null);
 
   // Initialize state hooks first
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -353,6 +356,16 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
       },
     };
     setNodes((nds) => [...nds, newNode]);
+  };
+
+  const copyTrackingScript = async (nodeId: string, script: string) => {
+    try {
+      await navigator.clipboard.writeText(script);
+      setCopiedScriptId(nodeId);
+      setTimeout(() => setCopiedScriptId(null), 2000);
+    } catch (error) {
+      console.error('Failed to copy script:', error);
+    }
   };
 
   const handleSave = () => {
@@ -666,6 +679,129 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
           )}
         </div>
       </div>
+
+      {/* Tracking Setup Section */}
+      {nodes.filter(node => node.data.url).length > 0 && (
+        <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
+          <button
+            onClick={() => setShowTrackingSetup(!showTrackingSetup)}
+            className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] rounded-xl flex items-center justify-center">
+                <Code className="w-5 h-5 text-white" />
+              </div>
+              <div className="text-left">
+                <h3 className="text-[16px] font-semibold text-[#fafafa]">
+                  🔍 Tracking Setup
+                </h3>
+                <p className="text-[13px] text-[#888888]">
+                  Script di tracking per {nodes.filter(node => node.data.url).length} landing page{nodes.filter(node => node.data.url).length !== 1 ? 's' : ''}
+                </p>
+              </div>
+            </div>
+            <div className={`text-[#888888] transition-transform ${showTrackingSetup ? 'rotate-180' : ''}`}>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </button>
+
+          {showTrackingSetup && (
+            <div className="px-6 py-6 border-t border-white/10 space-y-6">
+              {/* Instructions */}
+              <div className="bg-gradient-to-r from-[#7c5cff]/10 to-[#00d4aa]/10 border border-[#7c5cff]/30 rounded-xl p-4">
+                <h4 className="text-[14px] font-semibold text-[#fafafa] mb-2">
+                  📋 Come usare
+                </h4>
+                <ol className="text-[13px] text-[#888888] space-y-1.5 list-decimal list-inside">
+                  <li>Copia lo script per ogni landing page cliccando il pulsante "Copia"</li>
+                  <li>Incolla lo script nel <code className="px-1.5 py-0.5 bg-[#0a0a0a] rounded text-[#00d4aa]">&lt;head&gt;</code> della tua landing page HTML</li>
+                  <li>Lo script inizierà automaticamente a tracciare click, scroll e movimenti del mouse</li>
+                  <li>I dati saranno visibili nella Heatmap dopo che gli utenti visitano la pagina</li>
+                </ol>
+              </div>
+
+              {/* Script for each node with URL */}
+              <div className="space-y-4">
+                {nodes
+                  .filter(node => node.data.url)
+                  .map(node => {
+                    const apiEndpoint = `${typeof window !== 'undefined' ? window.location.origin : 'https://your-app.vercel.app'}/api/track`;
+                    const landingId = `landing_${node.id}`;
+                    const script = generateTrackingScript(landingId, apiEndpoint);
+                    const isCopied = copiedScriptId === node.id;
+
+                    return (
+                      <div key={node.id} className="bg-[#111111] border border-white/10 rounded-xl overflow-hidden">
+                        <div className="px-4 py-3 bg-[#0a0a0a] border-b border-white/10 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-[#7c5cff] rounded-lg flex items-center justify-center text-white text-[13px] font-bold">
+                              {node.id.split('-')[1]}
+                            </div>
+                            <div>
+                              <h5 className="text-[14px] font-semibold text-[#fafafa]">{node.data.label}</h5>
+                              <div className="flex items-center gap-2 text-[11px] text-[#888888]">
+                                <LinkIcon className="w-3 h-3" />
+                                <span className="truncate max-w-[400px]">{node.data.url}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => copyTrackingScript(node.id, `<script>\n${script}\n</script>`)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${
+                              isCopied
+                                ? 'bg-[#00d4aa] text-white'
+                                : 'bg-[#7c5cff] text-white hover:bg-[#6b4ee6]'
+                            }`}
+                          >
+                            {isCopied ? (
+                              <>
+                                <Check className="w-4 h-4" />
+                                Copiato!
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-4 h-4" />
+                                Copia Script
+                              </>
+                            )}
+                          </button>
+                        </div>
+                        <div className="p-4">
+                          <div className="bg-[#0a0a0a] rounded-lg p-3 overflow-x-auto">
+                            <div className="flex items-start gap-2 mb-2">
+                              <span className="text-[11px] text-[#888888] select-none">Landing ID:</span>
+                              <code className="text-[11px] font-mono text-[#00d4aa]">{landingId}</code>
+                            </div>
+                            <pre className="text-[11px] font-mono text-[#888888] overflow-x-auto">
+                              <code>{`<script>\n${script.substring(0, 200)}...\n</script>`}</code>
+                            </pre>
+                            <p className="text-[10px] text-[#666666] mt-2 italic">
+                              Lo script completo sarà copiato quando clicchi "Copia Script"
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+
+              {/* Warning */}
+              <div className="bg-[#ff6b6b]/10 border border-[#ff6b6b]/30 rounded-xl p-4">
+                <h4 className="text-[14px] font-semibold text-[#ff6b6b] mb-2">
+                  ⚠️ Importante
+                </h4>
+                <ul className="text-[13px] text-[#888888] space-y-1 list-disc list-inside">
+                  <li>Ogni landing page ha uno script unico con il suo <code className="px-1.5 py-0.5 bg-[#0a0a0a] rounded text-[#00d4aa]">landingId</code></li>
+                  <li>Non modificare il <code className="px-1.5 py-0.5 bg-[#0a0a0a] rounded text-[#00d4aa]">landingId</code> altrimenti i dati non saranno tracciati correttamente</li>
+                  <li>Assicurati che le tue landing pages possano contattare il dominio: <code className="px-1.5 py-0.5 bg-[#0a0a0a] rounded text-[#7c5cff]">{typeof window !== 'undefined' ? window.location.origin : 'https://your-app.vercel.app'}</code></li>
+                </ul>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Actions */}
       <div className="flex items-center justify-end gap-4">
