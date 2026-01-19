@@ -1241,44 +1241,42 @@ export default function FunnelDetailPage() {
                         </div>
                       </div>
 
-                      {/* Element Preview */}
+                      {/* Screenshot Preview */}
                       {test.screenSelector && funnel.steps[selectedABPage]?.url && (
                         <div className="mb-6">
                           <div className="flex items-center justify-between mb-3">
-                            <h4 className="text-[14px] font-semibold text-[#fafafa]">📍 Element Location</h4>
+                            <h4 className="text-[14px] font-semibold text-[#fafafa]">📸 Element Screenshot</h4>
                             <p className="text-[12px] text-[#888888]">{test.screenDescription || 'Target element'}</p>
                           </div>
-                          <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-6">
-                            <div className="flex items-center justify-between mb-4">
-                              <div className="flex-1">
-                                <p className="text-[14px] text-[#888888] mb-2">
-                                  CSS Selector for this element:
-                                </p>
-                                <code className="text-[13px] text-[#7c5cff] bg-[#0a0a0a] px-3 py-2 rounded-lg inline-block">
-                                  {test.screenSelector}
-                                </code>
-                              </div>
-                              <a
-                                href={funnel.steps[selectedABPage].url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white rounded-xl text-[14px] font-medium hover:shadow-lg hover:shadow-purple-500/20 transition-all flex-shrink-0 ml-4"
-                              >
-                                <Eye className="w-4 h-4" />
-                                View on Page →
-                              </a>
+                          <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl overflow-hidden">
+                            <div className="relative">
+                              <img
+                                src={`/api/screenshot?url=${encodeURIComponent(funnel.steps[selectedABPage].url)}&selector=${encodeURIComponent(test.screenSelector)}`}
+                                alt={`Screenshot of ${test.element}`}
+                                className="w-full h-auto"
+                                loading="lazy"
+                                onError={(e) => {
+                                  const target = e.currentTarget as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  const parent = target.parentElement?.parentElement;
+                                  if (parent) {
+                                    parent.innerHTML = `
+                                      <div class="p-8 text-center bg-gradient-to-br from-[#0a0a0a] to-[#111111]">
+                                        <div class="text-[40px] mb-3">🖼️</div>
+                                        <p class="text-[14px] text-[#888888] mb-4">Could not capture screenshot</p>
+                                        <a href="${funnel.steps[selectedABPage].url}" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white rounded-xl text-[14px] font-medium hover:shadow-lg transition-all">
+                                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                          View on Page
+                                        </a>
+                                        <p class="text-[12px] text-[#666666] mt-3">Element: <code class="text-[#7c5cff]">${test.screenSelector}</code></p>
+                                      </div>
+                                    `;
+                                  }
+                                }}
+                              />
                             </div>
-                            <div className="p-4 bg-[#0a0a0a] rounded-lg border border-[#2a2a2a]">
-                              <div className="flex items-start gap-3">
-                                <span className="text-[20px]">💡</span>
-                                <div className="text-[12px] text-[#888888] leading-relaxed">
-                                  <span className="text-[#00d4aa] font-semibold">How to find this element:</span><br/>
-                                  1. Click "View on Page" to open the landing page<br/>
-                                  2. Press <kbd className="px-2 py-0.5 bg-[#1a1a1a] border border-[#333] rounded text-[11px] text-[#fafafa]">F12</kbd> to open DevTools<br/>
-                                  3. Press <kbd className="px-2 py-0.5 bg-[#1a1a1a] border border-[#333] rounded text-[11px] text-[#fafafa]">Ctrl+F</kbd> (or Cmd+F) in the Elements tab<br/>
-                                  4. Paste the selector above to find and highlight the element
-                                </div>
-                              </div>
+                            <div className="p-3 bg-[#0a0a0a] border-t border-[#2a2a2a] text-[12px] text-[#888888]">
+                              <span className="text-[#00d4aa]">●</span> Target: <code className="text-[#7c5cff]">{test.screenSelector}</code>
                             </div>
                           </div>
                         </div>
