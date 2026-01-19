@@ -6,6 +6,7 @@ import VisualAnnotations from "@/components/VisualAnnotations";
 import BeforeAfterTracking from "@/components/BeforeAfterTracking";
 import ExportShareButtons from "@/components/ExportShareButtons";
 import CROComparisonTable from "@/components/CROComparisonTable";
+import HeatmapVisualization from "@/components/HeatmapVisualization";
 import SaveItemDialog from "@/components/SaveItemDialog";
 import {
   FileSearch,
@@ -23,6 +24,7 @@ import {
   Table,
   Save,
   Zap,
+  Flame,
 } from "lucide-react";
 import { CROTableRow, SavedLandingPage, landingPageStorage } from "@/lib/saved-items";
 
@@ -46,7 +48,7 @@ export default function LandingAnalysisPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [results, setResults] = useState<AnalysisResult[]>([]);
   const [error, setError] = useState("");
-  const [viewMode, setViewMode] = useState<"visual" | "list" | "history" | "cro-table">("visual");
+  const [viewMode, setViewMode] = useState<"visual" | "list" | "history" | "cro-table" | "heatmap">("visual");
 
   // CRO Table state
   const [croTableRows, setCroTableRows] = useState<CROTableRow[]>([]);
@@ -568,6 +570,17 @@ export default function LandingAnalysisPage() {
                   <Clock className="w-4 h-4" />
                   History
                 </button>
+                <button
+                  onClick={() => setViewMode("heatmap")}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${
+                    viewMode === "heatmap"
+                      ? "bg-[#7c5cff] text-white"
+                      : "text-[#888888] hover:text-[#fafafa]"
+                  }`}
+                >
+                  <Flame className="w-4 h-4" />
+                  Heatmap
+                </button>
               </div>
             </div>
 
@@ -584,6 +597,16 @@ export default function LandingAnalysisPage() {
               <BeforeAfterTracking
                 pageUrl={url}
                 history={mockHistory}
+              />
+            )}
+
+            {/* Heatmap View */}
+            {viewMode === "heatmap" && (
+              <HeatmapVisualization
+                pageUrl={url}
+                landingId={undefined}
+                width={1200}
+                height={800}
               />
             )}
 
