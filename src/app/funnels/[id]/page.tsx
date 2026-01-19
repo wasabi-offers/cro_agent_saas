@@ -133,10 +133,28 @@ export default function FunnelDetailPage() {
     setCroTableRows([]);
 
     try {
-      // Mock URL - in production this would be real page URLs
-      const url = analysisMode === "funnel"
-        ? `https://example.com/${funnel.name.toLowerCase().replace(/\s+/g, '-')}`
-        : `https://example.com${funnel.steps[selectedPage].name.toLowerCase().replace(/\s+/g, '-')}`;
+      // Get real URL from funnel step
+      let url: string;
+
+      if (analysisMode === "page") {
+        // Analyze specific page
+        const step = funnel.steps[selectedPage];
+        if (!step.url) {
+          setAnalysisError(`❌ No URL configured for "${step.name}". Please edit the funnel and add a URL for this step.`);
+          setIsAnalyzing(false);
+          return;
+        }
+        url = step.url;
+      } else {
+        // Analyze entire funnel - use first step URL
+        const firstStep = funnel.steps[0];
+        if (!firstStep.url) {
+          setAnalysisError(`❌ No URL configured for the first step "${firstStep.name}". Please edit the funnel and add URLs for each step.`);
+          setIsAnalyzing(false);
+          return;
+        }
+        url = firstStep.url;
+      }
 
       // Run both analysis in parallel
       const [analysisResponse, croTableResponse] = await Promise.all([
@@ -160,7 +178,10 @@ export default function FunnelDetailPage() {
         }),
       ]);
 
-      if (!analysisResponse.ok) throw new Error("Analysis error");
+      if (!analysisResponse.ok) {
+        const errorData = await analysisResponse.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || "Analysis failed");
+      }
 
       const analysisData = await analysisResponse.json();
       setAnalysisResults(analysisData.results);
@@ -170,8 +191,9 @@ export default function FunnelDetailPage() {
         const croTableData = await croTableResponse.json();
         setCroTableRows(croTableData.rows);
       }
-    } catch (err) {
-      setAnalysisError("An error occurred during analysis. Please try again.");
+    } catch (err: any) {
+      console.error('Analysis error:', err);
+      setAnalysisError(err.message || "An error occurred during analysis. Please try again.");
     } finally {
       setIsAnalyzing(false);
     }
