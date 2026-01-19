@@ -734,16 +734,16 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
 
                     return (
                       <div key={node.id} className="bg-[#111111] border border-white/10 rounded-xl overflow-hidden">
-                        <div className="px-4 py-3 bg-[#0a0a0a] border-b border-white/10 flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-[#7c5cff] rounded-lg flex items-center justify-center text-white text-[13px] font-bold">
+                        <div className="px-4 py-3 bg-[#0a0a0a] border-b border-white/10 flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div className="w-8 h-8 bg-[#7c5cff] rounded-lg flex items-center justify-center text-white text-[13px] font-bold flex-shrink-0">
                               {node.id.split('-')[1]}
                             </div>
-                            <div>
-                              <h5 className="text-[14px] font-semibold text-[#fafafa]">{node.data.label}</h5>
-                              <div className="flex items-center gap-2 text-[11px] text-[#888888]">
-                                <LinkIcon className="w-3 h-3" />
-                                <span className="truncate max-w-[400px]">{node.data.url}</span>
+                            <div className="min-w-0 flex-1">
+                              <h5 className="text-[14px] font-semibold text-[#fafafa] mb-0.5">{node.data.label}</h5>
+                              <div className="flex items-center gap-2 text-[11px] text-[#888888] min-w-0">
+                                <LinkIcon className="w-3 h-3 flex-shrink-0" />
+                                <span className="truncate block">{node.data.url}</span>
                               </div>
                             </div>
                           </div>

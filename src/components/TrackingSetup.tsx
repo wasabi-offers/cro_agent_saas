@@ -185,9 +185,9 @@ export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingS
                 <div className="w-8 h-8 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center flex-shrink-0">
                   <span className="text-[13px] font-bold text-[#7c5cff]">{index + 1}</span>
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <p className="text-[14px] font-medium text-[#fafafa] mb-1">{step.name}</p>
-                  <p className="text-[12px] text-[#666666] mb-3">
+                  <p className="text-[12px] text-[#666666] mb-3 truncate">
                     Page: <code className="text-[#00d4aa]">{step.page}</code>
                   </p>
 
@@ -228,10 +228,11 @@ export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingS
                       href={stepUrls[index]}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 mt-2 text-[11px] text-[#7c5cff] hover:text-[#00d4aa] transition-colors"
+                      className="inline-flex items-center gap-1 mt-2 text-[11px] text-[#7c5cff] hover:text-[#00d4aa] transition-colors max-w-full"
+                      title={stepUrls[index]}
                     >
-                      <ExternalLink className="w-3 h-3" />
-                      Apri in una nuova tab
+                      <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                      <span className="truncate">Apri in una nuova tab</span>
                     </a>
                   )}
                 </div>
