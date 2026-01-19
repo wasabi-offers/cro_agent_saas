@@ -41,16 +41,33 @@ export default function DataSourcesPage() {
   const [error, setError] = useState<string | null>(null);
   const [syncingId, setSyncingId] = useState<string | null>(null);
   const [showConnectModal, setShowConnectModal] = useState<string | null>(null);
+  const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
+  const [tempApiKey, setTempApiKey] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Load API keys from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('cro_api_keys');
+      if (saved) {
+        try {
+          setApiKeys(JSON.parse(saved));
+        } catch (e) {
+          console.error('Failed to parse saved API keys:', e);
+        }
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
       setError(null);
-      
+
       try {
         const response = await fetch('/api/cro-analysis');
         const result = await response.json();
-        
+
         if (result.success) {
           setDashboardData(result.data);
         } else {
@@ -68,8 +85,7 @@ export default function DataSourcesPage() {
   }, []);
 
   // Check if Clarity is configured
-  const clarityProjectId = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID;
-  const isClarityConnected = !!clarityProjectId;
+  const isClarityConnected = !!apiKeys.clarity;
 
   // Build data sources from real data
   const dataSources: DataSource[] = dashboardData ? [
@@ -196,12 +212,49 @@ export default function DataSourcesPage() {
   };
 
   const handleConnect = (sourceId: string) => {
+    setTempApiKey(apiKeys[sourceId] || '');
     setShowConnectModal(sourceId);
   };
 
+  const handleSaveApiKey = () => {
+    if (!showConnectModal || !tempApiKey.trim()) return;
+
+    setIsSaving(true);
+    const newApiKeys = {
+      ...apiKeys,
+      [showConnectModal]: tempApiKey.trim(),
+    };
+    setApiKeys(newApiKeys);
+
+    // Save to localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('cro_api_keys', JSON.stringify(newApiKeys));
+    }
+
+    setTimeout(() => {
+      setIsSaving(false);
+      setShowConnectModal(null);
+      setTempApiKey('');
+    }, 500);
+  };
+
+  const handleDisconnect = (sourceId: string) => {
+    const newApiKeys = { ...apiKeys };
+    delete newApiKeys[sourceId];
+    setApiKeys(newApiKeys);
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('cro_api_keys', JSON.stringify(newApiKeys));
+    }
+  };
+
   const handleSettings = (sourceId: string) => {
-    // Per ora mostra un alert, può essere esteso con un modal
-    alert(`Settings for ${sourceId}\n\nThis feature is coming soon!`);
+    // Open connect modal with existing API key
+    if (apiKeys[sourceId]) {
+      handleConnect(sourceId);
+    } else {
+      alert(`Settings for ${sourceId}\n\nThis feature is coming soon!`);
+    }
   };
 
   if (isLoading) {
@@ -472,23 +525,49 @@ export default function DataSourcesPage() {
               </div>
 
               {showConnectModal === 'clarity' && (
-                <div className="space-y-4">
-                  <div className="bg-[#111111] border border-white/10 rounded-xl p-4">
-                    <h3 className="text-[16px] font-semibold text-[#fafafa] mb-3">Setup Instructions</h3>
-                    <ol className="space-y-3 text-[14px] text-[#888888] list-decimal list-inside">
-                      <li>Go to <a href="https://clarity.microsoft.com" target="_blank" rel="noopener noreferrer" className="text-[#7c5cff] hover:underline">Microsoft Clarity</a></li>
-                      <li>Create a new project and copy your Project ID</li>
-                      <li>Add it to your <code className="px-2 py-1 bg-[#0a0a0a] rounded text-[#00d4aa]">.env.local</code> file:</li>
-                    </ol>
-                    <div className="mt-3 bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg p-3">
-                      <code className="text-[13px] text-[#00d4aa] font-mono">
-                        NEXT_PUBLIC_CLARITY_PROJECT_ID=your_project_id
-                      </code>
+                <div className="space-y-5">
+                  <div className="bg-[#111111] border border-white/10 rounded-xl p-5">
+                    <div className="flex items-start gap-3 mb-4">
+                      <AlertCircle className="w-5 h-5 text-[#7c5cff] flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h3 className="text-[15px] font-semibold text-[#fafafa] mb-1">Get your API Key</h3>
+                        <p className="text-[13px] text-[#888888]">
+                          Go to <a href="https://clarity.microsoft.com" target="_blank" rel="noopener noreferrer" className="text-[#7c5cff] hover:underline">Microsoft Clarity</a> →
+                          Settings → API → Copy your API key
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-[13px] text-[#888888] mt-3">
-                      ℹ️ See <code className="px-1.5 py-0.5 bg-[#111111] rounded text-[#7c5cff]">CLARITY_SETUP.md</code> for complete instructions
-                    </p>
+
+                    <div className="space-y-3">
+                      <label className="block">
+                        <span className="text-[14px] font-medium text-[#fafafa] mb-2 block">
+                          Microsoft Clarity API Key
+                        </span>
+                        <input
+                          type="password"
+                          value={tempApiKey}
+                          onChange={(e) => setTempApiKey(e.target.value)}
+                          placeholder="Paste your API key here..."
+                          className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-lg text-[#fafafa] text-[14px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all font-mono"
+                          autoFocus
+                        />
+                      </label>
+                      <p className="text-[12px] text-[#666666]">
+                        💡 Your API key is stored securely in your browser and never sent to our servers
+                      </p>
+                    </div>
                   </div>
+
+                  {apiKeys.clarity && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleDisconnect('clarity')}
+                        className="text-[13px] text-[#ff6b6b] hover:text-[#ff5252] transition-colors"
+                      >
+                        Disconnect
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -503,13 +582,25 @@ export default function DataSourcesPage() {
                 </div>
               )}
 
-              <div className="mt-6 flex justify-end">
+              <div className="mt-6 flex justify-end gap-3">
                 <button
-                  onClick={() => setShowConnectModal(null)}
-                  className="px-6 py-2.5 bg-[#7c5cff] text-white text-[14px] font-medium rounded-lg hover:bg-[#6b4ee6] transition-all"
+                  onClick={() => {
+                    setShowConnectModal(null);
+                    setTempApiKey('');
+                  }}
+                  className="px-6 py-2.5 bg-[#111111] text-[#888888] text-[14px] font-medium rounded-lg hover:bg-[#1a1a1a] hover:text-[#fafafa] transition-all"
                 >
-                  Close
+                  Cancel
                 </button>
+                {showConnectModal === 'clarity' && (
+                  <button
+                    onClick={handleSaveApiKey}
+                    disabled={!tempApiKey.trim() || isSaving}
+                    className="px-6 py-2.5 bg-[#7c5cff] text-white text-[14px] font-medium rounded-lg hover:bg-[#6b4ee6] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSaving ? 'Saving...' : 'Save & Connect'}
+                  </button>
+                )}
               </div>
             </div>
           </div>
