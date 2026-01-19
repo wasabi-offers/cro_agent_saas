@@ -137,20 +137,27 @@ export default function VisualAnnotations({
             minHeight: '600px',
           }}
         >
-          {/* Mock Screenshot */}
+          {/* Screenshot or iframe */}
           {screenshotUrl ? (
             <img
               src={screenshotUrl}
               alt="Page screenshot"
               className="w-full h-auto"
             />
+          ) : pageUrl ? (
+            <iframe
+              src={pageUrl}
+              className="w-full h-[800px] bg-white border border-[#2a2a2a]"
+              title="Page preview"
+              sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+            />
           ) : (
             <div className="w-full h-[800px] bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] flex items-center justify-center border border-[#2a2a2a]">
               <div className="text-center">
                 <div className="text-[48px] mb-3">📄</div>
-                <p className="text-[14px] text-[#666666] mb-2">Screenshot Preview</p>
+                <p className="text-[14px] text-[#666666] mb-2">No URL provided</p>
                 <p className="text-[12px] text-[#555555] max-w-[300px]">
-                  {pageUrl}
+                  Enter a URL to preview the page
                 </p>
               </div>
             </div>
