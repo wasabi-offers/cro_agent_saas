@@ -172,19 +172,103 @@ async function handleFunnelTracking(event: FunnelTrackingEvent) {
     timestamp: event.timestamp,
   });
 
-  // TODO: Implement funnel tracking in database
-  // For now just log and return success
+  const supabase = getSupabaseClient();
 
-  return NextResponse.json({
-    success: true,
-    message: "Event tracked successfully",
-    event: {
-      funnelId: event.funnelId,
-      stepName: event.stepName,
-      sessionId: event.sessionId,
-      timestamp: event.timestamp,
-    },
-  });
+  try {
+    // 1. Get step information from database
+    const { data: stepData, error: stepError } = await supabase
+      .from('funnel_steps')
+      .select('id, step_order')
+      .eq('funnel_id', event.funnelId)
+      .eq('name', event.stepName)
+      .single();
+
+    if (stepError || !stepData) {
+      console.error("❌ Step not found:", stepError);
+      return NextResponse.json(
+        { error: "Funnel step not found" },
+        { status: 404 }
+      );
+    }
+
+    // 2. Insert or update session
+    const { error: sessionError } = await supabase
+      .from('funnel_tracking_sessions')
+      .upsert({
+        funnel_id: event.funnelId,
+        session_id: event.sessionId,
+        user_agent: event.userAgent,
+        referrer: event.referrer,
+        last_activity_at: new Date().toISOString(),
+      }, {
+        onConflict: 'session_id',
+        ignoreDuplicates: false,
+      });
+
+    if (sessionError) {
+      console.error("❌ Session upsert error:", sessionError);
+      return NextResponse.json(
+        { error: "Failed to track session", details: sessionError.message },
+        { status: 500 }
+      );
+    }
+
+    // 3. Check if this step was already tracked for this session
+    const { data: existingEvent, error: checkError } = await supabase
+      .from('funnel_tracking_events')
+      .select('id')
+      .eq('session_id', event.sessionId)
+      .eq('step_id', stepData.id)
+      .maybeSingle();
+
+    if (checkError) {
+      console.error("❌ Error checking existing event:", checkError);
+    }
+
+    // Only insert if not already tracked (prevent duplicates)
+    if (!existingEvent) {
+      // 4. Insert tracking event
+      const { error: eventError } = await supabase
+        .from('funnel_tracking_events')
+        .insert({
+          funnel_id: event.funnelId,
+          session_id: event.sessionId,
+          step_id: stepData.id,
+          step_name: event.stepName,
+          step_order: stepData.step_order,
+          timestamp: Date.now(),
+        });
+
+      if (eventError) {
+        console.error("❌ Event insert error:", eventError);
+        return NextResponse.json(
+          { error: "Failed to track event", details: eventError.message },
+          { status: 500 }
+        );
+      }
+
+      console.log("✅ Funnel event tracked successfully!");
+    } else {
+      console.log("ℹ️ Step already tracked for this session, skipping duplicate");
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Event tracked successfully",
+      event: {
+        funnelId: event.funnelId,
+        stepName: event.stepName,
+        sessionId: event.sessionId,
+        timestamp: event.timestamp,
+      },
+    });
+  } catch (error: any) {
+    console.error("❌ Unexpected error in funnel tracking:", error);
+    return NextResponse.json(
+      { error: "Failed to track funnel event", details: error.message },
+      { status: 500 }
+    );
+  }
 }
 
 // OPTIONS handler for CORS preflight requests

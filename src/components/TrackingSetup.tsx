@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Code, Copy, CheckCircle2, ExternalLink, Zap, AlertCircle, Link as LinkIcon } from "lucide-react";
+import { Code, Copy, CheckCircle2, ExternalLink, Zap, AlertCircle, Link as LinkIcon, RefreshCw } from "lucide-react";
 
 interface TrackingSetupProps {
   funnelId: string;
@@ -12,6 +12,8 @@ interface TrackingSetupProps {
 export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingSetupProps) {
   const [copied, setCopied] = useState(false);
   const [copiedStep, setCopiedStep] = useState<number | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState<string | null>(null);
   // Initialize stepUrls with existing URLs from saved steps
   const [stepUrls, setStepUrls] = useState<Record<number, string>>(() => {
     const initialUrls: Record<number, string> = {};
@@ -90,6 +92,36 @@ export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingS
     } else {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleUpdateStats = async () => {
+    setIsUpdating(true);
+    setUpdateMessage(null);
+
+    try {
+      const response = await fetch('/api/funnel-stats/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ funnelId }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setUpdateMessage('✅ Statistiche aggiornate con successo! Ricaricare la pagina per vedere i nuovi dati.');
+        // Refresh page after 2 seconds
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      } else {
+        setUpdateMessage('⚠️ Nessun dato di tracking trovato. Installa lo script e attendi visite reali.');
+      }
+    } catch (error) {
+      console.error('Failed to update stats:', error);
+      setUpdateMessage('❌ Errore durante l\'aggiornamento. Riprova più tardi.');
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -266,6 +298,34 @@ export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingS
               <code className="text-[12px] text-[#7c5cff] font-mono">
                 {`// Track a custom event\nwindow.croAgent.trackStep("${steps[0]?.name || 'Step Name'}");`}
               </code>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Update Stats from Real Tracking Data */}
+      <div className="bg-gradient-to-br from-[#7c5cff]/10 to-[#00d4aa]/10 border border-[#7c5cff]/20 rounded-2xl p-6">
+        <div className="flex items-start gap-4">
+          <div className="w-10 h-10 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-xl flex items-center justify-center flex-shrink-0">
+            <RefreshCw className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1">
+            <h4 className="text-[16px] font-semibold text-[#fafafa] mb-2">Aggiorna Statistiche</h4>
+            <p className="text-[13px] text-[#888888] leading-relaxed mb-4">
+              Dopo aver ricevuto visite reali, clicca qui per aggiornare i contatori del funnel con i dati di tracking reali dal database.
+            </p>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleUpdateStats}
+                disabled={isUpdating}
+                className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <RefreshCw className={`w-4 h-4 ${isUpdating ? 'animate-spin' : ''}`} />
+                {isUpdating ? 'Aggiornamento...' : 'Aggiorna Ora'}
+              </button>
+              {updateMessage && (
+                <span className="text-[14px] text-[#fafafa]">{updateMessage}</span>
+              )}
             </div>
           </div>
         </div>
