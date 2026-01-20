@@ -13,18 +13,49 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Use microlink.io API with element selector support
-    // Free tier: 50 requests/day per IP
-    const apiUrl = new URL('https://api.microlink.io/screenshot');
-    apiUrl.searchParams.set('url', url);
-    apiUrl.searchParams.set('element', selector);
-    apiUrl.searchParams.set('type', 'png');
-    apiUrl.searchParams.set('viewport.width', '1920');
-    apiUrl.searchParams.set('viewport.height', '1080');
-    apiUrl.searchParams.set('waitUntil', 'networkidle0');
-    apiUrl.searchParams.set('device', 'desktop');
+    // First, fetch the page HTML through our proxy to inject element highlighting
+    const proxyUrl = `${request.nextUrl.origin}/api/proxy-page?url=${encodeURIComponent(url)}`;
+    const pageResponse = await fetch(proxyUrl);
+    const htmlContent = await pageResponse.text();
 
-    console.log('Fetching screenshot:', apiUrl.toString());
+    // Inject CSS and JavaScript to highlight the target element
+    const highlightScript = `
+      <style>
+        ${selector} {
+          outline: 4px solid #00d4aa !important;
+          outline-offset: 2px !important;
+          box-shadow: 0 0 20px rgba(0, 212, 170, 0.5) !important;
+          background-color: rgba(0, 212, 170, 0.1) !important;
+        }
+      </style>
+      <script>
+        window.addEventListener('load', function() {
+          const element = document.querySelector('${selector.replace(/'/g, "\\'")}');
+          if (element) {
+            element.scrollIntoView({ behavior: 'instant', block: 'center' });
+          }
+        });
+      </script>
+    `;
+
+    // Inject the highlight script before </head>
+    const modifiedHtml = htmlContent.replace('</head>', highlightScript + '</head>');
+
+    // Create a data URL with the modified HTML
+    const dataUrl = `data:text/html;base64,${Buffer.from(modifiedHtml).toString('base64')}`;
+
+    // Now screenshot this modified page
+    const apiUrl = new URL('https://shot.screenshotapi.net/screenshot');
+    apiUrl.searchParams.set('url', dataUrl);
+    apiUrl.searchParams.set('output', 'image');
+    apiUrl.searchParams.set('file_type', 'png');
+    apiUrl.searchParams.set('wait_for_event', 'load');
+    apiUrl.searchParams.set('delay', '2000');
+    apiUrl.searchParams.set('full_page', 'false');
+    apiUrl.searchParams.set('width', '1920');
+    apiUrl.searchParams.set('height', '1080');
+
+    console.log('Fetching screenshot with highlighted element:', selector);
 
     const response = await fetch(apiUrl.toString(), {
       method: 'GET',
@@ -39,23 +70,15 @@ export async function GET(request: NextRequest) {
       throw new Error(`Screenshot API returned ${response.status}`);
     }
 
-    const data = await response.json();
+    const imageBuffer = await response.arrayBuffer();
 
-    // Microlink returns JSON with screenshot URL
-    if (data.status === 'success' && data.data?.screenshot?.url) {
-      const imageResponse = await fetch(data.data.screenshot.url);
-      const imageBuffer = await imageResponse.arrayBuffer();
-
-      return new NextResponse(imageBuffer, {
-        status: 200,
-        headers: {
-          'Content-Type': 'image/png',
-          'Cache-Control': 'public, max-age=3600',
-        },
-      });
-    } else {
-      throw new Error('Screenshot not found in response');
-    }
+    return new NextResponse(imageBuffer, {
+      status: 200,
+      headers: {
+        'Content-Type': 'image/png',
+        'Cache-Control': 'public, max-age=3600',
+      },
+    });
   } catch (error: any) {
     console.error('Screenshot error:', error);
 
