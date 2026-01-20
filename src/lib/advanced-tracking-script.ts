@@ -76,11 +76,11 @@ export interface TrackingEvent {
 }
 
 export function generateAdvancedTrackingScript(options: {
-  apiEndpoint: string;
+  apiEndpoint?: string; // Optional - hardcoded in script now
   funnelId?: string;
   funnelStepName?: string;
   enableHeatmap?: boolean;
-}): string {
+} = {}): string {
   return `
 <!-- CRO Agent Advanced Tracking Script -->
 <script>
@@ -91,7 +91,7 @@ export function generateAdvancedTrackingScript(options: {
   try {
 
   // Configuration
-  const API_ENDPOINT = "${options.apiEndpoint}";
+  const API_ENDPOINT = "https://cro-agent-saas.vercel.app/api/track";
   const FUNNEL_ID = ${options.funnelId ? `"${options.funnelId}"` : 'null'};
   const FUNNEL_STEP = ${options.funnelStepName ? `"${options.funnelStepName}"` : 'null'};
   const ENABLE_HEATMAP = ${options.enableHeatmap !== false};
@@ -504,13 +504,6 @@ export function getTrackingScriptTag(options: {
   funnelStepName?: string;
   enableHeatmap?: boolean;
 } = {}): string {
-  // MUST use absolute URL for cross-domain tracking
-  // In production, NEXT_PUBLIC_APP_URL should be set to https://cro-agent-saas.vercel.app
-  const apiEndpoint = `${process.env.NEXT_PUBLIC_APP_URL || 'https://cro-agent-saas.vercel.app'}/api/track`;
-
-  // generateAdvancedTrackingScript now returns complete <script> tag
-  return generateAdvancedTrackingScript({
-    apiEndpoint,
-    ...options
-  });
+  // apiEndpoint is now hardcoded in the script itself
+  return generateAdvancedTrackingScript(options);
 }
