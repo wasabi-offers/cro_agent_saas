@@ -82,8 +82,13 @@ export function generateAdvancedTrackingScript(options: {
   enableHeatmap?: boolean;
 }): string {
   return `
+<!-- CRO Agent Advanced Tracking Script -->
+<script>
 (function() {
   'use strict';
+
+  // Global error handler - prevent script from breaking page
+  try {
 
   // Configuration
   const API_ENDPOINT = "${options.apiEndpoint}";
@@ -112,14 +117,24 @@ export function generateAdvancedTrackingScript(options: {
   // UTM parameters
   const utmParams = extractUTMParams();
 
-  // Session management
+  // Session management with fallback
   function getOrCreateSessionId() {
-    let id = sessionStorage.getItem(SESSION_STORAGE_KEY);
-    if (!id) {
-      id = 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-      sessionStorage.setItem(SESSION_STORAGE_KEY, id);
+    try {
+      let id = sessionStorage.getItem(SESSION_STORAGE_KEY);
+      if (!id) {
+        id = 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        try {
+          sessionStorage.setItem(SESSION_STORAGE_KEY, id);
+        } catch (e) {
+          // sessionStorage blocked - use in-memory only (will reset on reload)
+          console.warn('[CRO Tracking] sessionStorage blocked, session will not persist');
+        }
+      }
+      return id;
+    } catch (e) {
+      // Fallback to memory-only session
+      return 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     }
-    return id;
   }
 
   // Device detection
@@ -196,23 +211,41 @@ export function generateAdvancedTrackingScript(options: {
     }
   }
 
-  // Send events to server
+  // Send events to server (with sendBeacon fallback)
   async function flushEvents() {
     if (eventQueue.length === 0) return;
 
     const eventsToSend = [...eventQueue];
     eventQueue = [];
 
+    const payload = JSON.stringify({ events: eventsToSend });
+
     try {
-      await fetch(API_ENDPOINT, {
+      // Try fetch first (preferred - has error handling)
+      const response = await fetch(API_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ events: eventsToSend }),
+        body: payload,
         keepalive: true
       });
+
+      if (!response.ok) {
+        throw new Error('HTTP ' + response.status);
+      }
     } catch (error) {
-      console.error('[CRO Tracking] Error:', error);
-      eventQueue = [...eventsToSend, ...eventQueue];
+      // Fallback to sendBeacon (more reliable but no error feedback)
+      try {
+        const blob = new Blob([payload], { type: 'application/json' });
+        if (navigator.sendBeacon && navigator.sendBeacon(API_ENDPOINT, blob)) {
+          console.log('[CRO Tracking] Sent via sendBeacon fallback');
+        } else {
+          throw new Error('sendBeacon failed');
+        }
+      } catch (beaconError) {
+        console.error('[CRO Tracking] All send methods failed:', error, beaconError);
+        // Re-queue events to try again later
+        eventQueue = [...eventsToSend, ...eventQueue];
+      }
     }
   }
 
@@ -455,7 +488,14 @@ export function generateAdvancedTrackingScript(options: {
   });
 
   console.log('[CRO Tracking] Initialized - Session:', sessionId);
+
+  } catch (globalError) {
+    // Silent fail - don't break the page
+    console.error('[CRO Tracking] Initialization failed:', globalError);
+    console.error('[CRO Tracking] Tracking disabled for this session.');
+  }
 })();
+</script>
 `;
 }
 
@@ -468,10 +508,9 @@ export function getTrackingScriptTag(options: {
   // In production, NEXT_PUBLIC_APP_URL should be set to https://cro-agent-saas.vercel.app
   const apiEndpoint = `${process.env.NEXT_PUBLIC_APP_URL || 'https://cro-agent-saas.vercel.app'}/api/track`;
 
-  const script = generateAdvancedTrackingScript({
+  // generateAdvancedTrackingScript now returns complete <script> tag
+  return generateAdvancedTrackingScript({
     apiEndpoint,
     ...options
   });
-
-  return `<script>${script}</script>`;
 }
