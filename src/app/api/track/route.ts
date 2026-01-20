@@ -1,42 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-// Funnel tracking event
-interface FunnelTrackingEvent {
-  funnelId: string;
-  stepName: string;
-  timestamp: string;
-  userAgent: string;
-  referrer: string;
-  sessionId: string;
-}
-
-// Landing page tracking events (heatmap)
-interface LandingTrackingBatch {
-  landingId: string;
-  sessionId: string;
-  events: Array<{
-    type: "click" | "scroll" | "movement" | "session_start";
-    timestamp: number;
-    x?: number;
-    y?: number;
-    percentage?: number;
-    target?: string;
-    targetId?: string | null;
-    targetClass?: string | null;
-    pageWidth?: number;
-    pageHeight?: number;
-    viewportHeight?: number;
-    // Session info
-    userAgent?: string;
-    screenWidth?: number;
-    screenHeight?: number;
-    viewportWidth?: number;
-    referrer?: string;
-    language?: string;
-  }>;
-}
-
 // Initialize Supabase client
 function getSupabaseClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -52,23 +16,139 @@ function getSupabaseClient() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    const { events } = body;
 
-    // Check if it's landing tracking or funnel tracking
-    if (body.landingId && body.events) {
-      return await handleLandingTracking(body as LandingTrackingBatch);
-    } else if (body.funnelId) {
-      return await handleFunnelTracking(body as FunnelTrackingEvent);
-    } else {
+    if (!events || !Array.isArray(events) || events.length === 0) {
       return NextResponse.json(
-        { error: "Invalid tracking data" },
+        { error: "Invalid request: events array required" },
         { status: 400 }
       );
     }
+
+    const supabase = getSupabaseClient();
+
+    console.log(`📊 Tracking ${events.length} events`);
+
+    // Process each event
+    const sessionIds = new Set<string>();
+
+    for (const event of events) {
+      sessionIds.add(event.sessionId);
+
+      // Upsert session if this is first event
+      if (event.type === 'pageview') {
+        const { error: sessionError } = await supabase
+          .from('tracking_sessions')
+          .upsert({
+            session_id: event.sessionId,
+            first_seen_at: new Date(event.timestamp).toISOString(),
+            last_activity_at: new Date(event.timestamp).toISOString(),
+            device_type: event.deviceType,
+            browser: event.browser,
+            os: event.os,
+            screen_width: event.screenWidth,
+            screen_height: event.screenHeight,
+            viewport_width: event.viewportWidth,
+            viewport_height: event.viewportHeight,
+            language: event.language,
+            entry_url: event.url,
+            entry_path: event.path,
+            entry_title: event.title,
+            referrer: event.referrer,
+            utm_source: event.utm_source,
+            utm_medium: event.utm_medium,
+            utm_campaign: event.utm_campaign,
+            utm_term: event.utm_term,
+            utm_content: event.utm_content,
+          }, {
+            onConflict: 'session_id',
+            ignoreDuplicates: false
+          });
+
+        if (sessionError) {
+          console.error('Session upsert error:', sessionError);
+        }
+      }
+
+      // Insert event
+      const eventData: any = {
+        session_id: event.sessionId,
+        event_type: event.type,
+        timestamp: event.timestamp,
+        url: event.url,
+        path: event.path,
+        title: event.title,
+      };
+
+      // Add click data
+      if (event.clickData) {
+        eventData.click_x = event.clickData.x;
+        eventData.click_y = event.clickData.y;
+        eventData.click_element = event.clickData.element;
+        eventData.click_element_id = event.clickData.elementId;
+        eventData.click_element_class = event.clickData.elementClass;
+        eventData.click_element_text = event.clickData.elementText;
+        eventData.is_cta_click = event.clickData.isCtaClick;
+      }
+
+      // Add scroll data
+      if (event.scrollData) {
+        eventData.scroll_depth = event.scrollData.depth;
+        eventData.scroll_percentage = event.scrollData.percentage;
+        eventData.max_scroll_depth = event.scrollData.maxDepth;
+      }
+
+      // Add mouse data
+      if (event.mouseData) {
+        eventData.mouse_x = event.mouseData.x;
+        eventData.mouse_y = event.mouseData.y;
+        eventData.mouse_speed = event.mouseData.movementSpeed;
+      }
+
+      // Add form data
+      if (event.formData) {
+        eventData.form_id = event.formData.formId;
+        eventData.form_name = event.formData.formName;
+        eventData.form_field_name = event.formData.fieldName;
+        eventData.form_field_type = event.formData.fieldType;
+        eventData.form_action = event.formData.action;
+      }
+
+      // Add funnel data
+      if (event.funnelData) {
+        eventData.funnel_id = event.funnelData.funnelId;
+        eventData.funnel_step_name = event.funnelData.stepName;
+        eventData.funnel_step_order = event.funnelData.stepOrder;
+      }
+
+      // Add time data
+      if (event.timeData) {
+        eventData.time_on_page = event.timeData.timeOnPage;
+        eventData.user_engaged = event.timeData.engaged;
+      }
+
+      const { error: eventError } = await supabase
+        .from('tracking_events')
+        .insert(eventData);
+
+      if (eventError) {
+        console.error('Event insert error:', eventError);
+      }
+    }
+
+    console.log(`✅ Tracked ${events.length} events for ${sessionIds.size} session(s)`);
+
+    return NextResponse.json({
+      success: true,
+      eventsProcessed: events.length,
+      sessions: Array.from(sessionIds)
+    });
+
   } catch (error: any) {
     console.error("❌ Tracking Error:", error);
     return NextResponse.json(
       {
-        error: "Failed to track event",
+        error: "Failed to track events",
         details: error.message,
       },
       { status: 500 }
@@ -76,202 +156,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Handle landing page tracking (heatmap data)
-async function handleLandingTracking(batch: LandingTrackingBatch) {
-  const supabase = getSupabaseClient();
-
-  console.log(`📊 Landing Tracking: ${batch.events.length} events for landing ${batch.landingId}`);
-
-  // Separate session_start from other events
-  const sessionEvent = batch.events.find(e => e.type === 'session_start');
-  const trackingEvents = batch.events.filter(e => e.type !== 'session_start');
-
-  // Insert or update session
-  if (sessionEvent) {
-    const { error: sessionError } = await supabase
-      .from('tracking_sessions')
-      .upsert({
-        landing_id: batch.landingId,
-        session_id: batch.sessionId,
-        user_agent: sessionEvent.userAgent,
-        screen_width: sessionEvent.screenWidth,
-        screen_height: sessionEvent.screenHeight,
-        viewport_width: sessionEvent.viewportWidth,
-        viewport_height: sessionEvent.viewportHeight,
-        referrer: sessionEvent.referrer,
-        language: sessionEvent.language,
-      }, {
-        onConflict: 'session_id'
-      });
-
-    if (sessionError) {
-      console.error("❌ Session insert error:", sessionError);
-    } else {
-      console.log(`✅ Session recorded: ${batch.sessionId}`);
-    }
-  }
-
-  // Insert tracking events
-  if (trackingEvents.length > 0) {
-    const eventsToInsert = trackingEvents.map(event => ({
-      landing_id: batch.landingId,
-      session_id: batch.sessionId,
-      event_type: event.type,
-      x_position: event.x || null,
-      y_position: event.y || null,
-      scroll_percentage: event.percentage || null,
-      page_width: event.pageWidth || null,
-      page_height: event.pageHeight || null,
-      viewport_height: event.viewportHeight || null,
-      target_element: event.target || null,
-      target_id: event.targetId || null,
-      target_class: event.targetClass || null,
-      timestamp: event.timestamp,
-    }));
-
-    const { data, error: eventsError } = await supabase
-      .from('tracking_events')
-      .insert(eventsToInsert);
-
-    if (eventsError) {
-      console.error("❌ Events insert error:", eventsError);
-      return NextResponse.json(
-        {
-          success: false,
-          error: eventsError.message,
-        },
-        { status: 500 }
-      );
-    }
-
-    console.log(`✅ Tracked ${eventsToInsert.length} events`);
-  }
-
-  return NextResponse.json({
-    success: true,
-    message: `Tracked ${batch.events.length} events`,
-    landingId: batch.landingId,
-    sessionId: batch.sessionId,
-  });
-}
-
-// Handle funnel tracking (existing functionality)
-async function handleFunnelTracking(event: FunnelTrackingEvent) {
-  // Validate required fields
-  if (!event.funnelId || !event.stepName || !event.sessionId) {
-    return NextResponse.json(
-      { error: "Missing required fields" },
-      { status: 400 }
-    );
-  }
-
-  console.log("📊 Funnel Tracking Event:", {
-    funnelId: event.funnelId,
-    stepName: event.stepName,
-    sessionId: event.sessionId,
-    timestamp: event.timestamp,
-  });
-
-  const supabase = getSupabaseClient();
-
-  try {
-    // 1. Get step information from database
-    const { data: stepData, error: stepError } = await supabase
-      .from('funnel_steps')
-      .select('id, step_order')
-      .eq('funnel_id', event.funnelId)
-      .eq('name', event.stepName)
-      .single();
-
-    if (stepError || !stepData) {
-      console.error("❌ Step not found:", stepError);
-      return NextResponse.json(
-        { error: "Funnel step not found" },
-        { status: 404 }
-      );
-    }
-
-    // 2. Insert or update session
-    const { error: sessionError } = await supabase
-      .from('funnel_tracking_sessions')
-      .upsert({
-        funnel_id: event.funnelId,
-        session_id: event.sessionId,
-        user_agent: event.userAgent,
-        referrer: event.referrer,
-        last_activity_at: new Date().toISOString(),
-      }, {
-        onConflict: 'session_id',
-        ignoreDuplicates: false,
-      });
-
-    if (sessionError) {
-      console.error("❌ Session upsert error:", sessionError);
-      return NextResponse.json(
-        { error: "Failed to track session", details: sessionError.message },
-        { status: 500 }
-      );
-    }
-
-    // 3. Check if this step was already tracked for this session
-    const { data: existingEvent, error: checkError } = await supabase
-      .from('funnel_tracking_events')
-      .select('id')
-      .eq('session_id', event.sessionId)
-      .eq('step_id', stepData.id)
-      .maybeSingle();
-
-    if (checkError) {
-      console.error("❌ Error checking existing event:", checkError);
-    }
-
-    // Only insert if not already tracked (prevent duplicates)
-    if (!existingEvent) {
-      // 4. Insert tracking event
-      const { error: eventError } = await supabase
-        .from('funnel_tracking_events')
-        .insert({
-          funnel_id: event.funnelId,
-          session_id: event.sessionId,
-          step_id: stepData.id,
-          step_name: event.stepName,
-          step_order: stepData.step_order,
-          timestamp: Date.now(),
-        });
-
-      if (eventError) {
-        console.error("❌ Event insert error:", eventError);
-        return NextResponse.json(
-          { error: "Failed to track event", details: eventError.message },
-          { status: 500 }
-        );
-      }
-
-      console.log("✅ Funnel event tracked successfully!");
-    } else {
-      console.log("ℹ️ Step already tracked for this session, skipping duplicate");
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: "Event tracked successfully",
-      event: {
-        funnelId: event.funnelId,
-        stepName: event.stepName,
-        sessionId: event.sessionId,
-        timestamp: event.timestamp,
-      },
-    });
-  } catch (error: any) {
-    console.error("❌ Unexpected error in funnel tracking:", error);
-    return NextResponse.json(
-      { error: "Failed to track funnel event", details: error.message },
-      { status: 500 }
-    );
-  }
-}
-
-// OPTIONS handler for CORS preflight requests
+// OPTIONS handler for CORS
 export async function OPTIONS(req: NextRequest) {
   return new NextResponse(null, {
     status: 200,
