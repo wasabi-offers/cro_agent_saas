@@ -13,18 +13,49 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Use screenshotapi.net with element selector
+    // First, fetch the page HTML through our proxy to inject element highlighting
+    const proxyUrl = `${request.nextUrl.origin}/api/proxy-page?url=${encodeURIComponent(url)}`;
+    const pageResponse = await fetch(proxyUrl);
+    const htmlContent = await pageResponse.text();
+
+    // Inject CSS and JavaScript to highlight the target element
+    const highlightScript = `
+      <style>
+        ${selector} {
+          outline: 4px solid #00d4aa !important;
+          outline-offset: 2px !important;
+          box-shadow: 0 0 20px rgba(0, 212, 170, 0.5) !important;
+          background-color: rgba(0, 212, 170, 0.1) !important;
+        }
+      </style>
+      <script>
+        window.addEventListener('load', function() {
+          const element = document.querySelector('${selector.replace(/'/g, "\\'")}');
+          if (element) {
+            element.scrollIntoView({ behavior: 'instant', block: 'center' });
+          }
+        });
+      </script>
+    `;
+
+    // Inject the highlight script before </head>
+    const modifiedHtml = htmlContent.replace('</head>', highlightScript + '</head>');
+
+    // Create a data URL with the modified HTML
+    const dataUrl = `data:text/html;base64,${Buffer.from(modifiedHtml).toString('base64')}`;
+
+    // Now screenshot this modified page
     const apiUrl = new URL('https://shot.screenshotapi.net/screenshot');
-    apiUrl.searchParams.set('url', url);
-    apiUrl.searchParams.set('selector', selector);
+    apiUrl.searchParams.set('url', dataUrl);
     apiUrl.searchParams.set('output', 'image');
     apiUrl.searchParams.set('file_type', 'png');
     apiUrl.searchParams.set('wait_for_event', 'load');
-    apiUrl.searchParams.set('delay', '3000');
+    apiUrl.searchParams.set('delay', '2000');
     apiUrl.searchParams.set('full_page', 'false');
+    apiUrl.searchParams.set('width', '1920');
+    apiUrl.searchParams.set('height', '1080');
 
-    console.log('Fetching screenshot with selector:', selector);
-    console.log('API URL:', apiUrl.toString());
+    console.log('Fetching screenshot with highlighted element:', selector);
 
     const response = await fetch(apiUrl.toString(), {
       method: 'GET',
