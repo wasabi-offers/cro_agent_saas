@@ -13,20 +13,16 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Use screenshotone.com API with element selector support
-    // Free tier: 100 screenshots/month
-    const apiUrl = new URL('https://api.screenshotone.com/take');
+    // Use microlink.io API with element selector support
+    // Free tier: 50 requests/day per IP
+    const apiUrl = new URL('https://api.microlink.io/screenshot');
     apiUrl.searchParams.set('url', url);
-    apiUrl.searchParams.set('selector', selector);
-    apiUrl.searchParams.set('format', 'png');
-    apiUrl.searchParams.set('viewport_width', '1920');
-    apiUrl.searchParams.set('viewport_height', '1080');
-    apiUrl.searchParams.set('device_scale_factor', '1');
-    apiUrl.searchParams.set('image_quality', '80');
-    apiUrl.searchParams.set('block_ads', 'true');
-    apiUrl.searchParams.set('block_cookie_banners', 'true');
-    apiUrl.searchParams.set('delay', '2');
-    apiUrl.searchParams.set('response_type', 'by_format');
+    apiUrl.searchParams.set('element', selector);
+    apiUrl.searchParams.set('type', 'png');
+    apiUrl.searchParams.set('viewport.width', '1920');
+    apiUrl.searchParams.set('viewport.height', '1080');
+    apiUrl.searchParams.set('waitUntil', 'networkidle0');
+    apiUrl.searchParams.set('device', 'desktop');
 
     console.log('Fetching screenshot:', apiUrl.toString());
 
@@ -43,15 +39,23 @@ export async function GET(request: NextRequest) {
       throw new Error(`Screenshot API returned ${response.status}`);
     }
 
-    const imageBuffer = await response.arrayBuffer();
+    const data = await response.json();
 
-    return new NextResponse(imageBuffer, {
-      status: 200,
-      headers: {
-        'Content-Type': 'image/png',
-        'Cache-Control': 'public, max-age=3600',
-      },
-    });
+    // Microlink returns JSON with screenshot URL
+    if (data.status === 'success' && data.data?.screenshot?.url) {
+      const imageResponse = await fetch(data.data.screenshot.url);
+      const imageBuffer = await imageResponse.arrayBuffer();
+
+      return new NextResponse(imageBuffer, {
+        status: 200,
+        headers: {
+          'Content-Type': 'image/png',
+          'Cache-Control': 'public, max-age=3600',
+        },
+      });
+    } else {
+      throw new Error('Screenshot not found in response');
+    }
   } catch (error: any) {
     console.error('Screenshot error:', error);
 
