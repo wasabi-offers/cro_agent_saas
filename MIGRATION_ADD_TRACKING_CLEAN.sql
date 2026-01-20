@@ -21,18 +21,25 @@ DROP TRIGGER IF EXISTS trigger_update_session_stats ON tracking_events;
 -- ============================================
 -- STEP 3: DROP OLD FUNCTIONS (if they exist)
 -- ============================================
-DROP FUNCTION IF EXISTS update_session_activity();
-DROP FUNCTION IF EXISTS aggregate_heatmap();
-DROP FUNCTION IF EXISTS update_session_stats();
+DROP FUNCTION IF EXISTS update_session_activity() CASCADE;
+DROP FUNCTION IF EXISTS aggregate_heatmap() CASCADE;
+DROP FUNCTION IF EXISTS update_session_stats() CASCADE;
 
 -- ============================================
 -- STEP 4: DROP OLD TABLES (if they exist)
 -- ============================================
+-- Drop new tracking tables
 DROP TABLE IF EXISTS funnel_progressions CASCADE;
 DROP TABLE IF EXISTS conversion_events CASCADE;
 DROP TABLE IF EXISTS heatmap_data CASCADE;
 DROP TABLE IF EXISTS tracking_events CASCADE;
 DROP TABLE IF EXISTS tracking_sessions CASCADE;
+
+-- Drop old funnel tracking tables (from previous implementation)
+DROP TABLE IF EXISTS funnel_tracking_events CASCADE;
+DROP TABLE IF EXISTS funnel_tracking_sessions CASCADE;
+DROP TABLE IF EXISTS landing_tracking_sessions CASCADE;
+DROP TABLE IF EXISTS landing_tracking_events CASCADE;
 
 -- ============================================
 -- STEP 5: CREATE TRACKING SESSIONS TABLE
