@@ -21,11 +21,7 @@ CREATE TABLE IF NOT EXISTS funnel_tracking_sessions (
   language VARCHAR(10),
   started_at TIMESTAMP DEFAULT NOW(),
   last_activity_at TIMESTAMP DEFAULT NOW(),
-  completed BOOLEAN DEFAULT FALSE, -- TRUE se l'utente ha completato l'intero funnel
-
-  INDEX idx_funnel_session (funnel_id, session_id),
-  INDEX idx_session_id (session_id),
-  INDEX idx_started_at (started_at)
+  completed BOOLEAN DEFAULT FALSE -- TRUE se l'utente ha completato l'intero funnel
 );
 
 -- ============================================
@@ -42,12 +38,7 @@ CREATE TABLE IF NOT EXISTS funnel_tracking_events (
   url TEXT, -- URL della pagina visitata
   timestamp BIGINT NOT NULL, -- Timestamp millisecondi del client
   time_on_step INTEGER, -- Tempo trascorso su questo step (secondi) - NULL se è l'ultimo
-  created_at TIMESTAMP DEFAULT NOW(),
-
-  INDEX idx_funnel_events (funnel_id, session_id),
-  INDEX idx_step_events (step_id),
-  INDEX idx_created_at (created_at),
-  INDEX idx_timestamp (timestamp)
+  created_at TIMESTAMP DEFAULT NOW()
 );
 
 -- ============================================
@@ -73,9 +64,31 @@ CREATE TABLE IF NOT EXISTS funnel_step_stats (
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
 
-  UNIQUE (funnel_id, step_id, date),
-  INDEX idx_funnel_step_date (funnel_id, step_id, date)
+  UNIQUE (funnel_id, step_id, date)
 );
+
+-- ============================================
+-- INDEXES FOR PERFORMANCE
+-- ============================================
+
+-- Indexes for funnel_tracking_sessions
+CREATE INDEX IF NOT EXISTS idx_fts_funnel_session ON funnel_tracking_sessions(funnel_id, session_id);
+CREATE INDEX IF NOT EXISTS idx_fts_session_id ON funnel_tracking_sessions(session_id);
+CREATE INDEX IF NOT EXISTS idx_fts_started_at ON funnel_tracking_sessions(started_at);
+CREATE INDEX IF NOT EXISTS idx_fts_funnel_id ON funnel_tracking_sessions(funnel_id);
+
+-- Indexes for funnel_tracking_events
+CREATE INDEX IF NOT EXISTS idx_fte_funnel_events ON funnel_tracking_events(funnel_id, session_id);
+CREATE INDEX IF NOT EXISTS idx_fte_step_id ON funnel_tracking_events(step_id);
+CREATE INDEX IF NOT EXISTS idx_fte_created_at ON funnel_tracking_events(created_at);
+CREATE INDEX IF NOT EXISTS idx_fte_timestamp ON funnel_tracking_events(timestamp);
+CREATE INDEX IF NOT EXISTS idx_fte_funnel_id ON funnel_tracking_events(funnel_id);
+CREATE INDEX IF NOT EXISTS idx_fte_session_id ON funnel_tracking_events(session_id);
+
+-- Indexes for funnel_step_stats
+CREATE INDEX IF NOT EXISTS idx_fss_funnel_step_date ON funnel_step_stats(funnel_id, step_id, date);
+CREATE INDEX IF NOT EXISTS idx_fss_funnel_id ON funnel_step_stats(funnel_id);
+CREATE INDEX IF NOT EXISTS idx_fss_date ON funnel_step_stats(date);
 
 -- ============================================
 -- FUNCTIONS
