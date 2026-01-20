@@ -237,46 +237,18 @@ export async function fetchFunnel(funnelId: string): Promise<ConversionFunnel | 
     console.log('🔧 FETCH FUNNEL - Converted connections (node IDs):', connections);
     console.log('🔧 FETCH FUNNEL - Number of converted connections:', connections.length);
 
-    // Fetch LIVE stats from tracking_events
-    let liveConversionRate = Number(funnelData.conversion_rate);
-    const stepsWithLiveData = (stepsData || []).map((step) => ({
-      name: step.name,
-      visitors: step.visitors,
-      dropoff: Number(step.dropoff),
-      url: step.url || undefined,
-      x: step.position_x,
-      y: step.position_y,
-    }));
-
-    try {
-      const liveStatsResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || ''}/api/funnel-stats/live?funnelId=${funnelId}`);
-      if (liveStatsResponse.ok) {
-        const liveData = await liveStatsResponse.json();
-        if (liveData.success && liveData.liveStats) {
-          console.log('📊 Using LIVE stats from tracking_events');
-          // Update conversion rate
-          liveConversionRate = liveData.conversionRate;
-
-          // Update step visitors and dropoff with live data
-          liveData.liveStats.forEach((liveStat: any) => {
-            const stepIndex = stepsWithLiveData.findIndex(s => s.name === liveStat.stepName);
-            if (stepIndex !== -1) {
-              stepsWithLiveData[stepIndex].visitors = liveStat.visitors;
-              stepsWithLiveData[stepIndex].dropoff = liveStat.dropoff;
-            }
-          });
-        }
-      }
-    } catch (liveError) {
-      console.warn('⚠️ Could not fetch live stats, using database values:', liveError);
-      // Continue with database values if live stats fail
-    }
-
     return {
       id: funnelData.id,
       name: funnelData.name,
-      conversionRate: liveConversionRate,
-      steps: stepsWithLiveData,
+      conversionRate: Number(funnelData.conversion_rate),
+      steps: (stepsData || []).map((step) => ({
+        name: step.name,
+        visitors: step.visitors,
+        dropoff: Number(step.dropoff),
+        url: step.url || undefined,
+        x: step.position_x,
+        y: step.position_y,
+      })),
       connections: connections.length > 0 ? connections : undefined,
     };
   } catch (error) {

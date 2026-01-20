@@ -111,6 +111,31 @@ export default function FunnelDetailPage() {
       console.warn('🔄🔄🔄 PAGE [ID] - Funnel data loaded:', funnelData);
       console.warn('🔄🔄🔄 PAGE [ID] - Connections in loaded data:', funnelData?.connections);
       console.warn('🔄🔄🔄 PAGE [ID] - Number of connections:', funnelData?.connections?.length || 0);
+
+      // Fetch LIVE stats from tracking (client-side)
+      if (funnelData) {
+        try {
+          const liveStatsResponse = await fetch(`/api/funnel-stats/live?funnelId=${funnelId}`);
+          if (liveStatsResponse.ok) {
+            const liveData = await liveStatsResponse.json();
+            if (liveData.success && liveData.liveStats) {
+              console.log('📊 Updating with LIVE stats from tracking_events');
+              // Update funnel data with live stats
+              funnelData.conversionRate = liveData.conversionRate;
+              liveData.liveStats.forEach((liveStat: any) => {
+                const stepIndex = funnelData.steps.findIndex((s: any) => s.name === liveStat.stepName);
+                if (stepIndex !== -1) {
+                  funnelData.steps[stepIndex].visitors = liveStat.visitors;
+                  funnelData.steps[stepIndex].dropoff = liveStat.dropoff;
+                }
+              });
+            }
+          }
+        } catch (liveError) {
+          console.warn('⚠️ Could not fetch live stats:', liveError);
+        }
+      }
+
       setFunnel(funnelData);
       setIsLoading(false);
     };
