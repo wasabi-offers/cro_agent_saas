@@ -464,7 +464,9 @@ export function getTrackingScriptTag(options: {
   funnelStepName?: string;
   enableHeatmap?: boolean;
 } = {}): string {
-  const apiEndpoint = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/track`;
+  // MUST use absolute URL for cross-domain tracking
+  // In production, NEXT_PUBLIC_APP_URL should be set to https://cro-agent-saas.vercel.app
+  const apiEndpoint = `${process.env.NEXT_PUBLIC_APP_URL || 'https://cro-agent-saas.vercel.app'}/api/track`;
 
   const script = generateAdvancedTrackingScript({
     apiEndpoint,

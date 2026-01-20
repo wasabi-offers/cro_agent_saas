@@ -21,7 +21,14 @@ export async function POST(req: NextRequest) {
     if (!events || !Array.isArray(events) || events.length === 0) {
       return NextResponse.json(
         { error: "Invalid request: events array required" },
-        { status: 400 }
+        {
+          status: 400,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type",
+          }
+        }
       );
     }
 
@@ -138,11 +145,20 @@ export async function POST(req: NextRequest) {
 
     console.log(`✅ Tracked ${events.length} events for ${sessionIds.size} session(s)`);
 
-    return NextResponse.json({
-      success: true,
-      eventsProcessed: events.length,
-      sessions: Array.from(sessionIds)
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        eventsProcessed: events.length,
+        sessions: Array.from(sessionIds)
+      },
+      {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
+        }
+      }
+    );
 
   } catch (error: any) {
     console.error("❌ Tracking Error:", error);
@@ -151,7 +167,14 @@ export async function POST(req: NextRequest) {
         error: "Failed to track events",
         details: error.message,
       },
-      { status: 500 }
+      {
+        status: 500,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
+        }
+      }
     );
   }
 }
