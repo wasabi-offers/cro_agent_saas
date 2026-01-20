@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, CheckCircle2, Code, RefreshCw, ExternalLink, Zap } from "lucide-react";
+import { Copy, CheckCircle2, Code, ExternalLink, Zap } from "lucide-react";
 import { getTrackingScriptTag } from "@/lib/advanced-tracking-script";
 
 interface TrackingSetupProps {
@@ -12,8 +12,6 @@ interface TrackingSetupProps {
 
 export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingSetupProps) {
   const [copied, setCopied] = useState<string | null>(null);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [updateMessage, setUpdateMessage] = useState<string | null>(null);
 
   // Generate tracking scripts for each step
   const trackingScripts = steps.map((step, index) => ({
@@ -30,32 +28,6 @@ export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingS
     navigator.clipboard.writeText(script);
     setCopied(stepName);
     setTimeout(() => setCopied(null), 2000);
-  };
-
-  const handleUpdateStats = async () => {
-    setIsUpdating(true);
-    setUpdateMessage(null);
-
-    try {
-      const response = await fetch('/api/funnel-stats/calculate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ funnelId }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setUpdateMessage(`✅ Aggiornato! ${data.steps.map((s: any) => `${s.stepName}: ${s.visitors} visite`).join(', ')}`);
-        setTimeout(() => window.location.reload(), 2000);
-      } else {
-        setUpdateMessage(`❌ ${data.error || 'Errore'}`);
-      }
-    } catch (error) {
-      setUpdateMessage('❌ Errore di rete');
-    } finally {
-      setIsUpdating(false);
-    }
   };
 
   return (
@@ -136,34 +108,19 @@ export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingS
         ))}
       </div>
 
-      {/* Update Stats */}
+      {/* Live Stats Info */}
       <div className="bg-gradient-to-br from-[#00d4aa]/10 to-[#7c5cff]/10 border border-[#00d4aa]/20 rounded-2xl p-6">
         <div className="flex items-start gap-4">
           <div className="w-10 h-10 bg-[#00d4aa] rounded-xl flex items-center justify-center flex-shrink-0">
-            <RefreshCw className="w-5 h-5 text-white" />
+            <Zap className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1">
             <h4 className="text-[16px] font-semibold text-[#fafafa] mb-2">
-              Aggiorna Statistiche
+              📊 Statistiche in Tempo Reale
             </h4>
-            <p className="text-[13px] text-[#888888] mb-4">
-              Dopo aver installato gli script e ricevuto visite reali, clicca qui per calcolare le statistiche dal tracking
+            <p className="text-[13px] text-[#888888]">
+              Le statistiche del funnel si aggiornano automaticamente in tempo reale. Nessun bisogno di sincronizzare manualmente!
             </p>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleUpdateStats}
-                disabled={isUpdating}
-                className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all disabled:opacity-50"
-              >
-                <RefreshCw className={`w-4 h-4 ${isUpdating ? 'animate-spin' : ''}`} />
-                {isUpdating ? 'Calcolo...' : 'Calcola Statistiche'}
-              </button>
-            </div>
-            {updateMessage && (
-              <div className="mt-3 p-3 bg-[#111111] border border-[#2a2a2a] rounded-lg">
-                <p className="text-[13px] text-[#fafafa]">{updateMessage}</p>
-              </div>
-            )}
           </div>
         </div>
       </div>
