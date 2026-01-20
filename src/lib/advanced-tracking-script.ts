@@ -504,6 +504,15 @@ export function getTrackingScriptTag(options: {
   funnelStepName?: string;
   enableHeatmap?: boolean;
 } = {}): string {
-  // apiEndpoint is now hardcoded in the script itself
-  return generateAdvancedTrackingScript(options);
+  // Generate lightweight loader that loads external script
+  // This avoids CORS issues - script is served from same domain as API
+  const scriptUrl = 'https://cro-agent-saas.vercel.app/cro-tracker.js';
+
+  return `<!-- CRO Agent Tracking -->
+<script>
+window.croFunnelId = ${options.funnelId ? `"${options.funnelId}"` : 'null'};
+window.croFunnelStep = ${options.funnelStepName ? `"${options.funnelStepName}"` : 'null'};
+window.croEnableHeatmap = ${options.enableHeatmap !== false};
+</script>
+<script src="${scriptUrl}" async></script>`;
 }
