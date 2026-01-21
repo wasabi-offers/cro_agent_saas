@@ -37,11 +37,41 @@ export default function HeatmapVisualization({
   height = 800,
 }: HeatmapVisualizationProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const heatmapInstanceRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [heatmapData, setHeatmapData] = useState<Record<string, HeatmapData> | null>(null);
   const [stats, setStats] = useState<any>(null);
   const [showPage, setShowPage] = useState(true);
+  const [contentHeight, setContentHeight] = useState(2000);
+
+  // Detect iframe content height
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    const handleLoad = () => {
+      try {
+        const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document;
+        if (iframeDocument) {
+          const height = Math.max(
+            iframeDocument.body.scrollHeight,
+            iframeDocument.documentElement.scrollHeight,
+            3000 // minimum height
+          );
+          console.log('📏 Detected iframe content height:', height);
+          setContentHeight(height);
+        }
+      } catch (error) {
+        // CORS error - can't access iframe content
+        console.log('⚠️ Cannot detect iframe height (CORS), using default 3000px');
+        setContentHeight(3000);
+      }
+    };
+
+    iframe.addEventListener('load', handleLoad);
+    return () => iframe.removeEventListener('load', handleLoad);
+  }, [pageUrl]);
 
   // Initialize heatmap.js
   useEffect(() => {
@@ -145,15 +175,16 @@ export default function HeatmapVisualization({
       <div className="p-6">
         <div className="relative bg-[#111111] rounded-xl border border-[#2a2a2a] overflow-y-auto overflow-x-hidden" style={{ height: '600px' }}>
           {/* Scrollable content wrapper */}
-          <div className="relative" style={{ minHeight: '600px', height: 'fit-content' }}>
+          <div className="relative" style={{ minHeight: '600px', height: `${contentHeight}px` }}>
             {/* Page Iframe (if enabled and hasURL) */}
             {showPage && pageUrl && (
               <iframe
+                ref={iframeRef}
                 src={pageUrl}
                 className="absolute top-0 left-0 w-full z-0"
                 style={{
                   pointerEvents: 'none',
-                  height: '2000px', // Tall enough to show full page
+                  height: `${contentHeight}px`,
                   minHeight: '100%'
                 }}
                 sandbox="allow-same-origin allow-scripts"
@@ -166,7 +197,7 @@ export default function HeatmapVisualization({
               className="absolute top-0 left-0 w-full z-10"
               style={{
                 pointerEvents: 'none',
-                height: '2000px', // Match iframe height
+                height: `${contentHeight}px`,
                 minHeight: '100%'
               }}
             />
