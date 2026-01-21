@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Header from "@/components/Header";
 import Link from "next/link";
 import {
@@ -26,28 +26,33 @@ export default function FunnelsListPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"name" | "conversion" | "visitors">("conversion");
   const [showBuilder, setShowBuilder] = useState(false);
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setIsLoading(true);
+    console.log('🔄 Loading funnel data...');
     const funnelsData = await fetchFunnels();
     // Enrich with live tracking data
     const enrichedWithTracking = await enrichFunnelsWithLiveData(funnelsData);
     // Enrich with A/B test data
     const enrichedFunnels = await enrichFunnelsWithABTestData(enrichedWithTracking);
     setFunnels(enrichedFunnels);
+    setLastUpdate(new Date());
     setIsLoading(false);
-  };
+    console.log('✅ Funnel data loaded, next refresh in 10s');
+  }, []);
 
   useEffect(() => {
     loadData();
 
-    // Auto-refresh every 30 seconds to keep data live
+    // Auto-refresh every 10 seconds to keep data live
     const intervalId = setInterval(() => {
+      console.log('⏰ Auto-refresh triggered');
       loadData();
-    }, 30000);
+    }, 10000);
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [loadData]);
 
   const handleSaveFunnel = async (funnel: { name: string; steps: any[]; connections?: any[] }) => {
     const newFunnel = await createFunnel(funnel);
@@ -140,6 +145,14 @@ export default function FunnelsListPage() {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            {lastUpdate && (
+              <div className="flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] border border-white/10 rounded-xl">
+                <div className="w-2 h-2 rounded-full bg-[#00d4aa] animate-pulse" />
+                <span className="text-[13px] text-[#888888]">
+                  Updated {lastUpdate.toLocaleTimeString()}
+                </span>
+              </div>
+            )}
             <button
               onClick={loadData}
               disabled={isLoading}
