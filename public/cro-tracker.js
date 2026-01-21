@@ -174,6 +174,8 @@
       viewportWidth: deviceInfo.viewportWidth,
       viewportHeight: deviceInfo.viewportHeight,
       language: deviceInfo.language,
+      // Add funnel_id to ALL events (not just funnel_step)
+      funnel_id: FUNNEL_ID,
     };
 
     // Manually copy nested objects to avoid spread issues
