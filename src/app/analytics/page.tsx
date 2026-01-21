@@ -32,7 +32,7 @@ export default function AnalyticsPage() {
       setError(null);
       
       try {
-        const response = await fetch('/api/cro-analysis');
+        const response = await fetch('/api/analytics-data');
         const result = await response.json();
         
         if (result.success) {
