@@ -626,6 +626,14 @@ export async function enrichFunnelsWithLiveData(funnels: ConversionFunnel[]): Pr
       stepStats.get(event.funnel_step_name)!.add(event.session_id);
     });
 
+    console.log('🔍 Funnel stats collected:');
+    funnelStats.forEach((stepStats, funnelId) => {
+      console.log(`  Funnel ${funnelId}:`);
+      stepStats.forEach((sessions, stepName) => {
+        console.log(`    "${stepName}": ${sessions.size} unique sessions`);
+      });
+    });
+
     // Update funnels with live data
     const enrichedFunnels = funnels.map(funnel => {
       const stepStats = funnelStats.get(funnel.id);
@@ -637,11 +645,14 @@ export async function enrichFunnelsWithLiveData(funnels: ConversionFunnel[]): Pr
       }
 
       console.log(`✅ Processing funnel: ${funnel.name} (${funnel.id})`);
+      console.log(`   DB step names:`, funnel.steps.map(s => s.name));
+      console.log(`   Tracking step names:`, Array.from(stepStats.keys()));
       console.log(`   Step stats:`, Array.from(stepStats.entries()).map(([name, sessions]) => `${name}: ${sessions.size} visitors`));
 
       // Update each step with live visitor count
       const updatedSteps = funnel.steps.map((step, index) => {
         const visitors = stepStats.get(step.name)?.size || 0;
+        console.log(`   🔍 Looking for DB step "${step.name}" in tracking data: ${visitors > 0 ? 'FOUND ✅' : 'NOT FOUND ❌'} (${visitors} visitors)`);
 
         // Calculate dropoff from previous step
         let dropoff = 0;
