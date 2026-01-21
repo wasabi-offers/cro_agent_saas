@@ -13,8 +13,8 @@ function getSupabaseClient() {
   return createClient(supabaseUrl, supabaseKey);
 }
 
-// Get screenshot API token from database
-async function getScreenshotApiToken(): Promise<string> {
+// Get screenshot API access key from database
+async function getScreenshotApiAccessKey(): Promise<string> {
   const supabase = getSupabaseClient();
 
   if (!supabase) {
@@ -26,17 +26,17 @@ async function getScreenshotApiToken(): Promise<string> {
     const { data, error } = await supabase
       .from('app_settings')
       .select('setting_value')
-      .eq('setting_key', 'screenshot_api_token')
+      .eq('setting_key', 'screenshot_api_access_key')
       .single();
 
     if (error || !data) {
-      console.warn('Failed to fetch token from database, using env token');
+      console.warn('Failed to fetch access key from database, using env token');
       return process.env.SCREENSHOT_API_TOKEN || 'demo';
     }
 
     return data.setting_value;
   } catch (error) {
-    console.error('Error fetching screenshot token:', error);
+    console.error('Error fetching screenshot access key:', error);
     return process.env.SCREENSHOT_API_TOKEN || 'demo';
   }
 }
@@ -53,14 +53,14 @@ export async function GET(request: Request) {
       );
     }
 
-    // Get token from database
-    const token = await getScreenshotApiToken();
+    // Get access key from database
+    const accessKey = await getScreenshotApiAccessKey();
 
     // Use ScreenshotAPI (free tier: 100 screenshots/month)
     // Alternative: ApiFlash, Urlbox, Screenshotone
     const screenshotApiUrl = `https://shot.screenshotapi.net/screenshot`;
     const params = new URLSearchParams({
-      token: token,
+      token: accessKey,
       url: url,
       output: 'image',
       file_type: 'png',
@@ -72,7 +72,7 @@ export async function GET(request: Request) {
     });
 
     console.log('📸 Capturing screenshot for:', url);
-    console.log('🔑 Using token:', token.substring(0, 10) + '...');
+    console.log('🔑 Using access key:', accessKey.substring(0, 10) + '...');
 
     const response = await fetch(`${screenshotApiUrl}?${params.toString()}`);
 

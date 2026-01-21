@@ -13,7 +13,9 @@ ALTER TABLE app_settings ENABLE ROW LEVEL SECURITY;
 -- RLS Policy (allow all for now)
 CREATE POLICY "Allow all access to app_settings" ON app_settings FOR ALL USING (true);
 
--- Insert default screenshot API token (demo)
+-- Insert default screenshot API keys (demo)
 INSERT INTO app_settings (setting_key, setting_value)
-VALUES ('screenshot_api_token', 'demo')
+VALUES
+  ('screenshot_api_access_key', 'demo'),
+  ('screenshot_api_secret_key', 'demo')
 ON CONFLICT (setting_key) DO NOTHING;
