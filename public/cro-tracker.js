@@ -12,9 +12,34 @@
   const SUPABASE_URL = "https://dohrkonencbwvvmklzuo.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvaHJrb25lbmNid3Z2bWtsenVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2OTAwNTUsImV4cCI6MjA4MzI2NjA1NX0.k2N-H_p-a4FHaOvq7V4u_uXkx45XIY-LZt0RoIJpjmU";
   const API_ENDPOINT = SUPABASE_URL + "/functions/v1/track-event";
-  const FUNNEL_ID = window.croFunnelId || window.funnelId || null;
-  const FUNNEL_STEP = window.croFunnelStep || null;
-  const ENABLE_HEATMAP = window.croEnableHeatmap !== false;
+
+  // Get funnel ID from window.funnelId or sessionStorage (for multi-step funnels)
+  let FUNNEL_ID = window.funnelId || null;
+  if (!FUNNEL_ID) {
+    try {
+      FUNNEL_ID = sessionStorage.getItem('funnel_id');
+    } catch (e) {}
+  }
+
+  if (!FUNNEL_ID) {
+    console.error('[Funnel Tracker] ❌ INITIALIZATION FAILED - funnel_id NOT FOUND');
+    console.error('[Funnel Tracker] Add funnel_id via: <script>window.funnelId="xxx";</script>');
+    return;
+  }
+
+  if (FUNNEL_ID) {
+    try {
+      sessionStorage.setItem('funnel_id', FUNNEL_ID);
+    } catch (e) {}
+  }
+
+  // Try to get step from URL parameter or page title
+  function getStepName() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('step') || document.title || 'Page ' + window.location.pathname;
+  }
+  const FUNNEL_STEP = getStepName();
+  const ENABLE_HEATMAP = true;
   const BATCH_SIZE = 20;
   const FLUSH_INTERVAL = 5000;
   const SESSION_STORAGE_KEY = 'cro_session_id';
