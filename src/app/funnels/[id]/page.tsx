@@ -322,6 +322,38 @@ export default function FunnelDetailPage() {
 
       const data = await response.json();
       setAbTestSuggestions(data.tests);
+
+      // Save proposals to database automatically
+      if (data.tests && data.tests.length > 0) {
+        try {
+          const saveResponse = await fetch('/api/ab-proposals', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              funnelId: funnelId,
+              proposals: data.tests.map((test: any) => ({
+                category: test.category || 'optimization',
+                element: test.element,
+                current_value: test.current,
+                proposed_value: test.proposed,
+                expected_impact: test.impact,
+                reasoning: test.reasoning,
+              })),
+            }),
+          });
+
+          if (saveResponse.ok) {
+            console.log('✅ Proposals saved to database');
+            // Reload proposals list
+            loadSavedProposals();
+          } else {
+            console.warn('⚠️ Failed to save proposals to database');
+          }
+        } catch (saveError) {
+          console.error('Error saving proposals:', saveError);
+          // Don't show error to user - proposals are still visible in UI
+        }
+      }
     } catch (err: any) {
       console.error('A/B test generation error:', err);
       setAbTestError(err.message || "An error occurred while generating tests. Please try again.");
