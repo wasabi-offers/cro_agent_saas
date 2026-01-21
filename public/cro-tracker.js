@@ -9,8 +9,10 @@
   try {
 
   // Configuration from global window variables
-  const API_ENDPOINT = "https://cro-agent-saas.vercel.app/api/track";
-  const FUNNEL_ID = window.croFunnelId || null;
+  const SUPABASE_URL = "https://smwtkyvnmyetlektphyy.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtd3RreXZubXlldGxla3RwaHl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYyNTQyOTQsImV4cCI6MjA1MTgzMDI5NH0.wVvPcRuNvhfx9IMQE-fFNmtdlmHlmPaNxphtE3bJZOA";
+  const API_ENDPOINT = SUPABASE_URL + "/functions/v1/track-event";
+  const FUNNEL_ID = window.croFunnelId || window.funnelId || null;
   const FUNNEL_STEP = window.croFunnelStep || null;
   const ENABLE_HEATMAP = window.croEnableHeatmap !== false;
   const BATCH_SIZE = 20;
@@ -147,7 +149,11 @@
     try {
       const response = await fetch(API_ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+        },
         body: payload,
         keepalive: true
       });
@@ -155,18 +161,10 @@
       if (!response.ok) {
         throw new Error('HTTP ' + response.status);
       }
+      console.log('[CRO Tracking] ✅ Sent', eventsToSend.length, 'events');
     } catch (error) {
-      try {
-        const blob = new Blob([payload], { type: 'application/json' });
-        if (navigator.sendBeacon && navigator.sendBeacon(API_ENDPOINT, blob)) {
-          console.log('[CRO Tracking] Sent via sendBeacon');
-        } else {
-          throw new Error('sendBeacon failed');
-        }
-      } catch (beaconError) {
-        console.error('[CRO Tracking] Send failed:', error);
-        eventQueue = [...eventsToSend, ...eventQueue];
-      }
+      console.error('[CRO Tracking] ❌ Send failed:', error);
+      eventQueue = [...eventsToSend, ...eventQueue];
     }
   }
 
@@ -336,8 +334,7 @@
   // Flush on page unload
   window.addEventListener('beforeunload', function() {
     if (eventQueue.length > 0) {
-      const blob = new Blob([JSON.stringify({ events: eventQueue })], { type: 'application/json' });
-      navigator.sendBeacon(API_ENDPOINT, blob);
+      flushEvents();
     }
   });
 
@@ -349,6 +346,9 @@
   });
 
   console.log('[CRO Tracking] Initialized - Session:', sessionId);
+  if (FUNNEL_ID && FUNNEL_STEP) {
+    console.log('[Funnel Tracker] Started - Funnel:', FUNNEL_ID, 'Step:', FUNNEL_STEP);
+  }
 
   } catch (globalError) {
     console.error('[CRO Tracking] Failed:', globalError);
