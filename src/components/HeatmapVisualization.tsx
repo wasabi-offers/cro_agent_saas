@@ -154,7 +154,7 @@ export default function HeatmapVisualization({
 
     // Assume original coordinates were captured on standard viewport (1920x1080)
     const ORIGINAL_WIDTH = 1920;
-    const ORIGINAL_HEIGHT = 1080;
+    const ORIGINAL_HEIGHT = 1980;
 
     // Scale coordinates to match current container size
     const scaleX = containerWidth / ORIGINAL_WIDTH;
