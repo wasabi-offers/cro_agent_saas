@@ -6,7 +6,8 @@ import { Save, Key, CheckCircle2, AlertCircle, ExternalLink } from "lucide-react
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState({
-    screenshot_api_token: '',
+    screenshot_api_access_key: '',
+    screenshot_api_secret_key: '',
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -41,16 +42,28 @@ export default function SettingsPage() {
     setSaveMessage('');
 
     try {
-      const response = await fetch('/api/settings', {
+      // Save both keys
+      const saveAccessKey = fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          key: 'screenshot_api_token',
-          value: settings.screenshot_api_token,
+          key: 'screenshot_api_access_key',
+          value: settings.screenshot_api_access_key,
         }),
       });
 
-      if (response.ok) {
+      const saveSecretKey = fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          key: 'screenshot_api_secret_key',
+          value: settings.screenshot_api_secret_key,
+        }),
+      });
+
+      const [accessKeyResponse, secretKeyResponse] = await Promise.all([saveAccessKey, saveSecretKey]);
+
+      if (accessKeyResponse.ok && secretKeyResponse.ok) {
         setSaveStatus('success');
         setSaveMessage('✅ Settings saved successfully!');
       } else {
@@ -111,14 +124,14 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* Screenshot API Token */}
+          {/* Screenshot API Keys */}
           <div className="space-y-4">
             <div>
               <label className="block text-[14px] font-medium text-[#fafafa] mb-2">
-                Screenshot API Token
+                Screenshot API - Access Key
               </label>
               <p className="text-[13px] text-[#888888] mb-3">
-                Required for heatmap visualization. Get your free token (100 screenshots/month) at{' '}
+                Required for heatmap visualization. Get your free API keys (100 screenshots/month) at{' '}
                 <a
                   href="https://screenshotapi.net/"
                   target="_blank"
@@ -131,9 +144,22 @@ export default function SettingsPage() {
               </p>
               <input
                 type="text"
-                value={settings.screenshot_api_token}
-                onChange={(e) => setSettings({ ...settings, screenshot_api_token: e.target.value })}
-                placeholder="Enter your Screenshot API token"
+                value={settings.screenshot_api_access_key}
+                onChange={(e) => setSettings({ ...settings, screenshot_api_access_key: e.target.value })}
+                placeholder="2E6KAaX6dDYr (example)"
+                className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#fafafa] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all font-mono"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[14px] font-medium text-[#fafafa] mb-2">
+                Screenshot API - Secret Key
+              </label>
+              <input
+                type="password"
+                value={settings.screenshot_api_secret_key}
+                onChange={(e) => setSettings({ ...settings, screenshot_api_secret_key: e.target.value })}
+                placeholder="Nnc5BoaQXEB8 (example)"
                 className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#fafafa] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all font-mono"
               />
             </div>

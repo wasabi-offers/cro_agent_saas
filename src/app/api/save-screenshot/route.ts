@@ -18,7 +18,6 @@ async function getScreenshotApiAccessKey(): Promise<string> {
   const supabase = getSupabaseClient();
 
   if (!supabase) {
-    console.warn('Supabase not configured, using env token');
     return process.env.SCREENSHOT_API_TOKEN || 'demo';
   }
 
@@ -30,34 +29,40 @@ async function getScreenshotApiAccessKey(): Promise<string> {
       .single();
 
     if (error || !data) {
-      console.warn('Failed to fetch access key from database, using env token');
       return process.env.SCREENSHOT_API_TOKEN || 'demo';
     }
 
     return data.setting_value;
   } catch (error) {
-    console.error('Error fetching screenshot access key:', error);
     return process.env.SCREENSHOT_API_TOKEN || 'demo';
   }
 }
 
-export async function GET(request: Request) {
+export async function POST(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const url = searchParams.get("url");
+    const body = await request.json();
+    const { funnelId, stepId, url } = body;
 
-    if (!url) {
+    if (!funnelId || !stepId || !url) {
       return NextResponse.json(
-        { success: false, error: "url is required" },
+        { success: false, error: "funnelId, stepId, and url are required" },
         { status: 400 }
       );
     }
 
-    // Get access key from database
+    const supabase = getSupabaseClient();
+
+    if (!supabase) {
+      return NextResponse.json(
+        { success: false, error: "Database not configured" },
+        { status: 500 }
+      );
+    }
+
+    // Get access key
     const accessKey = await getScreenshotApiAccessKey();
 
-    // Use ScreenshotAPI (free tier: 100 screenshots/month)
-    // Alternative: ApiFlash, Urlbox, Screenshotone
+    // Capture screenshot
     const screenshotApiUrl = `https://shot.screenshotapi.net/screenshot`;
     const params = new URLSearchParams({
       token: accessKey,
@@ -71,8 +76,7 @@ export async function GET(request: Request) {
       retina: 'true',
     });
 
-    console.log('📸 Capturing screenshot for:', url);
-    console.log('🔑 Using access key:', accessKey.substring(0, 10) + '...');
+    console.log('📸 Capturing screenshot for step:', stepId, url);
 
     const response = await fetch(`${screenshotApiUrl}?${params.toString()}`);
 
@@ -81,19 +85,57 @@ export async function GET(request: Request) {
     }
 
     const imageBuffer = await response.arrayBuffer();
-    const imageBase64 = Buffer.from(imageBuffer).toString('base64');
+    const imageBlob = new Blob([imageBuffer], { type: 'image/png' });
+
+    // Upload to Supabase Storage
+    const fileName = `funnel_${funnelId}/step_${stepId}_${Date.now()}.png`;
+
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('screenshots')
+      .upload(fileName, imageBlob, {
+        contentType: 'image/png',
+        upsert: true,
+      });
+
+    if (uploadError) {
+      console.error('Upload error:', uploadError);
+      throw new Error(`Failed to upload screenshot: ${uploadError.message}`);
+    }
+
+    // Get public URL
+    const { data: publicUrlData } = supabase.storage
+      .from('screenshots')
+      .getPublicUrl(fileName);
+
+    const screenshotUrl = publicUrlData.publicUrl;
+
+    // Update funnel_steps table
+    const { error: updateError } = await supabase
+      .from('funnel_steps')
+      .update({
+        screenshot_url: screenshotUrl,
+        screenshot_captured_at: new Date().toISOString(),
+      })
+      .eq('id', stepId);
+
+    if (updateError) {
+      console.error('Update error:', updateError);
+      throw new Error(`Failed to update step: ${updateError.message}`);
+    }
+
+    console.log('✅ Screenshot saved:', screenshotUrl);
 
     return NextResponse.json({
       success: true,
-      image: `data:image/png;base64,${imageBase64}`,
-      url: url,
+      screenshotUrl,
+      stepId,
     });
   } catch (error) {
-    console.error("Screenshot capture error:", error);
+    console.error("Save screenshot error:", error);
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to capture screenshot",
+        error: error instanceof Error ? error.message : "Failed to save screenshot",
       },
       { status: 500 }
     );
