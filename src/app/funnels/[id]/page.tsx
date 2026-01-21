@@ -90,6 +90,9 @@ export default function FunnelDetailPage() {
   const [isGeneratingTests, setIsGeneratingTests] = useState(false);
   const [abTestSuggestions, setAbTestSuggestions] = useState<any[]>([]);
   const [abTestError, setAbTestError] = useState("");
+  const [savedProposals, setSavedProposals] = useState<any[]>([]);
+  const [proposalFilter, setProposalFilter] = useState<"all" | "pending" | "active" | "completed" | "rejected">("all");
+  const [isLoadingProposals, setIsLoadingProposals] = useState(false);
 
   // Date range state
   const getDefaultDateRange = () => {
@@ -143,6 +146,46 @@ export default function FunnelDetailPage() {
 
     loadData();
   }, [funnelId, dateRange, deviceFilter]);
+
+  // Load saved A/B test proposals from database
+  const loadSavedProposals = async () => {
+    setIsLoadingProposals(true);
+    try {
+      const response = await fetch(`/api/ab-proposals?funnelId=${funnelId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setSavedProposals(data.proposals || []);
+      }
+    } catch (error) {
+      console.error('Error loading proposals:', error);
+    } finally {
+      setIsLoadingProposals(false);
+    }
+  };
+
+  // Update proposal status
+  const updateProposalStatus = async (proposalId: string, newStatus: string) => {
+    try {
+      const response = await fetch(`/api/ab-proposals/${proposalId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (response.ok) {
+        // Reload proposals
+        loadSavedProposals();
+      }
+    } catch (error) {
+      console.error('Error updating proposal:', error);
+    }
+  };
+
+  // Load proposals when switching to A/B Tests tab
+  useEffect(() => {
+    if (activeTab === 'abtests') {
+      loadSavedProposals();
+    }
+  }, [activeTab, funnelId]);
 
   const toggleFilter = (filterId: string) => {
     if (filterId === "all") {
@@ -1082,6 +1125,139 @@ export default function FunnelDetailPage() {
 
         {activeTab === "abtests" && (
           <div className="space-y-6">
+            {/* Saved A/B Test Proposals */}
+            {savedProposals.length > 0 && (
+              <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-xl flex items-center justify-center">
+                      <List className="w-5 h-5 text-[#00d4aa]" />
+                    </div>
+                    <div>
+                      <h2 className="text-[20px] font-semibold text-[#fafafa]">
+                        A/B Test Proposals
+                      </h2>
+                      <p className="text-[14px] text-[#888888] mt-1">
+                        {savedProposals.length} proposal{savedProposals.length > 1 ? 's' : ''} tracked
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Filter Tabs */}
+                  <div className="flex items-center gap-2">
+                    {['all', 'pending', 'active', 'completed', 'rejected'].map((filter) => (
+                      <button
+                        key={filter}
+                        onClick={() => setProposalFilter(filter as any)}
+                        className={`px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${
+                          proposalFilter === filter
+                            ? 'bg-[#7c5cff] text-white'
+                            : 'bg-[#111111] text-[#666666] hover:text-[#888888]'
+                        }`}
+                      >
+                        {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Proposals List */}
+                <div className="space-y-4">
+                  {savedProposals
+                    .filter((p) => proposalFilter === 'all' || p.status === proposalFilter)
+                    .map((proposal) => {
+                      const statusColors = {
+                        pending: { bg: 'bg-[#f59e0b]/10', border: 'border-[#f59e0b]/30', text: 'text-[#f59e0b]' },
+                        active: { bg: 'bg-[#00d4aa]/10', border: 'border-[#00d4aa]/30', text: 'text-[#00d4aa]' },
+                        completed: { bg: 'bg-[#7c5cff]/10', border: 'border-[#7c5cff]/30', text: 'text-[#7c5cff]' },
+                        rejected: { bg: 'bg-[#666666]/10', border: 'border-[#666666]/30', text: 'text-[#666666]' },
+                      };
+                      const colors = statusColors[proposal.status as keyof typeof statusColors];
+
+                      return (
+                        <div
+                          key={proposal.id}
+                          className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-6 hover:border-[#7c5cff]/30 transition-all"
+                        >
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-2">
+                                <h3 className="text-[16px] font-semibold text-[#fafafa]">
+                                  {proposal.element}
+                                </h3>
+                                <span className={`px-3 py-1 rounded-full text-[11px] font-bold ${colors.bg} ${colors.border} ${colors.text} border`}>
+                                  {proposal.category}
+                                </span>
+                                <span className={`px-3 py-1 rounded-full text-[11px] font-bold ${colors.bg} ${colors.border} ${colors.text} border`}>
+                                  {proposal.status}
+                                </span>
+                              </div>
+                              <p className="text-[13px] text-[#888888] mb-3">
+                                {proposal.reasoning}
+                              </p>
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <p className="text-[11px] text-[#666666] mb-1">Current</p>
+                                  <p className="text-[14px] text-[#fafafa] font-mono bg-[#0a0a0a] px-3 py-2 rounded">
+                                    {proposal.current_value}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-[11px] text-[#666666] mb-1">Proposed</p>
+                                  <p className="text-[14px] text-[#00d4aa] font-mono bg-[#0a0a0a] px-3 py-2 rounded">
+                                    {proposal.proposed_value}
+                                  </p>
+                                </div>
+                              </div>
+                              {proposal.expected_impact && (
+                                <div className="mt-3 flex items-center gap-2 text-[13px] text-[#00d4aa]">
+                                  <TrendingUp className="w-4 h-4" />
+                                  Expected: {proposal.expected_impact}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Status Actions */}
+                            <div className="ml-4 flex flex-col gap-2">
+                              {proposal.status === 'pending' && (
+                                <>
+                                  <button
+                                    onClick={() => updateProposalStatus(proposal.id, 'active')}
+                                    className="px-4 py-2 bg-[#00d4aa]/10 border border-[#00d4aa]/30 text-[#00d4aa] rounded-lg text-[13px] font-medium hover:bg-[#00d4aa]/20 transition-all"
+                                  >
+                                    Start Test
+                                  </button>
+                                  <button
+                                    onClick={() => updateProposalStatus(proposal.id, 'rejected')}
+                                    className="px-4 py-2 bg-[#666666]/10 border border-[#666666]/30 text-[#666666] rounded-lg text-[13px] font-medium hover:bg-[#666666]/20 transition-all"
+                                  >
+                                    Reject
+                                  </button>
+                                </>
+                              )}
+                              {proposal.status === 'active' && (
+                                <button
+                                  onClick={() => updateProposalStatus(proposal.id, 'completed')}
+                                  className="px-4 py-2 bg-[#7c5cff]/10 border border-[#7c5cff]/30 text-[#7c5cff] rounded-lg text-[13px] font-medium hover:bg-[#7c5cff]/20 transition-all"
+                                >
+                                  Complete
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+
+                {savedProposals.filter((p) => proposalFilter === 'all' || p.status === proposalFilter).length === 0 && (
+                  <div className="text-center py-8 text-[#666666]">
+                    <p>No {proposalFilter !== 'all' ? proposalFilter : ''} proposals yet</p>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* A/B Test Generator */}
             <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8">
               <div className="flex items-center gap-3 mb-6">
