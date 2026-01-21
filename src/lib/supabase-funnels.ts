@@ -574,19 +574,27 @@ export async function deleteFunnel(funnelId: string): Promise<boolean> {
 
 export async function enrichFunnelsWithLiveData(funnels: ConversionFunnel[]): Promise<ConversionFunnel[]> {
   if (!isSupabaseConfigured() || !supabase || funnels.length === 0) {
+    console.log('⚠️ Supabase not configured or no funnels');
     return funnels;
   }
 
   try {
     // Get all funnel IDs
     const funnelIds = funnels.map(f => f.id);
+    console.log('🔍 Fetching tracking data for funnels:', funnelIds);
 
     // Fetch all tracking events for these funnels
     const { data: events, error } = await supabase
       .from('tracking_events')
-      .select('funnel_id, funnel_step_name, session_id')
+      .select('funnel_id, funnel_step_name, session_id, created_at')
       .in('funnel_id', funnelIds)
       .not('funnel_step_name', 'is', null);
+
+    console.log('📊 Raw tracking events query result:', {
+      eventCount: events?.length || 0,
+      error: error,
+      sample: events?.slice(0, 3)
+    });
 
     if (error) {
       console.error('❌ Error fetching tracking events:', error);
@@ -594,7 +602,7 @@ export async function enrichFunnelsWithLiveData(funnels: ConversionFunnel[]): Pr
     }
 
     if (!events || events.length === 0) {
-      console.log('⚠️ No tracking events found for funnels');
+      console.log('⚠️ No tracking events found for funnels - RETURNING STATIC DATA');
       return funnels;
     }
 
@@ -624,8 +632,12 @@ export async function enrichFunnelsWithLiveData(funnels: ConversionFunnel[]): Pr
 
       if (!stepStats) {
         // No tracking data for this funnel
+        console.log(`⚠️ No tracking data for funnel: ${funnel.name} (${funnel.id})`);
         return funnel;
       }
+
+      console.log(`✅ Processing funnel: ${funnel.name} (${funnel.id})`);
+      console.log(`   Step stats:`, Array.from(stepStats.entries()).map(([name, sessions]) => `${name}: ${sessions.size} visitors`));
 
       // Update each step with live visitor count
       const updatedSteps = funnel.steps.map((step, index) => {
@@ -639,6 +651,8 @@ export async function enrichFunnelsWithLiveData(funnels: ConversionFunnel[]): Pr
             dropoff = ((prevVisitors - visitors) / prevVisitors) * 100;
           }
         }
+
+        console.log(`   Step "${step.name}": ${visitors} visitors, ${dropoff.toFixed(1)}% dropoff`);
 
         return {
           ...step,
@@ -654,6 +668,8 @@ export async function enrichFunnelsWithLiveData(funnels: ConversionFunnel[]): Pr
         ? (lastStepVisitors / firstStepVisitors) * 100
         : 0;
 
+      console.log(`   Conversion rate: ${conversionRate.toFixed(1)}% (${lastStepVisitors}/${firstStepVisitors})`);
+
       return {
         ...funnel,
         steps: updatedSteps,
@@ -661,6 +677,7 @@ export async function enrichFunnelsWithLiveData(funnels: ConversionFunnel[]): Pr
       };
     });
 
+    console.log('✅ Enrichment complete, returning enriched funnels');
     return enrichedFunnels;
   } catch (error) {
     console.error('Unexpected error enriching funnels with live data:', error);
