@@ -673,6 +673,7 @@ export async function enrichFunnelsWithLiveData(funnels: ConversionFunnel[]): Pr
       });
 
       // Calculate conversion rate
+      console.log('🔍 DEBUG updatedSteps:', updatedSteps.map(s => ({ name: s.name, visitors: s.visitors })));
       const firstStepVisitors = updatedSteps[0]?.visitors || 0;
       const lastStepVisitors = updatedSteps[updatedSteps.length - 1]?.visitors || 0;
       const conversionRate = firstStepVisitors > 0
