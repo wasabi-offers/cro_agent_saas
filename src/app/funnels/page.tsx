@@ -17,7 +17,7 @@ import {
   Trash2,
 } from "lucide-react";
 import FunnelBuilder from "@/components/FunnelBuilder";
-import { ConversionFunnel, fetchFunnels, createFunnel, deleteFunnel, enrichFunnelsWithLiveData } from "@/lib/supabase-funnels";
+import { ConversionFunnel, fetchFunnels, createFunnel, deleteFunnel, enrichFunnelsWithLiveData, enrichFunnelsWithABTestData } from "@/lib/supabase-funnels";
 
 export default function FunnelsListPage() {
   const [funnels, setFunnels] = useState<ConversionFunnel[]>([]);
@@ -31,7 +31,9 @@ export default function FunnelsListPage() {
       setIsLoading(true);
       const funnelsData = await fetchFunnels();
       // Enrich with live tracking data
-      const enrichedFunnels = await enrichFunnelsWithLiveData(funnelsData);
+      const enrichedWithTracking = await enrichFunnelsWithLiveData(funnelsData);
+      // Enrich with A/B test data
+      const enrichedFunnels = await enrichFunnelsWithABTestData(enrichedWithTracking);
       setFunnels(enrichedFunnels);
       setIsLoading(false);
     };
@@ -301,6 +303,30 @@ export default function FunnelsListPage() {
                       </p>
                     </div>
                   </div>
+
+                  {/* A/B Tests Status */}
+                  {funnel.abTests && (funnel.abTests.pendingCount > 0 || funnel.abTests.activeCount > 0) && (
+                    <div className="mt-4 pt-4 border-t border-white/5">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {funnel.abTests.pendingCount > 0 && (
+                          <div className="flex items-center gap-2 px-3 py-1.5 bg-[#f59e0b]/10 border border-[#f59e0b]/30 rounded-lg">
+                            <div className="w-2 h-2 rounded-full bg-[#f59e0b] animate-pulse" />
+                            <span className="text-[11px] font-medium text-[#f59e0b]">
+                              {funnel.abTests.pendingCount} Test{funnel.abTests.pendingCount > 1 ? 's' : ''} to Review
+                            </span>
+                          </div>
+                        )}
+                        {funnel.abTests.activeCount > 0 && (
+                          <div className="flex items-center gap-2 px-3 py-1.5 bg-[#00d4aa]/10 border border-[#00d4aa]/30 rounded-lg">
+                            <div className="w-2 h-2 rounded-full bg-[#00d4aa]" />
+                            <span className="text-[11px] font-medium text-[#00d4aa]">
+                              {funnel.abTests.activeCount} Active Test{funnel.abTests.activeCount > 1 ? 's' : ''}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
 
                   {/* View Details Link */}
                   <div className="mt-4 flex items-center justify-end gap-2 text-[13px] text-[#7c5cff] group-hover:gap-3 transition-all">
