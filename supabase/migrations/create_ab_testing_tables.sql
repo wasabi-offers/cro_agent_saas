@@ -1,7 +1,7 @@
 -- Table for tracking A/B test analyses
 CREATE TABLE IF NOT EXISTS funnel_ab_analyses (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  funnel_id UUID NOT NULL REFERENCES funnels(id) ON DELETE CASCADE,
+  funnel_id TEXT NOT NULL REFERENCES funnels(id) ON DELETE CASCADE,
   analysis_date TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   next_analysis_date TIMESTAMPTZ,
   has_proposals BOOLEAN DEFAULT FALSE,
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS funnel_ab_analyses (
 -- Table for A/B test proposals
 CREATE TABLE IF NOT EXISTS funnel_ab_proposals (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  funnel_id UUID NOT NULL REFERENCES funnels(id) ON DELETE CASCADE,
+  funnel_id TEXT NOT NULL REFERENCES funnels(id) ON DELETE CASCADE,
   analysis_id UUID REFERENCES funnel_ab_analyses(id) ON DELETE CASCADE,
   category TEXT NOT NULL, -- 'headline', 'cta', 'color', 'layout', etc.
   element TEXT NOT NULL,
