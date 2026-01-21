@@ -217,47 +217,51 @@ export default function HeatmapVisualization({
         </button>
       </div>
 
-      {/* Heatmap Container - FULL HEIGHT */}
+      {/* Heatmap Container - FULL WIDTH AND HEIGHT */}
       <div className="p-6">
-        <div className="relative bg-[#111111] rounded-xl border border-[#2a2a2a] overflow-y-auto overflow-x-hidden" style={{ height: '80vh', minHeight: '1900px' }}>
-          {/* Scrollable content wrapper */}
-          <div className="relative" style={{ minHeight: '600px', height: `${contentHeight}px` }}>
-            {/* Page Iframe (if enabled and hasURL) */}
+        <div className="relative bg-[#111111] rounded-xl border border-[#2a2a2a]" style={{ width: '100%', height: 'auto', minHeight: '100vh' }}>
+          {/* Full page wrapper */}
+          <div className="relative w-full" style={{ height: 'auto', minHeight: '100vh' }}>
+            {/* Page Iframe - FULL SIZE */}
             {showPage && pageUrl && (
               <iframe
                 ref={iframeRef}
                 src={pageUrl}
-                className="absolute top-0 left-0 w-full z-0"
+                className="w-full z-0"
                 style={{
                   pointerEvents: 'none',
-                  height: `${contentHeight}px`,
-                  minHeight: '100%'
+                  height: '200vh',
+                  minHeight: '2000px',
+                  border: 'none',
+                  display: 'block',
+                  transform: 'scale(1)',
+                  transformOrigin: 'top left'
                 }}
                 sandbox="allow-same-origin allow-scripts"
               />
             )}
 
-            {/* Heatmap Overlay */}
+            {/* Heatmap Overlay - FULL SIZE */}
             <div
               ref={containerRef}
               className="absolute top-0 left-0 w-full z-10"
               style={{
                 pointerEvents: 'none',
-                height: `${contentHeight}px`,
-                minHeight: '100%'
+                height: '200vh',
+                minHeight: '2000px'
               }}
             />
 
             {/* No Data Overlay */}
             {!isLoading && !hasData && (
-              <div className="absolute top-0 left-0 w-full flex items-center justify-center z-20 bg-[#111111]/90" style={{ height: '80vh', minHeight: '1900px' }}>
+              <div className="absolute top-0 left-0 w-full flex items-center justify-center z-20 bg-[#111111]/95" style={{ height: '100vh', minHeight: '600px' }}>
                 <div className="text-center">
                   <MousePointerClick className="w-16 h-16 text-[#7c5cff] mx-auto mb-4 opacity-50" />
-                  <p className="text-[16px] text-[#888888] mb-2">
-                    No {heatmapType} data available yet
+                  <p className="text-[16px] text-[#fafafa] font-semibold mb-2">
+                    NESSUN DATO REALE DISPONIBILE
                   </p>
-                  <p className="text-[14px] text-[#666666]">
-                    Data will appear as users interact with: {stepName}
+                  <p className="text-[14px] text-[#888888]">
+                    Installa lo script di tracking dalla scheda "Setup" su: {stepName}
                   </p>
                 </div>
               </div>
@@ -265,7 +269,7 @@ export default function HeatmapVisualization({
 
             {/* Loading */}
             {isLoading && (
-              <div className="absolute top-0 left-0 w-full bg-black/80 flex items-center justify-center z-20" style={{ height: '80vh', minHeight: '1900px' }}>
+              <div className="absolute top-0 left-0 w-full bg-black/80 flex items-center justify-center z-20" style={{ height: '100vh', minHeight: '600px' }}>
                 <div className="flex items-center gap-3 text-white">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
                   <span className="text-[14px]">Loading heatmap data...</span>
