@@ -154,7 +154,7 @@ export default function HeatmapVisualization({
 
     // Assume original coordinates were captured on standard viewport (1920x1080)
     const ORIGINAL_WIDTH = 1920;
-    const ORIGINAL_HEIGHT = 1080;
+    const ORIGINAL_HEIGHT = 1980;
 
     // Scale coordinates to match current container size
     const scaleX = containerWidth / ORIGINAL_WIDTH;
@@ -219,7 +219,7 @@ export default function HeatmapVisualization({
 
       {/* Heatmap Container - FULL HEIGHT */}
       <div className="p-6">
-        <div className="relative bg-[#111111] rounded-xl border border-[#2a2a2a] overflow-y-auto overflow-x-hidden" style={{ height: '80vh', minHeight: '900px' }}>
+        <div className="relative bg-[#111111] rounded-xl border border-[#2a2a2a] overflow-y-auto overflow-x-hidden" style={{ height: '80vh', minHeight: '1900px' }}>
           {/* Scrollable content wrapper */}
           <div className="relative" style={{ minHeight: '600px', height: `${contentHeight}px` }}>
             {/* Page Iframe (if enabled and hasURL) */}
@@ -250,7 +250,7 @@ export default function HeatmapVisualization({
 
             {/* No Data Overlay */}
             {!isLoading && !hasData && (
-              <div className="absolute top-0 left-0 w-full flex items-center justify-center z-20 bg-[#111111]/90" style={{ height: '80vh', minHeight: '900px' }}>
+              <div className="absolute top-0 left-0 w-full flex items-center justify-center z-20 bg-[#111111]/90" style={{ height: '80vh', minHeight: '1900px' }}>
                 <div className="text-center">
                   <MousePointerClick className="w-16 h-16 text-[#7c5cff] mx-auto mb-4 opacity-50" />
                   <p className="text-[16px] text-[#888888] mb-2">
@@ -265,7 +265,7 @@ export default function HeatmapVisualization({
 
             {/* Loading */}
             {isLoading && (
-              <div className="absolute top-0 left-0 w-full bg-black/80 flex items-center justify-center z-20" style={{ height: '80vh', minHeight: '900px' }}>
+              <div className="absolute top-0 left-0 w-full bg-black/80 flex items-center justify-center z-20" style={{ height: '80vh', minHeight: '1900px' }}>
                 <div className="flex items-center gap-3 text-white">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
                   <span className="text-[14px]">Loading heatmap data...</span>
