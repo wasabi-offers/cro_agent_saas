@@ -7,12 +7,24 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  console.log('=====================================')
+  console.log('🚀 Edge Function: track-event invoked')
+  console.log('Method:', req.method)
+  console.log('URL:', req.url)
+  console.log('Headers:', Object.fromEntries(req.headers.entries()))
+  console.log('=====================================')
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
+    console.log('✅ Responding to OPTIONS preflight request')
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
+    console.log('📖 Reading request body...')
+    const body = await req.json()
+    console.log('📦 Request body:', JSON.stringify(body).substring(0, 500))
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -23,19 +35,24 @@ serve(async (req) => {
       }
     )
 
-    const { events, session_info } = await req.json()
+    const { events, session_info } = body
 
-    console.log('📊 Received events:', events.length)
+    console.log('📊 Received events count:', events?.length || 0)
+    if (events && events.length > 0) {
+      console.log('📊 First event:', events[0])
+    }
 
     // Process each event
     const sessionIds = new Set()
 
     for (const event of events) {
-      sessionIds.add(event.sessionId || event.session_id)
+      const sessionId = event.sessionId || event.session_id
+      sessionIds.add(sessionId)
+      console.log('🔄 Processing event:', event.type || event.event_type, 'for session:', sessionId)
 
       // Upsert session if this is first event
       if (event.type === 'pageview' || event.event_type === 'pageview') {
-        const sessionId = event.sessionId || event.session_id
+        console.log('👤 Upserting session:', sessionId)
         const { error: sessionError } = await supabaseClient
           .from('tracking_sessions')
           .upsert({
@@ -65,11 +82,14 @@ serve(async (req) => {
           })
 
         if (sessionError) {
-          console.error('Session upsert error:', sessionError)
+          console.error('❌ Session upsert error:', sessionError)
+        } else {
+          console.log('✅ Session upserted successfully')
         }
       }
 
       // Insert event
+      console.log('📝 Inserting event into tracking_events...')
       const eventData: any = {
         session_id: event.sessionId || event.session_id,
         event_type: event.type || event.event_type,
@@ -131,16 +151,24 @@ serve(async (req) => {
         eventData.time_on_page = event.time_on_page
       }
 
+      console.log('📝 Event data to insert:', eventData)
+
       const { error: eventError } = await supabaseClient
         .from('tracking_events')
         .insert(eventData)
 
       if (eventError) {
-        console.error('Event insert error:', eventError)
+        console.error('❌ Event insert error:', eventError)
+        console.error('❌ Failed event data:', eventData)
+      } else {
+        console.log('✅ Event inserted successfully')
       }
     }
 
-    console.log(`✅ Tracked ${events.length} events for ${sessionIds.size} session(s)`)
+    console.log('=====================================')
+    console.log(`✅ COMPLETED: Tracked ${events.length} events for ${sessionIds.size} session(s)`)
+    console.log('=====================================')
+
 
     return new Response(
       JSON.stringify({
@@ -154,10 +182,16 @@ serve(async (req) => {
       },
     )
   } catch (error) {
+    console.error('=====================================')
+    console.error('❌ FATAL ERROR in Edge Function')
     console.error('Error:', error)
+    console.error('Error message:', error.message)
+    console.error('Error stack:', error.stack)
+    console.error('=====================================')
     return new Response(
       JSON.stringify({
         error: error.message,
+        details: error.toString(),
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
