@@ -12,28 +12,31 @@ interface TrackingSetupProps {
 
 export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingSetupProps) {
   const [copied, setCopied] = useState<string | null>(null);
+  const [installMethod, setInstallMethod] = useState<'gtm' | 'direct' | 'wordpress'>('gtm');
 
-  // Universal script (once for entire site)
-  const universalScript = `<!-- CRO Agent Tracking - Install ONCE in all funnel pages -->
-<script src="https://cro-agent-saas.vercel.app/cro-tracker-v2.js"></script>`;
+  // Single universal script - works everywhere automatically
+  const singleScript = `<script src="https://cro-agent-saas.vercel.app/cro-tracker-single.js"></script>`;
 
-  // Generate simple page-specific configs
-  const stepConfigs = steps.map((step, index) => ({
-    stepName: step.name,
-    url: step.url,
-    script: `<!-- Page Config - ${step.name} -->
-<script>
-window.CROTrackerConfig = {
-  funnelId: "${funnelId}",
-  stepName: "${step.name}",
-  enableHeatmap: true
-};
-</script>`
-  }));
+  // Google Tag Manager version
+  const gtmScript = `<!-- Install this in Google Tag Manager as Custom HTML Tag -->
+${singleScript}`;
 
-  const handleCopy = (script: string, stepName: string) => {
+  // WordPress plugin version
+  const wordpressInstructions = `1. Go to WordPress Dashboard → Appearance → Theme Editor
+2. Edit header.php or functions.php
+3. Add this code before </head>:
+
+${singleScript}
+
+OR install via plugin "Insert Headers and Footers"`;
+
+  // Direct install version
+  const directScript = `<!-- Add this to your site's <head> or before </body> -->
+${singleScript}`;
+
+  const handleCopy = (script: string, id: string) => {
     navigator.clipboard.writeText(script);
-    setCopied(stepName);
+    setCopied(id);
     setTimeout(() => setCopied(null), 2000);
   };
 
@@ -47,119 +50,207 @@ window.CROTrackerConfig = {
           </div>
           <div className="flex-1">
             <h3 className="text-[20px] font-semibold text-[#fafafa] mb-2">
-              Tracking Avanzato CRO - "{funnelName}"
+              🚀 UN SOLO SCRIPT - Come Clarity
             </h3>
-            <p className="text-[14px] text-[#888888]">
-              Tracking completo: click, scroll, mouse, form, CTA, rage click, dead click, time on page, exit intent
+            <p className="text-[14px] text-[#00d4aa] mb-2">
+              Installa UNA VOLTA e traccia automaticamente TUTTE le pagine
+            </p>
+            <p className="text-[13px] text-[#888888]">
+              Tracking completo: click, scroll, mouse, heatmap, form, CTA, rage click, dead click, time on page, exit intent
             </p>
           </div>
         </div>
       </div>
 
-      {/* STEP 1: Universal Script */}
-      <div className="bg-[#0a0a0a] border border-[#00d4aa]/30 rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
-                <span className="text-[13px] font-bold text-[#00d4aa]">1</span>
-              </div>
-              <h5 className="text-[16px] font-semibold text-[#fafafa]">Script Universale (una volta sola)</h5>
-            </div>
-            <p className="text-[12px] text-[#888888] ml-11">
-              Installa questo script in TUTTE le pagine del funnel, prima del tag &lt;/body&gt;
-            </p>
-          </div>
+      {/* Installation Method Tabs */}
+      <div className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-2xl overflow-hidden">
+        <div className="flex border-b border-[#2a2a2a]">
           <button
-            onClick={() => handleCopy(universalScript, 'universal')}
-            className="flex items-center gap-2 px-4 py-2 bg-[#00d4aa] hover:bg-[#00b894] text-white text-[13px] font-medium rounded-lg transition-all"
+            onClick={() => setInstallMethod('gtm')}
+            className={`flex-1 px-6 py-4 text-[14px] font-medium transition-all ${
+              installMethod === 'gtm'
+                ? 'bg-[#7c5cff] text-white'
+                : 'text-[#666666] hover:text-[#888888] hover:bg-[#111111]'
+            }`}
           >
-            {copied === 'universal' ? (
-              <>
-                <CheckCircle2 className="w-4 h-4" />
-                Copiato!
-              </>
-            ) : (
-              <>
-                <Copy className="w-4 h-4" />
-                Copia Script
-              </>
-            )}
+            Google Tag Manager
+          </button>
+          <button
+            onClick={() => setInstallMethod('direct')}
+            className={`flex-1 px-6 py-4 text-[14px] font-medium transition-all ${
+              installMethod === 'direct'
+                ? 'bg-[#7c5cff] text-white'
+                : 'text-[#666666] hover:text-[#888888] hover:bg-[#111111]'
+            }`}
+          >
+            Diretto (HTML)
+          </button>
+          <button
+            onClick={() => setInstallMethod('wordpress')}
+            className={`flex-1 px-6 py-4 text-[14px] font-medium transition-all ${
+              installMethod === 'wordpress'
+                ? 'bg-[#7c5cff] text-white'
+                : 'text-[#666666] hover:text-[#888888] hover:bg-[#111111]'
+            }`}
+          >
+            WordPress
           </button>
         </div>
 
-        <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-4">
-          <pre className="text-[11px] text-[#888888] font-mono overflow-x-auto whitespace-pre-wrap break-words">
-            {universalScript}
-          </pre>
-        </div>
-      </div>
-
-      {/* STEP 2: Page Configs */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-8 h-8 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
-            <span className="text-[13px] font-bold text-[#7c5cff]">2</span>
-          </div>
-          <h4 className="text-[16px] font-semibold text-[#fafafa]">Config per ogni Step</h4>
-        </div>
-        <p className="text-[13px] text-[#888888] ml-11 mb-4">
-          Aggiungi questi script PRIMA dello script universale, in ogni pagina specifica
-        </p>
-
-        {stepConfigs.map((item, index) => (
-          <div key={index} className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-8 h-8 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
-                    <span className="text-[13px] font-bold text-[#7c5cff]">{index + 1}</span>
-                  </div>
-                  <h5 className="text-[16px] font-semibold text-[#fafafa]">{item.stepName}</h5>
+        <div className="p-6">
+          {/* GTM Instructions */}
+          {installMethod === 'gtm' && (
+            <div className="space-y-4">
+              <div className="flex items-start gap-3 p-4 bg-[#7c5cff]/10 border border-[#7c5cff]/20 rounded-xl">
+                <Zap className="w-5 h-5 text-[#7c5cff] flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-[13px] font-semibold text-[#fafafa] mb-2">
+                    Metodo Consigliato - Google Tag Manager
+                  </p>
+                  <ol className="text-[12px] text-[#888888] space-y-1 list-decimal list-inside">
+                    <li>Accedi a Google Tag Manager</li>
+                    <li>Crea un nuovo Tag → Tag HTML personalizzato</li>
+                    <li>Incolla lo script qui sotto</li>
+                    <li>Trigger: All Pages</li>
+                    <li>Salva e Pubblica</li>
+                  </ol>
                 </div>
-                {item.url && (
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[12px] text-[#00d4aa] hover:text-[#00b894] flex items-center gap-1 ml-11"
-                  >
-                    {item.url}
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                )}
               </div>
-              <button
-                onClick={() => handleCopy(item.script, item.stepName)}
-                className="flex items-center gap-2 px-4 py-2 bg-[#7c5cff] hover:bg-[#6b4de8] text-white text-[13px] font-medium rounded-lg transition-all"
-              >
-                {copied === item.stepName ? (
-                  <>
-                    <CheckCircle2 className="w-4 h-4" />
-                    Copiato!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4" />
-                    Copia Script
-                  </>
-                )}
-              </button>
-            </div>
 
-            <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-4">
-              <pre className="text-[11px] text-[#888888] font-mono overflow-x-auto whitespace-pre-wrap break-words">
-                {item.script}
-              </pre>
-            </div>
+              <div className="flex items-center justify-between">
+                <h5 className="text-[14px] font-semibold text-[#fafafa]">Script da copiare</h5>
+                <button
+                  onClick={() => handleCopy(singleScript, 'gtm')}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#00d4aa] hover:bg-[#00b894] text-white text-[13px] font-medium rounded-lg transition-all"
+                >
+                  {copied === 'gtm' ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4" />
+                      Copiato!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4" />
+                      Copia Script
+                    </>
+                  )}
+                </button>
+              </div>
 
-            <div className="mt-3 p-3 bg-[#7c5cff]/10 border border-[#7c5cff]/20 rounded-lg">
-              <p className="text-[12px] text-[#888888]">
-                💡 Incolla questo script prima del tag <code className="text-[#7c5cff]">&lt;/body&gt;</code> della pagina
-              </p>
+              <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-4">
+                <pre className="text-[12px] text-[#00d4aa] font-mono overflow-x-auto whitespace-pre-wrap">
+                  {singleScript}
+                </pre>
+              </div>
             </div>
-          </div>
-        ))}
+          )}
+
+          {/* Direct Install */}
+          {installMethod === 'direct' && (
+            <div className="space-y-4">
+              <div className="flex items-start gap-3 p-4 bg-[#00d4aa]/10 border border-[#00d4aa]/20 rounded-xl">
+                <Code className="w-5 h-5 text-[#00d4aa] flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-[13px] font-semibold text-[#fafafa] mb-2">
+                    Installazione Diretta
+                  </p>
+                  <p className="text-[12px] text-[#888888]">
+                    Aggiungi questo script nel <code className="text-[#00d4aa]">&lt;head&gt;</code> o prima del <code className="text-[#00d4aa]">&lt;/body&gt;</code> di tutte le pagine del tuo sito
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <h5 className="text-[14px] font-semibold text-[#fafafa]">Script da copiare</h5>
+                <button
+                  onClick={() => handleCopy(singleScript, 'direct')}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#00d4aa] hover:bg-[#00b894] text-white text-[13px] font-medium rounded-lg transition-all"
+                >
+                  {copied === 'direct' ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4" />
+                      Copiato!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4" />
+                      Copia Script
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-4">
+                <pre className="text-[12px] text-[#00d4aa] font-mono overflow-x-auto whitespace-pre-wrap">
+                  {singleScript}
+                </pre>
+              </div>
+
+              <div className="p-3 bg-[#f59e0b]/10 border border-[#f59e0b]/20 rounded-lg">
+                <p className="text-[12px] text-[#888888]">
+                  💡 <strong>Tip:</strong> Se hai accesso al template del sito, aggiungilo nel header.php o footer.php per installarlo automaticamente in tutte le pagine
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* WordPress */}
+          {installMethod === 'wordpress' && (
+            <div className="space-y-4">
+              <div className="flex items-start gap-3 p-4 bg-[#00d4aa]/10 border border-[#00d4aa]/20 rounded-xl">
+                <Code className="w-5 h-5 text-[#00d4aa] flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-[13px] font-semibold text-[#fafafa] mb-2">
+                    Installazione WordPress
+                  </p>
+                  <div className="text-[12px] text-[#888888] space-y-2">
+                    <p className="font-semibold">Metodo 1: Plugin (Consigliato)</p>
+                    <ol className="list-decimal list-inside space-y-1 ml-2">
+                      <li>Installa il plugin "Insert Headers and Footers" o "WPCode"</li>
+                      <li>Vai su Settings → Insert Headers and Footers</li>
+                      <li>Incolla lo script nella sezione "Scripts in Footer"</li>
+                      <li>Salva</li>
+                    </ol>
+
+                    <p className="font-semibold mt-4">Metodo 2: Theme Editor</p>
+                    <ol className="list-decimal list-inside space-y-1 ml-2">
+                      <li>Vai su Appearance → Theme Editor</li>
+                      <li>Seleziona footer.php o header.php</li>
+                      <li>Incolla lo script prima di <code className="text-[#00d4aa]">&lt;/body&gt;</code></li>
+                      <li>Aggiorna file</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <h5 className="text-[14px] font-semibold text-[#fafafa]">Script da copiare</h5>
+                <button
+                  onClick={() => handleCopy(singleScript, 'wordpress')}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#00d4aa] hover:bg-[#00b894] text-white text-[13px] font-medium rounded-lg transition-all"
+                >
+                  {copied === 'wordpress' ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4" />
+                      Copiato!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4" />
+                      Copia Script
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-4">
+                <pre className="text-[12px] text-[#00d4aa] font-mono overflow-x-auto whitespace-pre-wrap">
+                  {singleScript}
+                </pre>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Live Stats Info */}
