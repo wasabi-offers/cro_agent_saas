@@ -509,10 +509,6 @@ export function getTrackingScriptTag(options: {
   const scriptUrl = 'https://dohrkonencbwvvmklzuo.supabase.co/storage/v1/object/public/scripts/cro-tracker.js';
 
   return `<!-- CRO Agent Tracking -->
-<script>
-window.croFunnelId = ${options.funnelId ? `"${options.funnelId}"` : 'null'};
-window.croFunnelStep = ${options.funnelStepName ? `"${options.funnelStepName}"` : 'null'};
-window.croEnableHeatmap = ${options.enableHeatmap !== false};
-</script>
-<script src="${scriptUrl}" async></script>`;
+<script>window.funnelId="${options.funnelId}";</script>
+<script src="${scriptUrl}"></script>`;
 }
