@@ -1,4 +1,45 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+
+// Initialize Supabase client
+function getSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    return null;
+  }
+
+  return createClient(supabaseUrl, supabaseKey);
+}
+
+// Get screenshot API token from database
+async function getScreenshotApiToken(): Promise<string> {
+  const supabase = getSupabaseClient();
+
+  if (!supabase) {
+    console.warn('Supabase not configured, using env token');
+    return process.env.SCREENSHOT_API_TOKEN || 'demo';
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('app_settings')
+      .select('setting_value')
+      .eq('setting_key', 'screenshot_api_token')
+      .single();
+
+    if (error || !data) {
+      console.warn('Failed to fetch token from database, using env token');
+      return process.env.SCREENSHOT_API_TOKEN || 'demo';
+    }
+
+    return data.setting_value;
+  } catch (error) {
+    console.error('Error fetching screenshot token:', error);
+    return process.env.SCREENSHOT_API_TOKEN || 'demo';
+  }
+}
 
 export async function GET(request: Request) {
   try {
@@ -12,11 +53,14 @@ export async function GET(request: Request) {
       );
     }
 
+    // Get token from database
+    const token = await getScreenshotApiToken();
+
     // Use ScreenshotAPI (free tier: 100 screenshots/month)
     // Alternative: ApiFlash, Urlbox, Screenshotone
     const screenshotApiUrl = `https://shot.screenshotapi.net/screenshot`;
     const params = new URLSearchParams({
-      token: process.env.SCREENSHOT_API_TOKEN || 'demo', // Get free token at screenshotapi.net
+      token: token,
       url: url,
       output: 'image',
       file_type: 'png',
@@ -28,6 +72,7 @@ export async function GET(request: Request) {
     });
 
     console.log('📸 Capturing screenshot for:', url);
+    console.log('🔑 Using token:', token.substring(0, 10) + '...');
 
     const response = await fetch(`${screenshotApiUrl}?${params.toString()}`);
 
