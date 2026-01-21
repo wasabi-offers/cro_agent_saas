@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Copy, CheckCircle2, Code, ExternalLink, Zap } from "lucide-react";
-import { getTrackingScriptTag } from "@/lib/advanced-tracking-script";
+import { generateAdvancedTrackingScript } from "@/lib/advanced-tracking-script";
 
 interface TrackingSetupProps {
   funnelId: string;
@@ -17,7 +17,7 @@ export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingS
   const trackingScripts = steps.map((step, index) => ({
     stepName: step.name,
     url: step.url,
-    script: getTrackingScriptTag({
+    script: generateAdvancedTrackingScript({
       funnelId,
       funnelStepName: step.name,
       enableHeatmap: true
