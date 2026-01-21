@@ -219,7 +219,7 @@ export default function HeatmapVisualization({
 
       {/* Heatmap Container - FULL WIDTH AND HEIGHT */}
       <div className="p-6">
-        <div className="relative bg-[#111111] rounded-xl border border-[#2a2a2a] overflow-auto" style={{ width: '100%', maxHeight: '90vh' }}>
+        <div className="relative bg-[#111111] rounded-xl border border-[#2a2a2a]" style={{ width: '100%' }}>
           {/* Full page wrapper - let iframe dictate size */}
           <div className="relative w-full" style={{ height: `${contentHeight}px` }}>
             {/* Page Iframe - FULL SIZE */}
