@@ -17,7 +17,7 @@ import {
   Trash2,
 } from "lucide-react";
 import FunnelBuilder from "@/components/FunnelBuilder";
-import { ConversionFunnel, fetchFunnels, createFunnel, deleteFunnel } from "@/lib/supabase-funnels";
+import { ConversionFunnel, fetchFunnels, createFunnel, deleteFunnel, enrichFunnelsWithLiveData } from "@/lib/supabase-funnels";
 
 export default function FunnelsListPage() {
   const [funnels, setFunnels] = useState<ConversionFunnel[]>([]);
@@ -30,7 +30,9 @@ export default function FunnelsListPage() {
     const loadData = async () => {
       setIsLoading(true);
       const funnelsData = await fetchFunnels();
-      setFunnels(funnelsData);
+      // Enrich with live tracking data
+      const enrichedFunnels = await enrichFunnelsWithLiveData(funnelsData);
+      setFunnels(enrichedFunnels);
       setIsLoading(false);
     };
 
@@ -276,32 +278,6 @@ export default function FunnelsListPage() {
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
-                  </div>
-
-                  {/* Funnel Visualization */}
-                  <div className="space-y-2 mb-6">
-                    {funnel.steps.slice(0, 4).map((step, index) => {
-                      const widthPercentage = (step.visitors / firstStep.visitors) * 100;
-                      const isLast = index === funnel.steps.length - 1;
-
-                      return (
-                        <div key={step.name} className="relative">
-                          <div
-                            className={`h-2 rounded-full transition-all ${
-                              isLast
-                                ? "bg-gradient-to-r from-[#00d4aa] to-[#00d4aa]/50"
-                                : "bg-gradient-to-r from-[#7c5cff] to-[#7c5cff]/50"
-                            }`}
-                            style={{ width: `${Math.max(widthPercentage, 10)}%` }}
-                          />
-                        </div>
-                      );
-                    })}
-                    {funnel.steps.length > 4 && (
-                      <p className="text-[11px] text-[#666666] text-center mt-2">
-                        +{funnel.steps.length - 4} more steps
-                      </p>
-                    )}
                   </div>
 
                   {/* Stats */}
