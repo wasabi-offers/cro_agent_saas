@@ -561,3 +561,103 @@ export async function deleteFunnel(funnelId: string): Promise<boolean> {
     return false;
   }
 }
+
+// ============================================
+// LOAD LIVE STATISTICS FROM TRACKING EVENTS
+// ============================================
+
+export async function enrichFunnelsWithLiveData(funnels: ConversionFunnel[]): Promise<ConversionFunnel[]> {
+  if (!isSupabaseConfigured() || !supabase || funnels.length === 0) {
+    return funnels;
+  }
+
+  try {
+    // Get all funnel IDs
+    const funnelIds = funnels.map(f => f.id);
+
+    // Fetch all tracking events for these funnels
+    const { data: events, error } = await supabase
+      .from('tracking_events')
+      .select('funnel_id, funnel_step_name, session_id')
+      .in('funnel_id', funnelIds)
+      .not('funnel_step_name', 'is', null);
+
+    if (error) {
+      console.error('❌ Error fetching tracking events:', error);
+      return funnels;
+    }
+
+    if (!events || events.length === 0) {
+      console.log('⚠️ No tracking events found for funnels');
+      return funnels;
+    }
+
+    console.log(`📊 Found ${events.length} tracking events for ${funnels.length} funnels`);
+
+    // Process events to count unique visitors per funnel step
+    const funnelStats = new Map<string, Map<string, Set<string>>>();
+
+    events.forEach(event => {
+      if (!event.funnel_id || !event.funnel_step_name || !event.session_id) return;
+
+      if (!funnelStats.has(event.funnel_id)) {
+        funnelStats.set(event.funnel_id, new Map());
+      }
+
+      const stepStats = funnelStats.get(event.funnel_id)!;
+      if (!stepStats.has(event.funnel_step_name)) {
+        stepStats.set(event.funnel_step_name, new Set());
+      }
+
+      stepStats.get(event.funnel_step_name)!.add(event.session_id);
+    });
+
+    // Update funnels with live data
+    const enrichedFunnels = funnels.map(funnel => {
+      const stepStats = funnelStats.get(funnel.id);
+
+      if (!stepStats) {
+        // No tracking data for this funnel
+        return funnel;
+      }
+
+      // Update each step with live visitor count
+      const updatedSteps = funnel.steps.map((step, index) => {
+        const visitors = stepStats.get(step.name)?.size || 0;
+
+        // Calculate dropoff from previous step
+        let dropoff = 0;
+        if (index > 0) {
+          const prevVisitors = stepStats.get(funnel.steps[index - 1].name)?.size || 0;
+          if (prevVisitors > 0) {
+            dropoff = ((prevVisitors - visitors) / prevVisitors) * 100;
+          }
+        }
+
+        return {
+          ...step,
+          visitors,
+          dropoff: Number(dropoff.toFixed(1)),
+        };
+      });
+
+      // Calculate conversion rate
+      const firstStepVisitors = updatedSteps[0]?.visitors || 0;
+      const lastStepVisitors = updatedSteps[updatedSteps.length - 1]?.visitors || 0;
+      const conversionRate = firstStepVisitors > 0
+        ? (lastStepVisitors / firstStepVisitors) * 100
+        : 0;
+
+      return {
+        ...funnel,
+        steps: updatedSteps,
+        conversionRate: Number(conversionRate.toFixed(1)),
+      };
+    });
+
+    return enrichedFunnels;
+  } catch (error) {
+    console.error('Unexpected error enriching funnels with live data:', error);
+    return funnels;
+  }
+}
