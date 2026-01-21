@@ -143,48 +143,59 @@ export default function HeatmapVisualization({
 
       {/* Heatmap Container */}
       <div className="p-6">
-        <div className="relative bg-[#111111] rounded-xl overflow-hidden border border-[#2a2a2a]" style={{ height: '600px' }}>
-          {/* Page Iframe (if enabled and hasURL) */}
-          {showPage && pageUrl && (
-            <iframe
-              src={pageUrl}
-              className="absolute inset-0 w-full h-full z-0"
-              style={{ pointerEvents: 'none' }}
-              sandbox="allow-same-origin allow-scripts"
+        <div className="relative bg-[#111111] rounded-xl border border-[#2a2a2a] overflow-y-auto overflow-x-hidden" style={{ height: '600px' }}>
+          {/* Scrollable content wrapper */}
+          <div className="relative" style={{ minHeight: '600px', height: 'fit-content' }}>
+            {/* Page Iframe (if enabled and hasURL) */}
+            {showPage && pageUrl && (
+              <iframe
+                src={pageUrl}
+                className="absolute top-0 left-0 w-full z-0"
+                style={{
+                  pointerEvents: 'none',
+                  height: '2000px', // Tall enough to show full page
+                  minHeight: '100%'
+                }}
+                sandbox="allow-same-origin allow-scripts"
+              />
+            )}
+
+            {/* Heatmap Overlay */}
+            <div
+              ref={containerRef}
+              className="absolute top-0 left-0 w-full z-10"
+              style={{
+                pointerEvents: 'none',
+                height: '2000px', // Match iframe height
+                minHeight: '100%'
+              }}
             />
-          )}
 
-          {/* Heatmap Overlay */}
-          <div
-            ref={containerRef}
-            className="absolute inset-0 w-full h-full z-10"
-            style={{ pointerEvents: 'none' }}
-          />
-
-          {/* No Data Overlay */}
-          {!isLoading && !hasData && (
-            <div className="absolute inset-0 flex items-center justify-center z-20 bg-[#111111]/90">
-              <div className="text-center">
-                <MousePointerClick className="w-16 h-16 text-[#7c5cff] mx-auto mb-4 opacity-50" />
-                <p className="text-[16px] text-[#888888] mb-2">
-                  No {heatmapType} data available yet
-                </p>
-                <p className="text-[14px] text-[#666666]">
-                  Data will appear as users interact with: {stepName}
-                </p>
+            {/* No Data Overlay */}
+            {!isLoading && !hasData && (
+              <div className="absolute top-0 left-0 w-full h-[600px] flex items-center justify-center z-20 bg-[#111111]/90">
+                <div className="text-center">
+                  <MousePointerClick className="w-16 h-16 text-[#7c5cff] mx-auto mb-4 opacity-50" />
+                  <p className="text-[16px] text-[#888888] mb-2">
+                    No {heatmapType} data available yet
+                  </p>
+                  <p className="text-[14px] text-[#666666]">
+                    Data will appear as users interact with: {stepName}
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Loading */}
-          {isLoading && (
-            <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-20">
-              <div className="flex items-center gap-3 text-white">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
-                <span className="text-[14px]">Loading heatmap data...</span>
+            {/* Loading */}
+            {isLoading && (
+              <div className="absolute top-0 left-0 w-full h-[600px] bg-black/80 flex items-center justify-center z-20">
+                <div className="flex items-center gap-3 text-white">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
+                  <span className="text-[14px]">Loading heatmap data...</span>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Legend & Stats */}
