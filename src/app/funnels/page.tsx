@@ -44,14 +44,6 @@ export default function FunnelsListPage() {
 
   useEffect(() => {
     loadData();
-
-    // Auto-refresh every 10 seconds to keep data live
-    const intervalId = setInterval(() => {
-      console.log('⏰ Auto-refresh triggered');
-      loadData();
-    }, 10000);
-
-    return () => clearInterval(intervalId);
   }, [loadData]);
 
   const handleSaveFunnel = async (funnel: { name: string; steps: any[]; connections?: any[] }) => {
