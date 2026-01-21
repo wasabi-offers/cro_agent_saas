@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MousePointerClick } from "lucide-react";
+import { MousePointerClick, AlertCircle } from "lucide-react";
 
 // Import heatmap.js
 // @ts-ignore
@@ -44,6 +44,7 @@ export default function HeatmapVisualization({
   const [stats, setStats] = useState<any>(null);
   const [showPage, setShowPage] = useState(true);
   const [contentHeight, setContentHeight] = useState(2000);
+  const [isDemoData, setIsDemoData] = useState(false);
 
   // Detect iframe content height
   useEffect(() => {
@@ -116,8 +117,11 @@ export default function HeatmapVisualization({
             movement: data.movement,
           });
           setStats(data.stats);
+          // Check if data is demo
+          setIsDemoData(data.source === 'demo');
         } else {
           setHeatmapData(null);
+          setIsDemoData(false);
         }
       } catch (error) {
         console.error("Error loading heatmap data:", error);
@@ -181,6 +185,21 @@ export default function HeatmapVisualization({
 
   return (
     <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl overflow-hidden">
+      {/* Demo Data Warning */}
+      {isDemoData && (
+        <div className="bg-gradient-to-r from-[#f59e0b] to-[#ef4444] p-4 flex items-center gap-3">
+          <AlertCircle className="w-6 h-6 text-white flex-shrink-0" />
+          <div className="flex-1">
+            <p className="text-[14px] font-semibold text-white">
+              ⚠️ QUESTI SONO DEMO DATA - NON DATI REALI!
+            </p>
+            <p className="text-[12px] text-white/90 mt-1">
+              Installa lo script di tracking dalla scheda "Setup" per vedere dati reali.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Controls */}
       <div className="p-4 border-b border-[#2a2a2a] flex items-center justify-between">
         <h3 className="text-[14px] font-medium text-[#fafafa]">
@@ -198,9 +217,9 @@ export default function HeatmapVisualization({
         </button>
       </div>
 
-      {/* Heatmap Container */}
+      {/* Heatmap Container - FULL HEIGHT */}
       <div className="p-6">
-        <div className="relative bg-[#111111] rounded-xl border border-[#2a2a2a] overflow-y-auto overflow-x-hidden" style={{ height: '600px' }}>
+        <div className="relative bg-[#111111] rounded-xl border border-[#2a2a2a] overflow-y-auto overflow-x-hidden" style={{ height: '80vh', minHeight: '900px' }}>
           {/* Scrollable content wrapper */}
           <div className="relative" style={{ minHeight: '600px', height: `${contentHeight}px` }}>
             {/* Page Iframe (if enabled and hasURL) */}
@@ -231,7 +250,7 @@ export default function HeatmapVisualization({
 
             {/* No Data Overlay */}
             {!isLoading && !hasData && (
-              <div className="absolute top-0 left-0 w-full h-[600px] flex items-center justify-center z-20 bg-[#111111]/90">
+              <div className="absolute top-0 left-0 w-full flex items-center justify-center z-20 bg-[#111111]/90" style={{ height: '80vh', minHeight: '900px' }}>
                 <div className="text-center">
                   <MousePointerClick className="w-16 h-16 text-[#7c5cff] mx-auto mb-4 opacity-50" />
                   <p className="text-[16px] text-[#888888] mb-2">
@@ -246,7 +265,7 @@ export default function HeatmapVisualization({
 
             {/* Loading */}
             {isLoading && (
-              <div className="absolute top-0 left-0 w-full h-[600px] bg-black/80 flex items-center justify-center z-20">
+              <div className="absolute top-0 left-0 w-full bg-black/80 flex items-center justify-center z-20" style={{ height: '80vh', minHeight: '900px' }}>
                 <div className="flex items-center gap-3 text-white">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
                   <span className="text-[14px]">Loading heatmap data...</span>
