@@ -636,12 +636,9 @@ export async function enrichFunnelsWithLiveData(funnels: ConversionFunnel[]): Pr
         }
 
         return {
-          name: step.name,
-          url: step.url,
-          x: step.x,
-          y: step.y,
-          visitors: visitors,  // FORCE use tracking data
-          dropoff: Number(dropoff.toFixed(1)),
+          ...step,  // Keep ALL original fields
+          visitors: visitors,  // Override with tracking data
+          dropoff: Number(dropoff.toFixed(1)),  // Override dropoff
         };
       });
 
