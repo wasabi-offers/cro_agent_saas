@@ -161,10 +161,10 @@ function generateMockInsights(): ClarityInsight[] {
 
 // Fetch all data from the main clarity_insights table and aggregate
 export async function fetchClarityInsights(limit: number = 500): Promise<ClarityInsight[]> {
-  // Use mock data if Supabase is not configured
+  // Return empty array if Supabase is not configured (NO MOCK DATA)
   if (!isSupabaseConfigured() || !supabase) {
-    console.log("📊 Using mock data (Supabase not configured)");
-    return generateMockInsights();
+    console.log("📊 No real data available (Supabase not configured)");
+    return [];
   }
 
   const { data, error } = await supabase
@@ -175,8 +175,8 @@ export async function fetchClarityInsights(limit: number = 500): Promise<Clarity
 
   if (error) {
     console.error("Error fetching insights:", error);
-    console.log("📊 Falling back to mock data due to error");
-    return generateMockInsights();
+    console.log("📊 No real data available (database error)");
+    return [];  // Return empty instead of mock data
   }
 
   return data || [];
