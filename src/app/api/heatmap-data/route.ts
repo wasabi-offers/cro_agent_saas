@@ -175,23 +175,29 @@ export async function GET(request: Request) {
           return NextResponse.json(response);
         }
 
-        console.log('⚠️ No events found, using demo data');
+        console.log('⚠️ No events found');
       } catch (dbError) {
         console.error("❌ Database error:", dbError);
       }
     }
 
-    // Fallback: return demo data
-    console.log("📊 Using demo heatmap data");
+    // NO DEMO DATA - return empty
+    console.log("📊 No real data available");
     console.log('=====================================');
-    const heatmapData: Record<string, HeatmapData> = generateDemoHeatmapData();
 
     return NextResponse.json({
       success: true,
       funnelId,
-      ...heatmapData,
+      click: { type: "click", points: [], max: 1 },
+      scroll: { type: "scroll", points: [], max: 1 },
+      movement: { type: "movement", points: [], max: 1 },
       generatedAt: new Date().toISOString(),
-      source: "demo",
+      source: "empty",
+      stats: {
+        totalClicks: 0,
+        totalMovements: 0,
+        totalScrolls: 0,
+      },
     });
   } catch (error) {
     console.error("Heatmap data error:", error);
