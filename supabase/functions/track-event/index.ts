@@ -134,13 +134,19 @@ serve(async (req) => {
       }
 
       // Add funnel data
+      console.log('🔍 Checking funnel data:', event.funnelData)
       if (event.funnelData) {
+        console.log('📌 funnelData.funnelId:', event.funnelData.funnelId)
+        console.log('📌 funnelData.stepName:', event.funnelData.stepName)
         eventData.funnel_id = event.funnelData.funnelId
         eventData.funnel_step_name = event.funnelData.stepName
         eventData.funnel_step_order = event.funnelData.stepOrder
       } else if (event.funnel_id) {
+        console.log('📌 Using event.funnel_id:', event.funnel_id)
         eventData.funnel_id = event.funnel_id
         eventData.funnel_step_order = event.step_number
+      } else {
+        console.warn('⚠️ NO FUNNEL DATA FOUND IN EVENT!')
       }
 
       // Add time data
