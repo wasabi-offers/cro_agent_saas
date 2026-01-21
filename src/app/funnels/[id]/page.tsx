@@ -36,6 +36,7 @@ import SaveItemDialog from "@/components/SaveItemDialog";
 import FunnelVisualizer from "@/components/FunnelVisualizer";
 import FunnelBuilder from "@/components/FunnelBuilder";
 import VisualAnnotations from "@/components/VisualAnnotations";
+import HeatmapVisualization from "@/components/HeatmapVisualization";
 import { CROTableRow, SavedFunnel, funnelStorage } from "@/lib/saved-items";
 import { ConversionFunnel, fetchFunnel, updateFunnel } from "@/lib/supabase-funnels";
 
@@ -1063,75 +1064,12 @@ export default function FunnelDetailPage() {
             </div>
 
             {/* Heatmap Visualization */}
-            <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h3 className="text-[18px] font-semibold text-[#fafafa] mb-1">
-                    {funnel.steps[selectedHeatmapPage].name} - {heatmapType.charAt(0).toUpperCase() + heatmapType.slice(1)} Heatmap
-                  </h3>
-                  <p className="text-[14px] text-[#888888]">
-                    Based on {Math.floor(Math.random() * 2000 + 500).toLocaleString()} user sessions
-                  </p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-[#ff6b6b]"></div>
-                    <span className="text-[12px] text-[#888888]">High Activity</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-[#f59e0b]"></div>
-                    <span className="text-[12px] text-[#888888]">Medium</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-[#7c5cff]"></div>
-                    <span className="text-[12px] text-[#888888]">Low Activity</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Mock Heatmap Visualization */}
-              <div className="relative bg-[#111111] rounded-xl overflow-hidden" style={{ height: '600px' }}>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <MousePointerClick className="w-16 h-16 text-[#7c5cff] mx-auto mb-4 opacity-50" />
-                    <p className="text-[16px] text-[#888888] mb-2">
-                      Heatmap visualization will appear here
-                    </p>
-                    <p className="text-[14px] text-[#666666]">
-                      Showing {heatmapType} data for: {funnel.steps[selectedHeatmapPage].name}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Insights */}
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-[#111111] rounded-xl p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <MousePointerClick className="w-4 h-4 text-[#7c5cff]" />
-                    <span className="text-[12px] text-[#888888]">Most Clicked</span>
-                  </div>
-                  <p className="text-[16px] font-semibold text-[#fafafa]">CTA Button</p>
-                  <p className="text-[12px] text-[#666666] mt-1">45% of all clicks</p>
-                </div>
-                <div className="bg-[#111111] rounded-xl p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <ChevronDown className="w-4 h-4 text-[#00d4aa]" />
-                    <span className="text-[12px] text-[#888888]">Avg Scroll Depth</span>
-                  </div>
-                  <p className="text-[16px] font-semibold text-[#fafafa]">68%</p>
-                  <p className="text-[12px] text-[#666666] mt-1">Users reach fold 3</p>
-                </div>
-                <div className="bg-[#111111] rounded-xl p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <AlertCircle className="w-4 h-4 text-[#ff6b6b]" />
-                    <span className="text-[12px] text-[#888888]">Rage Clicks</span>
-                  </div>
-                  <p className="text-[16px] font-semibold text-[#ff6b6b]">23 instances</p>
-                  <p className="text-[12px] text-[#666666] mt-1">On form fields</p>
-                </div>
-              </div>
-            </div>
+            <HeatmapVisualization
+              pageUrl={funnel.steps[selectedHeatmapPage].url || ''}
+              funnelId={funnelId}
+              stepName={funnel.steps[selectedHeatmapPage].name}
+              heatmapType={heatmapType === 'move' ? 'movement' : heatmapType as 'click' | 'scroll' | 'movement'}
+            />
           </div>
         )}
 
