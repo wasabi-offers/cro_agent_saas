@@ -506,7 +506,7 @@ export function getTrackingScriptTag(options: {
 } = {}): string {
   // Generate lightweight loader that loads external script
   // This avoids CORS issues - script is served from same domain as API
-  const scriptUrl = 'https://cro-agent-saas.vercel.app/cro-tracker.js';
+  const scriptUrl = 'https://cro-agent-saas.vercel.app/api/cro-tracker.js';
 
   return `<!-- CRO Agent Tracking -->
 <script>
