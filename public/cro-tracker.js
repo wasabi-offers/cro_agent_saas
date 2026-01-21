@@ -241,6 +241,9 @@
 
   // Funnel step tracking
   if (FUNNEL_ID && FUNNEL_STEP) {
+    console.log('[CRO Tracker] 🎯 Tracking funnel step with:');
+    console.log('[CRO Tracker] FUNNEL_ID:', FUNNEL_ID);
+    console.log('[CRO Tracker] FUNNEL_STEP:', FUNNEL_STEP);
     trackEvent({
       type: 'funnel_step',
       funnelData: {
@@ -249,6 +252,9 @@
         stepOrder: 0
       }
     });
+  } else {
+    console.error('[CRO Tracker] ❌ Cannot track funnel step - missing FUNNEL_ID or FUNNEL_STEP');
+    console.error('[CRO Tracker] FUNNEL_ID:', FUNNEL_ID, 'FUNNEL_STEP:', FUNNEL_STEP);
   }
 
   // Click tracking
