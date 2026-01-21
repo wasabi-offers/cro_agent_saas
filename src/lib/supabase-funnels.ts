@@ -24,6 +24,12 @@ export interface ConversionFunnel {
   steps: FunnelStep[];
   connections?: FunnelConnection[];  // Optional for backwards compatibility
   conversionRate: number;
+  abTests?: {
+    pendingCount: number;
+    activeCount: number;
+    lastAnalysis?: string;
+    nextAnalysis?: string;
+  };
 }
 
 export interface FunnelStepDB {
@@ -658,6 +664,86 @@ export async function enrichFunnelsWithLiveData(funnels: ConversionFunnel[]): Pr
     return enrichedFunnels;
   } catch (error) {
     console.error('Unexpected error enriching funnels with live data:', error);
+    return funnels;
+  }
+}
+
+// ============================================
+// LOAD A/B TEST DATA FOR FUNNELS
+// ============================================
+
+export async function enrichFunnelsWithABTestData(funnels: ConversionFunnel[]): Promise<ConversionFunnel[]> {
+  if (!isSupabaseConfigured() || !supabase || funnels.length === 0) {
+    return funnels;
+  }
+
+  try {
+    const funnelIds = funnels.map(f => f.id);
+
+    // Fetch pending and active proposals
+    const { data: proposals, error: proposalsError } = await supabase
+      .from('funnel_ab_proposals')
+      .select('funnel_id, status')
+      .in('funnel_id', funnelIds)
+      .in('status', ['pending', 'active']);
+
+    if (proposalsError) {
+      console.error('❌ Error fetching A/B proposals:', proposalsError);
+      return funnels;
+    }
+
+    // Fetch latest analysis for each funnel
+    const { data: analyses, error: analysesError } = await supabase
+      .from('funnel_ab_analyses')
+      .select('funnel_id, analysis_date, next_analysis_date')
+      .in('funnel_id', funnelIds)
+      .order('analysis_date', { ascending: false });
+
+    if (analysesError) {
+      console.error('❌ Error fetching A/B analyses:', analysesError);
+    }
+
+    // Group proposals by funnel_id
+    const proposalsByFunnel = new Map<string, { pending: number; active: number }>();
+    proposals?.forEach(proposal => {
+      if (!proposalsByFunnel.has(proposal.funnel_id)) {
+        proposalsByFunnel.set(proposal.funnel_id, { pending: 0, active: 0 });
+      }
+      const stats = proposalsByFunnel.get(proposal.funnel_id)!;
+      if (proposal.status === 'pending') {
+        stats.pending++;
+      } else if (proposal.status === 'active') {
+        stats.active++;
+      }
+    });
+
+    // Group analyses by funnel_id (get the most recent one)
+    const latestAnalysisByFunnel = new Map<string, any>();
+    analyses?.forEach(analysis => {
+      if (!latestAnalysisByFunnel.has(analysis.funnel_id)) {
+        latestAnalysisByFunnel.set(analysis.funnel_id, analysis);
+      }
+    });
+
+    // Enrich funnels with A/B test data
+    const enrichedFunnels = funnels.map(funnel => {
+      const abStats = proposalsByFunnel.get(funnel.id);
+      const latestAnalysis = latestAnalysisByFunnel.get(funnel.id);
+
+      return {
+        ...funnel,
+        abTests: {
+          pendingCount: abStats?.pending || 0,
+          activeCount: abStats?.active || 0,
+          lastAnalysis: latestAnalysis?.analysis_date,
+          nextAnalysis: latestAnalysis?.next_analysis_date,
+        },
+      };
+    });
+
+    return enrichedFunnels;
+  } catch (error) {
+    console.error('Unexpected error enriching funnels with A/B test data:', error);
     return funnels;
   }
 }
