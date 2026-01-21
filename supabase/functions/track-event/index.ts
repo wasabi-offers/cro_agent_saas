@@ -144,6 +144,7 @@ serve(async (req) => {
       } else if (event.funnel_id) {
         console.log('📌 Using event.funnel_id:', event.funnel_id)
         eventData.funnel_id = event.funnel_id
+        eventData.funnel_step_name = event.funnel_step_name
         eventData.funnel_step_order = event.step_number
       } else {
         console.warn('⚠️ NO FUNNEL DATA FOUND IN EVENT!')
