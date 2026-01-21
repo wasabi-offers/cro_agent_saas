@@ -221,7 +221,7 @@ export default function HeatmapVisualization({
       <div className="p-6">
         <div className="relative bg-[#111111] rounded-xl border border-[#2a2a2a] overflow-auto" style={{ width: '100%', maxHeight: '90vh' }}>
           {/* Full page wrapper - let iframe dictate size */}
-          <div className="relative w-full h-full">
+          <div className="relative w-full" style={{ height: `${contentHeight}px` }}>
             {/* Page Iframe - FULL SIZE */}
             {showPage && pageUrl && (
               <iframe
@@ -230,7 +230,7 @@ export default function HeatmapVisualization({
                 className="w-full block"
                 style={{
                   pointerEvents: 'none',
-                  height: '3000px',
+                  height: `${contentHeight}px`,
                   border: 'none'
                 }}
                 sandbox="allow-same-origin allow-scripts"
@@ -243,7 +243,7 @@ export default function HeatmapVisualization({
               className="absolute top-0 left-0 w-full z-10"
               style={{
                 pointerEvents: 'none',
-                height: '3000px'
+                height: `${contentHeight}px`
               }}
             />
 
