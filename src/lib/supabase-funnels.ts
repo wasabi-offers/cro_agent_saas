@@ -574,27 +574,18 @@ export async function deleteFunnel(funnelId: string): Promise<boolean> {
 
 export async function enrichFunnelsWithLiveData(funnels: ConversionFunnel[]): Promise<ConversionFunnel[]> {
   if (!isSupabaseConfigured() || !supabase || funnels.length === 0) {
-    console.log('⚠️ Supabase not configured or no funnels');
     return funnels;
   }
 
   try {
     // Get all funnel IDs
     const funnelIds = funnels.map(f => f.id);
-    console.log('🔍 Fetching tracking data for funnels:', funnelIds);
-
     // Fetch all tracking events for these funnels
     const { data: events, error } = await supabase
       .from('tracking_events')
-      .select('funnel_id, funnel_step_name, session_id, created_at')
+      .select('funnel_id, funnel_step_name, session_id')
       .in('funnel_id', funnelIds)
       .not('funnel_step_name', 'is', null);
-
-    console.log('📊 Raw tracking events query result:', {
-      eventCount: events?.length || 0,
-      error: error,
-      sample: events?.slice(0, 3)
-    });
 
     if (error) {
       console.error('❌ Error fetching tracking events:', error);
@@ -602,11 +593,8 @@ export async function enrichFunnelsWithLiveData(funnels: ConversionFunnel[]): Pr
     }
 
     if (!events || events.length === 0) {
-      console.log('⚠️ No tracking events found for funnels - RETURNING STATIC DATA');
       return funnels;
     }
-
-    console.log(`📊 Found ${events.length} tracking events for ${funnels.length} funnels`);
 
     // Process events to count unique visitors per funnel step
     const funnelStats = new Map<string, Map<string, Set<string>>>();
@@ -626,33 +614,17 @@ export async function enrichFunnelsWithLiveData(funnels: ConversionFunnel[]): Pr
       stepStats.get(event.funnel_step_name)!.add(event.session_id);
     });
 
-    console.log('🔍 Funnel stats collected:');
-    funnelStats.forEach((stepStats, funnelId) => {
-      console.log(`  Funnel ${funnelId}:`);
-      stepStats.forEach((sessions, stepName) => {
-        console.log(`    "${stepName}": ${sessions.size} unique sessions`);
-      });
-    });
-
     // Update funnels with live data
     const enrichedFunnels = funnels.map(funnel => {
       const stepStats = funnelStats.get(funnel.id);
 
       if (!stepStats) {
-        // No tracking data for this funnel
-        console.log(`⚠️ No tracking data for funnel: ${funnel.name} (${funnel.id})`);
         return funnel;
       }
 
-      console.log(`✅ Processing funnel: ${funnel.name} (${funnel.id})`);
-      console.log(`   DB step names:`, funnel.steps.map(s => s.name));
-      console.log(`   Tracking step names:`, Array.from(stepStats.keys()));
-      console.log(`   Step stats:`, Array.from(stepStats.entries()).map(([name, sessions]) => `${name}: ${sessions.size} visitors`));
-
-      // Update each step with live visitor count
+      // Update each step with live visitor count from tracking
       const updatedSteps = funnel.steps.map((step, index) => {
         const visitors = stepStats.get(step.name)?.size || 0;
-        console.log(`   🔍 Looking for DB step "${step.name}" in tracking data: ${visitors > 0 ? 'FOUND ✅' : 'NOT FOUND ❌'} (${visitors} visitors)`);
 
         // Calculate dropoff from previous step
         let dropoff = 0;
@@ -663,24 +635,22 @@ export async function enrichFunnelsWithLiveData(funnels: ConversionFunnel[]): Pr
           }
         }
 
-        console.log(`   Step "${step.name}": ${visitors} visitors, ${dropoff.toFixed(1)}% dropoff`);
-
         return {
-          ...step,
-          visitors,
+          name: step.name,
+          url: step.url,
+          x: step.x,
+          y: step.y,
+          visitors: visitors,  // FORCE use tracking data
           dropoff: Number(dropoff.toFixed(1)),
         };
       });
 
       // Calculate conversion rate
-      console.log('🔍 DEBUG updatedSteps:', updatedSteps.map(s => ({ name: s.name, visitors: s.visitors })));
       const firstStepVisitors = updatedSteps[0]?.visitors || 0;
       const lastStepVisitors = updatedSteps[updatedSteps.length - 1]?.visitors || 0;
       const conversionRate = firstStepVisitors > 0
         ? (lastStepVisitors / firstStepVisitors) * 100
         : 0;
-
-      console.log(`   Conversion rate: ${conversionRate.toFixed(1)}% (${lastStepVisitors}/${firstStepVisitors})`);
 
       return {
         ...funnel,
@@ -689,7 +659,6 @@ export async function enrichFunnelsWithLiveData(funnels: ConversionFunnel[]): Pr
       };
     });
 
-    console.log('✅ Enrichment complete, returning enriched funnels');
     return enrichedFunnels;
   } catch (error) {
     console.error('Unexpected error enriching funnels with live data:', error);

@@ -30,7 +30,6 @@ export default function FunnelsListPage() {
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
-    console.log('🔄 Loading funnel data...');
     const funnelsData = await fetchFunnels();
     // Enrich with live tracking data
     const enrichedWithTracking = await enrichFunnelsWithLiveData(funnelsData);
@@ -39,7 +38,6 @@ export default function FunnelsListPage() {
     setFunnels(enrichedFunnels);
     setLastUpdate(new Date());
     setIsLoading(false);
-    console.log('✅ Funnel data loaded, next refresh in 10s');
   }, []);
 
   useEffect(() => {
