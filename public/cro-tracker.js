@@ -49,10 +49,18 @@
     }
   }
 
-  // Try to get step from URL parameter or page title
+  // Try to get step name from multiple sources (priority order)
   function getStepName() {
+    // 1. Check window.funnelStep (set by tracking script tag)
+    if (window.funnelStep) return window.funnelStep;
+
+    // 2. Check URL parameter
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('step') || document.title || 'Page ' + window.location.pathname;
+    const urlStep = urlParams.get('step');
+    if (urlStep) return urlStep;
+
+    // 3. Fallback to page title
+    return document.title || 'Page ' + window.location.pathname;
   }
   const FUNNEL_STEP = getStepName();
   const ENABLE_HEATMAP = true;

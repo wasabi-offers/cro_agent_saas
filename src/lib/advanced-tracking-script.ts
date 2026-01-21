@@ -509,6 +509,9 @@ export function getTrackingScriptTag(options: {
   const scriptUrl = 'https://dohrkonencbwvvmklzuo.supabase.co/storage/v1/object/public/scripts/cro-tracker.js';
 
   return `<!-- CRO Agent Tracking -->
-<script>window.funnelId="${options.funnelId}";</script>
+<script>
+window.funnelId="${options.funnelId}";
+window.funnelStep="${options.funnelStepName || 'Unknown Step'}";
+</script>
 <script src="${scriptUrl}"></script>`;
 }
