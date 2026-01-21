@@ -24,6 +24,10 @@ export async function GET(req: NextRequest) {
     const { searchParams } = req.nextUrl;
     const funnelId = searchParams.get('funnelId');
 
+    console.log('=====================================');
+    console.log('🔍 GET /api/funnel-stats/live');
+    console.log('Funnel ID:', funnelId);
+
     if (!funnelId) {
       return NextResponse.json(
         { error: "funnelId is required" },
@@ -34,13 +38,18 @@ export async function GET(req: NextRequest) {
     const supabase = getSupabaseClient();
 
     // Get funnel steps (ordered)
+    console.log('📊 Fetching funnel steps from database...');
     const { data: steps, error: stepsError } = await supabase
       .from('funnel_steps')
       .select('id, name, step_order')
       .eq('funnel_id', funnelId)
       .order('step_order', { ascending: true });
 
+    console.log('Steps found:', steps?.length || 0);
+    console.log('Steps:', JSON.stringify(steps));
+
     if (stepsError || !steps || steps.length === 0) {
+      console.error('❌ No steps found:', stepsError);
       return NextResponse.json({
         success: false,
         error: "No steps found for this funnel"
@@ -48,11 +57,16 @@ export async function GET(req: NextRequest) {
     }
 
     // Query tracking events for this funnel
+    console.log('📊 Fetching tracking events from database...');
     const { data: events, error: eventsError } = await supabase
       .from('tracking_events')
-      .select('session_id, funnel_step_name')
+      .select('session_id, funnel_step_name, event_type, funnel_id')
       .eq('funnel_id', funnelId)
       .eq('event_type', 'funnel_step');
+
+    console.log('Events query error:', eventsError);
+    console.log('Events found:', events?.length || 0);
+    console.log('Sample events:', JSON.stringify(events?.slice(0, 3)));
 
     if (eventsError) {
       console.error("Error fetching tracking events:", eventsError);
@@ -73,6 +87,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Group events by step name and count unique sessions
+    console.log('📊 Grouping events by step name...');
     const stepVisitors: { [stepName: string]: Set<string> } = {};
 
     events?.forEach(event => {
@@ -81,6 +96,11 @@ export async function GET(req: NextRequest) {
       }
       stepVisitors[event.funnel_step_name].add(event.session_id);
     });
+
+    console.log('Step visitors map:', Object.keys(stepVisitors).map(key => ({
+      stepName: key,
+      uniqueVisitors: stepVisitors[key].size
+    })));
 
     // Calculate live stats for each step
     const liveStats = [];
@@ -114,13 +134,18 @@ export async function GET(req: NextRequest) {
       ? (lastStepVisitors / firstStepVisitors) * 100
       : 0;
 
-    return NextResponse.json({
+    const response = {
       success: true,
       liveStats,
       conversionRate: Math.round(conversionRate * 100) / 100,
       totalVisitors: firstStepVisitors,
       conversions: lastStepVisitors,
-    });
+    };
+
+    console.log('✅ Returning response:', JSON.stringify(response));
+    console.log('=====================================');
+
+    return NextResponse.json(response);
 
   } catch (error: any) {
     console.error("Error fetching live stats:", error);
