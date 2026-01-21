@@ -130,9 +130,9 @@ export default function HeatmapVisualization({
     loadHeatmapData();
   }, [funnelId, stepName]);
 
-  // Update heatmap visualization
+  // Update heatmap visualization with coordinate scaling
   useEffect(() => {
-    if (!heatmapInstanceRef.current || !heatmapData) return;
+    if (!heatmapInstanceRef.current || !heatmapData || !containerRef.current) return;
 
     const data = heatmapData[heatmapType];
 
@@ -144,11 +144,38 @@ export default function HeatmapVisualization({
       return;
     }
 
+    // Get actual container dimensions
+    const containerWidth = containerRef.current.offsetWidth;
+    const containerHeight = containerRef.current.offsetHeight;
+
+    // Assume original coordinates were captured on standard viewport (1920x1080)
+    const ORIGINAL_WIDTH = 1920;
+    const ORIGINAL_HEIGHT = 1080;
+
+    // Scale coordinates to match current container size
+    const scaleX = containerWidth / ORIGINAL_WIDTH;
+    const scaleY = containerHeight / ORIGINAL_HEIGHT;
+
+    console.log('📐 Heatmap scaling:', {
+      containerWidth,
+      containerHeight,
+      scaleX: scaleX.toFixed(3),
+      scaleY: scaleY.toFixed(3),
+      originalPoints: data.points.length,
+    });
+
+    // Scale all points
+    const scaledPoints = data.points.map(point => ({
+      x: Math.round(point.x * scaleX),
+      y: Math.round(point.y * scaleY),
+      value: point.value,
+    }));
+
     heatmapInstanceRef.current.setData({
       max: data.max || 1,
-      data: data.points,
+      data: scaledPoints,
     });
-  }, [heatmapType, heatmapData]);
+  }, [heatmapType, heatmapData, contentHeight]);
 
   const hasData = heatmapData && heatmapData[heatmapType]?.points?.length > 0;
 
