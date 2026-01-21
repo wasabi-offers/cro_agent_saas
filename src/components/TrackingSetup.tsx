@@ -13,15 +13,22 @@ interface TrackingSetupProps {
 export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingSetupProps) {
   const [copied, setCopied] = useState<string | null>(null);
 
-  // Generate tracking scripts for each step
-  const trackingScripts = steps.map((step, index) => ({
+  // Universal script (once for entire site)
+  const universalScript = `<!-- CRO Agent Tracking - Install ONCE in all funnel pages -->
+<script src="https://cro-agent-saas.vercel.app/cro-tracker-v2.js"></script>`;
+
+  // Generate simple page-specific configs
+  const stepConfigs = steps.map((step, index) => ({
     stepName: step.name,
     url: step.url,
-    script: generateAdvancedTrackingScript({
-      funnelId,
-      funnelStepName: step.name,
-      enableHeatmap: true
-    })
+    script: `<!-- Page Config - ${step.name} -->
+<script>
+window.CROTrackerConfig = {
+  funnelId: "${funnelId}",
+  stepName: "${step.name}",
+  enableHeatmap: true
+};
+</script>`
   }));
 
   const handleCopy = (script: string, stepName: string) => {
@@ -49,11 +56,58 @@ export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingS
         </div>
       </div>
 
-      {/* Tracking Scripts for Each Step */}
-      <div className="space-y-4">
-        <h4 className="text-[16px] font-semibold text-[#fafafa]">Script di Tracking per Step</h4>
+      {/* STEP 1: Universal Script */}
+      <div className="bg-[#0a0a0a] border border-[#00d4aa]/30 rounded-2xl p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-8 h-8 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
+                <span className="text-[13px] font-bold text-[#00d4aa]">1</span>
+              </div>
+              <h5 className="text-[16px] font-semibold text-[#fafafa]">Script Universale (una volta sola)</h5>
+            </div>
+            <p className="text-[12px] text-[#888888] ml-11">
+              Installa questo script in TUTTE le pagine del funnel, prima del tag &lt;/body&gt;
+            </p>
+          </div>
+          <button
+            onClick={() => handleCopy(universalScript, 'universal')}
+            className="flex items-center gap-2 px-4 py-2 bg-[#00d4aa] hover:bg-[#00b894] text-white text-[13px] font-medium rounded-lg transition-all"
+          >
+            {copied === 'universal' ? (
+              <>
+                <CheckCircle2 className="w-4 h-4" />
+                Copiato!
+              </>
+            ) : (
+              <>
+                <Copy className="w-4 h-4" />
+                Copia Script
+              </>
+            )}
+          </button>
+        </div>
 
-        {trackingScripts.map((item, index) => (
+        <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-4">
+          <pre className="text-[11px] text-[#888888] font-mono overflow-x-auto whitespace-pre-wrap break-words">
+            {universalScript}
+          </pre>
+        </div>
+      </div>
+
+      {/* STEP 2: Page Configs */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-8 h-8 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
+            <span className="text-[13px] font-bold text-[#7c5cff]">2</span>
+          </div>
+          <h4 className="text-[16px] font-semibold text-[#fafafa]">Config per ogni Step</h4>
+        </div>
+        <p className="text-[13px] text-[#888888] ml-11 mb-4">
+          Aggiungi questi script PRIMA dello script universale, in ogni pagina specifica
+        </p>
+
+        {stepConfigs.map((item, index) => (
           <div key={index} className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
