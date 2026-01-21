@@ -15,6 +15,7 @@ import {
   Filter,
   ChevronDown,
   Trash2,
+  RefreshCw,
 } from "lucide-react";
 import FunnelBuilder from "@/components/FunnelBuilder";
 import { ConversionFunnel, fetchFunnels, createFunnel, deleteFunnel, enrichFunnelsWithLiveData, enrichFunnelsWithABTestData } from "@/lib/supabase-funnels";
@@ -26,19 +27,26 @@ export default function FunnelsListPage() {
   const [sortBy, setSortBy] = useState<"name" | "conversion" | "visitors">("conversion");
   const [showBuilder, setShowBuilder] = useState(false);
 
-  useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      const funnelsData = await fetchFunnels();
-      // Enrich with live tracking data
-      const enrichedWithTracking = await enrichFunnelsWithLiveData(funnelsData);
-      // Enrich with A/B test data
-      const enrichedFunnels = await enrichFunnelsWithABTestData(enrichedWithTracking);
-      setFunnels(enrichedFunnels);
-      setIsLoading(false);
-    };
+  const loadData = async () => {
+    setIsLoading(true);
+    const funnelsData = await fetchFunnels();
+    // Enrich with live tracking data
+    const enrichedWithTracking = await enrichFunnelsWithLiveData(funnelsData);
+    // Enrich with A/B test data
+    const enrichedFunnels = await enrichFunnelsWithABTestData(enrichedWithTracking);
+    setFunnels(enrichedFunnels);
+    setIsLoading(false);
+  };
 
+  useEffect(() => {
     loadData();
+
+    // Auto-refresh every 30 seconds to keep data live
+    const intervalId = setInterval(() => {
+      loadData();
+    }, 30000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const handleSaveFunnel = async (funnel: { name: string; steps: any[]; connections?: any[] }) => {
@@ -131,13 +139,24 @@ export default function FunnelsListPage() {
               Analyze user journeys and optimize conversion paths
             </p>
           </div>
-          <button
-            onClick={() => setShowBuilder(true)}
-            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
-          >
-            <Plus className="w-4 h-4" />
-            Create Funnel
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={loadData}
+              disabled={isLoading}
+              className="flex items-center gap-2 px-5 py-3 bg-[#0a0a0a] border border-white/10 text-[#fafafa] text-[14px] font-medium rounded-xl hover:border-[#7c5cff]/50 transition-all disabled:opacity-50"
+              title="Refresh live data"
+            >
+              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+              Refresh
+            </button>
+            <button
+              onClick={() => setShowBuilder(true)}
+              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
+            >
+              <Plus className="w-4 h-4" />
+              Create Funnel
+            </button>
+          </div>
         </div>
 
         {/* Summary Stats */}
