@@ -149,6 +149,11 @@
   // Track event
   function trackEvent(event) {
     console.log('[CRO Tracker] 📊 Tracking event:', event.type, event);
+    console.log('[CRO Tracker] 🔍 Event has funnelData?', !!event.funnelData);
+    if (event.funnelData) {
+      console.log('[CRO Tracker] 📋 funnelData:', event.funnelData);
+    }
+
     engaged = true;
     lastActivityTime = Date.now();
 
@@ -169,8 +174,21 @@
       viewportWidth: deviceInfo.viewportWidth,
       viewportHeight: deviceInfo.viewportHeight,
       language: deviceInfo.language,
-      ...event
     };
+
+    // Manually copy nested objects to avoid spread issues
+    if (event.clickData) baseEvent.clickData = event.clickData;
+    if (event.scrollData) baseEvent.scrollData = event.scrollData;
+    if (event.mouseData) baseEvent.mouseData = event.mouseData;
+    if (event.formData) baseEvent.formData = event.formData;
+    if (event.funnelData) {
+      console.log('[CRO Tracker] ✅ Adding funnelData to baseEvent:', event.funnelData);
+      baseEvent.funnelData = event.funnelData;
+    }
+    if (event.timeData) baseEvent.timeData = event.timeData;
+
+    console.log('[CRO Tracker] 📦 Final baseEvent:', baseEvent);
+    console.log('[CRO Tracker] 📦 baseEvent.funnelData:', baseEvent.funnelData);
 
     eventQueue.push(baseEvent);
     console.log('[CRO Tracker] Queue size:', eventQueue.length, '/', BATCH_SIZE);
