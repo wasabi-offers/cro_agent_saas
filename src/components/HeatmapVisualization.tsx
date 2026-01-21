@@ -37,11 +37,41 @@ export default function HeatmapVisualization({
   height = 800,
 }: HeatmapVisualizationProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const heatmapInstanceRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [heatmapData, setHeatmapData] = useState<Record<string, HeatmapData> | null>(null);
   const [stats, setStats] = useState<any>(null);
   const [showPage, setShowPage] = useState(true);
+  const [contentHeight, setContentHeight] = useState(2000);
+
+  // Detect iframe content height
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    const handleLoad = () => {
+      try {
+        const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document;
+        if (iframeDocument) {
+          const height = Math.max(
+            iframeDocument.body.scrollHeight,
+            iframeDocument.documentElement.scrollHeight,
+            3000 // minimum height
+          );
+          console.log('📏 Detected iframe content height:', height);
+          setContentHeight(height);
+        }
+      } catch (error) {
+        // CORS error - can't access iframe content
+        console.log('⚠️ Cannot detect iframe height (CORS), using default 3000px');
+        setContentHeight(3000);
+      }
+    };
+
+    iframe.addEventListener('load', handleLoad);
+    return () => iframe.removeEventListener('load', handleLoad);
+  }, [pageUrl]);
 
   // Initialize heatmap.js
   useEffect(() => {
@@ -100,9 +130,9 @@ export default function HeatmapVisualization({
     loadHeatmapData();
   }, [funnelId, stepName]);
 
-  // Update heatmap visualization
+  // Update heatmap visualization with coordinate scaling
   useEffect(() => {
-    if (!heatmapInstanceRef.current || !heatmapData) return;
+    if (!heatmapInstanceRef.current || !heatmapData || !containerRef.current) return;
 
     const data = heatmapData[heatmapType];
 
@@ -114,11 +144,38 @@ export default function HeatmapVisualization({
       return;
     }
 
+    // Get actual container dimensions
+    const containerWidth = containerRef.current.offsetWidth;
+    const containerHeight = containerRef.current.offsetHeight;
+
+    // Assume original coordinates were captured on standard viewport (1920x1080)
+    const ORIGINAL_WIDTH = 1920;
+    const ORIGINAL_HEIGHT = 1080;
+
+    // Scale coordinates to match current container size
+    const scaleX = containerWidth / ORIGINAL_WIDTH;
+    const scaleY = containerHeight / ORIGINAL_HEIGHT;
+
+    console.log('📐 Heatmap scaling:', {
+      containerWidth,
+      containerHeight,
+      scaleX: scaleX.toFixed(3),
+      scaleY: scaleY.toFixed(3),
+      originalPoints: data.points.length,
+    });
+
+    // Scale all points
+    const scaledPoints = data.points.map(point => ({
+      x: Math.round(point.x * scaleX),
+      y: Math.round(point.y * scaleY),
+      value: point.value,
+    }));
+
     heatmapInstanceRef.current.setData({
       max: data.max || 1,
-      data: data.points,
+      data: scaledPoints,
     });
-  }, [heatmapType, heatmapData]);
+  }, [heatmapType, heatmapData, contentHeight]);
 
   const hasData = heatmapData && heatmapData[heatmapType]?.points?.length > 0;
 
@@ -145,15 +202,16 @@ export default function HeatmapVisualization({
       <div className="p-6">
         <div className="relative bg-[#111111] rounded-xl border border-[#2a2a2a] overflow-y-auto overflow-x-hidden" style={{ height: '600px' }}>
           {/* Scrollable content wrapper */}
-          <div className="relative" style={{ minHeight: '600px', height: 'fit-content' }}>
+          <div className="relative" style={{ minHeight: '600px', height: `${contentHeight}px` }}>
             {/* Page Iframe (if enabled and hasURL) */}
             {showPage && pageUrl && (
               <iframe
+                ref={iframeRef}
                 src={pageUrl}
                 className="absolute top-0 left-0 w-full z-0"
                 style={{
                   pointerEvents: 'none',
-                  height: '2000px', // Tall enough to show full page
+                  height: `${contentHeight}px`,
                   minHeight: '100%'
                 }}
                 sandbox="allow-same-origin allow-scripts"
@@ -166,7 +224,7 @@ export default function HeatmapVisualization({
               className="absolute top-0 left-0 w-full z-10"
               style={{
                 pointerEvents: 'none',
-                height: '2000px', // Match iframe height
+                height: `${contentHeight}px`,
                 minHeight: '100%'
               }}
             />
