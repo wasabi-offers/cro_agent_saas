@@ -37,10 +37,13 @@ export default function HeatmapVisualization({
   height = 800,
 }: HeatmapVisualizationProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const heatmapInstanceRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [heatmapData, setHeatmapData] = useState<Record<string, HeatmapData> | null>(null);
   const [stats, setStats] = useState<any>(null);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
+  const [showIframe, setShowIframe] = useState(true);
 
   // Initialize heatmap.js instance
   useEffect(() => {
@@ -135,18 +138,52 @@ export default function HeatmapVisualization({
 
   return (
     <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl overflow-hidden">
+      {/* Controls */}
+      <div className="p-4 border-b border-[#2a2a2a] flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <h3 className="text-[14px] font-medium text-[#fafafa]">
+            {stepName} - {heatmapType.charAt(0).toUpperCase() + heatmapType.slice(1)} Heatmap
+          </h3>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowIframe(!showIframe)}
+            className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all ${
+              showIframe
+                ? 'bg-[#7c5cff] text-white'
+                : 'bg-[#111111] text-[#666666] hover:text-[#888888]'
+            }`}
+          >
+            {showIframe ? 'Hide' : 'Show'} Page
+          </button>
+        </div>
+      </div>
+
       {/* Heatmap Container */}
       <div className="p-6">
         <div className="relative bg-[#111111] rounded-xl overflow-hidden border border-[#2a2a2a]" style={{ height: '600px' }}>
+          {/* Page Preview (Iframe or placeholder) */}
+          {showIframe && pageUrl && (
+            <iframe
+              ref={iframeRef}
+              src={pageUrl}
+              onLoad={() => setIframeLoaded(true)}
+              className="absolute inset-0 w-full h-full z-0"
+              style={{ pointerEvents: 'none' }}
+              sandbox="allow-same-origin"
+            />
+          )}
+
           {/* Heatmap Layer */}
           <div
             ref={containerRef}
-            className="relative z-10 w-full h-full"
+            className="absolute inset-0 w-full h-full z-10"
+            style={{ pointerEvents: 'none' }}
           />
 
           {/* No Data Overlay */}
           {!isLoading && !hasData && (
-            <div className="absolute inset-0 flex items-center justify-center z-20">
+            <div className="absolute inset-0 flex items-center justify-center z-20 bg-[#111111]/90">
               <div className="text-center">
                 <MousePointerClick className="w-16 h-16 text-[#7c5cff] mx-auto mb-4 opacity-50" />
                 <p className="text-[16px] text-[#888888] mb-2">
@@ -161,11 +198,20 @@ export default function HeatmapVisualization({
 
           {/* Loading Overlay */}
           {isLoading && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20">
+            <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-20">
               <div className="flex items-center gap-3 text-white">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
                 <span className="text-[14px]">Loading heatmap data...</span>
               </div>
+            </div>
+          )}
+
+          {/* CORS Warning */}
+          {showIframe && pageUrl && !iframeLoaded && (
+            <div className="absolute bottom-4 left-4 right-4 z-20 bg-[#f59e0b]/10 border border-[#f59e0b]/30 rounded-lg p-3">
+              <p className="text-[12px] text-[#f59e0b]">
+                ⚠️ Page preview may not load due to CORS restrictions. The heatmap will still work.
+              </p>
             </div>
           )}
         </div>
