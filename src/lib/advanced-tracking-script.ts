@@ -506,7 +506,7 @@ export function getTrackingScriptTag(options: {
 } = {}): string {
   // Generate lightweight loader that loads external script from Supabase Storage
   // Same domain as API = no CORS issues
-  const scriptUrl = 'https://smwtkyvnmyetlektphyy.supabase.co/storage/v1/object/public/scripts/cro-tracker.js';
+  const scriptUrl = 'https://dohrkonencbwvvmklzuo.supabase.co/storage/v1/object/public/scripts/cro-tracker.js';
 
   return `<!-- CRO Agent Tracking -->
 <script>

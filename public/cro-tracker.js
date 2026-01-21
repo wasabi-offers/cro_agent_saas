@@ -9,8 +9,8 @@
   try {
 
   // Configuration from global window variables
-  const SUPABASE_URL = "https://smwtkyvnmyetlektphyy.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtd3RreXZubXlldGxla3RwaHl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYyNTQyOTQsImV4cCI6MjA1MTgzMDI5NH0.wVvPcRuNvhfx9IMQE-fFNmtdlmHlmPaNxphtE3bJZOA";
+  const SUPABASE_URL = "https://dohrkonencbwvvmklzuo.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvaHJrb25lbmNid3Z2bWtsenVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2OTAwNTUsImV4cCI6MjA4MzI2NjA1NX0.k2N-H_p-a4FHaOvq7V4u_uXkx45XIY-LZt0RoIJpjmU";
   const API_ENDPOINT = SUPABASE_URL + "/functions/v1/track-event";
   const FUNNEL_ID = window.croFunnelId || window.funnelId || null;
   const FUNNEL_STEP = window.croFunnelStep || null;

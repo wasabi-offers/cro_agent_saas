@@ -2,7 +2,7 @@
 
 ## 1. Upload Script to Supabase Storage
 
-1. Vai su https://supabase.com/dashboard/project/smwtkyvnmyetlektphyy/storage/buckets
+1. Vai su https://supabase.com/dashboard/project/dohrkonencbwvvmklzuo/storage/buckets
 2. Crea bucket "scripts" (se non esiste):
    - Nome: `scripts`
    - Public: ✅ YES
@@ -10,11 +10,11 @@
    - Vai nel bucket "scripts"
    - Upload `public/cro-tracker.js`
    - Nome file: `cro-tracker.js`
-4. Verifica URL pubblico: `https://smwtkyvnmyetlektphyy.supabase.co/storage/v1/object/public/scripts/cro-tracker.js`
+4. Verifica URL pubblico: `https://dohrkonencbwvvmklzuo.supabase.co/storage/v1/object/public/scripts/cro-tracker.js`
 
 ## 2. Deploy Edge Function
 
-1. Vai su https://supabase.com/dashboard/project/smwtkyvnmyetlektphyy/functions
+1. Vai su https://supabase.com/dashboard/project/dohrkonencbwvvmklzuo/functions
 2. Clicca "Create a new function"
 3. Nome: `track-event`
 4. Copia il contenuto da `supabase/functions/track-event/index.ts`
@@ -36,9 +36,9 @@ GoHighLevel/Cliente
     ↓
 Loader Script (inline)
     ↓
-https://smwtkyvnmyetlektphyy.supabase.co/storage/v1/object/public/scripts/cro-tracker.js
+https://dohrkonencbwvvmklzuo.supabase.co/storage/v1/object/public/scripts/cro-tracker.js
     ↓
-https://smwtkyvnmyetlektphyy.supabase.co/functions/v1/track-event
+https://dohrkonencbwvvmklzuo.supabase.co/functions/v1/track-event
     ↓
 Supabase Database (tracking_events, tracking_sessions)
 ```
