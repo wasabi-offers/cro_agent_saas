@@ -504,9 +504,9 @@ export function getTrackingScriptTag(options: {
   funnelStepName?: string;
   enableHeatmap?: boolean;
 } = {}): string {
-  // Generate lightweight loader that loads external script
-  // This avoids CORS issues - script is served from same domain as API
-  const scriptUrl = 'https://cro-agent-saas.vercel.app/api/script';
+  // Generate lightweight loader that loads external script from Supabase Storage
+  // Same domain as API = no CORS issues
+  const scriptUrl = 'https://dohrkonencbwvvmklzuo.supabase.co/storage/v1/object/public/scripts/cro-tracker.js';
 
   return `<!-- CRO Agent Tracking -->
 <script>
