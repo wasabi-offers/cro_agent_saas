@@ -59,8 +59,8 @@ export default function ABTestsPage() {
 
   // Filtri
   const [selectedFunnel, setSelectedFunnel] = useState<string>("all");
-  const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"date" | "status">("date");
+  const [availableFunnels, setAvailableFunnels] = useState<Array<{id: string, name: string}>>([]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -74,6 +74,17 @@ export default function ABTestsPage() {
         if (result.success) {
           setAbTestData(result.data);
           setProposals(result.data.proposals || []);
+
+          // Extract unique funnels from proposals
+          const funnelsMap = new Map<string, string>();
+          result.data.proposals?.forEach((p: ABTestProposal) => {
+            if (p.funnels) {
+              funnelsMap.set(p.funnels.id, p.funnels.name);
+            }
+          });
+          const funnels = Array.from(funnelsMap.entries()).map(([id, name]) => ({ id, name }));
+          setAvailableFunnels(funnels);
+
           if (result.data.proposals && result.data.proposals.length > 0) {
             setSelectedTest(result.data.proposals[0]);
           }
@@ -102,6 +113,17 @@ export default function ABTestsPage() {
       if (result.success) {
         setAbTestData(result.data);
         setProposals(result.data.proposals || []);
+
+        // Extract unique funnels from proposals
+        const funnelsMap = new Map<string, string>();
+        result.data.proposals?.forEach((p: ABTestProposal) => {
+          if (p.funnels) {
+            funnelsMap.set(p.funnels.id, p.funnels.name);
+          }
+        });
+        const funnels = Array.from(funnelsMap.entries()).map(([id, name]) => ({ id, name }));
+        setAvailableFunnels(funnels);
+
         if (result.data.proposals && result.data.proposals.length > 0) {
           setSelectedTest(result.data.proposals[0]);
         }
@@ -242,17 +264,16 @@ export default function ABTestsPage() {
             <div className="bg-[#0a0a0a] border border-white/10 rounded-xl p-4 flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <Target className="w-4 h-4 text-[#888888]" />
-                <span className="text-[13px] text-[#888888]">Status:</span>
+                <span className="text-[13px] text-[#888888]">Funnel:</span>
                 <select
-                  value={selectedStatus}
-                  onChange={(e) => setSelectedStatus(e.target.value)}
+                  value={selectedFunnel}
+                  onChange={(e) => setSelectedFunnel(e.target.value)}
                   className="px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[13px] text-[#fafafa] focus:outline-none focus:border-[#7c5cff] transition-all"
                 >
-                  <option value="all">All Status</option>
-                  <option value="pending">Pending</option>
-                  <option value="active">Active</option>
-                  <option value="completed">Completed</option>
-                  <option value="rejected">Rejected</option>
+                  <option value="all">All Funnels</option>
+                  {availableFunnels.map(funnel => (
+                    <option key={funnel.id} value={funnel.id}>{funnel.name}</option>
+                  ))}
                 </select>
               </div>
 
@@ -376,7 +397,7 @@ export default function ABTestsPage() {
               </div>
             ) : (
               proposals
-                .filter(p => selectedStatus === 'all' || p.status === selectedStatus)
+                .filter(p => selectedFunnel === 'all' || p.funnel_id === selectedFunnel)
                 .map((proposal, index) => {
                   const isActive = proposal.status === 'active';
                   const isPending = proposal.status === 'pending';
