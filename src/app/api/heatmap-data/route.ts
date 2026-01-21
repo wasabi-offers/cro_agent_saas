@@ -30,15 +30,22 @@ function getSupabaseClient() {
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const landingId = searchParams.get("landingId");
+    const funnelId = searchParams.get("funnelId") || searchParams.get("landingId"); // Support both
+    const stepName = searchParams.get("stepName");
     const dateFrom = searchParams.get("dateFrom") || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
     const dateTo = searchParams.get("dateTo") || new Date().toISOString();
 
-    if (!landingId) {
+    console.log('=====================================');
+    console.log('🔥 GET /api/heatmap-data');
+    console.log('Funnel ID:', funnelId);
+    console.log('Step Name:', stepName);
+    console.log('Date Range:', dateFrom, 'to', dateTo);
+
+    if (!funnelId) {
       return NextResponse.json(
         {
           success: false,
-          error: "landingId is required",
+          error: "funnelId is required",
         },
         { status: 400 }
       );
@@ -46,96 +53,112 @@ export async function GET(request: Request) {
 
     const supabase = getSupabaseClient();
 
-    // Try to fetch real data from database
     if (supabase) {
       try {
-        console.log(`📊 Fetching heatmap data for landing ${landingId} from ${dateFrom} to ${dateTo}`);
+        console.log('📊 Fetching heatmap data from tracking_events...');
 
-        // Fetch from pre-aggregated table for performance
-        const { data: heatmapData, error } = await supabase
-          .from('tracking_heatmap_data')
-          .select('event_type, x_position, y_position, intensity')
-          .eq('landing_id', landingId)
-          .gte('date', dateFrom.split('T')[0])
-          .lte('date', dateTo.split('T')[0]);
+        // Build query
+        let query = supabase
+          .from('tracking_events')
+          .select('event_type, click_x, click_y, mouse_x, mouse_y, scroll_depth')
+          .eq('funnel_id', funnelId)
+          .gte('timestamp', new Date(dateFrom).getTime())
+          .lte('timestamp', new Date(dateTo).getTime());
+
+        // Filter by step if provided
+        if (stepName) {
+          query = query.eq('funnel_step_name', stepName);
+        }
+
+        const { data: events, error } = await query.limit(10000);
+
+        console.log('Query error:', error);
+        console.log('Events found:', events?.length || 0);
 
         if (error) {
           console.error("❌ Supabase error:", error);
-          // Fall back to demo data
-        } else if (heatmapData && heatmapData.length > 0) {
-          console.log(`✅ Found ${heatmapData.length} aggregated data points`);
+          throw error;
+        }
 
-          // Transform database data to heatmap format
+        if (events && events.length > 0) {
+          console.log('✅ Found', events.length, 'tracking events');
+          console.log('Sample event:', events[0]);
+
+          // Process events into heatmap data
           const clickPoints: HeatmapPoint[] = [];
           const movementPoints: HeatmapPoint[] = [];
+          const scrollPoints: HeatmapPoint[] = [];
+
           let maxClick = 0;
           let maxMovement = 0;
+          let maxScroll = 0;
 
-          heatmapData.forEach(point => {
-            const heatmapPoint: HeatmapPoint = {
-              x: point.x_position,
-              y: point.y_position,
-              value: point.intensity,
-            };
+          // Count occurrences at each position for intensity
+          const clickMap: Record<string, number> = {};
+          const moveMap: Record<string, number> = {};
+          const scrollBands: Record<number, number> = {};
 
-            if (point.event_type === 'click') {
-              clickPoints.push(heatmapPoint);
-              maxClick = Math.max(maxClick, point.intensity);
-            } else if (point.event_type === 'movement') {
-              movementPoints.push(heatmapPoint);
-              maxMovement = Math.max(maxMovement, point.intensity);
+          events.forEach(event => {
+            // Process click events
+            if ((event.event_type === 'click' || event.event_type === 'cta_click') && event.click_x && event.click_y) {
+              const key = `${Math.floor(event.click_x / 10)}_${Math.floor(event.click_y / 10)}`; // 10px grid
+              clickMap[key] = (clickMap[key] || 0) + 1;
+            }
+
+            // Process mouse movement events
+            if (event.event_type === 'mousemove' && event.mouse_x && event.mouse_y) {
+              const key = `${Math.floor(event.mouse_x / 20)}_${Math.floor(event.mouse_y / 20)}`; // 20px grid
+              moveMap[key] = (moveMap[key] || 0) + 1;
+            }
+
+            // Process scroll events
+            if (event.event_type === 'scroll' && event.scroll_depth) {
+              const band = Math.floor(event.scroll_depth / 50) * 50; // 50px bands
+              scrollBands[band] = (scrollBands[band] || 0) + 1;
             }
           });
 
-          // Fetch scroll data separately (not aggregated)
-          const { data: scrollData, error: scrollError } = await supabase
-            .from('tracking_events')
-            .select('y_position, scroll_percentage')
-            .eq('landing_id', landingId)
-            .eq('event_type', 'scroll')
-            .gte('created_at', dateFrom)
-            .lte('created_at', dateTo)
-            .limit(500);
+          // Convert maps to points
+          Object.entries(clickMap).forEach(([key, count]) => {
+            const [x, y] = key.split('_').map(v => parseInt(v) * 10);
+            clickPoints.push({ x, y, value: count });
+            maxClick = Math.max(maxClick, count);
+          });
 
-          const scrollPoints: HeatmapPoint[] = [];
-          let maxScroll = 0;
+          Object.entries(moveMap).forEach(([key, count]) => {
+            const [x, y] = key.split('_').map(v => parseInt(v) * 20);
+            movementPoints.push({ x, y, value: count });
+            maxMovement = Math.max(maxMovement, count);
+          });
 
-          if (scrollData && scrollData.length > 0) {
-            // Group scroll events by y position bands
-            const scrollBands: Record<number, number> = {};
+          Object.entries(scrollBands).forEach(([y, count]) => {
+            scrollPoints.push({ x: 600, y: parseInt(y), value: count });
+            maxScroll = Math.max(maxScroll, count);
+          });
 
-            scrollData.forEach(scroll => {
-              const band = Math.floor(scroll.y_position / 50) * 50; // 50px bands
-              scrollBands[band] = (scrollBands[band] || 0) + 1;
-            });
+          console.log('📊 Heatmap stats:');
+          console.log('  Click points:', clickPoints.length, '(max:', maxClick, ')');
+          console.log('  Movement points:', movementPoints.length, '(max:', maxMovement, ')');
+          console.log('  Scroll bands:', scrollPoints.length, '(max:', maxScroll, ')');
 
-            Object.entries(scrollBands).forEach(([y, count]) => {
-              scrollPoints.push({
-                x: 600, // Center x position
-                y: parseInt(y),
-                value: count,
-              });
-              maxScroll = Math.max(maxScroll, count);
-            });
-          }
-
-          return NextResponse.json({
+          const response = {
             success: true,
-            landingId,
+            funnelId,
+            stepName: stepName || 'all',
             click: {
-              type: "click",
+              type: "click" as const,
               points: clickPoints,
-              max: maxClick || 100,
+              max: maxClick || 1,
             },
             scroll: {
-              type: "scroll",
+              type: "scroll" as const,
               points: scrollPoints,
-              max: maxScroll || 100,
+              max: maxScroll || 1,
             },
             movement: {
-              type: "movement",
+              type: "movement" as const,
               points: movementPoints,
-              max: maxMovement || 100,
+              max: maxMovement || 1,
             },
             generatedAt: new Date().toISOString(),
             source: "database",
@@ -144,21 +167,28 @@ export async function GET(request: Request) {
               totalMovements: movementPoints.length,
               totalScrolls: scrollPoints.length,
             },
-          });
+          };
+
+          console.log('✅ Returning heatmap data:', response.stats);
+          console.log('=====================================');
+
+          return NextResponse.json(response);
         }
+
+        console.log('⚠️ No events found, using demo data');
       } catch (dbError) {
         console.error("❌ Database error:", dbError);
-        // Fall through to demo data
       }
     }
 
-    // Fallback: return demo data if no real data or database not configured
+    // Fallback: return demo data
     console.log("📊 Using demo heatmap data");
+    console.log('=====================================');
     const heatmapData: Record<string, HeatmapData> = generateDemoHeatmapData();
 
     return NextResponse.json({
       success: true,
-      landingId,
+      funnelId,
       ...heatmapData,
       generatedAt: new Date().toISOString(),
       source: "demo",
