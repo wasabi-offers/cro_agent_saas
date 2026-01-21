@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MousePointer, MousePointerClick, Eye, ArrowDown } from "lucide-react";
+import { MousePointer, MousePointerClick, Eye, ArrowDown, RefreshCw } from "lucide-react";
 
 // Import heatmap.js
 // @ts-ignore
@@ -37,13 +37,14 @@ export default function HeatmapVisualization({
   height = 800,
 }: HeatmapVisualizationProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const heatmapInstanceRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [heatmapData, setHeatmapData] = useState<Record<string, HeatmapData> | null>(null);
   const [stats, setStats] = useState<any>(null);
-  const [iframeLoaded, setIframeLoaded] = useState(false);
-  const [showIframe, setShowIframe] = useState(true);
+  const [screenshot, setScreenshot] = useState<string | null>(null);
+  const [isCapturingScreenshot, setIsCapturingScreenshot] = useState(false);
+  const [screenshotError, setScreenshotError] = useState<string | null>(null);
 
   // Initialize heatmap.js instance
   useEffect(() => {
@@ -74,6 +75,36 @@ export default function HeatmapVisualization({
       }
     };
   }, []);
+
+  // Capture page screenshot
+  const captureScreenshot = async () => {
+    if (!pageUrl) return;
+
+    setIsCapturingScreenshot(true);
+    setScreenshotError(null);
+
+    try {
+      console.log('📸 Capturing screenshot for:', pageUrl);
+      const response = await fetch(`/api/capture-screenshot?url=${encodeURIComponent(pageUrl)}`);
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.image) {
+          setScreenshot(data.image);
+          console.log('✅ Screenshot captured successfully');
+        } else {
+          throw new Error(data.error || 'Failed to capture screenshot');
+        }
+      } else {
+        throw new Error(`Screenshot API returned ${response.status}`);
+      }
+    } catch (error) {
+      console.error('❌ Screenshot capture failed:', error);
+      setScreenshotError(error instanceof Error ? error.message : 'Failed to capture screenshot');
+    } finally {
+      setIsCapturingScreenshot(false);
+    }
+  };
 
   // Load heatmap data from API
   useEffect(() => {
@@ -111,6 +142,13 @@ export default function HeatmapVisualization({
     loadHeatmapData();
   }, [funnelId, stepName]);
 
+  // Auto-capture screenshot on mount
+  useEffect(() => {
+    if (pageUrl && !screenshot) {
+      captureScreenshot();
+    }
+  }, [pageUrl]);
+
   // Update heatmap visualization when type or data changes
   useEffect(() => {
     if (!heatmapInstanceRef.current || !heatmapData) return;
@@ -147,42 +185,71 @@ export default function HeatmapVisualization({
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setShowIframe(!showIframe)}
-            className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all ${
-              showIframe
-                ? 'bg-[#7c5cff] text-white'
-                : 'bg-[#111111] text-[#666666] hover:text-[#888888]'
-            }`}
+            onClick={captureScreenshot}
+            disabled={isCapturingScreenshot}
+            className="flex items-center gap-2 px-3 py-1.5 bg-[#111111] text-[#888888] hover:text-[#fafafa] rounded-lg text-[12px] font-medium transition-all disabled:opacity-50"
           >
-            {showIframe ? 'Hide' : 'Show'} Page
+            <RefreshCw className={`w-3 h-3 ${isCapturingScreenshot ? 'animate-spin' : ''}`} />
+            {isCapturingScreenshot ? 'Capturing...' : 'Refresh Page'}
           </button>
         </div>
       </div>
 
       {/* Heatmap Container */}
       <div className="p-6">
-        <div className="relative bg-[#111111] rounded-xl overflow-hidden border border-[#2a2a2a]" style={{ height: '600px' }}>
-          {/* Page Preview (Iframe or placeholder) */}
-          {showIframe && pageUrl && (
-            <iframe
-              ref={iframeRef}
-              src={pageUrl}
-              onLoad={() => setIframeLoaded(true)}
-              className="absolute inset-0 w-full h-full z-0"
-              style={{ pointerEvents: 'none' }}
-              sandbox="allow-same-origin"
+        <div
+          ref={scrollContainerRef}
+          className="relative bg-[#111111] rounded-xl overflow-auto border border-[#2a2a2a]"
+          style={{ height: '600px' }}
+        >
+          {/* Screenshot Background */}
+          {screenshot && (
+            <img
+              src={screenshot}
+              alt="Page screenshot"
+              className="relative w-full h-auto"
+              style={{ minHeight: '100%', objectFit: 'contain' }}
             />
           )}
 
-          {/* Heatmap Layer */}
+          {/* Heatmap Overlay */}
           <div
             ref={containerRef}
-            className="absolute inset-0 w-full h-full z-10"
+            className="absolute top-0 left-0 w-full h-full z-10"
             style={{ pointerEvents: 'none' }}
           />
 
+          {/* No Screenshot Yet */}
+          {!screenshot && !isCapturingScreenshot && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center">
+                <MousePointerClick className="w-16 h-16 text-[#7c5cff] mx-auto mb-4 opacity-50" />
+                <p className="text-[16px] text-[#888888] mb-2">
+                  Page screenshot not available
+                </p>
+                <button
+                  onClick={captureScreenshot}
+                  className="mt-4 px-4 py-2 bg-[#7c5cff] text-white rounded-lg text-[14px] font-medium hover:bg-[#6b4fee] transition-all"
+                >
+                  Capture Screenshot
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Screenshot Capturing */}
+          {isCapturingScreenshot && (
+            <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-20">
+              <div className="flex flex-col items-center gap-3 text-white">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
+                <span className="text-[14px]">Capturing page screenshot...</span>
+                <span className="text-[12px] text-[#666666]">This may take a few seconds</span>
+              </div>
+            </div>
+          )}
+
           {/* No Data Overlay */}
-          {!isLoading && !hasData && (
+          {screenshot && !isLoading && !hasData && (
             <div className="absolute inset-0 flex items-center justify-center z-20 bg-[#111111]/90">
               <div className="text-center">
                 <MousePointerClick className="w-16 h-16 text-[#7c5cff] mx-auto mb-4 opacity-50" />
@@ -196,21 +263,19 @@ export default function HeatmapVisualization({
             </div>
           )}
 
-          {/* Loading Overlay */}
-          {isLoading && (
-            <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-20">
-              <div className="flex items-center gap-3 text-white">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
-                <span className="text-[14px]">Loading heatmap data...</span>
-              </div>
+          {/* Loading Heatmap Data */}
+          {isLoading && screenshot && (
+            <div className="absolute top-4 right-4 z-20 bg-[#111111] border border-[#2a2a2a] rounded-lg px-3 py-2 flex items-center gap-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#7c5cff]" />
+              <span className="text-[12px] text-[#888888]">Loading data...</span>
             </div>
           )}
 
-          {/* CORS Warning */}
-          {showIframe && pageUrl && !iframeLoaded && (
-            <div className="absolute bottom-4 left-4 right-4 z-20 bg-[#f59e0b]/10 border border-[#f59e0b]/30 rounded-lg p-3">
-              <p className="text-[12px] text-[#f59e0b]">
-                ⚠️ Page preview may not load due to CORS restrictions. The heatmap will still work.
+          {/* Screenshot Error */}
+          {screenshotError && (
+            <div className="absolute bottom-4 left-4 right-4 z-20 bg-[#ff6b6b]/10 border border-[#ff6b6b]/30 rounded-lg p-3">
+              <p className="text-[12px] text-[#ff6b6b]">
+                ❌ {screenshotError}
               </p>
             </div>
           )}
