@@ -7,6 +7,7 @@ import {
   BarChart3,
   FlaskConical,
   MousePointerClick,
+  Database,
   Settings,
   TrendingUp,
   FileSearch,
@@ -21,6 +22,7 @@ const menuItems = [
   { name: "Heatmaps", href: "/heatmaps", icon: MousePointerClick },
   { name: "Funnels", href: "/funnels", icon: TrendingUp },
   { name: "Landing Analysis", href: "/landing-analysis", icon: FileSearch },
+  { name: "Data Sources", href: "/data-sources", icon: Database },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
