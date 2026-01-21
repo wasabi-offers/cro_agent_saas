@@ -9,28 +9,44 @@
   try {
 
   // Configuration from global window variables
+  console.log('[CRO Tracker] 🚀 Script loaded and running');
+
   const SUPABASE_URL = "https://dohrkonencbwvvmklzuo.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvaHJrb25lbmNid3Z2bWtsenVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2OTAwNTUsImV4cCI6MjA4MzI2NjA1NX0.k2N-H_p-a4FHaOvq7V4u_uXkx45XIY-LZt0RoIJpjmU";
   const API_ENDPOINT = SUPABASE_URL + "/functions/v1/track-event";
 
+  console.log('[CRO Tracker] 📡 API Endpoint:', API_ENDPOINT);
+
   // Get funnel ID from window.funnelId or sessionStorage (for multi-step funnels)
+  console.log('[CRO Tracker] 🔍 Looking for funnel ID...');
+  console.log('[CRO Tracker] window.funnelId =', window.funnelId);
+
   let FUNNEL_ID = window.funnelId || null;
   if (!FUNNEL_ID) {
     try {
       FUNNEL_ID = sessionStorage.getItem('funnel_id');
-    } catch (e) {}
+      console.log('[CRO Tracker] Found in sessionStorage:', FUNNEL_ID);
+    } catch (e) {
+      console.warn('[CRO Tracker] sessionStorage not accessible:', e);
+    }
   }
 
   if (!FUNNEL_ID) {
     console.error('[Funnel Tracker] ❌ INITIALIZATION FAILED - funnel_id NOT FOUND');
     console.error('[Funnel Tracker] Add funnel_id via: <script>window.funnelId="xxx";</script>');
+    console.error('[Funnel Tracker] Current window object:', window);
     return;
   }
+
+  console.log('[CRO Tracker] ✅ Funnel ID found:', FUNNEL_ID);
 
   if (FUNNEL_ID) {
     try {
       sessionStorage.setItem('funnel_id', FUNNEL_ID);
-    } catch (e) {}
+      console.log('[CRO Tracker] ✅ Saved to sessionStorage');
+    } catch (e) {
+      console.warn('[CRO Tracker] Could not save to sessionStorage:', e);
+    }
   }
 
   // Try to get step from URL parameter or page title
@@ -132,6 +148,7 @@
 
   // Track event
   function trackEvent(event) {
+    console.log('[CRO Tracker] 📊 Tracking event:', event.type, event);
     engaged = true;
     lastActivityTime = Date.now();
 
@@ -156,22 +173,33 @@
     };
 
     eventQueue.push(baseEvent);
+    console.log('[CRO Tracker] Queue size:', eventQueue.length, '/', BATCH_SIZE);
 
     if (eventQueue.length >= BATCH_SIZE) {
+      console.log('[CRO Tracker] 🚀 Queue full, flushing events...');
       flushEvents();
     }
   }
 
   // Send events to server (with sendBeacon fallback)
   async function flushEvents() {
-    if (eventQueue.length === 0) return;
+    if (eventQueue.length === 0) {
+      console.log('[CRO Tracker] ⏭️  Queue empty, nothing to flush');
+      return;
+    }
+
+    console.log('[CRO Tracker] 📤 Flushing', eventQueue.length, 'events to server...');
 
     const eventsToSend = [...eventQueue];
     eventQueue = [];
 
     const payload = JSON.stringify({ events: eventsToSend });
+    console.log('[CRO Tracker] 📦 Payload size:', payload.length, 'bytes');
+    console.log('[CRO Tracker] 📦 First event:', eventsToSend[0]);
 
     try {
+      console.log('[CRO Tracker] 🌐 Sending to:', API_ENDPOINT);
+
       const response = await fetch(API_ENDPOINT, {
         method: 'POST',
         headers: {
@@ -183,12 +211,25 @@
         keepalive: true
       });
 
+      console.log('[CRO Tracker] 📡 Response status:', response.status, response.statusText);
+
       if (!response.ok) {
-        throw new Error('HTTP ' + response.status);
+        const errorText = await response.text();
+        console.error('[CRO Tracker] ❌ Server error response:', errorText);
+        throw new Error('HTTP ' + response.status + ': ' + errorText);
       }
-      console.log('[CRO Tracking] ✅ Sent', eventsToSend.length, 'events');
+
+      const responseData = await response.json();
+      console.log('[CRO Tracker] ✅ Server response:', responseData);
+      console.log('[CRO Tracker] ✅ Successfully sent', eventsToSend.length, 'events');
     } catch (error) {
-      console.error('[CRO Tracking] ❌ Send failed:', error);
+      console.error('[CRO Tracker] ❌ Send failed:', error);
+      console.error('[CRO Tracker] ❌ Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+      console.log('[CRO Tracker] 🔄 Re-queuing events for retry...');
       eventQueue = [...eventsToSend, ...eventQueue];
     }
   }
@@ -370,10 +411,15 @@
     }
   });
 
-  console.log('[CRO Tracking] Initialized - Session:', sessionId);
-  if (FUNNEL_ID && FUNNEL_STEP) {
-    console.log('[Funnel Tracker] Started - Funnel:', FUNNEL_ID, 'Step:', FUNNEL_STEP);
-  }
+  console.log('=====================================');
+  console.log('[CRO Tracker] ✅ FULLY INITIALIZED');
+  console.log('[CRO Tracker] Session ID:', sessionId);
+  console.log('[CRO Tracker] Funnel ID:', FUNNEL_ID);
+  console.log('[CRO Tracker] Step:', FUNNEL_STEP);
+  console.log('[CRO Tracker] API Endpoint:', API_ENDPOINT);
+  console.log('[CRO Tracker] Heatmap:', ENABLE_HEATMAP ? 'ON' : 'OFF');
+  console.log('[CRO Tracker] Device:', deviceInfo.type, '/', deviceInfo.browser);
+  console.log('=====================================');
 
   } catch (globalError) {
     console.error('[CRO Tracking] Failed:', globalError);
