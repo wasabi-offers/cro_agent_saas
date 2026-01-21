@@ -592,33 +592,40 @@ export default function FunnelDetailPage() {
                       )}
 
                       <div className="relative">
-                        <div
-                          className={`h-20 rounded-xl flex items-center px-6 transition-all ${
-                            isLast
-                              ? 'bg-gradient-to-r from-[#00d4aa]/30 to-[#00d4aa]/10 border border-[#00d4aa]/30'
-                              : 'bg-gradient-to-r from-[#7c5cff]/30 to-[#7c5cff]/10 border border-[#7c5cff]/30'
-                          }`}
-                          style={{ width: `${Math.max(widthPercentage, 20)}%` }}
-                        >
-                          <div className="flex items-center justify-between w-full">
-                            <div className="flex items-center gap-4">
-                              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isLast ? 'bg-[#00d4aa]/20' : 'bg-[#7c5cff]/20'}`}>
-                                <span className={`text-[14px] font-bold ${isLast ? 'text-[#00d4aa]' : 'text-[#7c5cff]'}`}>
-                                  {index + 1}
-                                </span>
+                        {/* Background bar (always full width) */}
+                        <div className="relative h-20 rounded-xl border border-[#2a2a2a] bg-[#111111] overflow-hidden">
+                          {/* Progress bar showing relative volume */}
+                          <div
+                            className={`absolute inset-0 transition-all ${
+                              isLast
+                                ? 'bg-gradient-to-r from-[#00d4aa]/30 to-[#00d4aa]/10'
+                                : 'bg-gradient-to-r from-[#7c5cff]/30 to-[#7c5cff]/10'
+                            }`}
+                            style={{ width: `${Math.max(widthPercentage, 8)}%` }}
+                          />
+
+                          {/* Content layer */}
+                          <div className="relative z-10 h-full flex items-center px-6">
+                            <div className="flex items-center justify-between w-full">
+                              <div className="flex items-center gap-4">
+                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isLast ? 'bg-[#00d4aa]/20' : 'bg-[#7c5cff]/20'}`}>
+                                  <span className={`text-[14px] font-bold ${isLast ? 'text-[#00d4aa]' : 'text-[#7c5cff]'}`}>
+                                    {index + 1}
+                                  </span>
+                                </div>
+                                <div>
+                                  <p className="text-[14px] font-medium text-[#fafafa]">{step.name}</p>
+                                  <p className="text-[12px] text-[#666666]">
+                                    {stepConversion.toFixed(1)}% of previous step
+                                  </p>
+                                </div>
                               </div>
-                              <div>
-                                <p className="text-[14px] font-medium text-[#fafafa]">{step.name}</p>
-                                <p className="text-[12px] text-[#666666]">
-                                  {stepConversion.toFixed(1)}% of previous step
+                              <div className="text-right">
+                                <p className={`text-[20px] font-bold ${isLast ? 'text-[#00d4aa]' : 'text-[#fafafa]'}`}>
+                                  {step.visitors.toLocaleString()}
                                 </p>
+                                <p className="text-[11px] text-[#666666]">users</p>
                               </div>
-                            </div>
-                            <div className="text-right">
-                              <p className={`text-[20px] font-bold ${isLast ? 'text-[#00d4aa]' : 'text-[#fafafa]'}`}>
-                                {step.visitors.toLocaleString()}
-                              </p>
-                              <p className="text-[11px] text-[#666666]">users</p>
                             </div>
                           </div>
                         </div>
