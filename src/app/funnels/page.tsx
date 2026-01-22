@@ -18,7 +18,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import FunnelBuilder from "@/components/FunnelBuilder";
-import { ConversionFunnel, fetchFunnels, createFunnel, deleteFunnel, enrichFunnelsWithLiveData, enrichFunnelsWithABTestData } from "@/lib/supabase-funnels";
+import { ConversionFunnel, fetchFunnels, createFunnel, deleteFunnel, enrichFunnelsWithABTestData } from "@/lib/supabase-funnels";
 
 export default function FunnelsListPage() {
   const [funnels, setFunnels] = useState<ConversionFunnel[]>([]);
@@ -31,11 +31,45 @@ export default function FunnelsListPage() {
   const loadData = useCallback(async () => {
     setIsLoading(true);
     const funnelsData = await fetchFunnels();
-    // Enrich with live tracking data
-    const enrichedWithTracking = await enrichFunnelsWithLiveData(funnelsData);
+
+    // Fetch LIVE data for each funnel using the same endpoint as detail page
+    const enrichedFunnels = await Promise.all(
+      funnelsData.map(async (funnel) => {
+        try {
+          const liveStatsResponse = await fetch(`/api/funnel-stats/live?funnelId=${funnel.id}`);
+          if (liveStatsResponse.ok) {
+            const liveData = await liveStatsResponse.json();
+            if (liveData.success && liveData.liveStats) {
+              // Update funnel with live stats
+              const updatedSteps = funnel.steps.map((step) => {
+                const liveStat = liveData.liveStats.find((ls: any) => ls.stepName === step.name);
+                if (liveStat) {
+                  return {
+                    ...step,
+                    visitors: liveStat.visitors,
+                    dropoff: liveStat.dropoff,
+                  };
+                }
+                return step;
+              });
+
+              return {
+                ...funnel,
+                steps: updatedSteps,
+                conversionRate: liveData.conversionRate,
+              };
+            }
+          }
+        } catch (error) {
+          console.warn(`⚠️ Could not fetch live stats for ${funnel.id}:`, error);
+        }
+        return funnel;
+      })
+    );
+
     // Enrich with A/B test data
-    const enrichedFunnels = await enrichFunnelsWithABTestData(enrichedWithTracking);
-    setFunnels(enrichedFunnels);
+    const finalFunnels = await enrichFunnelsWithABTestData(enrichedFunnels);
+    setFunnels(finalFunnels);
     setLastUpdate(new Date());
     setIsLoading(false);
   }, []);
