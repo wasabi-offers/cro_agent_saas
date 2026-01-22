@@ -23,7 +23,6 @@ import {
   Clock,
   Table,
   Save,
-  Zap,
   Flame,
 } from "lucide-react";
 import { CROTableRow, SavedLandingPage, landingPageStorage } from "@/lib/saved-items";
@@ -52,8 +51,6 @@ export default function LandingAnalysisPage() {
 
   // CRO Table state
   const [croTableRows, setCroTableRows] = useState<CROTableRow[]>([]);
-  const [isGeneratingTable, setIsGeneratingTable] = useState(false);
-  const [croTableError, setCroTableError] = useState("");
 
   // Save dialog state
   const [showSaveDialog, setShowSaveDialog] = useState(false);
@@ -130,7 +127,6 @@ export default function LandingAnalysisPage() {
           console.log("✅ CRO Table generated successfully");
         } else {
           console.error("❌ CRO Table generation failed:", croTableData.error);
-          setCroTableError(croTableData.error || "Failed to generate CRO table");
         }
       } else {
         const errorData = await croTableResponse.json();
@@ -138,56 +134,11 @@ export default function LandingAnalysisPage() {
         if (errorData.rawResponse) {
           console.log("📝 Raw AI response:", errorData.rawResponse);
         }
-        setCroTableError(errorData.error || "API request failed");
       }
     } catch (err) {
       setError("An error occurred. Please try again later.");
     } finally {
       setIsAnalyzing(false);
-    }
-  };
-
-  const handleGenerateCROTable = async () => {
-    if (!url) {
-      setCroTableError("Please analyze a page first");
-      return;
-    }
-
-    setIsGeneratingTable(true);
-    setCroTableError("");
-
-    try {
-      const response = await fetch("/api/generate-cro-table", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          url,
-          type: 'landing',
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to generate CRO table");
-      }
-
-      const data = await response.json();
-      if (data.success) {
-        setCroTableRows(data.rows);
-        setViewMode("cro-table");
-        console.log("✅ CRO Table generated with real data");
-      } else {
-        throw new Error(data.error || "Failed to generate CRO table");
-      }
-    } catch (err: any) {
-      const errorMsg = err instanceof Error ? err.message : "An error occurred generating the CRO table";
-      console.error("❌ CRO Table generation error:", errorMsg);
-      if (err.rawResponse) {
-        console.log("📝 Raw AI response:", err.rawResponse);
-      }
-      setCroTableError(errorMsg);
-    } finally {
-      setIsGeneratingTable(false);
     }
   };
 
@@ -418,51 +369,23 @@ export default function LandingAnalysisPage() {
           )}
 
           {/* Analyze Button */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <button
-              onClick={handleAnalyze}
-              disabled={isAnalyzing}
-              className="bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white px-6 py-4 rounded-xl font-medium text-[15px] hover:shadow-lg hover:shadow-purple-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {isAnalyzing ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Analyzing...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-5 h-5" />
-                  Start Analysis
-                </>
-              )}
-            </button>
-
-            <button
-              onClick={handleGenerateCROTable}
-              disabled={isGeneratingTable || !url}
-              className="bg-[#0a0a0a] border-2 border-[#7c5cff] text-[#7c5cff] px-6 py-4 rounded-xl font-medium text-[15px] hover:bg-[#7c5cff]/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {isGeneratingTable ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Zap className="w-5 h-5" />
-                  Generate CRO Decision Table
-                </>
-              )}
-            </button>
-          </div>
-
-          {/* CRO Table Error */}
-          {croTableError && (
-            <div className="mt-4 flex items-center gap-2 text-[#ff6b6b] text-[14px] bg-[#ff6b6b]/10 border border-[#ff6b6b]/20 rounded-xl px-4 py-3">
-              <AlertCircle className="w-4 h-4" />
-              {croTableError}
-            </div>
-          )}
+          <button
+            onClick={handleAnalyze}
+            disabled={isAnalyzing}
+            className="bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white px-6 py-4 rounded-xl font-medium text-[15px] hover:shadow-lg hover:shadow-purple-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {isAnalyzing ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Analyzing...
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-5 h-5" />
+                Start Analysis
+              </>
+            )}
+          </button>
         </div>
 
         {/* Preview Section */}
@@ -623,18 +546,10 @@ export default function LandingAnalysisPage() {
               ) : (
                 <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-12 text-center">
                   <Table className="w-16 h-16 text-[#666666] mx-auto mb-4" />
-                  <p className="text-[16px] text-[#888888] mb-2">No CRO Decision Table generated yet</p>
-                  <p className="text-[14px] text-[#666666] mb-6">
-                    Click "Generate CRO Decision Table" to create a detailed analysis
+                  <p className="text-[16px] text-[#888888] mb-2">No CRO Decision Table available</p>
+                  <p className="text-[14px] text-[#666666]">
+                    The CRO table will be generated automatically during analysis
                   </p>
-                  <button
-                    onClick={handleGenerateCROTable}
-                    disabled={isGeneratingTable}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white rounded-xl font-medium text-[15px] hover:shadow-lg hover:shadow-purple-500/20 transition-all"
-                  >
-                    <Zap className="w-5 h-5" />
-                    Generate Now
-                  </button>
                 </div>
               )
             )}
