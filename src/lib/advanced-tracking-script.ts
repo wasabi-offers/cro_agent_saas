@@ -504,6 +504,6 @@ export function getTrackingScriptTag(options: {
   funnelStepName?: string;
   enableHeatmap?: boolean;
 } = {}): string {
-  // Use inline script directly (no external dependencies)
+  // Use inline script directly - no external dependencies
   return generateAdvancedTrackingScript(options);
 }
