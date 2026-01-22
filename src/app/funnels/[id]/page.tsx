@@ -108,11 +108,7 @@ export default function FunnelDetailPage() {
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
-      console.warn('🔄🔄🔄 PAGE [ID] - Loading funnel data for:', funnelId);
       const funnelData = await fetchFunnel(funnelId);
-      console.warn('🔄🔄🔄 PAGE [ID] - Funnel data loaded:', funnelData);
-      console.warn('🔄🔄🔄 PAGE [ID] - Connections in loaded data:', funnelData?.connections);
-      console.warn('🔄🔄🔄 PAGE [ID] - Number of connections:', funnelData?.connections?.length || 0);
 
       // Fetch LIVE stats from tracking (client-side)
       if (funnelData) {
@@ -120,14 +116,22 @@ export default function FunnelDetailPage() {
           const params = new URLSearchParams({
             funnelId,
             startDate: dateRange.start,
-            endDate: dateRange.end
+            endDate: dateRange.end,
+            _t: Date.now().toString() // Prevent caching
           });
 
-          const liveStatsResponse = await fetch(`/api/funnel-stats/live?${params.toString()}`);
+          const liveStatsResponse = await fetch(
+            `/api/funnel-stats/live?${params.toString()}`,
+            {
+              cache: 'no-store',
+              headers: {
+                'Cache-Control': 'no-cache',
+              }
+            }
+          );
           if (liveStatsResponse.ok) {
             const liveData = await liveStatsResponse.json();
             if (liveData.success && liveData.liveStats) {
-              console.log('📊 Updating with LIVE stats from tracking_events');
               // Update funnel data with live stats
               funnelData.conversionRate = liveData.conversionRate;
               liveData.liveStats.forEach((liveStat: any) => {

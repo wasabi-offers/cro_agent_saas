@@ -33,10 +33,20 @@ export default function FunnelsListPage() {
     const funnelsData = await fetchFunnels();
 
     // Fetch LIVE data for each funnel using the same endpoint as detail page
+    // Add timestamp to prevent caching
+    const timestamp = Date.now();
     const enrichedFunnels = await Promise.all(
       funnelsData.map(async (funnel) => {
         try {
-          const liveStatsResponse = await fetch(`/api/funnel-stats/live?funnelId=${funnel.id}`);
+          const liveStatsResponse = await fetch(
+            `/api/funnel-stats/live?funnelId=${funnel.id}&_t=${timestamp}`,
+            {
+              cache: 'no-store',
+              headers: {
+                'Cache-Control': 'no-cache',
+              }
+            }
+          );
           if (liveStatsResponse.ok) {
             const liveData = await liveStatsResponse.json();
             if (liveData.success && liveData.liveStats) {
