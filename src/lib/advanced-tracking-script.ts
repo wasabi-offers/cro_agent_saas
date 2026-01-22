@@ -504,14 +504,6 @@ export function getTrackingScriptTag(options: {
   funnelStepName?: string;
   enableHeatmap?: boolean;
 } = {}): string {
-  // Generate lightweight loader that loads external script from Supabase Storage
-  // Same domain as API = no CORS issues
-  const scriptUrl = 'https://dohrkonencbwvvmklzuo.supabase.co/storage/v1/object/public/scripts/cro-tracker.js';
-
-  return `<!-- CRO Agent Tracking -->
-<script>
-window.funnelId="${options.funnelId}";
-window.funnelStep="${options.funnelStepName || 'Unknown Step'}";
-</script>
-<script src="${scriptUrl}"></script>`;
+  // Use inline script directly (no external dependencies)
+  return generateAdvancedTrackingScript(options);
 }
