@@ -689,7 +689,13 @@ export default function LandingAnalysisPage() {
         onClose={() => setShowSaveDialog(false)}
         onSave={handleSave}
         type="landing"
-        defaultName={url ? new URL(url).hostname : ''}
+        defaultName={url ? (() => {
+          try {
+            return new URL(url).hostname;
+          } catch {
+            return url;
+          }
+        })() : ''}
         defaultUrl={url}
       />
     </div>
