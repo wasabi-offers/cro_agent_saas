@@ -23,11 +23,15 @@ import {
   AlertTriangle,
   Eye,
   Activity,
+  XCircle,
+  ChevronDown,
 } from "lucide-react";
 import type { CRODashboardData } from "@/lib/supabase-data";
+import { ConversionFunnel } from "@/lib/supabase-funnels";
 
 export default function Home() {
   const [dashboardData, setDashboardData] = useState<CRODashboardData | null>(null);
+  const [funnels, setFunnels] = useState<ConversionFunnel[]>([]);
   const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -52,18 +56,67 @@ export default function Home() {
       setError(null);
 
       try {
-        const response = await fetch('/api/analytics-data');
+        // Load analytics data and funnels in parallel
+        const [analyticsResponse, funnelsResponse] = await Promise.all([
+          fetch('/api/analytics-data'),
+          fetch('/api/funnels'),
+        ]);
 
-        if (!response.ok) {
-          throw new Error(`Server error: ${response.status}`);
+        if (!analyticsResponse.ok) {
+          throw new Error(`Server error: ${analyticsResponse.status}`);
         }
 
-        const result = await response.json();
+        const analyticsResult = await analyticsResponse.json();
 
-        if (result.success) {
-          setDashboardData(result.data);
+        if (analyticsResult.success) {
+          setDashboardData(analyticsResult.data);
         } else {
-          setError(result.error || 'Failed to load data');
+          setError(analyticsResult.error || 'Failed to load data');
+        }
+
+        // Load funnels with live stats
+        if (funnelsResponse.ok) {
+          const funnelsData = await funnelsResponse.json();
+
+          // Enrich funnels with live data
+          const enrichedFunnels = await Promise.all(
+            funnelsData.map(async (funnel: ConversionFunnel) => {
+              try {
+                const liveStatsResponse = await fetch(
+                  `/api/funnel-stats/live?funnelId=${funnel.id}&_t=${Date.now()}`,
+                  { cache: 'no-store' }
+                );
+
+                if (liveStatsResponse.ok) {
+                  const liveData = await liveStatsResponse.json();
+                  if (liveData.success && liveData.liveStats) {
+                    const updatedSteps = funnel.steps.map((step) => {
+                      const liveStat = liveData.liveStats.find((ls: any) => ls.stepName === step.name);
+                      if (liveStat) {
+                        return {
+                          ...step,
+                          visitors: liveStat.visitors,
+                          dropoff: liveStat.dropoff,
+                        };
+                      }
+                      return step;
+                    });
+
+                    return {
+                      ...funnel,
+                      steps: updatedSteps,
+                      conversionRate: liveData.conversionRate,
+                    };
+                  }
+                }
+              } catch (error) {
+                console.warn(`Could not fetch live stats for ${funnel.id}:`, error);
+              }
+              return funnel;
+            })
+          );
+
+          setFunnels(enrichedFunnels);
         }
       } catch (err) {
         console.error('Error loading dashboard data:', err);
@@ -74,6 +127,10 @@ export default function Home() {
     };
 
     loadData();
+
+    // Auto-refresh every 5 seconds
+    const interval = setInterval(loadData, 5000);
+    return () => clearInterval(interval);
   }, [dateRange]);
 
   // Request AI Analysis
@@ -538,6 +595,230 @@ export default function Home() {
             </div>
           ))}
         </div>
+
+        {/* Funnels with Issues */}
+        {funnels.length > 0 && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+            {/* Funnel Problems */}
+            <div className="bg-[#0a0a0a] border border-[#ff6b6b]/30 rounded-2xl overflow-hidden">
+              <div className="px-6 py-5 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-[#ff6b6b]/10 to-transparent">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-[#ff6b6b]/20 rounded-xl flex items-center justify-center">
+                    <XCircle className="w-5 h-5 text-[#ff6b6b]" />
+                  </div>
+                  <div>
+                    <h2 className="text-[18px] font-semibold text-[#fafafa]">
+                      Funnel con Problemi
+                    </h2>
+                    <p className="text-[13px] text-[#666666] mt-0.5">
+                      Step con alto dropout
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href="/funnels"
+                  className="text-[#888888] hover:text-[#fafafa] text-[13px] flex items-center gap-1 transition-colors"
+                >
+                  Vedi tutti
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+
+              <div className="p-6 space-y-4">
+                {funnels
+                  .filter(funnel => {
+                    // Filtra funnel con step che hanno dropoff > 50%
+                    return funnel.steps.some(step => step.dropoff > 50);
+                  })
+                  .slice(0, 3)
+                  .map(funnel => {
+                    const criticalStep = funnel.steps.reduce((worst, step) =>
+                      step.dropoff > worst.dropoff ? step : worst
+                    );
+
+                    return (
+                      <Link
+                        key={funnel.id}
+                        href={`/funnels/${funnel.id}`}
+                        className="block p-4 bg-[#111111] border border-[#ff6b6b]/20 rounded-xl hover:border-[#ff6b6b]/40 transition-all group"
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <h3 className="text-[15px] font-semibold text-[#fafafa] mb-1">
+                              {funnel.name}
+                            </h3>
+                            <p className="text-[12px] text-[#888888]">
+                              Conversion Rate: {funnel.conversionRate.toFixed(2)}%
+                            </p>
+                          </div>
+                          <div className="px-2.5 py-1 bg-[#ff6b6b]/20 text-[#ff6b6b] rounded-lg text-[11px] font-medium">
+                            Critico
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 mb-2">
+                          <AlertTriangle className="w-4 h-4 text-[#ff6b6b]" />
+                          <span className="text-[13px] text-[#ff6b6b] font-medium">
+                            {criticalStep.dropoff.toFixed(1)}% dropout su "{criticalStep.name}"
+                          </span>
+                        </div>
+
+                        <div className="text-[12px] text-[#666666]">
+                          {funnel.steps[0].visitors} visitatori → {funnel.steps[funnel.steps.length - 1].visitors} conversioni
+                        </div>
+                      </Link>
+                    );
+                  })}
+
+                {funnels.filter(f => f.steps.some(s => s.dropoff > 50)).length === 0 && (
+                  <div className="text-center py-8">
+                    <CheckCircle2 className="w-12 h-12 text-[#00d4aa] mx-auto mb-3" />
+                    <p className="text-[14px] text-[#888888]">
+                      Tutti i funnel sono performanti! 🎉
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Urgent Actions */}
+            <div className="bg-[#0a0a0a] border border-[#f59e0b]/30 rounded-2xl overflow-hidden">
+              <div className="px-6 py-5 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-[#f59e0b]/10 to-transparent">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-[#f59e0b]/20 rounded-xl flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-[#f59e0b]" />
+                  </div>
+                  <div>
+                    <h2 className="text-[18px] font-semibold text-[#fafafa]">
+                      Azioni Urgenti
+                    </h2>
+                    <p className="text-[13px] text-[#666666] mt-0.5">
+                      Da fare subito
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 space-y-3">
+                {/* Urgent actions based on data */}
+                {funnels.filter(f => f.steps.some(s => s.dropoff > 80)).length > 0 && (
+                  <div className="p-4 bg-[#ff6b6b]/10 border border-[#ff6b6b]/30 rounded-xl">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-[#ff6b6b]/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <AlertCircle className="w-4 h-4 text-[#ff6b6b]" />
+                      </div>
+                      <div>
+                        <h4 className="text-[14px] font-semibold text-[#fafafa] mb-1">
+                          Dropout Critico Rilevato
+                        </h4>
+                        <p className="text-[12px] text-[#888888] mb-2">
+                          {funnels.filter(f => f.steps.some(s => s.dropoff > 80)).length} funnel con dropout oltre l'80%
+                        </p>
+                        <Link
+                          href="/funnels"
+                          className="inline-flex items-center gap-1 text-[12px] text-[#ff6b6b] font-medium hover:underline"
+                        >
+                          Analizza ora
+                          <ArrowRight className="w-3 h-3" />
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {summary.totalRageClicks > 50 && (
+                  <div className="p-4 bg-[#f59e0b]/10 border border-[#f59e0b]/30 rounded-xl">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <MousePointerClick className="w-4 h-4 text-[#f59e0b]" />
+                      </div>
+                      <div>
+                        <h4 className="text-[14px] font-semibold text-[#fafafa] mb-1">
+                          Rage Click Elevati
+                        </h4>
+                        <p className="text-[12px] text-[#888888] mb-2">
+                          {summary.totalRageClicks} rage clicks - utenti frustrati
+                        </p>
+                        <button
+                          onClick={() => requestAIAnalysis('ux-issues')}
+                          className="inline-flex items-center gap-1 text-[12px] text-[#f59e0b] font-medium hover:underline"
+                        >
+                          Analizza con AI
+                          <Sparkles className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {funnels.filter(f => f.conversionRate < 1).length > 0 && (
+                  <div className="p-4 bg-[#7c5cff]/10 border border-[#7c5cff]/30 rounded-xl">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Target className="w-4 h-4 text-[#7c5cff]" />
+                      </div>
+                      <div>
+                        <h4 className="text-[14px] font-semibold text-[#fafafa] mb-1">
+                          Conversione Sotto Target
+                        </h4>
+                        <p className="text-[12px] text-[#888888] mb-2">
+                          {funnels.filter(f => f.conversionRate < 1).length} funnel sotto l'1% di conversione
+                        </p>
+                        <Link
+                          href="/funnels"
+                          className="inline-flex items-center gap-1 text-[12px] text-[#7c5cff] font-medium hover:underline"
+                        >
+                          Genera A/B Test
+                          <FlaskConical className="w-3 h-3" />
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {summary.avgScrollDepth < 40 && (
+                  <div className="p-4 bg-[#00d4aa]/10 border border-[#00d4aa]/30 rounded-xl">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <ChevronDown className="w-4 h-4 text-[#00d4aa]" />
+                      </div>
+                      <div>
+                        <h4 className="text-[14px] font-semibold text-[#fafafa] mb-1">
+                          Scroll Depth Basso
+                        </h4>
+                        <p className="text-[12px] text-[#888888] mb-2">
+                          Scroll medio {summary.avgScrollDepth.toFixed(0)}% - contenuti non visti
+                        </p>
+                        <Link
+                          href="/landing-analysis"
+                          className="inline-flex items-center gap-1 text-[12px] text-[#00d4aa] font-medium hover:underline"
+                        >
+                          Analizza landing page
+                          <Eye className="w-3 h-3" />
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {funnels.length === 0 && summary.totalSessions === 0 && (
+                  <div className="text-center py-8">
+                    <Activity className="w-12 h-12 text-[#666666] mx-auto mb-3" />
+                    <p className="text-[14px] text-[#888888] mb-2">
+                      Nessun dato di tracking ancora
+                    </p>
+                    <Link
+                      href="/funnels"
+                      className="text-[12px] text-[#7c5cff] font-medium hover:underline"
+                    >
+                      Crea il tuo primo funnel
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Quick Actions */}
         <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6">
