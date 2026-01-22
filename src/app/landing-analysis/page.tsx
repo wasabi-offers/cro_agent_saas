@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Header from "@/components/Header";
 import VisualAnnotations from "@/components/VisualAnnotations";
 import BeforeAfterTracking from "@/components/BeforeAfterTracking";
@@ -57,6 +57,9 @@ export default function LandingAnalysisPage() {
 
   // Save dialog state
   const [showSaveDialog, setShowSaveDialog] = useState(false);
+
+  // Ref for PDF export
+  const exportContentRef = useRef<HTMLDivElement>(null);
 
   const filters = [
     { id: "all", label: "Complete Analysis", icon: Sparkles },
@@ -518,9 +521,12 @@ export default function LandingAnalysisPage() {
                 </button>
 
                 {/* Export/Share Buttons */}
-                <ExportShareButtons pageUrl={url} />
+                <ExportShareButtons pageUrl={url} contentRef={exportContentRef} />
               </div>
             </div>
+
+            {/* Export Content Wrapper */}
+            <div ref={exportContentRef}>
 
             {/* View Toggle */}
             <div className="flex justify-center mb-6">
@@ -679,6 +685,7 @@ export default function LandingAnalysisPage() {
                 </div>
               );
             })}
+            </div>
           </div>
         )}
       </div>

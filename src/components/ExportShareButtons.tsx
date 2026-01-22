@@ -1,37 +1,83 @@
 "use client";
 
-import { useState } from "react";
+import { useState, RefObject } from "react";
 import { Download, Share2, Link2, Check, FileText, Mail } from "lucide-react";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 interface ExportShareButtonsProps {
   pageUrl: string;
   analysisDate?: string;
+  contentRef?: RefObject<HTMLElement>;
 }
 
 export default function ExportShareButtons({
   pageUrl,
   analysisDate = new Date().toISOString(),
+  contentRef,
 }: ExportShareButtonsProps) {
   const [isExporting, setIsExporting] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const [shareMenuOpen, setShareMenuOpen] = useState(false);
 
   const handleExportPDF = async () => {
+    if (!contentRef?.current) {
+      alert('Unable to export PDF: content not found');
+      return;
+    }
+
     setIsExporting(true);
 
-    // Simulate PDF generation
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+      // Capture the content as canvas
+      const canvas = await html2canvas(contentRef.current, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#000000',
+        logging: false,
+      });
 
-    // In a real app, this would generate and download a PDF
-    const link = document.createElement('a');
-    link.href = '#'; // Would be blob URL in real implementation
-    link.download = `cro-analysis-${new Date().toISOString().split('T')[0]}.pdf`;
-    // link.click();
+      // Calculate PDF dimensions
+      const imgWidth = 210; // A4 width in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-    setIsExporting(false);
+      // Create PDF
+      const pdf = new jsPDF({
+        orientation: imgHeight > imgWidth ? 'portrait' : 'landscape',
+        unit: 'mm',
+        format: 'a4',
+      });
 
-    // Show success message
-    alert('PDF export functionality would trigger here. In production, this would generate a comprehensive PDF report.');
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+      // Add image to PDF
+      if (imgHeight > 297) { // A4 height
+        // If content is too long, split into pages
+        let position = 0;
+        const pageHeight = 297;
+
+        while (position < imgHeight) {
+          if (position > 0) {
+            pdf.addPage();
+          }
+          pdf.addImage(imgData, 'JPEG', 0, -position, imgWidth, imgHeight);
+          position += pageHeight;
+        }
+      } else {
+        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+      }
+
+      // Download PDF
+      const fileName = `cro-analysis-${new Date().toISOString().split('T')[0]}.pdf`;
+      pdf.save(fileName);
+
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error generating PDF. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const handleCopyLink = () => {
