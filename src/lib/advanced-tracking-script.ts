@@ -504,6 +504,10 @@ export function getTrackingScriptTag(options: {
   funnelStepName?: string;
   enableHeatmap?: boolean;
 } = {}): string {
-  // Use inline script directly - no external dependencies
-  return generateAdvancedTrackingScript(options);
+  return `<!-- CRO Agent Tracking -->
+<script>
+window.funnelId="${options.funnelId || ''}";
+window.funnelStep="${options.funnelStepName || ''}";
+</script>
+<script src="https://dohrkonencbwvvmklzuo.supabase.co/storage/v1/object/public/scripts/cro-tracker.js"></script>`;
 }
