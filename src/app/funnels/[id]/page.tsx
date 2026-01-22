@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import DateRangePicker from "@/components/DateRangePicker";
-import DeviceFilter from "@/components/DeviceFilter";
 import ROIEstimator from "@/components/ROIEstimator";
 import TrackingSetup from "@/components/TrackingSetup";
 import Link from "next/link";
@@ -105,7 +104,6 @@ export default function FunnelDetailPage() {
     };
   };
   const [dateRange, setDateRange] = useState(getDefaultDateRange());
-  const [deviceFilter, setDeviceFilter] = useState<"all" | "desktop" | "mobile">("all");
 
   useEffect(() => {
     const loadData = async () => {
@@ -119,12 +117,11 @@ export default function FunnelDetailPage() {
       // Fetch LIVE stats from tracking (client-side)
       if (funnelData) {
         try {
-          const params = new URLSearchParams({ funnelId });
-          if (deviceFilter !== 'all') {
-            params.append('device', deviceFilter);
-          }
-          params.append('startDate', dateRange.start);
-          params.append('endDate', dateRange.end);
+          const params = new URLSearchParams({
+            funnelId,
+            startDate: dateRange.start,
+            endDate: dateRange.end
+          });
 
           const liveStatsResponse = await fetch(`/api/funnel-stats/live?${params.toString()}`);
           if (liveStatsResponse.ok) {
@@ -152,7 +149,7 @@ export default function FunnelDetailPage() {
     };
 
     loadData();
-  }, [funnelId, dateRange, deviceFilter]);
+  }, [funnelId, dateRange]);
 
   // Load saved A/B test proposals from database
   const loadSavedProposals = async () => {
@@ -514,8 +511,6 @@ export default function FunnelDetailPage() {
           </Link>
 
           <div className="flex items-center gap-6">
-            <DeviceFilter value={deviceFilter} onChange={setDeviceFilter} />
-            <div className="h-10 w-px bg-[#2a2a2a]" />
             <DateRangePicker value={dateRange} onChange={setDateRange} />
             <div className="h-10 w-px bg-[#2a2a2a]" />
             <div className="text-right">
