@@ -106,8 +106,8 @@ export default function FunnelDetailPage() {
   const [dateRange, setDateRange] = useState(getDefaultDateRange());
 
   useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
+    const loadData = async (showLoader = true) => {
+      if (showLoader) setIsLoading(true);
       const funnelData = await fetchFunnel(funnelId);
 
       // Fetch LIVE stats from tracking (client-side)
@@ -153,6 +153,13 @@ export default function FunnelDetailPage() {
     };
 
     loadData();
+
+    // Auto-refresh every 3 seconds for real-time updates
+    const interval = setInterval(() => {
+      loadData(false); // Don't show loader on auto-refresh
+    }, 3000);
+
+    return () => clearInterval(interval);
   }, [funnelId, dateRange]);
 
   // Load saved A/B test proposals from database
