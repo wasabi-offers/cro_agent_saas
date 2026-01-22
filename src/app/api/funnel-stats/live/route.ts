@@ -40,18 +40,13 @@ export async function GET(req: NextRequest) {
     const supabase = getSupabaseClient();
 
     // Get funnel steps (ordered)
-    console.log('📊 Fetching funnel steps from database...');
     const { data: steps, error: stepsError } = await supabase
       .from('funnel_steps')
       .select('id, name, step_order')
       .eq('funnel_id', funnelId)
       .order('step_order', { ascending: true });
 
-    console.log('Steps found:', steps?.length || 0);
-    console.log('Steps:', JSON.stringify(steps));
-
     if (stepsError || !steps || steps.length === 0) {
-      console.error('❌ No steps found:', stepsError);
       return NextResponse.json({
         success: false,
         error: "No steps found for this funnel"
@@ -59,7 +54,6 @@ export async function GET(req: NextRequest) {
     }
 
     // Query tracking events for this funnel
-    console.log('📊 Fetching tracking events from database...');
     let query = supabase
       .from('tracking_events')
       .select('session_id, funnel_step_name, event_type, funnel_id')
@@ -74,12 +68,7 @@ export async function GET(req: NextRequest) {
 
     const { data: events, error: eventsError } = await query;
 
-    console.log('Events query error:', eventsError);
-    console.log('Events found:', events?.length || 0);
-    console.log('Sample events:', JSON.stringify(events?.slice(0, 3)));
-
     if (eventsError) {
-      console.error("Error fetching tracking events:", eventsError);
       // Return empty stats if no tracking data yet
       return NextResponse.json({
         success: true,
@@ -93,11 +82,16 @@ export async function GET(req: NextRequest) {
         conversionRate: 0,
         totalVisitors: 0,
         conversions: 0,
+      }, {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        }
       });
     }
 
     // Group events by step name and count unique sessions
-    console.log('📊 Grouping events by step name...');
     const stepVisitors: { [stepName: string]: Set<string> } = {};
 
     events?.forEach(event => {
@@ -106,11 +100,6 @@ export async function GET(req: NextRequest) {
       }
       stepVisitors[event.funnel_step_name].add(event.session_id);
     });
-
-    console.log('Step visitors map:', Object.keys(stepVisitors).map(key => ({
-      stepName: key,
-      uniqueVisitors: stepVisitors[key].size
-    })));
 
     // Calculate live stats for each step
     const liveStats = [];
@@ -152,10 +141,13 @@ export async function GET(req: NextRequest) {
       conversions: lastStepVisitors,
     };
 
-    console.log('✅ Returning response:', JSON.stringify(response));
-    console.log('=====================================');
-
-    return NextResponse.json(response);
+    return NextResponse.json(response, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      }
+    });
 
   } catch (error: any) {
     console.error("Error fetching live stats:", error);

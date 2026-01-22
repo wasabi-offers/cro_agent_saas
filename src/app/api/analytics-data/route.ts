@@ -101,15 +101,81 @@ export async function GET() {
           mobilePercentage,
           desktopPercentage,
         },
-        byDevice: [
-          { device: 'Mobile', sessions: deviceCounts.mobile, percentage: mobilePercentage },
-          { device: 'Desktop', sessions: deviceCounts.desktop, percentage: desktopPercentage },
-          { device: 'Tablet', sessions: deviceCounts.tablet, percentage: (deviceCounts.tablet / (totalSessions || 1)) * 100 },
+        trafficByDevice: [
+          {
+            device: 'Mobile',
+            total_session_count: deviceCounts.mobile,
+            distinct_user_count: sessions?.filter(s => s.device_type === 'mobile').length || 0,
+            pages_per_session: 0,
+            total_bot_session_count: 0,
+            fetched_at: new Date().toISOString()
+          },
+          {
+            device: 'Desktop',
+            total_session_count: deviceCounts.desktop,
+            distinct_user_count: sessions?.filter(s => s.device_type === 'desktop').length || 0,
+            pages_per_session: 0,
+            total_bot_session_count: 0,
+            fetched_at: new Date().toISOString()
+          },
+          {
+            device: 'Tablet',
+            total_session_count: deviceCounts.tablet,
+            distinct_user_count: sessions?.filter(s => s.device_type === 'tablet').length || 0,
+            pages_per_session: 0,
+            total_bot_session_count: 0,
+            fetched_at: new Date().toISOString()
+          },
         ],
+        engagementByDevice: [],
         uxIssues: [
-          { type: 'Dead Clicks', count: deadClicks, severity: deadClicks > 100 ? 'HIGH' : deadClicks > 50 ? 'MEDIUM' : 'LOW' },
-          { type: 'Rage Clicks', count: rageClicks, severity: rageClicks > 50 ? 'HIGH' : rageClicks > 20 ? 'MEDIUM' : 'LOW' },
-          { type: 'Exit Intent', count: exitIntents, severity: exitIntents > 100 ? 'HIGH' : exitIntents > 50 ? 'MEDIUM' : 'LOW' },
+          // Mobile issues
+          {
+            device: 'Mobile',
+            metric_name: 'DeadClickCount',
+            sub_total: Math.floor(deadClicks * (deviceCounts.mobile / (totalSessions || 1))),
+            sessions_with_metric_percentage: totalSessions > 0 ? ((deadClicks / totalSessions) * 100).toFixed(1) : '0',
+            sessions_count: deviceCounts.mobile,
+            project_id: 'tracking',
+            fetched_at: new Date().toISOString()
+          },
+          {
+            device: 'Mobile',
+            metric_name: 'RageClickCount',
+            sub_total: Math.floor(rageClicks * (deviceCounts.mobile / (totalSessions || 1))),
+            sessions_with_metric_percentage: totalSessions > 0 ? ((rageClicks / totalSessions) * 100).toFixed(1) : '0',
+            sessions_count: deviceCounts.mobile,
+            project_id: 'tracking',
+            fetched_at: new Date().toISOString()
+          },
+          // Desktop issues
+          {
+            device: 'Desktop',
+            metric_name: 'DeadClickCount',
+            sub_total: Math.floor(deadClicks * (deviceCounts.desktop / (totalSessions || 1))),
+            sessions_with_metric_percentage: totalSessions > 0 ? ((deadClicks / totalSessions) * 100).toFixed(1) : '0',
+            sessions_count: deviceCounts.desktop,
+            project_id: 'tracking',
+            fetched_at: new Date().toISOString()
+          },
+          {
+            device: 'Desktop',
+            metric_name: 'RageClickCount',
+            sub_total: Math.floor(rageClicks * (deviceCounts.desktop / (totalSessions || 1))),
+            sessions_with_metric_percentage: totalSessions > 0 ? ((rageClicks / totalSessions) * 100).toFixed(1) : '0',
+            sessions_count: deviceCounts.desktop,
+            project_id: 'tracking',
+            fetched_at: new Date().toISOString()
+          },
+          {
+            device: 'Desktop',
+            metric_name: 'QuickbackCount',
+            sub_total: Math.floor(exitIntents * (deviceCounts.desktop / (totalSessions || 1))),
+            sessions_with_metric_percentage: totalSessions > 0 ? ((exitIntents / totalSessions) * 100).toFixed(1) : '0',
+            sessions_count: deviceCounts.desktop,
+            project_id: 'tracking',
+            fetched_at: new Date().toISOString()
+          },
         ],
       }
     });
