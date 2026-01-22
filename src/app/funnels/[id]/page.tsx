@@ -119,7 +119,14 @@ export default function FunnelDetailPage() {
       // Fetch LIVE stats from tracking (client-side)
       if (funnelData) {
         try {
-          const liveStatsResponse = await fetch(`/api/funnel-stats/live?funnelId=${funnelId}`);
+          const params = new URLSearchParams({ funnelId });
+          if (deviceFilter !== 'all') {
+            params.append('device', deviceFilter);
+          }
+          params.append('startDate', dateRange.start);
+          params.append('endDate', dateRange.end);
+
+          const liveStatsResponse = await fetch(`/api/funnel-stats/live?${params.toString()}`);
           if (liveStatsResponse.ok) {
             const liveData = await liveStatsResponse.json();
             if (liveData.success && liveData.liveStats) {

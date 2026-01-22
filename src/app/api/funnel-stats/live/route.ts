@@ -23,10 +23,15 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = req.nextUrl;
     const funnelId = searchParams.get('funnelId');
+    const device = searchParams.get('device');
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
 
     console.log('=====================================');
     console.log('🔍 GET /api/funnel-stats/live');
     console.log('Funnel ID:', funnelId);
+    console.log('Device filter:', device || 'all');
+    console.log('Date range:', startDate, 'to', endDate);
 
     if (!funnelId) {
       return NextResponse.json(
@@ -56,13 +61,28 @@ export async function GET(req: NextRequest) {
       }, { status: 404 });
     }
 
-    // Query tracking events for this funnel
+    // Query tracking events for this funnel with filters
     console.log('📊 Fetching tracking events from database...');
-    const { data: events, error: eventsError } = await supabase
+    let query = supabase
       .from('tracking_events')
-      .select('session_id, funnel_step_name, event_type, funnel_id')
+      .select('session_id, funnel_step_name, event_type, funnel_id, device_type, created_at')
       .eq('funnel_id', funnelId)
       .eq('event_type', 'funnel_step');
+
+    // Apply device filter
+    if (device && device !== 'all') {
+      query = query.eq('device_type', device);
+    }
+
+    // Apply date range filter
+    if (startDate) {
+      query = query.gte('created_at', `${startDate}T00:00:00.000Z`);
+    }
+    if (endDate) {
+      query = query.lte('created_at', `${endDate}T23:59:59.999Z`);
+    }
+
+    const { data: events, error: eventsError } = await query;
 
     console.log('Events query error:', eventsError);
     console.log('Events found:', events?.length || 0);
