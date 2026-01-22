@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Header from "@/components/Header";
 import VisualAnnotations from "@/components/VisualAnnotations";
 import BeforeAfterTracking from "@/components/BeforeAfterTracking";
@@ -24,6 +24,7 @@ import {
   Table,
   Save,
   Flame,
+  X,
 } from "lucide-react";
 import { CROTableRow, SavedLandingPage, landingPageStorage } from "@/lib/saved-items";
 
@@ -58,6 +59,35 @@ export default function LandingAnalysisPage() {
   // Ref for PDF export
   const exportContentRef = useRef<HTMLDivElement>(null);
 
+  // Load saved analysis from sessionStorage on mount
+  useEffect(() => {
+    const savedAnalysis = sessionStorage.getItem('landingAnalysis');
+    if (savedAnalysis) {
+      try {
+        const data = JSON.parse(savedAnalysis);
+        setUrl(data.url || "");
+        setResults(data.results || []);
+        setCroTableRows(data.croTableRows || []);
+        setViewMode(data.viewMode || "visual");
+      } catch (err) {
+        console.error("Failed to load saved analysis:", err);
+      }
+    }
+  }, []);
+
+  // Save analysis to sessionStorage whenever it changes
+  useEffect(() => {
+    if (url && (results.length > 0 || croTableRows.length > 0)) {
+      const dataToSave = {
+        url,
+        results,
+        croTableRows,
+        viewMode,
+      };
+      sessionStorage.setItem('landingAnalysis', JSON.stringify(dataToSave));
+    }
+  }, [url, results, croTableRows, viewMode]);
+
   const filters = [
     { id: "all", label: "Complete Analysis", icon: Sparkles },
     { id: "cro", label: "CRO", icon: TrendingUp },
@@ -78,6 +108,15 @@ export default function LandingAnalysisPage() {
         setSelectedFilters([...newFilters, filterId]);
       }
     }
+  };
+
+  const handleClearAnalysis = () => {
+    setUrl("");
+    setResults([]);
+    setCroTableRows([]);
+    setViewMode("visual");
+    setError("");
+    sessionStorage.removeItem('landingAnalysis');
   };
 
   const handleAnalyze = async () => {
@@ -434,6 +473,15 @@ export default function LandingAnalysisPage() {
               </div>
 
               <div className="flex items-center gap-3">
+                {/* Clear Analysis Button */}
+                <button
+                  onClick={handleClearAnalysis}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-[#111111] border border-[#2a2a2a] text-[#888888] rounded-xl text-[14px] font-medium hover:border-[#ff6b6b]/50 hover:text-[#ff6b6b] transition-all"
+                >
+                  <X className="w-4 h-4" />
+                  New Analysis
+                </button>
+
                 {/* Save Button */}
                 <button
                   onClick={() => setShowSaveDialog(true)}
