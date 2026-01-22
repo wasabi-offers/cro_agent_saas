@@ -110,7 +110,7 @@ export default function FunnelDetailPage() {
       if (showLoader) setIsLoading(true);
       const funnelData = await fetchFunnel(funnelId);
 
-      // Fetch LIVE stats from tracking (client-side)
+      // Fetch LIVE stats from tracking with date filters
       if (funnelData) {
         try {
           const params = new URLSearchParams({
@@ -122,12 +122,7 @@ export default function FunnelDetailPage() {
 
           const liveStatsResponse = await fetch(
             `/api/funnel-stats/live?${params.toString()}`,
-            {
-              cache: 'no-store',
-              headers: {
-                'Cache-Control': 'no-cache',
-              }
-            }
+            { cache: 'no-store' }
           );
           if (liveStatsResponse.ok) {
             const liveData = await liveStatsResponse.json();
@@ -149,14 +144,14 @@ export default function FunnelDetailPage() {
       }
 
       setFunnel(funnelData);
-      setIsLoading(false);
+      if (showLoader) setIsLoading(false);
     };
 
     loadData();
 
-    // Auto-refresh every 3 seconds for real-time updates
+    // Auto-refresh every 3 seconds for real-time data
     const interval = setInterval(() => {
-      loadData(false); // Don't show loader on auto-refresh
+      loadData(false); // Silent refresh without loader
     }, 3000);
 
     return () => clearInterval(interval);
