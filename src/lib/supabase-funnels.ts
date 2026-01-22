@@ -619,12 +619,16 @@ export async function enrichFunnelsWithLiveData(funnels: ConversionFunnel[]): Pr
       const stepStats = funnelStats.get(funnel.id);
 
       if (!stepStats) {
+        console.log('[enrichFunnelsWithLiveData] No stats found for funnel', funnel.id, '- returning unchanged');
         return funnel;
       }
+
+      console.log('[enrichFunnelsWithLiveData] Enriching funnel', funnel.id, 'with', stepStats.size, 'steps');
 
       // Update each step with live visitor count from tracking
       const updatedSteps = funnel.steps.map((step, index) => {
         const visitors = stepStats.get(step.name)?.size || 0;
+        console.log(`[enrichFunnelsWithLiveData] Step "${step.name}": ${visitors} visitors (was ${step.visitors})`);
 
         // Calculate dropoff from previous step
         let dropoff = 0;
