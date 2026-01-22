@@ -28,8 +28,8 @@ export default function FunnelsListPage() {
   const [showBuilder, setShowBuilder] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
-  const loadData = useCallback(async () => {
-    setIsLoading(true);
+  const loadData = useCallback(async (showLoader = true) => {
+    if (showLoader) setIsLoading(true);
     const funnelsData = await fetchFunnels();
 
     // Fetch LIVE data for each funnel using the same endpoint as detail page
@@ -86,6 +86,13 @@ export default function FunnelsListPage() {
 
   useEffect(() => {
     loadData();
+
+    // Auto-refresh every 3 seconds for real-time updates
+    const interval = setInterval(() => {
+      loadData(false); // Don't show loader on auto-refresh
+    }, 3000);
+
+    return () => clearInterval(interval);
   }, [loadData]);
 
   const handleSaveFunnel = async (funnel: { name: string; steps: any[]; connections?: any[] }) => {
