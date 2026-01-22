@@ -32,11 +32,53 @@ export default function FunnelsListPage() {
     if (showLoader) setIsLoading(true);
     const funnelsData = await fetchFunnels();
 
-    // Enrich with live tracking data (bulk server-side query - most efficient)
-    const enrichedWithTracking = await enrichFunnelsWithLiveData(funnelsData);
+    // Fetch LIVE data for each funnel using the same API endpoint as detail page
+    const timestamp = Date.now();
+    const enrichedFunnels = await Promise.all(
+      funnelsData.map(async (funnel) => {
+        try {
+          const liveStatsResponse = await fetch(
+            `/api/funnel-stats/live?funnelId=${funnel.id}&_t=${timestamp}`,
+            {
+              cache: 'no-store',
+              headers: { 'Cache-Control': 'no-cache' }
+            }
+          );
+
+          if (liveStatsResponse.ok) {
+            const liveData = await liveStatsResponse.json();
+            if (liveData.success && liveData.liveStats) {
+              console.log('✅ Live data for', funnel.name, ':', liveData.liveStats[0]);
+
+              // Update funnel with live stats
+              const updatedSteps = funnel.steps.map((step) => {
+                const liveStat = liveData.liveStats.find((ls: any) => ls.stepName === step.name);
+                if (liveStat) {
+                  return {
+                    ...step,
+                    visitors: liveStat.visitors,
+                    dropoff: liveStat.dropoff,
+                  };
+                }
+                return step;
+              });
+
+              return {
+                ...funnel,
+                steps: updatedSteps,
+                conversionRate: liveData.conversionRate,
+              };
+            }
+          }
+        } catch (error) {
+          console.warn(`⚠️ Could not fetch live stats for ${funnel.id}:`, error);
+        }
+        return funnel;
+      })
+    );
 
     // Enrich with A/B test data
-    const finalFunnels = await enrichFunnelsWithABTestData(enrichedWithTracking);
+    const finalFunnels = await enrichFunnelsWithABTestData(enrichedFunnels);
     setFunnels(finalFunnels);
     setLastUpdate(new Date());
     if (showLoader) setIsLoading(false);
