@@ -6,18 +6,41 @@ interface CROTableRequest {
   url: string;
   type: 'landing' | 'funnel';
   context?: string;
+  funnelData?: {
+    id: string;
+    name: string;
+    steps: Array<{
+      name: string;
+      url?: string;
+      visitors: number;
+      dropoff: number;
+    }>;
+    conversionRate: number;
+  };
 }
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { url, type, context } = body as CROTableRequest;
+    const { url, type, context, funnelData } = body as CROTableRequest;
 
     if (!url) {
       return NextResponse.json(
         { success: false, error: "URL is required" },
         { status: 400 }
       );
+    }
+
+    // Log funnel data if provided
+    if (funnelData) {
+      console.log("📊 Analyzing funnel:", funnelData.name);
+      console.log("📈 Conversion rate:", funnelData.conversionRate.toFixed(2) + "%");
+      console.log("📉 Steps with dropoff:");
+      funnelData.steps.forEach((step, idx) => {
+        if (step.dropoff > 0) {
+          console.log(`   ${idx + 1}. ${step.name}: ${step.dropoff}% dropoff (${step.visitors} visitors)`);
+        }
+      });
     }
 
     const systemPrompt = `You are an expert CRO consultant with 15+ years of experience. You analyze websites and generate detailed, data-driven optimization recommendations in a structured format.
@@ -66,6 +89,18 @@ Generate a CRO Decision Table with these exact columns:
 
 URL: ${url}
 ${context ? `Context: ${context}` : ''}
+${funnelData ? `
+FUNNEL DATA (REAL tracking data):
+Funnel: ${funnelData.name}
+Overall Conversion Rate: ${funnelData.conversionRate.toFixed(2)}%
+Steps:
+${funnelData.steps.map((step, index) => `  ${index + 1}. ${step.name}: ${step.visitors} visitors${step.dropoff > 0 ? `, ${step.dropoff}% dropoff` : ''}`).join('\n')}
+
+CRITICAL: Use these REAL funnel metrics to identify the biggest bottlenecks:
+- Which step has the highest dropoff? (that's the primary optimization target)
+- Where are users getting stuck?
+- What psychological barriers might explain the dropoffs?
+` : ''}
 
 ${pageContent ? `ACTUAL PAGE HTML (first 50k chars):
 ${pageContent}
@@ -211,16 +246,26 @@ IMPORTANT INSTRUCTIONS:
               throw new Error("Response is not an array");
             }
 
+            // Validate each row has required fields
+            console.log("Validating row structure...");
+            aiRows.forEach((row: any, index: number) => {
+              if (!row.metricObserved) console.warn(`Row ${index + 1}: missing metricObserved`);
+              if (!row.correctAssumption) console.warn(`Row ${index + 1}: missing correctAssumption`);
+              if (!row.practicalTest) console.warn(`Row ${index + 1}: missing practicalTest`);
+              if (!row.expectedLift) console.warn(`Row ${index + 1}: missing expectedLift`);
+              if (!Array.isArray(row.kpiToObserve)) console.warn(`Row ${index + 1}: kpiToObserve is not an array`);
+            });
+
             // Transform to CROTableRow format
             const rows: CROTableRow[] = aiRows.map((row: any) => ({
               id: row.id,
-              metricObserved: row.metricObserved,
+              metricObserved: row.metricObserved || '',
               whatYouSee: row.whatYouSee || '',
-              correctAssumption: row.correctAssumption,
+              correctAssumption: row.correctAssumption || '',
               wrongAssumption: row.wrongAssumption || '',
-              practicalTest: row.practicalTest,
-              expectedLift: row.expectedLift,
-              kpiToObserve: row.kpiToObserve,
+              practicalTest: row.practicalTest || { title: '', from: '', to: '', details: [] },
+              expectedLift: row.expectedLift || '',
+              kpiToObserve: Array.isArray(row.kpiToObserve) ? row.kpiToObserve : [],
               runTest: {
                 status: 'not-started' as const,
               },
