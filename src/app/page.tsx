@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import DateRangePicker from "@/components/DateRangePicker";
-import DeviceFilter from "@/components/DeviceFilter";
 import Link from "next/link";
 import {
   TrendingUp,
@@ -45,7 +44,6 @@ export default function Home() {
     };
   };
   const [dateRange, setDateRange] = useState(getDefaultDateRange());
-  const [deviceFilter, setDeviceFilter] = useState<"all" | "desktop" | "mobile">("all");
 
   // Fetch real data from Supabase
   useEffect(() => {
@@ -54,7 +52,7 @@ export default function Home() {
       setError(null);
 
       try {
-        const response = await fetch('/api/cro-analysis');
+        const response = await fetch('/api/analytics-data');
 
         if (!response.ok) {
           throw new Error(`Server error: ${response.status}`);
@@ -76,7 +74,7 @@ export default function Home() {
     };
 
     loadData();
-  }, [dateRange, deviceFilter]);
+  }, [dateRange]);
 
   // Request AI Analysis
   const requestAIAnalysis = async (analysisType: string) => {
@@ -121,7 +119,7 @@ export default function Home() {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
             <div className="w-10 h-10 border-2 border-[#7c5cff] border-t-transparent rounded-full animate-spin" />
-            <p className="text-[#666666] text-[14px]">Loading Clarity data...</p>
+            <p className="text-[#666666] text-[14px]">Loading tracking data...</p>
           </div>
         </div>
       </div>
@@ -166,12 +164,10 @@ export default function Home() {
               CRO Dashboard
             </h2>
             <p className="text-[14px] text-[#888888]">
-              Real-time data from Microsoft Clarity
+              Real-time tracking data from your funnels
             </p>
           </div>
           <div className="flex items-center gap-4">
-            <DeviceFilter value={deviceFilter} onChange={setDeviceFilter} />
-            <div className="h-10 w-px bg-[#2a2a2a]" />
             <DateRangePicker value={dateRange} onChange={setDateRange} />
           </div>
         </div>
@@ -434,7 +430,7 @@ export default function Home() {
                 <h2 className="text-[18px] font-semibold text-[#fafafa]">
                   Traffic by Device
                 </h2>
-                <p className="text-[13px] text-[#666666]">Live Clarity data</p>
+                <p className="text-[13px] text-[#666666]">Live tracking data</p>
               </div>
             </div>
 
