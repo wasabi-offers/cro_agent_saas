@@ -23,7 +23,6 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = req.nextUrl;
     const funnelId = searchParams.get('funnelId');
-    const device = searchParams.get('device');
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
 
@@ -55,24 +54,17 @@ export async function GET(req: NextRequest) {
       }, { status: 404 });
     }
 
-    // Query tracking events for this funnel with filters
+    // Query tracking events for this funnel
     console.log('📊 Fetching tracking events from database...');
     let query = supabase
       .from('tracking_events')
-      .select('session_id, funnel_step_name, event_type, funnel_id, device_type, created_at')
+      .select('session_id, funnel_step_name, event_type, funnel_id')
       .eq('funnel_id', funnelId)
       .eq('event_type', 'funnel_step');
 
-    // Apply device filter (convert to lowercase to match DB values)
-    if (device && device !== 'all') {
-      query = query.eq('device_type', device.toLowerCase());
-    }
-
-    // Apply date range filter
-    if (startDate) {
+    // Apply date range filter if provided
+    if (startDate && endDate) {
       query = query.gte('created_at', `${startDate}T00:00:00Z`);
-    }
-    if (endDate) {
       query = query.lte('created_at', `${endDate}T23:59:59Z`);
     }
 
