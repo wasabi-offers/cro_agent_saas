@@ -509,5 +509,5 @@ export function getTrackingScriptTag(options: {
 window.funnelId="${options.funnelId || ''}";
 window.funnelStep="${options.funnelStepName || ''}";
 </script>
-<script src="https://dohrkonencbwvvmklzuo.supabase.co/storage/v1/object/public/scripts/track-event.js"></script>`;
+<script src="https://dohrkonencbwvvmklzuo.supabase.co/storage/v1/object/public/scripts/cro-tracker.js"></script>`;
 }
