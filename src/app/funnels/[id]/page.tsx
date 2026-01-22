@@ -77,6 +77,8 @@ export default function FunnelDetailPage() {
   const [analysisResults, setAnalysisResults] = useState<AnalysisResult[]>([]);
   const [analysisError, setAnalysisError] = useState("");
   const [croTableRows, setCroTableRows] = useState<CROTableRow[]>([]);
+  const [isGeneratingCROTable, setIsGeneratingCROTable] = useState(false);
+  const [croTableError, setCroTableError] = useState("");
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [viewMode, setViewMode] = useState<"visual" | "list">("list");
 
@@ -283,6 +285,75 @@ export default function FunnelDetailPage() {
       setAnalysisError(err.message || "An error occurred during analysis. Please try again.");
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  const handleGenerateCROTable = async () => {
+    if (!funnel) return;
+
+    setIsGeneratingCROTable(true);
+    setCroTableError("");
+
+    try {
+      // Get URL based on analysis mode
+      let url: string;
+
+      if (analysisMode === "page") {
+        const step = funnel.steps[selectedPage];
+        if (!step.url) {
+          setCroTableError(`❌ No URL configured for "${step.name}". Please edit the funnel and add a URL for this step.`);
+          setIsGeneratingCROTable(false);
+          return;
+        }
+        url = step.url;
+      } else {
+        const firstStep = funnel.steps[0];
+        if (!firstStep.url) {
+          setCroTableError(`❌ No URL configured for the first step "${firstStep.name}". Please edit the funnel and add URLs for each step.`);
+          setIsGeneratingCROTable(false);
+          return;
+        }
+        url = firstStep.url;
+      }
+
+      const response = await fetch("/api/generate-cro-table", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          url,
+          type: analysisMode === "funnel" ? 'funnel' : 'landing',
+          funnelData: {
+            id: funnel.id,
+            name: funnel.name,
+            steps: funnel.steps.map(step => ({
+              name: step.name,
+              url: step.url,
+              visitors: step.visitors,
+              dropoff: step.dropoff,
+            })),
+            conversionRate: funnel.conversionRate,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to generate CRO table");
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        setCroTableRows(data.rows);
+        console.log("✅ CRO Table generated with real funnel data");
+      } else {
+        throw new Error(data.error || "Failed to generate CRO table");
+      }
+    } catch (err: any) {
+      const errorMsg = err instanceof Error ? err.message : "An error occurred generating the CRO table";
+      console.error("❌ CRO Table generation error:", errorMsg);
+      setCroTableError(errorMsg);
+    } finally {
+      setIsGeneratingCROTable(false);
     }
   };
 
@@ -892,24 +963,52 @@ export default function FunnelDetailPage() {
                 </div>
               )}
 
-              {/* Analyze Button */}
-              <button
-                onClick={handleAnalyze}
-                disabled={isAnalyzing}
-                className="w-full bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white px-6 py-4 rounded-xl font-medium text-[15px] hover:shadow-lg hover:shadow-purple-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {isAnalyzing ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Analyzing...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-5 h-5" />
-                    Start Analysis
-                  </>
-                )}
-              </button>
+              {/* Analyze Buttons */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <button
+                  onClick={handleAnalyze}
+                  disabled={isAnalyzing}
+                  className="bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white px-6 py-4 rounded-xl font-medium text-[15px] hover:shadow-lg hover:shadow-purple-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {isAnalyzing ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-5 h-5" />
+                      Start Analysis
+                    </>
+                  )}
+                </button>
+
+                <button
+                  onClick={handleGenerateCROTable}
+                  disabled={isGeneratingCROTable}
+                  className="bg-[#0a0a0a] border-2 border-[#7c5cff] text-[#7c5cff] px-6 py-4 rounded-xl font-medium text-[15px] hover:bg-[#7c5cff]/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {isGeneratingCROTable ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="w-5 h-5" />
+                      Generate CRO Decision Table
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* CRO Table Error */}
+              {croTableError && (
+                <div className="mt-4 flex items-center gap-2 text-[#ff6b6b] text-[14px] bg-[#ff6b6b]/10 border border-[#ff6b6b]/20 rounded-xl px-4 py-3">
+                  <AlertCircle className="w-4 h-4" />
+                  {croTableError}
+                </div>
+              )}
             </div>
 
             {/* Analysis Results */}
