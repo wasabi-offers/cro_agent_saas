@@ -18,7 +18,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import FunnelBuilder from "@/components/FunnelBuilder";
-import { ConversionFunnel, fetchFunnels, createFunnel, deleteFunnel, enrichFunnelsWithABTestData } from "@/lib/supabase-funnels";
+import { ConversionFunnel, fetchFunnels, createFunnel, deleteFunnel, enrichFunnelsWithLiveData, enrichFunnelsWithABTestData } from "@/lib/supabase-funnels";
 
 export default function FunnelsListPage() {
   const [funnels, setFunnels] = useState<ConversionFunnel[]>([]);
@@ -28,54 +28,29 @@ export default function FunnelsListPage() {
   const [showBuilder, setShowBuilder] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
-  const loadData = useCallback(async () => {
-    setIsLoading(true);
+  const loadData = useCallback(async (showLoader = true) => {
+    if (showLoader) setIsLoading(true);
     const funnelsData = await fetchFunnels();
 
-    // Fetch LIVE data for each funnel using the same endpoint as detail page
-    const enrichedFunnels = await Promise.all(
-      funnelsData.map(async (funnel) => {
-        try {
-          const liveStatsResponse = await fetch(`/api/funnel-stats/live?funnelId=${funnel.id}`);
-          if (liveStatsResponse.ok) {
-            const liveData = await liveStatsResponse.json();
-            if (liveData.success && liveData.liveStats) {
-              // Update funnel with live stats
-              const updatedSteps = funnel.steps.map((step) => {
-                const liveStat = liveData.liveStats.find((ls: any) => ls.stepName === step.name);
-                if (liveStat) {
-                  return {
-                    ...step,
-                    visitors: liveStat.visitors,
-                    dropoff: liveStat.dropoff,
-                  };
-                }
-                return step;
-              });
-
-              return {
-                ...funnel,
-                steps: updatedSteps,
-                conversionRate: liveData.conversionRate,
-              };
-            }
-          }
-        } catch (error) {
-          console.warn(`⚠️ Could not fetch live stats for ${funnel.id}:`, error);
-        }
-        return funnel;
-      })
-    );
+    // Enrich with live tracking data (bulk server-side query - most efficient)
+    const enrichedWithTracking = await enrichFunnelsWithLiveData(funnelsData);
 
     // Enrich with A/B test data
-    const finalFunnels = await enrichFunnelsWithABTestData(enrichedFunnels);
+    const finalFunnels = await enrichFunnelsWithABTestData(enrichedWithTracking);
     setFunnels(finalFunnels);
     setLastUpdate(new Date());
-    setIsLoading(false);
+    if (showLoader) setIsLoading(false);
   }, []);
 
   useEffect(() => {
     loadData();
+
+    // Auto-refresh every 3 seconds for real-time data
+    const interval = setInterval(() => {
+      loadData(false); // Silent refresh without loader
+    }, 3000);
+
+    return () => clearInterval(interval);
   }, [loadData]);
 
   const handleSaveFunnel = async (funnel: { name: string; steps: any[]; connections?: any[] }) => {
