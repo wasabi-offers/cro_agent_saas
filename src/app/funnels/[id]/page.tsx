@@ -124,20 +124,34 @@ export default function FunnelDetailPage() {
 
           const liveStatsResponse = await fetch(
             `/api/funnel-stats/live?${params.toString()}`,
-            { cache: 'no-store' }
+            {
+              cache: 'no-store',
+              headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+              }
+            }
           );
           if (liveStatsResponse.ok) {
             const liveData = await liveStatsResponse.json();
             if (liveData.success && liveData.liveStats) {
-              // Update funnel data with live stats
-              funnelData.conversionRate = liveData.conversionRate;
-              liveData.liveStats.forEach((liveStat: any) => {
-                const stepIndex = funnelData.steps.findIndex((s: any) => s.name === liveStat.stepName);
-                if (stepIndex !== -1) {
-                  funnelData.steps[stepIndex].visitors = liveStat.visitors;
-                  funnelData.steps[stepIndex].dropoff = liveStat.dropoff;
-                }
-              });
+              // Create a NEW object to force React to detect the change
+              funnelData = {
+                ...funnelData,
+                conversionRate: liveData.conversionRate,
+                steps: funnelData.steps.map((step: any) => {
+                  const liveStat = liveData.liveStats.find((ls: any) => ls.stepName === step.name);
+                  if (liveStat) {
+                    return {
+                      ...step,
+                      visitors: liveStat.visitors,
+                      dropoff: liveStat.dropoff
+                    };
+                  }
+                  return step;
+                })
+              };
             }
           }
         } catch (liveError) {
