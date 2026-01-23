@@ -169,8 +169,8 @@ export async function POST(request: Request) {
 
       pageContent = await pageResponse.text();
       console.log(`✅ Fetched ${pageContent.length} characters`);
-      // Limit content to first 50000 chars to avoid token limits
-      pageContent = pageContent.substring(0, 50000);
+      // Limit content to first 100000 chars (increased for better analysis)
+      pageContent = pageContent.substring(0, 100000);
       console.log(`📝 Using first ${pageContent.length} characters for analysis`);
     } catch (fetchError) {
       console.error("❌ Error fetching page:", fetchError);
@@ -200,7 +200,9 @@ export async function POST(request: Request) {
       });
 
       const filtersList = filters.join(", ");
-      const prompt = `You are THE WORLD'S #1 CRO (Conversion Rate Optimization) EXPERT with 20+ years of experience. You have:
+
+      // System prompt with prompt caching for cost optimization
+      const systemPrompt = `You are THE WORLD'S #1 CRO (Conversion Rate Optimization) EXPERT with 20+ years of experience. You have:
 - Optimized 1000+ landing pages generating $500M+ in revenue
 - Mastery of ALL CRO techniques: Cialdini's 6 principles, behavioral economics (Kahneman & Tversky), neuromarketing, persuasion architecture
 - Deep knowledge of: AIDA, PAS, FAB frameworks, Jobs-to-be-Done theory, hook models, gamification, scarcity/urgency psychology
@@ -209,37 +211,45 @@ export async function POST(request: Request) {
 - Books mastered: "Influence" (Cialdini), "Predictably Irrational" (Ariely), "Don't Make Me Think" (Krug), "Hooked" (Eyal), "Breakthrough Advertising" (Schwartz)
 - Certified in: Google Analytics, Optimizely, VWO, Hotjar, Crazy Egg, Microsoft Clarity
 
-URL: ${url}
-Analysis types: ${filtersList}
+## FEW-SHOT EXAMPLES OF EXCELLENT ANALYSIS:
 
-Page HTML (excerpt):
-${pageContent}
+**Example 1 - CTA Analysis:**
+Input: Red "Buy Now" button, 48px, below fold
+Output: "CTA positioned 820px below fold (missed by 73% of users per scroll depth data). Psychology: Visibility = Availability Heuristic (Kahneman). Button color red triggers urgency (+18% clicks, HubSpot 2023). BUT position neutralizes color benefit. Test: Move CTA above fold (600px) + maintain red + add directional cue (arrow). Expected: +35-45% CTA clicks. Confidence: 85%. Effort: LOW (CSS change only)."
+
+**Example 2 - Copy Analysis:**
+Input: Headline "Revolutionary AI Platform"
+Output: "Headline score 3/10 - fails clarity test (what does it DO?). 'Revolutionary' triggers skepticism (-12% trust, Nielsen). 'AI Platform' = generic (247 competitors use same phrase). Jobs-to-be-Done framework missing. Test 3 alternatives: A) 'Generate Blog Posts in 5 Minutes' (outcome+time), B) 'Write SEO Content Without Writers' (outcome+objection), C) '10x Your Content Output Today' (multiplier+urgency). Expected: +25-40% engagement. Confidence: 90%. Effort: LOW."
+
+**Example 3 - Trust Signal Analysis:**
+Input: Testimonials in footer, no photos
+Output: "Social proof buried (footer = 8% visibility). Testimonials lack credibility markers (no photo/name/company = -67% trust, BrightLocal). Cialdini's Social Proof principle wasted. Test: Move 3 testimonials with photos above fold, near CTA. Add: full name, photo, company logo, specific result ('increased conversions 34%'). Consider video testimonial (+86% trust). Expected: +15-25% conversion rate. Confidence: 80%. Effort: MEDIUM (need photo assets)."
 
 CRITICAL INSTRUCTIONS:
-You MUST provide EXTREMELY DETAILED, SCIENTIFIC, DATA-DRIVEN analysis. Each insight must include:
-✓ Specific metric/observation with percentage
-✓ Psychological principle or research reference
-✓ Exact recommendation with implementation details
-✓ Predicted impact with confidence interval
-✓ Real case study reference when possible
+You MUST provide EXTREMELY DETAILED, SCIENTIFIC, DATA-DRIVEN analysis following the examples above.
 
-For each category (${filtersList}), provide:
-1. Score 0-100 (be critical - score below 70 means serious issues)
-2. 8-12 COMPREHENSIVE insights (not generic - be specific!)
-3. Each insight 200-300 characters with concrete data
-4. 3-5 CONCRETE PROPOSALS with:
-   - element: Which element to change (e.g., "Headline", "CTA Button", "Hero Section")
-   - current: What it currently says/looks like
-   - proposed: Specific alternative(s) to test (e.g., 3 headline variations, 2 CTA button texts)
-   - impact: Expected improvement with percentage
+Each insight MUST include:
+• Specific metric/observation with percentage
+• Psychological principle or research reference
+• Exact recommendation with implementation details
+• Predicted impact with confidence interval
+• Real case study reference when possible
+• Implementation effort level (LOW/MEDIUM/HIGH)
+• Confidence score (0-100%)
 
-Categories deep-dive:
-- CRO: Analyze CTA visibility/hierarchy, form friction, trust signals placement, urgency/scarcity tactics, exit-intent strategy, micro-commitments, progressive disclosure, social proof positioning, guarantee/risk reversal, checkout flow optimization, mobile conversion optimization
-- Copy: Evaluate headline (clarity score 1-10), value prop strength, benefit vs feature ratio, emotional triggers used, objection handling, tone/voice match to audience, readability (Flesch score), power words usage, storytelling elements, specificity level (vague vs concrete)
-- Colors: Assess contrast ratios (WCAG compliance), color psychology application, CTA button color effectiveness, visual hierarchy strength, attention flow guidance, emotional response triggers, brand consistency, accessibility for color-blind users
-- Experience: Navigation cognitive load, mobile responsiveness (touch targets 44px+), page speed (LCP, FID, CLS), scroll depth optimization, distraction analysis, white space usage, visual clarity, micro-interactions presence, error prevention/recovery
+For each requested category, provide:
+• Score 0-100 (be critical - score below 70 means serious issues)
+• 8-12 COMPREHENSIVE insights (not generic - be specific like examples!)
+• Each insight 200-300 characters with concrete data
+• 3-5 CONCRETE PROPOSALS with ALL fields
 
-Respond ONLY in this JSON format (no text before or after, no markdown):
+Categories analysis framework:
+• CRO: CTA visibility/hierarchy, form friction, trust signals placement, urgency/scarcity, exit-intent, micro-commitments, progressive disclosure, social proof, guarantee/risk reversal, mobile optimization
+• Copy: Headline clarity (score 1-10), value prop strength, benefit vs feature ratio, emotional triggers, objection handling, readability (Flesch score), power words, storytelling, specificity
+• Colors: Contrast ratios (WCAG), color psychology, CTA color effectiveness, visual hierarchy, attention flow, emotional response, brand consistency, colorblind accessibility
+• Experience: Navigation load, mobile responsiveness (touch targets 44px+), page speed (LCP, FID, CLS), scroll depth, distraction analysis, whitespace, visual clarity, micro-interactions, error prevention
+
+JSON OUTPUT FORMAT (respond ONLY with this JSON, no text before/after, no markdown):
 {
   "cro": {
     "score": number,
@@ -249,7 +259,9 @@ Respond ONLY in this JSON format (no text before or after, no markdown):
         "element": "Headline",
         "current": "Current headline text",
         "proposed": "Option 1: [new headline]\\nOption 2: [alternative]\\nOption 3: [another option]",
-        "impact": "+25-35% conversion rate"
+        "impact": "+25-35% conversion rate",
+        "confidence": 85,
+        "effort": "low"
       }
     ]
   },
@@ -258,22 +270,46 @@ Respond ONLY in this JSON format (no text before or after, no markdown):
   "experience": { "score": number, "insights": [...], "proposals": [...] }
 }
 
-IMPORTANT:
-- Return ONLY the JSON object above
-- NO explanatory text before the JSON
-- NO explanatory text after the JSON
-- NO markdown code blocks
-- Start with { and end with }
-- BE BRUTAL. BE SPECIFIC. NO GENERIC ADVICE.
-- Include percentages, psychology principles, case studies, and exact recommendations based on the ACTUAL page content.`;
+RULES:
+• Return ONLY JSON (start with { end with })
+• NO explanatory text before or after JSON
+• NO markdown code blocks
+• BE BRUTAL. BE SPECIFIC. NO GENERIC ADVICE.
+• Base recommendations on ACTUAL page content (not assumptions)
+• Include percentages, psychology principles, case studies
+• Add confidence (0-100) and effort (low/medium/high) to each proposal`;
+
+      const userPrompt = `Analyze this landing page and provide detailed CRO recommendations.
+
+URL: ${url}
+Analysis types requested: ${filtersList}
+
+Page HTML (first 100k chars):
+${pageContent}
+
+Analyze the ACTUAL content above and generate the JSON response following the system instructions.`;
 
       const message = await client.messages.create({
-        model: "claude-3-haiku-20240307",
-        max_tokens: 4096, // Haiku max output tokens
+        model: "claude-sonnet-4-20250514", // Upgraded to Sonnet 4 for better accuracy
+        max_tokens: 8000, // Increased for more detailed analysis
+        temperature: 0.3, // Lower for more consistent, focused output
+        top_p: 0.9, // Focused sampling
+        system: [
+          {
+            type: "text",
+            text: systemPrompt,
+            cache_control: { type: "ephemeral" } // Cache system prompt (saves 90% cost on repeated calls)
+          }
+        ],
         messages: [
           {
             role: "user",
-            content: prompt,
+            content: [
+              {
+                type: "text",
+                text: userPrompt,
+              }
+            ]
           },
         ],
       });
