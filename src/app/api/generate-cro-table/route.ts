@@ -46,20 +46,95 @@ export async function POST(request: Request) {
     const systemPrompt = `You are an expert CRO consultant with 15+ years of experience. You analyze websites and generate detailed, data-driven optimization recommendations in a structured format.
 
 Your analysis must be:
-1. Based on REAL CRO principles (Cialdini persuasion, behavioral economics, UX best practices)
-2. Include SPECIFIC metrics and expected improvements
-3. Provide EXACT changes to test (not vague suggestions)
-4. Reference real case studies and research when possible
+• Based on REAL CRO principles (Cialdini persuasion, behavioral economics, UX best practices)
+• Include SPECIFIC metrics and expected improvements
+• Provide EXACT changes to test (not vague suggestions)
+• Reference real case studies and research when possible
+• Include implementation effort and confidence scores
 
-Generate a CRO Decision Table with these exact columns:
-- Metric Observed: What data/behavior you see (with percentages)
-- What You See: User behavior description
-- Correct Assumption: What to do and WHY (psychological principle)
-- Wrong Assumption: Common mistake to avoid
-- Practical Test: Exact A/B test with FROM and TO variants
-- Expected Lift: Predicted improvement (e.g., +15-20% RPV)
-- KPI to Observe: Metrics to track
-- Run Test: Status tracking`;
+## FEW-SHOT EXAMPLES OF EXCELLENT CRO DECISION TABLE ROWS:
+
+**Example 1 - Trust Signal Optimization:**
+{
+  "id": 1,
+  "metricObserved": "Scroll depth median 42%. 68% users never reach testimonials section at 800px.",
+  "whatYouSee": "Most users don't reach conviction before encountering price at 650px. Trust signals appear too late in funnel.",
+  "correctAssumption": "Primary blocker: Social proof appears AFTER price exposure. Users hesitate because belief is incomplete at decision moment. Psychology: Social Proof (Cialdini) must precede commitment ask. Booking.com study: moving reviews above fold increased conversions 34%.",
+  "wrongAssumption": "People don't care about reviews / Bad UX only / Price is too high",
+  "practicalTest": {
+    "title": "Strategic Test - Early Trust Signal",
+    "from": "Testimonials section at 800px below fold, after pricing",
+    "to": "Move 3 testimonials with photos immediately under headline (200px). Add: full names, photos, companies, specific results. Format: '★★★★★ Increased conversions 67% in 2 weeks - Sarah Chen, Head of Marketing @ TechCorp'",
+    "details": [
+      "Select 3 highest-impact testimonials with measurable results",
+      "Add professional photos (builds credibility +41%)",
+      "Include company logos next to testimonials",
+      "Add star ratings for visual quick-scan",
+      "Keep above price section at 650px"
+    ]
+  },
+  "expectedLift": "+12-18% conversion rate",
+  "kpiToObserve": ["Conversion rate (primary)", "Time to CTA click", "Bounce rate at pricing section"],
+  "priority": "high"
+}
+
+**Example 2 - CTA Copy Optimization:**
+{
+  "id": 2,
+  "metricObserved": "CTA button click-through: 8.2%. Industry benchmark: 12-15%. Button visible (94% viewport), but low engagement.",
+  "whatYouSee": "CTA button has visibility but lacks urgency. Generic 'Get Started' copy doesn't communicate value or overcome hesitation.",
+  "correctAssumption": "Copy lacks specificity and urgency. Psychology: Loss Aversion (Kahneman) + Specificity Effect. Generic CTAs reduce clicks by 47% vs benefit-driven copy (Unbounce 2024). Users need to know WHAT they get and WHY now.",
+  "wrongAssumption": "Button color is wrong / Size needs to increase / Position is bad",
+  "practicalTest": {
+    "title": "Message Test - Value-Driven CTA",
+    "from": "Get Started",
+    "to": "Test 3 variants: A) 'Start My Free 14-Day Trial' B) 'Get Instant Access - No Credit Card' C) 'See Results in 7 Days - Start Free'",
+    "details": [
+      "Variant A emphasizes trial length (reduces risk)",
+      "Variant B addresses credit card objection directly",
+      "Variant C focuses on outcome timeline + risk reversal",
+      "Keep button size/color/position constant to isolate copy impact",
+      "Run as multi-armed bandit test for faster learning"
+    ]
+  },
+  "expectedLift": "+15-25% CTA clicks",
+  "kpiToObserve": ["CTA click-through rate (primary)", "Trial signup rate", "Time on page before click"],
+  "priority": "high"
+}
+
+**Example 3 - Form Friction Reduction:**
+{
+  "id": 3,
+  "metricObserved": "Form starts: 312. Form completions: 89 (28.5% completion rate). Industry average: 45-60%. Average fields filled before abandonment: 4.2/7 fields.",
+  "whatYouSee": "High form abandonment at field 5 (company size dropdown). Users hesitate when asked for company information early in funnel.",
+  "correctAssumption": "Form friction: asking for commitment-heavy information before trust is established. Psychology: Endowment Effect - users protect information until they feel ownership. Progressive profiling reduces abandonment 40% (HubSpot). Ask minimal info upfront, gather more post-signup.",
+  "wrongAssumption": "Users are lazy / Form design is ugly / Need better copy",
+  "practicalTest": {
+    "title": "Structural Test - Minimal Form + Progressive Profiling",
+    "from": "7-field form: Name, Email, Password, Company, Company Size, Industry, Phone",
+    "to": "3-field form: Email, Password, Company Name. Move Company Size, Industry, Phone to post-signup onboarding flow.",
+    "details": [
+      "Reduce initial form to absolute minimum (3 fields)",
+      "Add progress indicator if keeping multi-step",
+      "Collect additional info during onboarding (when trust is higher)",
+      "Add micro-copy: 'Takes 30 seconds' near form",
+      "Test with/without phone field (often biggest friction point)"
+    ]
+  },
+  "expectedLift": "+35-50% form completion rate",
+  "kpiToObserve": ["Form completion rate (primary)", "Time to complete form", "Field-level drop-off rates", "Overall conversion rate"],
+  "priority": "high"
+}
+
+Generate CRO Decision Table with these columns:
+• Metric Observed: Data/behavior with percentages
+• What You See: User behavior description
+• Correct Assumption: What to do, WHY (psychological principle), with case study
+• Wrong Assumption: Common mistakes to avoid
+• Practical Test: Exact A/B test with FROM (actual current content) and TO (specific alternatives)
+• Expected Lift: Predicted improvement
+• KPI to Observe: Metrics to track
+• Priority: high/medium/low based on impact vs effort`;
 
     // Fetch the actual landing page HTML content
     console.log("🌐 Fetching page content from:", url);
@@ -76,8 +151,8 @@ Generate a CRO Decision Table with these exact columns:
       } else {
         pageContent = await pageResponse.text();
         console.log(`✅ Fetched ${pageContent.length} characters`);
-        // Limit content to avoid token limits
-        pageContent = pageContent.substring(0, 50000);
+        // Limit content to first 100000 chars (increased for better analysis)
+        pageContent = pageContent.substring(0, 100000);
         console.log(`📝 Using first ${pageContent.length} characters for analysis`);
       }
     } catch (fetchError) {
@@ -85,38 +160,47 @@ Generate a CRO Decision Table with these exact columns:
       // If we can't fetch the page, still try to analyze with URL only
     }
 
-    const userPrompt = `Analyze this ${type} and generate a detailed CRO Decision Table based on REAL page content:
+    const userPrompt = `Analyze this ${type} and generate a detailed CRO Decision Table based on REAL page content following the examples in the system prompt.
 
+## TARGET PAGE:
 URL: ${url}
 ${context ? `Context: ${context}` : ''}
-${funnelData ? `
-FUNNEL DATA (REAL tracking data):
+
+${funnelData ? `## REAL FUNNEL TRACKING DATA:
 Funnel: ${funnelData.name}
 Overall Conversion Rate: ${funnelData.conversionRate.toFixed(2)}%
 Steps:
 ${funnelData.steps.map((step, index) => `  ${index + 1}. ${step.name}: ${step.visitors} visitors${step.dropoff > 0 ? `, ${step.dropoff}% dropoff` : ''}`).join('\n')}
 
-CRITICAL: Use these REAL funnel metrics to identify the biggest bottlenecks:
-- Which step has the highest dropoff? (that's the primary optimization target)
-- Where are users getting stuck?
-- What psychological barriers might explain the dropoffs?
+PRIMARY OPTIMIZATION TARGETS (by dropoff %):
+${funnelData.steps
+  .filter(s => s.dropoff > 0)
+  .sort((a, b) => b.dropoff - a.dropoff)
+  .slice(0, 3)
+  .map((s, i) => `  ${i + 1}. ${s.name}: ${s.dropoff}% dropoff - FOCUS HERE`)
+  .join('\n')}
+
+Use these REAL metrics to identify bottlenecks:
+• Which step has highest dropoff? (primary target)
+• What psychological barriers explain the dropoffs?
+• Where are users abandoning the funnel?
 ` : ''}
 
-${pageContent ? `ACTUAL PAGE HTML (first 50k chars):
+${pageContent ? `## ACTUAL PAGE HTML (first 100k chars):
 ${pageContent}
 
-CRITICAL: Analyze the REAL content above. Look at:
-- Actual headlines, copy, and messaging
-- Real CTAs and their placement
-- Actual trust signals, testimonials, social proof
-- Real form fields and their labels
-- Actual colors, images, and visual hierarchy
-- Real page structure and sections
+ANALYZE THE REAL CONTENT ABOVE:
+• Actual headlines, copy, messaging
+• Real CTAs, their text, placement, design
+• Actual trust signals, testimonials, social proof
+• Real form fields and labels
+• Actual colors, visual hierarchy, contrast
+• Real page structure and content flow
 
-Base your recommendations on what you ACTUALLY see in the HTML, not generic assumptions.
-` : 'WARNING: Could not fetch page content. Provide generic best practices.'}
+CRITICAL: Base recommendations on ACTUAL page content. Quote real text in the "from" field of practicalTest.
+` : '⚠️ Could not fetch page content. Provide best practices based on URL and funnel data.'}
 
-Generate 5-8 high-impact optimization opportunities based on the ACTUAL page content. For EACH opportunity provide:
+Generate 5-8 high-impact optimization opportunities following the examples. For EACH opportunity:
 
 1. **Metric Observed**: Specific data point with percentage (e.g., "Scroll depth median 42%. 68% users never reach reviews")
 
@@ -180,13 +264,27 @@ IMPORTANT INSTRUCTIONS:
         });
 
         const message = await client.messages.create({
-          model: "claude-3-haiku-20240307",
-          max_tokens: 4096, // Haiku max output tokens
-          system: systemPrompt,
+          model: "claude-sonnet-4-20250514", // Upgraded to Sonnet 4 for superior analysis
+          max_tokens: 8000, // Increased for comprehensive CRO table
+          temperature: 0.3, // Lower for consistent, data-driven output
+          top_p: 0.9, // Focused sampling
+          system: [
+            {
+              type: "text",
+              text: systemPrompt,
+              cache_control: { type: "ephemeral" } // Cache system prompt (90% cost savings)
+            }
+          ],
           messages: [
             {
               role: "user",
-              content: userPrompt,
+              content: [
+                {
+                  type: "text",
+                  text: userPrompt,
+                  cache_control: { type: "ephemeral" } // Cache page content too (changes per URL but reused in follow-ups)
+                }
+              ]
             },
           ],
         });
