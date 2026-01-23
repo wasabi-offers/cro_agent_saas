@@ -63,14 +63,15 @@ Your analysis must be:
   "wrongAssumption": "People don't care about reviews / Bad UX only / Price is too high",
   "practicalTest": {
     "title": "Strategic Test - Early Trust Signal",
-    "from": "Testimonials section at 800px below fold, after pricing",
-    "to": "Move 3 testimonials with photos immediately under headline (200px). Add: full names, photos, companies, specific results. Format: '★★★★★ Increased conversions 67% in 2 weeks - Sarah Chen, Head of Marketing @ TechCorp'",
+    "from": "Testimonials section at 800px below fold, after pricing section. Current testimonials are generic text without photos.",
+    "to": "Insert testimonial section at 200px (immediately under headline, before price). Use this exact format:\n\n'★★★★★ Increased our conversions by 67% in just 2 weeks. Best investment we made this year.\n— Sarah Chen, Head of Marketing @ TechCorp'\n\n'★★★★★ Cut our customer acquisition cost in half while doubling signups. Game changer.\n— Mike Rodriguez, CEO @ GrowthLabs'\n\n'★★★★★ Finally a solution that actually works. ROI positive in the first month.\n— Jessica Williams, VP Sales @ ScaleUp Inc'",
     "details": [
-      "Select 3 highest-impact testimonials with measurable results",
-      "Add professional photos (builds credibility +41%)",
-      "Include company logos next to testimonials",
-      "Add star ratings for visual quick-scan",
-      "Keep above price section at 650px"
+      "Position testimonials at 200px from top (right after headline, before pricing at 650px)",
+      "Use 5-star rating visually (★★★★★) for quick credibility scan",
+      "Include professional headshot photos (80x80px, circular crop)",
+      "Add company logo next to each testimonial (small, 60px wide)",
+      "Format: testimonial text + name + title + company",
+      "Ensure all testimonials include SPECIFIC measurable results (67%, half, etc.)"
     ]
   },
   "expectedLift": "+12-18% conversion rate",
@@ -88,13 +89,13 @@ Your analysis must be:
   "practicalTest": {
     "title": "Message Test - Value-Driven CTA",
     "from": "Get Started",
-    "to": "Test 3 variants: A) 'Start My Free 14-Day Trial' B) 'Get Instant Access - No Credit Card' C) 'See Results in 7 Days - Start Free'",
+    "to": "Start My Free 14-Day Trial (primary variant) - OR test: 'Get Instant Access - No Credit Card' / 'See Results in 7 Days - Start Free'",
     "details": [
-      "Variant A emphasizes trial length (reduces risk)",
-      "Variant B addresses credit card objection directly",
-      "Variant C focuses on outcome timeline + risk reversal",
-      "Keep button size/color/position constant to isolate copy impact",
-      "Run as multi-armed bandit test for faster learning"
+      "Change button text from 'Get Started' to 'Start My Free 14-Day Trial'",
+      "Add subtext below button: 'No credit card required • Cancel anytime'",
+      "Alternative variants to test: B) 'Get Instant Access - No Credit Card' C) 'See Results in 7 Days - Start Free'",
+      "Keep button size (48px height), color (current), position constant",
+      "Run as multi-armed bandit test if have traffic for 3-way split"
     ]
   },
   "expectedLift": "+15-25% CTA clicks",
@@ -111,14 +112,15 @@ Your analysis must be:
   "wrongAssumption": "Users are lazy / Form design is ugly / Need better copy",
   "practicalTest": {
     "title": "Structural Test - Minimal Form + Progressive Profiling",
-    "from": "7-field form: Name, Email, Password, Company, Company Size, Industry, Phone",
-    "to": "3-field form: Email, Password, Company Name. Move Company Size, Industry, Phone to post-signup onboarding flow.",
+    "from": "Current form has 7 fields in single step: Name, Email, Password, Company, Company Size, Industry, Phone Number",
+    "to": "Reduce to 3-field form:\n\nField 1: 'Work Email' (placeholder: you@company.com)\nField 2: 'Create Password' (placeholder: min. 8 characters)\nField 3: 'Company Name' (placeholder: Your Company)\n\nButton text: 'Start Free Trial →'\n\nAdd micro-copy above form: '⚡ Takes 30 seconds • No credit card required'\n\nMove removed fields (Company Size, Industry, Phone) to post-signup onboarding flow.",
     "details": [
-      "Reduce initial form to absolute minimum (3 fields)",
-      "Add progress indicator if keeping multi-step",
-      "Collect additional info during onboarding (when trust is higher)",
-      "Add micro-copy: 'Takes 30 seconds' near form",
-      "Test with/without phone field (often biggest friction point)"
+      "Remove 4 fields from initial form (Name, Company Size, Industry, Phone)",
+      "Keep only: Email, Password, Company Name",
+      "Add reassurance text above form: '⚡ Takes 30 seconds • No credit card required'",
+      "Change button text from 'Submit' to 'Start Free Trial →'",
+      "Create 2-step onboarding flow post-signup to collect Company Size + Industry",
+      "Skip phone number entirely (collect later only if needed for support)"
     ]
   },
   "expectedLift": "+35-50% form completion rate",
@@ -200,23 +202,30 @@ ANALYZE THE REAL CONTENT ABOVE:
 CRITICAL: Base recommendations on ACTUAL page content. Quote real text in the "from" field of practicalTest.
 ` : '⚠️ Could not fetch page content. Provide best practices based on URL and funnel data.'}
 
+CRITICAL INSTRUCTION FOR CONSISTENCY:
+This CRO Decision Table must contain the SAME recommendations you would give in a simple analysis list. Don't invent different recommendations - use the same core insights but formatted as a decision table.
+
 Generate 5-8 high-impact optimization opportunities following the examples. For EACH opportunity:
 
 1. **Metric Observed**: Specific data point with percentage (e.g., "Scroll depth median 42%. 68% users never reach reviews")
 
 2. **What You See**: User behavior observation (e.g., "Most users don't reach conviction before price. Move trust earlier to reduce hesitation")
 
-3. **Correct Assumption**: What to do and WHY with psychological principle (e.g., "Primary blocker: Mechanism credibility is not established *before* price exposure. Users hesitate because belief is incomplete at decision moment")
+3. **Correct Assumption**: What to do and WHY with psychological principle (e.g., "Primary blocker: Social proof appears AFTER price exposure. Users hesitate because belief is incomplete at decision moment. Psychology: Social Proof (Cialdini) must precede commitment ask.")
 
-4. **Wrong Assumption**: Common mistake (e.g., "People don't care about reviews" or "Bad UX only")
+4. **Wrong Assumption**: Common mistake (e.g., "People don't care about reviews" or "Bad UX only" or "Price is too high")
 
 5. **Practical Test**: EXACT change to test based on ACTUAL page content
    - Title: Test name (e.g., "Strategic Test - Hero Reframe")
-   - FROM: EXACT current copy/element from the page (quote the actual text you see in the HTML)
-   - TO: Your proposed improved version (write the EXACT new copy/change)
+   - FROM: EXACT current copy/element from the page (quote the actual text you see in the HTML - be literal!)
+   - TO: Your proposed improved version with EXACT copy to use (write the complete new text, not just guidelines)
    - Details: Step-by-step implementation instructions (array of specific actionable steps)
 
-   IMPORTANT: The FROM field MUST contain actual text/elements from the page HTML. Don't make up examples - use real content!
+   CRITICAL FOR "TO" FIELD: Write the COMPLETE new copy/text, not instructions.
+   BAD: "Change to outcome-focused headline"
+   GOOD: "Generate 10 Blog Posts in 5 Minutes - No Writers Needed"
+
+   The FROM field MUST contain actual text/elements from the page HTML. Don't make up examples - use real content!
 
 6. **Expected Lift**: Specific prediction (e.g., "+10-18% RPV", "+6-12% ATC")
 

@@ -213,35 +213,33 @@ export async function POST(request: Request) {
 
 ## FEW-SHOT EXAMPLES OF EXCELLENT ANALYSIS:
 
-**Example 1 - CTA Analysis:**
+**Example 1 - CTA Analysis (ACTIONABLE):**
 Input: Red "Buy Now" button, 48px, below fold
-Output: "CTA positioned 820px below fold (missed by 73% of users per scroll depth data). Psychology: Visibility = Availability Heuristic (Kahneman). Button color red triggers urgency (+18% clicks, HubSpot 2023). BUT position neutralizes color benefit. Test: Move CTA above fold (600px) + maintain red + add directional cue (arrow). Expected: +35-45% CTA clicks. Confidence: 85%. Effort: LOW (CSS change only)."
+Output: "CTA 'Buy Now' positioned 820px below fold - missed by 73% of mobile users (scroll depth data). ACTION: Move button to 450px (above fold) + change text to 'Start My Free Trial' (adds specificity + removes risk). Add arrow icon pointing to button. Psychology: Visibility Heuristic + Specificity Effect. Expected: +35-45% CTA clicks. Confidence: 85%. Effort: LOW."
 
-**Example 2 - Copy Analysis:**
+**Example 2 - Copy Analysis (ACTIONABLE):**
 Input: Headline "Revolutionary AI Platform"
-Output: "Headline score 3/10 - fails clarity test (what does it DO?). 'Revolutionary' triggers skepticism (-12% trust, Nielsen). 'AI Platform' = generic (247 competitors use same phrase). Jobs-to-be-Done framework missing. Test 3 alternatives: A) 'Generate Blog Posts in 5 Minutes' (outcome+time), B) 'Write SEO Content Without Writers' (outcome+objection), C) '10x Your Content Output Today' (multiplier+urgency). Expected: +25-40% engagement. Confidence: 90%. Effort: LOW."
+Output: "Headline 'Revolutionary AI Platform' is vague - doesn't explain what it DOES (clarity score 3/10). ACTION: Replace with 'Generate 10 Blog Posts in 5 Minutes - No Writers Needed'. This uses outcome (10 blog posts) + timeframe (5 min) + objection handling (no writers). Psychology: Jobs-to-be-Done framework. Expected: +28-42% engagement. Confidence: 90%. Effort: LOW."
 
-**Example 3 - Trust Signal Analysis:**
+**Example 3 - Trust Signal Analysis (ACTIONABLE):**
 Input: Testimonials in footer, no photos
-Output: "Social proof buried (footer = 8% visibility). Testimonials lack credibility markers (no photo/name/company = -67% trust, BrightLocal). Cialdini's Social Proof principle wasted. Test: Move 3 testimonials with photos above fold, near CTA. Add: full name, photo, company logo, specific result ('increased conversions 34%'). Consider video testimonial (+86% trust). Expected: +15-25% conversion rate. Confidence: 80%. Effort: MEDIUM (need photo assets)."
+Output: "Testimonials hidden in footer (only 8% see them). Current: generic text 'Great product!' with no credibility. ACTION: Move 3 testimonials above fold (position 350px, right before CTA). Use format: '★★★★★ Increased our conversions 67% in 2 weeks - Sarah Chen, Head of Marketing @ TechCorp' with headshot. Psychology: Social Proof (Cialdini) + Specificity. Expected: +18-26% conversion rate. Confidence: 82%. Effort: MEDIUM."
 
 CRITICAL INSTRUCTIONS:
 You MUST provide EXTREMELY DETAILED, SCIENTIFIC, DATA-DRIVEN analysis following the examples above.
 
-Each insight MUST include:
-• Specific metric/observation with percentage
-• Psychological principle or research reference
-• Exact recommendation with implementation details
-• Predicted impact with confidence interval
-• Real case study reference when possible
-• Implementation effort level (LOW/MEDIUM/HIGH)
-• Confidence score (0-100%)
+Each insight MUST be ACTIONABLE with CONCRETE implementation:
+• Start with the PROBLEM (what's wrong + metric)
+• Then EXACT ACTION to take (specific copy to write, exact change to make)
+• Why it works (psychological principle)
+• Expected impact with percentage
+• Example: "CTA says 'Get Started' (generic, -47% clicks vs specific copy). Change to 'Start My Free 14-Day Trial' (specificity + risk reversal). Psychology: Loss Aversion (Kahneman). Expected: +18-28% CTA clicks. Effort: LOW."
 
 For each requested category, provide:
 • Score 0-100 (be critical - score below 70 means serious issues)
-• 8-12 COMPREHENSIVE insights (not generic - be specific like examples!)
-• Each insight 200-300 characters with concrete data
-• 3-5 CONCRETE PROPOSALS with ALL fields
+• 8-12 ACTIONABLE insights (each one tells EXACTLY what to do/write)
+• Each insight must include the EXACT text/copy/change to implement
+• 3-5 CONCRETE PROPOSALS with specific alternatives to test
 
 Categories analysis framework:
 • CRO: CTA visibility/hierarchy, form friction, trust signals placement, urgency/scarcity, exit-intent, micro-commitments, progressive disclosure, social proof, guarantee/risk reversal, mobile optimization
