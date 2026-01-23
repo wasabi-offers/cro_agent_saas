@@ -110,57 +110,70 @@ export default function FunnelDetailPage() {
   useEffect(() => {
     const loadData = async (showLoader = true) => {
       if (showLoader) setIsLoading(true);
-      const funnelData = await fetchFunnel(funnelId);
 
-      // Fetch LIVE stats from tracking with date filters
-      if (funnelData) {
-        try {
-          const params = new URLSearchParams({
-            funnelId,
-            startDate: dateRange.start,
-            endDate: dateRange.end,
-            _t: Date.now().toString() // Prevent caching
-          });
+      try {
+        const funnelData = await fetchFunnel(funnelId);
 
-          const liveStatsResponse = await fetch(
-            `/api/funnel-stats/live?${params.toString()}`,
-            {
-              cache: 'no-store',
-              headers: {
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Pragma': 'no-cache',
-                'Expires': '0'
-              }
-            }
-          );
-          if (liveStatsResponse.ok) {
-            const liveData = await liveStatsResponse.json();
-            if (liveData.success && liveData.liveStats) {
-              // Create a NEW object to force React to detect the change
-              funnelData = {
-                ...funnelData,
-                conversionRate: liveData.conversionRate,
-                steps: funnelData.steps.map((step: any) => {
-                  const liveStat = liveData.liveStats.find((ls: any) => ls.stepName === step.name);
-                  if (liveStat) {
-                    return {
-                      ...step,
-                      visitors: liveStat.visitors,
-                      dropoff: liveStat.dropoff
-                    };
-                  }
-                  return step;
-                })
-              };
+        if (!funnelData) {
+          setFunnel(null);
+          setIsLoading(false);
+          return;
+        }
+
+        // Always fetch LIVE stats from tracking
+        const params = new URLSearchParams({
+          funnelId,
+          startDate: dateRange.start,
+          endDate: dateRange.end,
+          _t: Date.now().toString() // Cache buster
+        });
+
+        const liveStatsResponse = await fetch(
+          `/api/funnel-stats/live?${params.toString()}`,
+          {
+            cache: 'no-store',
+            headers: {
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache',
+              'Expires': '0'
             }
           }
-        } catch (liveError) {
-          console.warn('⚠️ Could not fetch live stats:', liveError);
-        }
-      }
+        );
 
-      setFunnel(funnelData);
-      if (showLoader) setIsLoading(false);
+        if (liveStatsResponse.ok) {
+          const liveData = await liveStatsResponse.json();
+
+          if (liveData.success && liveData.liveStats) {
+            // Build completely new funnel object with live data
+            const updatedFunnel = {
+              id: funnelData.id,
+              name: funnelData.name,
+              conversionRate: liveData.conversionRate,
+              connections: funnelData.connections,
+              steps: funnelData.steps.map((step: any) => {
+                const liveStat = liveData.liveStats.find((ls: any) => ls.stepName === step.name);
+                return {
+                  name: step.name,
+                  url: step.url,
+                  visitors: liveStat?.visitors || 0,
+                  dropoff: liveStat?.dropoff || 0
+                };
+              })
+            };
+
+            setFunnel(updatedFunnel);
+          } else {
+            setFunnel(funnelData);
+          }
+        } else {
+          setFunnel(funnelData);
+        }
+      } catch (error) {
+        console.error('Error loading funnel data:', error);
+        setFunnel(null);
+      } finally {
+        if (showLoader) setIsLoading(false);
+      }
     };
 
     loadData();
