@@ -112,76 +112,77 @@ export default function FunnelDetailPage() {
       if (showLoader) setIsLoading(true);
 
       try {
+        // 1. Load funnel config (name, steps structure, URLs)
         const funnelData = await fetchFunnel(funnelId);
 
         if (!funnelData) {
           setFunnel(null);
-          setIsLoading(false);
+          if (showLoader) setIsLoading(false);
           return;
         }
 
-        // Always fetch LIVE stats from tracking
-        const params = new URLSearchParams({
-          funnelId,
-          startDate: dateRange.start,
-          endDate: dateRange.end,
-          _t: Date.now().toString() // Cache buster
-        });
-
+        // 2. ALWAYS fetch fresh LIVE stats - no cache
+        const timestamp = Date.now();
         const liveStatsResponse = await fetch(
-          `/api/funnel-stats/live?${params.toString()}`,
+          `/api/funnel-stats/live?funnelId=${funnelId}&startDate=${dateRange.start}&endDate=${dateRange.end}&t=${timestamp}`,
           {
+            method: 'GET',
             cache: 'no-store',
             headers: {
-              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
               'Pragma': 'no-cache',
               'Expires': '0'
             }
           }
         );
 
-        if (liveStatsResponse.ok) {
-          const liveData = await liveStatsResponse.json();
+        if (!liveStatsResponse.ok) {
+          console.error('Live stats error:', liveStatsResponse.status);
+          setFunnel(funnelData);
+          if (showLoader) setIsLoading(false);
+          return;
+        }
 
-          if (liveData.success && liveData.liveStats) {
-            // Build completely new funnel object with live data
-            const updatedFunnel = {
-              id: funnelData.id,
-              name: funnelData.name,
-              conversionRate: liveData.conversionRate,
-              connections: funnelData.connections,
-              steps: funnelData.steps.map((step: any) => {
-                const liveStat = liveData.liveStats.find((ls: any) => ls.stepName === step.name);
-                return {
-                  name: step.name,
-                  url: step.url,
-                  visitors: liveStat?.visitors || 0,
-                  dropoff: liveStat?.dropoff || 0
-                };
-              })
-            };
+        const liveData = await liveStatsResponse.json();
+        console.log('🔄 Live data received:', timestamp, liveData);
 
-            setFunnel(updatedFunnel);
-          } else {
-            setFunnel(funnelData);
-          }
+        if (liveData.success && liveData.liveStats) {
+          // 3. Build COMPLETELY NEW object (force React update)
+          const newFunnel = {
+            id: funnelData.id,
+            name: funnelData.name,
+            conversionRate: liveData.conversionRate,
+            connections: funnelData.connections,
+            steps: funnelData.steps.map((step: any) => {
+              const liveStat = liveData.liveStats.find((ls: any) => ls.stepName === step.name);
+              return {
+                name: step.name,
+                url: step.url,
+                visitors: liveStat?.visitors || 0,
+                dropoff: liveStat?.dropoff || 0
+              };
+            })
+          };
+
+          console.log('✅ Setting funnel with live data:', newFunnel.steps.map(s => s.visitors));
+          setFunnel(newFunnel);
         } else {
           setFunnel(funnelData);
         }
       } catch (error) {
-        console.error('Error loading funnel data:', error);
-        setFunnel(null);
+        console.error('❌ Error loading funnel:', error);
       } finally {
         if (showLoader) setIsLoading(false);
       }
     };
 
-    loadData();
+    loadData(true);
 
-    // Auto-refresh every 3 seconds for real-time data
+    // Auto-refresh every 5 seconds
     const interval = setInterval(() => {
-      loadData(false); // Silent refresh without loader
-    }, 3000);
+      console.log('🔄 Auto-refresh triggered');
+      loadData(false);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [funnelId, dateRange]);
@@ -600,7 +601,7 @@ export default function FunnelDetailPage() {
   const lastStep = funnel.steps[funnel.steps.length - 1];
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-black" key={`funnel-${funnelId}-${funnel.conversionRate}`}>
       <Header title={funnel.name} breadcrumb={["Dashboard", "Funnels", funnel.name]} />
 
       <div className="p-10 max-w-7xl mx-auto">

@@ -13,9 +13,11 @@ function getSupabaseClient() {
   return createClient(supabaseUrl, supabaseKey);
 }
 
-// Disable caching for live data
+// Disable ALL caching for live data
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+export const fetchCache = 'force-no-store';
+export const runtime = 'nodejs';
 
 /**
  * GET /api/funnel-stats/live?funnelId=xxx
