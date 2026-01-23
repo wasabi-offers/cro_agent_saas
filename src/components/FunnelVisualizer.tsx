@@ -22,6 +22,9 @@ interface FunnelStep {
   name: string;
   visitors: number;
   dropoff: number;
+  url?: string;
+  x?: number;  // Visual position X coordinate
+  y?: number;  // Visual position Y coordinate
 }
 
 interface FunnelConnection {
