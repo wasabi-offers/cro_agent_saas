@@ -158,6 +158,8 @@ export default function FunnelDetailPage() {
               return {
                 name: step.name,
                 url: step.url,
+                x: step.x,  // PRESERVE saved position!
+                y: step.y,  // PRESERVE saved position!
                 visitors: liveStat?.visitors || 0,
                 dropoff: liveStat?.dropoff || 0
               };
