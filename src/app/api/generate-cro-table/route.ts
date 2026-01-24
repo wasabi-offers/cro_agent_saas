@@ -287,13 +287,7 @@ IMPORTANT INSTRUCTIONS:
           messages: [
             {
               role: "user",
-              content: [
-                {
-                  type: "text",
-                  text: userPrompt,
-                  cache_control: { type: "ephemeral" } // Cache page content too (changes per URL but reused in follow-ups)
-                }
-              ]
+              content: userPrompt
             },
           ],
         });
