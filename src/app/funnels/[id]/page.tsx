@@ -65,6 +65,7 @@ export default function FunnelDetailPage() {
   const funnelId = params.id as string;
 
   const [funnel, setFunnel] = useState<ConversionFunnel | null>(null);
+  const [updateTrigger, setUpdateTrigger] = useState(0); // Force re-render trigger
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"overview" | "analysis" | "heatmap" | "abtests" | "setup">("overview");
   const [showEditBuilder, setShowEditBuilder] = useState(false);
@@ -166,8 +167,9 @@ export default function FunnelDetailPage() {
             })
           };
 
-          console.log('✅ Setting funnel with live data:', newFunnel.steps.map(s => s.visitors));
+          console.log('✅ Setting funnel with live data:', newFunnel.steps.map(s => `${s.name}: ${s.visitors} visitors`));
           setFunnel(newFunnel);
+          setUpdateTrigger(prev => prev + 1); // Force re-render
         } else {
           setFunnel(funnelData);
         }
@@ -603,7 +605,7 @@ export default function FunnelDetailPage() {
   const lastStep = funnel.steps[funnel.steps.length - 1];
 
   return (
-    <div className="min-h-screen bg-black" key={`funnel-${funnelId}-${funnel.conversionRate}`}>
+    <div className="min-h-screen bg-black">
       <Header title={funnel.name} breadcrumb={["Dashboard", "Funnels", funnel.name]} />
 
       <div className="p-10 max-w-7xl mx-auto">
@@ -663,7 +665,12 @@ export default function FunnelDetailPage() {
         {/* Funnel Visualizer */}
         {!showEditBuilder && (
           <div className="mb-8">
-            <FunnelVisualizer steps={funnel.steps} name={funnel.name} connections={funnel.connections} />
+            <FunnelVisualizer
+              key={`funnel-viz-${updateTrigger}`}
+              steps={funnel.steps}
+              name={funnel.name}
+              connections={funnel.connections}
+            />
           </div>
         )}
 
@@ -762,7 +769,7 @@ export default function FunnelDetailPage() {
                   const widthPercentage = (step.visitors / firstStep.visitors) * 100;
 
                   return (
-                    <div key={step.name}>
+                    <div key={`${step.name}-${step.visitors}-${updateTrigger}`}>
                       {!isFirst && (
                         <div className="flex items-center gap-4 py-2 pl-8">
                           <ChevronDown className={`w-5 h-5 ${getDropoffColor(step.dropoff)}`} />
