@@ -485,14 +485,60 @@ export default function FunnelDetailPage() {
     const success = await updateFunnel(funnelId, updatedFunnel);
 
     if (success) {
-      console.warn('💾💾💾 HANDLE EDIT FUNNEL - Update successful! Reloading from database...');
-      // Reload funnel data from database
-      const funnelData = await fetchFunnel(funnelId);
-      console.warn('💾💾💾 HANDLE EDIT FUNNEL - Reloaded data:', funnelData);
-      console.warn('💾💾💾 HANDLE EDIT FUNNEL - Reloaded connections:', funnelData?.connections);
-      setFunnel(funnelData);
+      console.warn('💾💾💾 HANDLE EDIT FUNNEL - Update successful! Reloading with live data...');
       setShowEditBuilder(false);
       alert('✅ Funnel modificato con successo!');
+
+      // Force reload with live data by triggering useEffect
+      setIsLoading(true);
+      const funnelData = await fetchFunnel(funnelId);
+
+      if (funnelData) {
+        // Fetch live stats for the updated funnel
+        const timestamp = Date.now();
+        const liveStatsResponse = await fetch(
+          `/api/funnel-stats/live?funnelId=${funnelId}&startDate=${dateRange.start}&endDate=${dateRange.end}&t=${timestamp}`,
+          {
+            method: 'GET',
+            cache: 'no-store',
+            headers: {
+              'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+              'Pragma': 'no-cache',
+              'Expires': '0'
+            }
+          }
+        );
+
+        if (liveStatsResponse.ok) {
+          const liveData = await liveStatsResponse.json();
+          if (liveData.success && liveData.liveStats) {
+            const newFunnel = {
+              id: funnelData.id,
+              name: funnelData.name,
+              conversionRate: liveData.conversionRate,
+              connections: funnelData.connections,
+              steps: funnelData.steps.map((step: any) => {
+                const liveStat = liveData.liveStats.find((ls: any) => ls.stepName === step.name);
+                return {
+                  name: step.name,
+                  url: step.url,
+                  x: step.x,
+                  y: step.y,
+                  visitors: liveStat?.visitors || 0,
+                  dropoff: liveStat?.dropoff || 0
+                };
+              })
+            };
+            setFunnel(newFunnel);
+            setUpdateTrigger(prev => prev + 1);
+          } else {
+            setFunnel(funnelData);
+          }
+        } else {
+          setFunnel(funnelData);
+        }
+      }
+      setIsLoading(false);
     } else {
       console.warn('💾💾💾 HANDLE EDIT FUNNEL - Update failed, using local data');
       // If Supabase not configured, update locally
