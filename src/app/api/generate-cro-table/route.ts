@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { CROTableRow } from "@/lib/saved-items";
 
+// Disable caching for CRO analysis with live funnel data
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
+
 interface CROTableRequest {
   url: string;
   type: 'landing' | 'funnel';
