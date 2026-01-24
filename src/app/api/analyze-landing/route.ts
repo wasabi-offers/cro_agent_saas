@@ -7,6 +7,11 @@ import {
   MousePointer,
 } from "lucide-react";
 
+// Disable caching for landing page analysis
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
+
 // This API analyzes landing pages for CRO improvements
 interface AnalysisRequest {
   url: string;
