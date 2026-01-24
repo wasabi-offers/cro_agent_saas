@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import ReactFlow, {
   Node,
   Edge,
@@ -207,6 +207,9 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
   const [showTrackingSetup, setShowTrackingSetup] = useState(false);
   const [copiedScriptId, setCopiedScriptId] = useState<string | null>(null);
 
+  // Track if we've initialized from initialFunnel to prevent re-initialization
+  const hasInitialized = useRef(false);
+
   // Initialize state hooks first
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -227,9 +230,13 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
     );
   }, [setNodes]);
 
-  // Initialize from existing funnel using useEffect
+  // Initialize from existing funnel using useEffect - ONLY ONCE
   useEffect(() => {
-    if (!initialFunnel) return;
+    // Only initialize if we have initialFunnel AND haven't initialized yet
+    if (!initialFunnel || hasInitialized.current) return;
+
+    console.log('🎯 FUNNEL BUILDER - Initializing from initialFunnel (one-time only)');
+    hasInitialized.current = true; // Mark as initialized to prevent re-runs
 
     const initialNodes: Node[] = initialFunnel.steps.map((step, index) => ({
       id: `step-${index + 1}`,
@@ -307,6 +314,7 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
 
     setNodes(initialNodes);
     setEdges(initialEdges);
+    console.log(`🎯 FUNNEL BUILDER - Initialized with ${initialNodes.length} nodes and ${initialEdges.length} edges`);
   }, [initialFunnel, deleteNode, editNode, setNodes, setEdges]);
 
   const onConnect = useCallback(
