@@ -182,14 +182,21 @@ export default function FunnelDetailPage() {
 
     loadData(true);
 
-    // Auto-refresh every 5 seconds
+    // CRITICAL: Only auto-refresh when NOT editing
+    // Auto-refresh would overwrite user's changes in the builder
+    if (showEditBuilder) {
+      console.log('⏸️ Auto-refresh DISABLED - user is editing funnel');
+      return; // Don't set up interval when editing
+    }
+
+    // Auto-refresh every 5 seconds ONLY when viewing (not editing)
     const interval = setInterval(() => {
       console.log('🔄 Auto-refresh triggered');
       loadData(false);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [funnelId, dateRange]);
+  }, [funnelId, dateRange, showEditBuilder]);
 
   // Load saved A/B test proposals from database
   const loadSavedProposals = async () => {
