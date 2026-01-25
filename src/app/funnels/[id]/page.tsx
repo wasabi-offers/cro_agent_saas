@@ -107,6 +107,13 @@ export default function FunnelDetailPage() {
     };
   };
   const [dateRange, setDateRange] = useState(getDefaultDateRange());
+  const [lastRefresh, setLastRefresh] = useState(Date.now());
+
+  // Manual refresh function
+  const refreshData = () => {
+    console.log('🔄 Manual refresh triggered');
+    setLastRefresh(Date.now());
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -122,17 +129,18 @@ export default function FunnelDetailPage() {
           return;
         }
 
-        // 2. Fetch fresh LIVE stats - no cache
-        const timestamp = Date.now();
+        // 2. Fetch fresh LIVE stats - FORCE no cache with random parameter
+        const cacheBuster = `${Date.now()}_${Math.random().toString(36).substring(7)}`;
         const liveStatsResponse = await fetch(
-          `/api/funnel-stats/live?funnelId=${funnelId}&startDate=${dateRange.start}&endDate=${dateRange.end}&t=${timestamp}`,
+          `/api/funnel-stats/live?funnelId=${funnelId}&startDate=${dateRange.start}&endDate=${dateRange.end}&_cb=${cacheBuster}`,
           {
             method: 'GET',
             cache: 'no-store',
             headers: {
               'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
               'Pragma': 'no-cache',
-              'Expires': '0'
+              'Expires': '0',
+              'X-Requested-With': 'XMLHttpRequest'
             }
           }
         );
@@ -179,7 +187,7 @@ export default function FunnelDetailPage() {
     };
 
     loadData();
-  }, [funnelId, dateRange]);
+  }, [funnelId, dateRange, lastRefresh]);
 
   // Load saved A/B test proposals from database
   const loadSavedProposals = async () => {
@@ -475,60 +483,12 @@ export default function FunnelDetailPage() {
     const success = await updateFunnel(funnelId, updatedFunnel);
 
     if (success) {
-      console.warn('💾💾💾 HANDLE EDIT FUNNEL - Update successful! Reloading with live data...');
+      console.warn('💾💾💾 HANDLE EDIT FUNNEL - Update successful! Reloading...');
       setShowEditBuilder(false);
       alert('✅ Funnel modificato con successo!');
 
-      // Force reload with live data by triggering useEffect
-      setIsLoading(true);
-      const funnelData = await fetchFunnel(funnelId);
-
-      if (funnelData) {
-        // Fetch live stats for the updated funnel
-        const timestamp = Date.now();
-        const liveStatsResponse = await fetch(
-          `/api/funnel-stats/live?funnelId=${funnelId}&startDate=${dateRange.start}&endDate=${dateRange.end}&t=${timestamp}`,
-          {
-            method: 'GET',
-            cache: 'no-store',
-            headers: {
-              'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-              'Pragma': 'no-cache',
-              'Expires': '0'
-            }
-          }
-        );
-
-        if (liveStatsResponse.ok) {
-          const liveData = await liveStatsResponse.json();
-          if (liveData.success && liveData.liveStats) {
-            const newFunnel = {
-              id: funnelData.id,
-              name: funnelData.name,
-              conversionRate: liveData.conversionRate,
-              connections: funnelData.connections,
-              steps: funnelData.steps.map((step: any) => {
-                const liveStat = liveData.liveStats.find((ls: any) => ls.stepName === step.name);
-                return {
-                  name: step.name,
-                  url: step.url,
-                  x: step.x,
-                  y: step.y,
-                  visitors: liveStat?.visitors || 0,
-                  dropoff: liveStat?.dropoff || 0
-                };
-              })
-            };
-            setFunnel(newFunnel);
-            setUpdateTrigger(prev => prev + 1);
-          } else {
-            setFunnel(funnelData);
-          }
-        } else {
-          setFunnel(funnelData);
-        }
-      }
-      setIsLoading(false);
+      // Trigger full data reload with cache busting
+      refreshData();
     } else {
       console.warn('💾💾💾 HANDLE EDIT FUNNEL - Update failed, using local data');
       // If Supabase not configured, update locally
@@ -657,6 +617,14 @@ export default function FunnelDetailPage() {
 
           <div className="flex items-center gap-6">
             <DateRangePicker value={dateRange} onChange={setDateRange} />
+            <button
+              onClick={refreshData}
+              className="flex items-center gap-2 px-4 py-2.5 bg-[#111111] border border-[#7c5cff] text-[#7c5cff] rounded-xl text-[14px] font-medium hover:bg-[#7c5cff]/10 transition-all"
+              title="Ricarica dati"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Refresh
+            </button>
             <div className="h-10 w-px bg-[#2a2a2a]" />
             <div className="text-right">
               <p className="text-[12px] text-[#888888]">Conversion Rate</p>
