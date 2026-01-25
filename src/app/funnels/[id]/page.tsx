@@ -111,10 +111,12 @@ export default function FunnelDetailPage() {
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
+      console.log('🔵 FUNNEL PAGE - Starting data load for funnel:', funnelId);
 
       try {
         // 1. Load funnel config (name, steps structure, URLs)
         const funnelData = await fetchFunnel(funnelId);
+        console.log('🔵 FUNNEL PAGE - Fetched funnel config from DB:', funnelData);
 
         if (!funnelData) {
           setFunnel(null);
@@ -123,24 +125,29 @@ export default function FunnelDetailPage() {
         }
 
         // 2. Fetch fresh LIVE stats
-        const liveStatsResponse = await fetch(
-          `/api/funnel-stats/live?funnelId=${funnelId}&startDate=${dateRange.start}&endDate=${dateRange.end}`,
-          {
-            method: 'GET',
-            cache: 'no-store',
-          }
-        );
+        const liveApiUrl = `/api/funnel-stats/live?funnelId=${funnelId}&startDate=${dateRange.start}&endDate=${dateRange.end}`;
+        console.log('🔵 FUNNEL PAGE - Calling live API:', liveApiUrl);
+
+        const liveStatsResponse = await fetch(liveApiUrl, {
+          method: 'GET',
+          cache: 'no-store',
+        });
+
+        console.log('🔵 FUNNEL PAGE - Live API response status:', liveStatsResponse.status);
 
         if (!liveStatsResponse.ok) {
-          console.error('Live stats error:', liveStatsResponse.status);
+          console.error('❌ Live stats error:', liveStatsResponse.status);
           setFunnel(funnelData);
           setIsLoading(false);
           return;
         }
 
         const liveData = await liveStatsResponse.json();
+        console.log('🔵 FUNNEL PAGE - Live API returned data:', liveData);
 
         if (liveData.success && liveData.liveStats) {
+          console.log('🔵 FUNNEL PAGE - Live stats:', liveData.liveStats);
+
           const newFunnel = {
             id: funnelData.id,
             name: funnelData.name,
@@ -148,6 +155,7 @@ export default function FunnelDetailPage() {
             connections: funnelData.connections,
             steps: funnelData.steps.map((step: any) => {
               const liveStat = liveData.liveStats.find((ls: any) => ls.stepName === step.name);
+              console.log(`🔵 Mapping step "${step.name}": DB has ${step.visitors}, Live has ${liveStat?.visitors || 0}`);
               return {
                 name: step.name,
                 url: step.url,
@@ -159,9 +167,11 @@ export default function FunnelDetailPage() {
             })
           };
 
+          console.log('🔵 FUNNEL PAGE - Setting funnel with LIVE data:', newFunnel);
           setFunnel(newFunnel);
           setUpdateTrigger(prev => prev + 1);
         } else {
+          console.warn('⚠️ FUNNEL PAGE - No live stats, using DB data only');
           setFunnel(funnelData);
         }
       } catch (error) {
