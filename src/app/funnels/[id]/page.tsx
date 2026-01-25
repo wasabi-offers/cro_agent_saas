@@ -109,8 +109,8 @@ export default function FunnelDetailPage() {
   const [dateRange, setDateRange] = useState(getDefaultDateRange());
 
   useEffect(() => {
-    const loadData = async (showLoader = true) => {
-      if (showLoader) setIsLoading(true);
+    const loadData = async () => {
+      setIsLoading(true);
 
       try {
         // 1. Load funnel config (name, steps structure, URLs)
@@ -118,11 +118,11 @@ export default function FunnelDetailPage() {
 
         if (!funnelData) {
           setFunnel(null);
-          if (showLoader) setIsLoading(false);
+          setIsLoading(false);
           return;
         }
 
-        // 2. ALWAYS fetch fresh LIVE stats - no cache
+        // 2. Fetch fresh LIVE stats - no cache
         const timestamp = Date.now();
         const liveStatsResponse = await fetch(
           `/api/funnel-stats/live?funnelId=${funnelId}&startDate=${dateRange.start}&endDate=${dateRange.end}&t=${timestamp}`,
@@ -140,15 +140,14 @@ export default function FunnelDetailPage() {
         if (!liveStatsResponse.ok) {
           console.error('Live stats error:', liveStatsResponse.status);
           setFunnel(funnelData);
-          if (showLoader) setIsLoading(false);
+          setIsLoading(false);
           return;
         }
 
         const liveData = await liveStatsResponse.json();
-        console.log('🔄 Live data received:', timestamp, liveData);
+        console.log('🔄 Live data loaded:', liveData);
 
         if (liveData.success && liveData.liveStats) {
-          // 3. Build COMPLETELY NEW object (force React update)
           const newFunnel = {
             id: funnelData.id,
             name: funnelData.name,
@@ -159,44 +158,28 @@ export default function FunnelDetailPage() {
               return {
                 name: step.name,
                 url: step.url,
-                x: step.x,  // PRESERVE saved position!
-                y: step.y,  // PRESERVE saved position!
+                x: step.x,
+                y: step.y,
                 visitors: liveStat?.visitors || 0,
                 dropoff: liveStat?.dropoff || 0
               };
             })
           };
 
-          console.log('✅ Setting funnel with live data:', newFunnel.steps.map(s => `${s.name}: ${s.visitors} visitors`));
           setFunnel(newFunnel);
-          setUpdateTrigger(prev => prev + 1); // Force re-render
+          setUpdateTrigger(prev => prev + 1);
         } else {
           setFunnel(funnelData);
         }
       } catch (error) {
         console.error('❌ Error loading funnel:', error);
       } finally {
-        if (showLoader) setIsLoading(false);
+        setIsLoading(false);
       }
     };
 
-    loadData(true);
-
-    // CRITICAL: Only auto-refresh when NOT editing
-    // Auto-refresh would overwrite user's changes in the builder
-    if (showEditBuilder) {
-      console.log('⏸️ Auto-refresh DISABLED - user is editing funnel');
-      return; // Don't set up interval when editing
-    }
-
-    // Auto-refresh every 5 seconds ONLY when viewing (not editing)
-    const interval = setInterval(() => {
-      console.log('🔄 Auto-refresh triggered');
-      loadData(false);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [funnelId, dateRange, showEditBuilder]);
+    loadData();
+  }, [funnelId, dateRange]);
 
   // Load saved A/B test proposals from database
   const loadSavedProposals = async () => {
