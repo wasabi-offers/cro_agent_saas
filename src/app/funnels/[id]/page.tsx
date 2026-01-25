@@ -37,7 +37,7 @@ import FunnelBuilder from "@/components/FunnelBuilder";
 import VisualAnnotations from "@/components/VisualAnnotations";
 import HeatmapVisualization from "@/components/HeatmapVisualization";
 import { CROTableRow, SavedFunnel, funnelStorage } from "@/lib/saved-items";
-import { ConversionFunnel, fetchFunnel, updateFunnel } from "@/lib/supabase-funnels";
+import { ConversionFunnel, fetchFunnel, updateFunnel, enrichFunnelsWithLiveData } from "@/lib/supabase-funnels";
 
 interface AnalysisResult {
   category: string;
@@ -111,69 +111,22 @@ export default function FunnelDetailPage() {
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
-      console.log('🔵 FUNNEL PAGE - Starting data load for funnel:', funnelId);
 
       try {
-        // 1. Load funnel config (name, steps structure, URLs)
-        const funnelData = await fetchFunnel(funnelId);
-        console.log('🔵 FUNNEL PAGE - Fetched funnel config from DB:', funnelData);
+        // Load funnel config from DB
+        const funnelConfig = await fetchFunnel(funnelId);
 
-        if (!funnelData) {
+        if (!funnelConfig) {
           setFunnel(null);
           setIsLoading(false);
           return;
         }
 
-        // 2. Fetch fresh LIVE stats
-        const liveApiUrl = `/api/funnel-stats/live?funnelId=${funnelId}&startDate=${dateRange.start}&endDate=${dateRange.end}`;
-        console.log('🔵 FUNNEL PAGE - Calling live API:', liveApiUrl);
+        // Enrich with LIVE data from tracking_events (same as dashboard)
+        const [enrichedFunnel] = await enrichFunnelsWithLiveData([funnelConfig]);
 
-        const liveStatsResponse = await fetch(liveApiUrl, {
-          method: 'GET',
-          cache: 'no-store',
-        });
-
-        console.log('🔵 FUNNEL PAGE - Live API response status:', liveStatsResponse.status);
-
-        if (!liveStatsResponse.ok) {
-          console.error('❌ Live stats error:', liveStatsResponse.status);
-          setFunnel(funnelData);
-          setIsLoading(false);
-          return;
-        }
-
-        const liveData = await liveStatsResponse.json();
-        console.log('🔵 FUNNEL PAGE - Live API returned data:', liveData);
-
-        if (liveData.success && liveData.liveStats) {
-          console.log('🔵 FUNNEL PAGE - Live stats:', liveData.liveStats);
-
-          const newFunnel = {
-            id: funnelData.id,
-            name: funnelData.name,
-            conversionRate: liveData.conversionRate,
-            connections: funnelData.connections,
-            steps: funnelData.steps.map((step: any) => {
-              const liveStat = liveData.liveStats.find((ls: any) => ls.stepName === step.name);
-              console.log(`🔵 Mapping step "${step.name}": DB has ${step.visitors}, Live has ${liveStat?.visitors || 0}`);
-              return {
-                name: step.name,
-                url: step.url,
-                x: step.x,
-                y: step.y,
-                visitors: liveStat?.visitors || 0,
-                dropoff: liveStat?.dropoff || 0
-              };
-            })
-          };
-
-          console.log('🔵 FUNNEL PAGE - Setting funnel with LIVE data:', newFunnel);
-          setFunnel(newFunnel);
-          setUpdateTrigger(prev => prev + 1);
-        } else {
-          console.warn('⚠️ FUNNEL PAGE - No live stats, using DB data only');
-          setFunnel(funnelData);
-        }
+        setFunnel(enrichedFunnel);
+        setUpdateTrigger(prev => prev + 1);
       } catch (error) {
         console.error('❌ Error loading funnel:', error);
       } finally {
