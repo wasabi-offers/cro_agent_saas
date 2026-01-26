@@ -108,6 +108,10 @@ export default function FunnelDetailPage() {
   };
   const [dateRange, setDateRange] = useState(getDefaultDateRange());
 
+  // User paths analysis state
+  const [userPaths, setUserPaths] = useState<any>(null);
+  const [isLoadingPaths, setIsLoadingPaths] = useState(false);
+
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
@@ -135,6 +139,32 @@ export default function FunnelDetailPage() {
     };
 
     loadData();
+  }, [funnelId, dateRange]);
+
+  // Load user paths analysis
+  useEffect(() => {
+    const loadPaths = async () => {
+      if (!funnelId) return;
+
+      setIsLoadingPaths(true);
+      try {
+        const response = await fetch(
+          `/api/funnel-paths?funnelId=${funnelId}&startDate=${dateRange.start}&endDate=${dateRange.end}`,
+          { method: 'GET', cache: 'no-store' }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserPaths(data);
+        }
+      } catch (error) {
+        console.error('Error loading paths:', error);
+      } finally {
+        setIsLoadingPaths(false);
+      }
+    };
+
+    loadPaths();
   }, [funnelId, dateRange]);
 
   // Load saved A/B test proposals from database
@@ -865,6 +895,133 @@ export default function FunnelDetailPage() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* User Paths Analysis */}
+          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8 mt-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-xl flex items-center justify-center">
+                <Activity className="w-5 h-5 text-white" />
+              </div>
+              <h2 className="text-[18px] font-semibold text-[#fafafa]">
+                Percorsi Utente Reali
+              </h2>
+            </div>
+
+            {isLoadingPaths ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 text-[#7c5cff] animate-spin" />
+              </div>
+            ) : !userPaths || userPaths.transitions.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-[#666666] text-[14px]">
+                  Nessun dato di navigazione disponibile per questo funnel.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Summary */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-4">
+                    <p className="text-[12px] text-[#666666] mb-1">Sessioni Totali</p>
+                    <p className="text-[20px] font-bold text-[#fafafa]">
+                      {userPaths.totalSessions.toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-4">
+                    <p className="text-[12px] text-[#666666] mb-1">Collegamenti Rilevati</p>
+                    <p className="text-[20px] font-bold text-[#7c5cff]">
+                      {userPaths.transitions.length}
+                    </p>
+                  </div>
+                  <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-4">
+                    <p className="text-[12px] text-[#666666] mb-1">Entry Point Principali</p>
+                    <p className="text-[20px] font-bold text-[#00d4aa]">
+                      {userPaths.entryPoints.length}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Top Transitions */}
+                <div>
+                  <h3 className="text-[16px] font-semibold text-[#fafafa] mb-4">
+                    Top 10 Collegamenti (Ordinati per Frequenza)
+                  </h3>
+                  <div className="space-y-2">
+                    {userPaths.transitions.slice(0, 10).map((transition: any, idx: number) => (
+                      <div
+                        key={`${transition.from}-${transition.to}`}
+                        className="flex items-center gap-4 p-4 bg-[#111111] border border-[#2a2a2a] rounded-xl hover:border-[#7c5cff]/50 transition-all"
+                      >
+                        <div className="w-8 h-8 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <span className="text-[13px] font-bold text-[#7c5cff]">#{idx + 1}</span>
+                        </div>
+                        <div className="flex-1 flex items-center gap-3">
+                          <span className="text-[14px] text-[#fafafa] font-medium">
+                            {transition.from}
+                          </span>
+                          <ArrowRight className="w-4 h-4 text-[#00d4aa]" />
+                          <span className="text-[14px] text-[#fafafa] font-medium">
+                            {transition.to}
+                          </span>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <p className="text-[16px] font-bold text-[#fafafa]">
+                            {transition.count.toLocaleString()}
+                          </p>
+                          <p className="text-[11px] text-[#666666]">
+                            {transition.percentage}% sessioni
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Entry & Exit Points */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Entry Points */}
+                  <div>
+                    <h3 className="text-[16px] font-semibold text-[#fafafa] mb-4">
+                      Entry Points
+                    </h3>
+                    <div className="space-y-2">
+                      {userPaths.entryPoints.slice(0, 5).map((entry: any) => (
+                        <div
+                          key={entry.step}
+                          className="flex items-center justify-between p-3 bg-[#111111] border border-[#2a2a2a] rounded-lg"
+                        >
+                          <span className="text-[13px] text-[#fafafa]">{entry.step}</span>
+                          <span className="text-[14px] font-bold text-[#00d4aa]">
+                            {entry.count}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Exit Points */}
+                  <div>
+                    <h3 className="text-[16px] font-semibold text-[#fafafa] mb-4">
+                      Exit Points
+                    </h3>
+                    <div className="space-y-2">
+                      {userPaths.exitPoints.slice(0, 5).map((exit: any) => (
+                        <div
+                          key={exit.step}
+                          className="flex items-center justify-between p-3 bg-[#111111] border border-[#2a2a2a] rounded-lg"
+                        >
+                          <span className="text-[13px] text-[#fafafa]">{exit.step}</span>
+                          <span className="text-[14px] font-bold text-[#ff6b6b]">
+                            {exit.count}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
