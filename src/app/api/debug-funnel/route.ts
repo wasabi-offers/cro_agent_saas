@@ -16,21 +16,37 @@ export async function GET(req: NextRequest) {
   try {
     const supabase = getSupabaseClient();
 
-    // Get all funnels
-    const { data: funnels, error: funnelsError } = await supabase
-      .from('funnels')
-      .select('*')
-      .order('created_at', { ascending: false });
+    const { searchParams } = req.nextUrl;
+    const funnelId = searchParams.get('funnelId');
 
-    if (funnelsError) {
-      return NextResponse.json({ error: funnelsError.message }, { status: 500 });
+    let funnel;
+
+    if (funnelId) {
+      // Get specific funnel
+      const { data, error } = await supabase
+        .from('funnels')
+        .select('*')
+        .eq('id', funnelId)
+        .single();
+
+      if (error || !data) {
+        return NextResponse.json({ error: 'Funnel not found' }, { status: 404 });
+      }
+      funnel = data;
+    } else {
+      // Get most recent funnel
+      const { data, error } = await supabase
+        .from('funnels')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error || !data) {
+        return NextResponse.json({ error: 'No funnels found' }, { status: 404 });
+      }
+      funnel = data;
     }
-
-    if (funnels.length === 0) {
-      return NextResponse.json({ message: 'No funnels found' });
-    }
-
-    const funnel = funnels[0]; // Most recent
 
     // Get steps
     const { data: steps, error: stepsError } = await supabase
