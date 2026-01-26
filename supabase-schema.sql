@@ -4,12 +4,27 @@
 -- Run this SQL in your Supabase SQL Editor to create all tables
 
 -- ============================================
--- 1. FUNNELS TABLE
+-- 1. PRODUCTS TABLE (Folders for organizing funnels)
+-- ============================================
+CREATE TABLE IF NOT EXISTS products (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT,
+  color TEXT DEFAULT '#7c5cff', -- Default purple color for folder
+  icon TEXT, -- Optional icon name (lucide icon)
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  user_id TEXT -- Optional: for multi-user support
+);
+
+-- ============================================
+-- 2. FUNNELS TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS funnels (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   conversion_rate NUMERIC NOT NULL DEFAULT 0,
+  product_id TEXT REFERENCES products(id) ON DELETE SET NULL, -- Link to product/folder
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
   user_id TEXT, -- Optional: for multi-user support
@@ -93,6 +108,8 @@ CREATE TABLE IF NOT EXISTS cro_analyses (
 -- ============================================
 -- INDEXES FOR PERFORMANCE
 -- ============================================
+CREATE INDEX IF NOT EXISTS idx_products_user_id ON products(user_id);
+CREATE INDEX IF NOT EXISTS idx_funnels_product_id ON funnels(product_id);
 CREATE INDEX IF NOT EXISTS idx_funnel_steps_funnel_id ON funnel_steps(funnel_id);
 CREATE INDEX IF NOT EXISTS idx_funnel_steps_order ON funnel_steps(funnel_id, step_order);
 CREATE INDEX IF NOT EXISTS idx_funnel_connections_funnel ON funnel_connections(funnel_id);
@@ -119,6 +136,9 @@ $$ language 'plpgsql';
 -- ============================================
 -- TRIGGERS FOR AUTO-UPDATE
 -- ============================================
+CREATE TRIGGER update_products_updated_at BEFORE UPDATE ON products
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 CREATE TRIGGER update_funnels_updated_at BEFORE UPDATE ON funnels
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 

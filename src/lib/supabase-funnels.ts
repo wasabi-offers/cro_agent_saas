@@ -271,6 +271,7 @@ export async function createFunnel(funnel: {
   name: string;
   steps: FunnelStep[];
   connections?: FunnelConnection[];
+  product_id?: string;  // Optional product ID
 }): Promise<ConversionFunnel | null> {
   // Cannot create if Supabase is not configured
   if (!isSupabaseConfigured() || !supabase) {
@@ -297,6 +298,7 @@ export async function createFunnel(funnel: {
         id: funnelId,
         name: funnel.name,
         conversion_rate: conversionRate,
+        product_id: funnel.product_id || null,  // Set product_id if provided
       })
       .select()
       .single();

@@ -12,6 +12,7 @@ import {
   TrendingUp,
   FileSearch,
   Brain,
+  Folder,
 } from "lucide-react";
 
 const menuItems = [
@@ -20,7 +21,7 @@ const menuItems = [
   { name: "Analytics", href: "/analytics", icon: BarChart3 },
   { name: "A/B Tests", href: "/ab-tests", icon: FlaskConical },
   { name: "Heatmaps", href: "/heatmaps", icon: MousePointerClick },
-  { name: "Funnels", href: "/funnels", icon: TrendingUp },
+  { name: "Products", href: "/products", icon: Folder },
   { name: "Landing Analysis", href: "/landing-analysis", icon: FileSearch },
   { name: "Data Sources", href: "/data-sources", icon: Database },
 ];
