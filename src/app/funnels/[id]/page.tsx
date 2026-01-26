@@ -29,6 +29,12 @@ import {
   Zap,
   Code,
   List,
+  ArrowRight,
+  Activity,
+  GitBranch,
+  GitMerge,
+  LogIn,
+  LogOut,
 } from "lucide-react";
 import CROComparisonTable from "@/components/CROComparisonTable";
 import SaveItemDialog from "@/components/SaveItemDialog";
@@ -761,70 +767,144 @@ export default function FunnelDetailPage() {
         <>
         {activeTab === "overview" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Funnel Steps */}
+            {/* Funnel Steps - Flow Structure */}
             <div className="lg:col-span-2 bg-[#0a0a0a] border border-white/10 rounded-2xl p-8">
-              <h2 className="text-[18px] font-semibold text-[#fafafa] mb-6">Funnel Steps</h2>
+              <h2 className="text-[18px] font-semibold text-[#fafafa] mb-6">Funnel Steps Flow</h2>
 
               <div className="space-y-4">
                 {funnel.steps.map((step, index) => {
-                  const isFirst = index === 0;
-                  const isLast = index === funnel.steps.length - 1;
-                  const prevStep = index > 0 ? funnel.steps[index - 1] : null;
-                  const stepConversion = prevStep
-                    ? getStepConversion(step.visitors, prevStep.visitors)
-                    : 100;
+                  // Analyze connections for this step
+                  const connections = funnel.connections || [];
+                  const incomingConnections = connections.filter((conn: any) => {
+                    // Extract target step name from ID (e.g., "step-3" -> get step at index 2)
+                    const targetIndex = parseInt(conn.target.replace('step-', '')) - 1;
+                    return targetIndex >= 0 && targetIndex < funnel.steps.length &&
+                           funnel.steps[targetIndex].name === step.name;
+                  });
+                  const outgoingConnections = connections.filter((conn: any) => {
+                    const sourceIndex = parseInt(conn.source.replace('step-', '')) - 1;
+                    return sourceIndex >= 0 && sourceIndex < funnel.steps.length &&
+                           funnel.steps[sourceIndex].name === step.name;
+                  });
+
+                  const isEntryPoint = incomingConnections.length === 0;
+                  const isConvergence = incomingConnections.length > 1;
+                  const isExitPoint = outgoingConnections.length === 0;
+                  const isBranching = outgoingConnections.length > 1;
+
                   const widthPercentage = (step.visitors / firstStep.visitors) * 100;
+
+                  // Get source and target step names
+                  const sourceSteps = incomingConnections.map((conn: any) => {
+                    const sourceIndex = parseInt(conn.source.replace('step-', '')) - 1;
+                    return sourceIndex >= 0 && sourceIndex < funnel.steps.length ?
+                           funnel.steps[sourceIndex].name : '';
+                  }).filter(Boolean);
+
+                  const targetSteps = outgoingConnections.map((conn: any) => {
+                    const targetIndex = parseInt(conn.target.replace('step-', '')) - 1;
+                    return targetIndex >= 0 && targetIndex < funnel.steps.length ?
+                           funnel.steps[targetIndex].name : '';
+                  }).filter(Boolean);
 
                   return (
                     <div key={`${step.name}-${step.visitors}-${updateTrigger}`}>
-                      {!isFirst && (
-                        <div className="flex items-center gap-4 py-2 pl-8">
-                          <ChevronDown className={`w-5 h-5 ${getDropoffColor(step.dropoff)}`} />
-                          <span className={`text-[13px] font-medium ${getDropoffColor(step.dropoff)}`}>
-                            {step.dropoff}% drop-off
-                          </span>
-                          <span className="text-[12px] text-[#555555]">
-                            ({prevStep!.visitors - step.visitors} users lost)
-                          </span>
-                        </div>
-                      )}
-
                       <div className="relative">
-                        {/* Background bar (always full width) */}
-                        <div className="relative h-20 rounded-xl border border-[#2a2a2a] bg-[#111111] overflow-hidden">
+                        {/* Background bar */}
+                        <div className="relative rounded-xl border border-[#2a2a2a] bg-[#111111] overflow-hidden">
                           {/* Progress bar showing relative volume */}
                           <div
                             className={`absolute inset-0 transition-all ${
-                              isLast
+                              isExitPoint
                                 ? 'bg-gradient-to-r from-[#00d4aa]/30 to-[#00d4aa]/10'
+                                : isEntryPoint
+                                ? 'bg-gradient-to-r from-[#7c5cff]/40 to-[#7c5cff]/15'
                                 : 'bg-gradient-to-r from-[#7c5cff]/30 to-[#7c5cff]/10'
                             }`}
                             style={{ width: `${Math.max(widthPercentage, 8)}%` }}
                           />
 
                           {/* Content layer */}
-                          <div className="relative z-10 h-full flex items-center px-6">
-                            <div className="flex items-center justify-between w-full">
-                              <div className="flex items-center gap-4">
-                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isLast ? 'bg-[#00d4aa]/20' : 'bg-[#7c5cff]/20'}`}>
-                                  <span className={`text-[14px] font-bold ${isLast ? 'text-[#00d4aa]' : 'text-[#7c5cff]'}`}>
-                                    {index + 1}
-                                  </span>
-                                </div>
-                                <div>
-                                  <p className="text-[14px] font-medium text-[#fafafa]">{step.name}</p>
-                                  <p className="text-[12px] text-[#666666]">
-                                    {stepConversion.toFixed(1)}% of previous step
-                                  </p>
+                          <div className="relative z-10 p-6 space-y-3">
+                            {/* Header: Name, Badges, and Visitors */}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3 flex-1">
+                                <p className="text-[15px] font-semibold text-[#fafafa]">{step.name}</p>
+
+                                {/* Badges */}
+                                <div className="flex items-center gap-2">
+                                  {isEntryPoint && (
+                                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#7c5cff]/20 border border-[#7c5cff]/30">
+                                      <LogIn className="w-3 h-3 text-[#7c5cff]" />
+                                      <span className="text-[10px] font-medium text-[#7c5cff]">Entry</span>
+                                    </div>
+                                  )}
+                                  {isConvergence && (
+                                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#ffa500]/20 border border-[#ffa500]/30">
+                                      <GitMerge className="w-3 h-3 text-[#ffa500]" />
+                                      <span className="text-[10px] font-medium text-[#ffa500]">Convergence</span>
+                                    </div>
+                                  )}
+                                  {isBranching && (
+                                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#00d4aa]/20 border border-[#00d4aa]/30">
+                                      <GitBranch className="w-3 h-3 text-[#00d4aa]" />
+                                      <span className="text-[10px] font-medium text-[#00d4aa]">Branch</span>
+                                    </div>
+                                  )}
+                                  {isExitPoint && (
+                                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#00d4aa]/20 border border-[#00d4aa]/30">
+                                      <LogOut className="w-3 h-3 text-[#00d4aa]" />
+                                      <span className="text-[10px] font-medium text-[#00d4aa]">Exit</span>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
+
                               <div className="text-right">
-                                <p className={`text-[20px] font-bold ${isLast ? 'text-[#00d4aa]' : 'text-[#fafafa]'}`}>
+                                <p className={`text-[20px] font-bold ${isExitPoint ? 'text-[#00d4aa]' : 'text-[#fafafa]'}`}>
                                   {step.visitors.toLocaleString()}
                                 </p>
                                 <p className="text-[11px] text-[#666666]">users</p>
                               </div>
                             </div>
+
+                            {/* Connections Info */}
+                            <div className="flex items-start gap-6 text-[12px]">
+                              {sourceSteps.length > 0 && (
+                                <div className="flex items-start gap-2">
+                                  <span className="text-[#666666] whitespace-nowrap">From:</span>
+                                  <div className="flex flex-wrap items-center gap-1.5">
+                                    {sourceSteps.map((source, idx) => (
+                                      <span key={idx} className="text-[#888888] bg-[#1a1a1a] px-2 py-0.5 rounded">
+                                        {source}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              {targetSteps.length > 0 && (
+                                <div className="flex items-start gap-2">
+                                  <span className="text-[#666666] whitespace-nowrap">To:</span>
+                                  <div className="flex flex-wrap items-center gap-1.5">
+                                    {targetSteps.map((target, idx) => (
+                                      <span key={idx} className="text-[#888888] bg-[#1a1a1a] px-2 py-0.5 rounded">
+                                        {target}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Drop-off info if not first step */}
+                            {!isEntryPoint && step.dropoff !== undefined && (
+                              <div className="flex items-center gap-2 pt-1">
+                                <ChevronDown className={`w-4 h-4 ${getDropoffColor(step.dropoff)}`} />
+                                <span className={`text-[12px] font-medium ${getDropoffColor(step.dropoff)}`}>
+                                  {step.dropoff}% drop-off from incoming steps
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
