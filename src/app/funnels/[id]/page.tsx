@@ -766,6 +766,7 @@ export default function FunnelDetailPage() {
         {!showEditBuilder && (
         <>
         {activeTab === "overview" && (
+          <>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Funnel Steps - Flow Structure */}
             <div className="lg:col-span-2 bg-[#0a0a0a] border border-white/10 rounded-2xl p-8">
@@ -976,7 +977,6 @@ export default function FunnelDetailPage() {
               </div>
             </div>
           </div>
-          </div>
 
           {/* User Paths Analysis */}
           <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8 mt-6">
@@ -1104,6 +1104,7 @@ export default function FunnelDetailPage() {
               </div>
             )}
           </div>
+          </>
         )}
 
         {activeTab === "analysis" && (
