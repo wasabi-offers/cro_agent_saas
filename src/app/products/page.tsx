@@ -29,6 +29,8 @@ export default function ProductsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
   // Form state
@@ -110,6 +112,46 @@ export default function ProductsPage() {
     } catch (error) {
       console.error('Error deleting product:', error);
       alert('❌ Error deleting product');
+    }
+  };
+
+  const handleOpenEdit = (product: Product) => {
+    setEditingProduct(product);
+    setFormData({
+      name: product.name,
+      description: product.description || "",
+      color: product.color,
+      icon: product.icon,
+    });
+    setShowEditDialog(true);
+  };
+
+  const handleUpdateProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProduct) return;
+
+    try {
+      const response = await fetch(`/api/products/${editingProduct.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setProducts(products.map(p =>
+            p.id === editingProduct.id ? { ...data.product, funnelCount: p.funnelCount } : p
+          ));
+          setShowEditDialog(false);
+          setEditingProduct(null);
+          setFormData({ name: "", description: "", color: "#7c5cff", icon: "Folder" });
+          alert('✅ Product updated successfully!');
+        }
+      }
+    } catch (error) {
+      console.error('Error updating product:', error);
+      alert('❌ Error updating product');
     }
   };
 
@@ -251,17 +293,30 @@ export default function ProductsPage() {
                   >
                     <Folder className="w-7 h-7" style={{ color: product.color }} />
                   </div>
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleDeleteProduct(product.id, product.name);
-                    }}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#ff6b6b]/10 text-[#666666] hover:text-[#ff6b6b] transition-colors"
-                    title="Delete product"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleOpenEdit(product);
+                      }}
+                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#7c5cff]/10 text-[#666666] hover:text-[#7c5cff] transition-colors"
+                      title="Edit product"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleDeleteProduct(product.id, product.name);
+                      }}
+                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#ff6b6b]/10 text-[#666666] hover:text-[#ff6b6b] transition-colors"
+                      title="Delete product"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Name */}
@@ -356,6 +411,79 @@ export default function ProductsPage() {
                   className="flex-1 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
                 >
                   Create Product
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Product Dialog */}
+      {showEditDialog && editingProduct && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8 max-w-md w-full">
+            <h2 className="text-[22px] font-bold text-[#fafafa] mb-6">Edit Product</h2>
+
+            <form onSubmit={handleUpdateProduct} className="space-y-4">
+              <div>
+                <label className="block text-[13px] text-[#888888] mb-2">Product Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="E-commerce, SaaS, Mobile App..."
+                  className="w-full px-4 py-3 bg-[#111111] border border-white/10 rounded-xl text-[#fafafa] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[13px] text-[#888888] mb-2">Description</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Brief description of this product..."
+                  rows={3}
+                  className="w-full px-4 py-3 bg-[#111111] border border-white/10 rounded-xl text-[#fafafa] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[13px] text-[#888888] mb-2">Color</label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={formData.color}
+                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                    className="w-12 h-12 rounded-lg cursor-pointer bg-[#111111] border border-white/10"
+                  />
+                  <input
+                    type="text"
+                    value={formData.color}
+                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                    placeholder="#7c5cff"
+                    className="flex-1 px-4 py-3 bg-[#111111] border border-white/10 rounded-xl text-[#fafafa] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEditDialog(false);
+                    setEditingProduct(null);
+                    setFormData({ name: "", description: "", color: "#7c5cff", icon: "Folder" });
+                  }}
+                  className="flex-1 px-5 py-3 bg-[#111111] border border-white/10 text-[#fafafa] text-[14px] font-medium rounded-xl hover:border-white/20 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
+                >
+                  Update Product
                 </button>
               </div>
             </form>
