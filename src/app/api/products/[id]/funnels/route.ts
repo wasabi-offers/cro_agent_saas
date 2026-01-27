@@ -130,6 +130,7 @@ export async function GET(
           name: funnel.name,
           description: funnel.description,
           conversionRate,
+          is_active: funnel.is_active !== false, // Default to true if not set
           steps: liveSteps,
           connections: mappedConnections,
           created_at: funnel.created_at,

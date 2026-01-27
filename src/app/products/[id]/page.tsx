@@ -199,6 +199,28 @@ export default function ProductFunnelsPage() {
     ? activeFunnels.reduce((worst, f) => f.conversionRate < worst.conversionRate ? f : worst, activeFunnels[0])
     : null;
 
+  const handleToggleFunnelActive = async (funnelId: string, currentStatus: boolean) => {
+    try {
+      const response = await fetch(`/api/funnels/${funnelId}/toggle-active`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_active: !currentStatus }),
+      });
+
+      if (response.ok) {
+        // Update local state
+        setFunnels(funnels.map(f =>
+          f.id === funnelId ? { ...f, is_active: !currentStatus } : f
+        ));
+      } else {
+        alert('❌ Error toggling funnel status');
+      }
+    } catch (error) {
+      console.error('Error toggling funnel:', error);
+      alert('❌ Error toggling funnel status');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black">
@@ -434,6 +456,8 @@ export default function ProductFunnelsPage() {
                   const isGoodConversion = funnel.conversionRate >= avgConversionRate;
                   const isActive = funnel.is_active !== false;
 
+                  const isActive = funnel.is_active !== false;
+
                   return (
                     <div
                       key={funnel.id}
@@ -491,7 +515,6 @@ export default function ProductFunnelsPage() {
                           </button>
                           <button
                             onClick={(e) => {
-                              e.preventDefault();
                               e.stopPropagation();
                               handleDeleteFunnel(funnel.id, funnel.name);
                             }}
@@ -501,6 +524,31 @@ export default function ProductFunnelsPage() {
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
+                      </div>
+
+                      {/* Active Toggle */}
+                      <div className="flex items-center justify-between py-3 px-4 bg-[#111111] rounded-xl mb-4">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-[#00d4aa]' : 'bg-[#666666]'}`} />
+                          <span className="text-[13px] text-[#888888]">
+                            {isActive ? 'Active in analytics' : 'Excluded from analytics'}
+                          </span>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleFunnelActive(funnel.id, isActive);
+                          }}
+                          className={`relative w-12 h-6 rounded-full transition-colors ${
+                            isActive ? 'bg-[#00d4aa]' : 'bg-[#2a2a2a]'
+                          }`}
+                        >
+                          <div
+                            className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
+                              isActive ? 'translate-x-6' : 'translate-x-0'
+                            }`}
+                          />
+                        </button>
                       </div>
 
                       {/* Stats */}
