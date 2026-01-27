@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS funnels (
   name TEXT NOT NULL,
   conversion_rate NUMERIC NOT NULL DEFAULT 0,
   product_id TEXT REFERENCES products(id) ON DELETE SET NULL, -- Link to product/folder
+  is_active BOOLEAN DEFAULT true NOT NULL, -- Active status for analytics
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
   user_id TEXT, -- Optional: for multi-user support
@@ -110,6 +111,7 @@ CREATE TABLE IF NOT EXISTS cro_analyses (
 -- ============================================
 CREATE INDEX IF NOT EXISTS idx_products_user_id ON products(user_id);
 CREATE INDEX IF NOT EXISTS idx_funnels_product_id ON funnels(product_id);
+CREATE INDEX IF NOT EXISTS idx_funnels_active ON funnels(is_active);
 CREATE INDEX IF NOT EXISTS idx_funnel_steps_funnel_id ON funnel_steps(funnel_id);
 CREATE INDEX IF NOT EXISTS idx_funnel_steps_order ON funnel_steps(funnel_id, step_order);
 CREATE INDEX IF NOT EXISTS idx_funnel_connections_funnel ON funnel_connections(funnel_id);
