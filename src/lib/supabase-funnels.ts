@@ -24,6 +24,7 @@ export interface ConversionFunnel {
   steps: FunnelStep[];
   connections?: FunnelConnection[];  // Optional for backwards compatibility
   conversionRate: number;
+  is_active?: boolean;  // Active status for analytics
   abTests?: {
     pendingCount: number;
     activeCount: number;

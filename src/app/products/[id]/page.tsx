@@ -139,6 +139,9 @@ export default function ProductFunnelsPage() {
     }
   };
 
+  // Filter only ACTIVE funnels for statistics
+  const activeFunnels = funnels.filter(f => f.is_active !== false);
+
   const filteredFunnels = funnels
     .filter((funnel) =>
       funnel.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -156,11 +159,34 @@ export default function ProductFunnelsPage() {
       }
     });
 
-  const totalVisitors = funnels.reduce((sum, f) => sum + f.steps[0].visitors, 0);
-  const totalConversions = funnels.reduce((sum, f) => sum + f.steps[f.steps.length - 1].visitors, 0);
-  const avgConversionRate = funnels.length > 0
-    ? funnels.reduce((sum, f) => sum + f.conversionRate, 0) / funnels.length
+  // Calculate stats ONLY from active funnels
+  const totalVisitors = activeFunnels.reduce((sum, f) => sum + f.steps[0].visitors, 0);
+  const totalConversions = activeFunnels.reduce((sum, f) => sum + f.steps[f.steps.length - 1].visitors, 0);
+  const avgConversionRate = activeFunnels.length > 0
+    ? activeFunnels.reduce((sum, f) => sum + f.conversionRate, 0) / activeFunnels.length
     : 0;
+
+  const handleToggleFunnelActive = async (funnelId: string, currentStatus: boolean) => {
+    try {
+      const response = await fetch(`/api/funnels/${funnelId}/toggle-active`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_active: !currentStatus }),
+      });
+
+      if (response.ok) {
+        // Update local state
+        setFunnels(funnels.map(f =>
+          f.id === funnelId ? { ...f, is_active: !currentStatus } : f
+        ));
+      } else {
+        alert('❌ Error toggling funnel status');
+      }
+    } catch (error) {
+      console.error('Error toggling funnel:', error);
+      alert('❌ Error toggling funnel status');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -251,10 +277,11 @@ export default function ProductFunnelsPage() {
               <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
                 <Target className="w-5 h-5 text-[#7c5cff]" />
               </div>
-              <span className="text-[13px] text-[#888888]">Funnels</span>
+              <span className="text-[13px] text-[#888888]">Active Funnels</span>
             </div>
             <p className="text-[28px] font-bold text-[#fafafa]">
-              {funnels.length}
+              {activeFunnels.length}
+              <span className="text-[16px] text-[#666666] ml-2">/ {funnels.length}</span>
             </p>
           </div>
 
@@ -346,18 +373,30 @@ export default function ProductFunnelsPage() {
                   const totalDropoff = ((firstStep.visitors - lastStep.visitors) / firstStep.visitors) * 100;
                   const isGoodConversion = funnel.conversionRate >= avgConversionRate;
 
+                  const isActive = funnel.is_active !== false;
+
                   return (
-                    <Link
+                    <div
                       key={funnel.id}
-                      href={`/funnels/${funnel.id}`}
-                      className="group bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 hover:border-[#7c5cff]/50 hover:shadow-lg hover:shadow-[#7c5cff]/10 transition-all cursor-pointer"
+                      className={`group bg-[#0a0a0a] border rounded-2xl p-6 transition-all ${
+                        isActive
+                          ? 'border-white/10 hover:border-[#7c5cff]/50 hover:shadow-lg hover:shadow-[#7c5cff]/10'
+                          : 'border-white/5 opacity-60'
+                      }`}
                     >
                       {/* Header */}
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex-1">
-                          <h3 className="text-[18px] font-semibold text-[#fafafa] mb-1 group-hover:text-[#7c5cff] transition-colors">
-                            {funnel.name}
-                          </h3>
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="text-[18px] font-semibold text-[#fafafa] group-hover:text-[#7c5cff] transition-colors">
+                              {funnel.name}
+                            </h3>
+                            {!isActive && (
+                              <span className="px-2 py-0.5 text-[10px] font-bold text-[#666666] bg-[#1a1a1a] rounded">
+                                INACTIVE
+                              </span>
+                            )}
+                          </div>
                           <p className="text-[13px] text-[#666666]">
                             {funnel.steps.length} steps
                           </p>
@@ -374,7 +413,6 @@ export default function ProductFunnelsPage() {
                           </div>
                           <button
                             onClick={(e) => {
-                              e.preventDefault();
                               e.stopPropagation();
                               handleDeleteFunnel(funnel.id, funnel.name);
                             }}
@@ -384,6 +422,31 @@ export default function ProductFunnelsPage() {
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
+                      </div>
+
+                      {/* Active Toggle */}
+                      <div className="flex items-center justify-between py-3 px-4 bg-[#111111] rounded-xl mb-4">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-[#00d4aa]' : 'bg-[#666666]'}`} />
+                          <span className="text-[13px] text-[#888888]">
+                            {isActive ? 'Active in analytics' : 'Excluded from analytics'}
+                          </span>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleFunnelActive(funnel.id, isActive);
+                          }}
+                          className={`relative w-12 h-6 rounded-full transition-colors ${
+                            isActive ? 'bg-[#00d4aa]' : 'bg-[#2a2a2a]'
+                          }`}
+                        >
+                          <div
+                            className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
+                              isActive ? 'translate-x-6' : 'translate-x-0'
+                            }`}
+                          />
+                        </button>
                       </div>
 
                       {/* Stats */}
@@ -409,11 +472,14 @@ export default function ProductFunnelsPage() {
                       </div>
 
                       {/* View Details Link */}
-                      <div className="mt-4 flex items-center justify-end gap-2 text-[13px] text-[#7c5cff] group-hover:gap-3 transition-all">
+                      <Link
+                        href={`/funnels/${funnel.id}`}
+                        className="mt-4 flex items-center justify-end gap-2 text-[13px] text-[#7c5cff] group-hover:gap-3 transition-all"
+                      >
                         View Details
                         <ArrowRight className="w-4 h-4" />
-                      </div>
-                    </Link>
+                      </Link>
+                    </div>
                   );
                 })}
               </div>
