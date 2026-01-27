@@ -24,7 +24,7 @@ export interface ConversionFunnel {
   steps: FunnelStep[];
   connections?: FunnelConnection[];  // Optional for backwards compatibility
   conversionRate: number;
-  is_active?: boolean;  // Active status for analytics
+  is_active?: boolean;  // Whether funnel is active for analysis
   abTests?: {
     pendingCount: number;
     activeCount: number;
@@ -54,6 +54,7 @@ export interface FunnelDB {
   updated_at: string;
   user_id: string | null;
   description: string | null;
+  is_active: boolean;
 }
 
 export interface FunnelConnectionDB {
@@ -157,6 +158,7 @@ export async function fetchFunnels(): Promise<ConversionFunnel[]> {
         id: funnel.id,
         name: funnel.name,
         conversionRate: Number(funnel.conversion_rate),
+        is_active: funnel.is_active !== false,  // Default to true if not set
         steps: steps.map((step) => ({
           name: step.name,
           visitors: step.visitors,
@@ -248,6 +250,7 @@ export async function fetchFunnel(funnelId: string): Promise<ConversionFunnel | 
       id: funnelData.id,
       name: funnelData.name,
       conversionRate: Number(funnelData.conversion_rate),
+      is_active: funnelData.is_active !== false,  // Default to true if not set
       steps: (stepsData || []).map((step) => ({
         name: step.name,
         visitors: step.visitors,
@@ -747,5 +750,36 @@ export async function enrichFunnelsWithABTestData(funnels: ConversionFunnel[]): 
   } catch (error) {
     console.error('Unexpected error enriching funnels with A/B test data:', error);
     return funnels;
+  }
+}
+
+// ============================================
+// UPDATE FUNNEL ACTIVE STATUS
+// ============================================
+
+export async function updateFunnelActiveStatus(
+  funnelId: string,
+  isActive: boolean
+): Promise<boolean> {
+  if (!isSupabaseConfigured() || !supabase) {
+    console.error("❌ Cannot update funnel: Supabase not configured");
+    return false;
+  }
+
+  try {
+    const { error } = await supabase
+      .from("funnels")
+      .update({ is_active: isActive })
+      .eq("id", funnelId);
+
+    if (error) {
+      console.error("Error updating funnel active status:", error);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Unexpected error updating funnel active status:", error);
+    return false;
   }
 }
