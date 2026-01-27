@@ -976,6 +976,7 @@ export default function FunnelDetailPage() {
               </div>
             </div>
           </div>
+          </div>
 
           {/* User Paths Analysis */}
           <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8 mt-6">
