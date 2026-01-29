@@ -768,74 +768,12 @@ export default function FunnelDetailPage() {
         <>
         {activeTab === "overview" && (
           <>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div>
             {/* Funnel Steps - Flow Structure */}
-            <div className="lg:col-span-2 bg-[#0a0a0a] border border-white/10 rounded-2xl p-8">
+            <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8">
               <h2 className="text-[18px] font-semibold text-[#fafafa] mb-6">Funnel Flow</h2>
 
               <FunnelFlowGraph steps={funnel.steps} connections={funnel.connections || []} firstStep={firstStep} getDropoffColor={getDropoffColor} updateTrigger={updateTrigger} />
-            </div>
-
-            {/* Sidebar Stats */}
-            <div className="space-y-6">
-              <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6">
-                <h3 className="text-[16px] font-semibold text-[#fafafa] mb-4">Summary</h3>
-
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center pb-3 border-b border-white/5">
-                    <span className="text-[13px] text-[#888888]">Total Entered</span>
-                    <span className="text-[14px] text-[#fafafa] font-medium">
-                      {firstStep.visitors.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center pb-3 border-b border-white/5">
-                    <span className="text-[13px] text-[#888888]">Converted</span>
-                    <span className="text-[14px] text-[#00d4aa] font-medium">
-                      {lastStep.visitors.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center pb-3 border-b border-white/5">
-                    <span className="text-[13px] text-[#888888]">Lost Users</span>
-                    <span className="text-[14px] text-[#ff6b6b] font-medium">
-                      {(firstStep.visitors - lastStep.visitors).toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[13px] text-[#888888]">Steps</span>
-                    <span className="text-[14px] text-[#fafafa] font-medium">
-                      {funnel.steps.length}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <AlertCircle className="w-5 h-5 text-[#ff6b6b]" />
-                  <h3 className="text-[16px] font-semibold text-[#fafafa]">Biggest Drop-offs</h3>
-                </div>
-
-                <div className="space-y-3">
-                  {[...funnel.steps]
-                    .filter((s) => s.dropoff > 0)
-                    .sort((a, b) => b.dropoff - a.dropoff)
-                    .slice(0, 3)
-                    .map((step, index) => (
-                      <div
-                        key={step.name}
-                        className="flex items-center justify-between p-3 bg-[#111111] rounded-lg"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="text-[11px] text-[#555555] font-bold">#{index + 1}</span>
-                          <span className="text-[13px] text-[#fafafa]">{step.name}</span>
-                        </div>
-                        <span className={`text-[14px] font-bold ${getDropoffColor(step.dropoff)}`}>
-                          -{step.dropoff}%
-                        </span>
-                      </div>
-                    ))}
-                </div>
-              </div>
             </div>
           </div>
 
