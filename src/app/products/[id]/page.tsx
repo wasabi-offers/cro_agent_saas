@@ -456,8 +456,6 @@ export default function ProductFunnelsPage() {
                   const isGoodConversion = funnel.conversionRate >= avgConversionRate;
                   const isActive = funnel.is_active !== false;
 
-                  const isActive = funnel.is_active !== false;
-
                   return (
                     <div
                       key={funnel.id}
