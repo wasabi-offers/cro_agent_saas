@@ -676,18 +676,6 @@ export default function FunnelDetailPage() {
           </div>
         )}
 
-        {/* Funnel Visualizer */}
-        {!showEditBuilder && (
-          <div className="mb-8">
-            <FunnelVisualizer
-              key={`funnel-viz-${updateTrigger}`}
-              steps={funnel.steps}
-              name={funnel.name}
-              connections={funnel.connections}
-            />
-          </div>
-        )}
-
         {/* Tabs */}
         {!showEditBuilder && (
         <div className="flex items-center gap-4 mb-8 border-b border-[#1a1a1a]">
