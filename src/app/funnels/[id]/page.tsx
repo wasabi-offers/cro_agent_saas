@@ -684,6 +684,11 @@ export default function FunnelDetailPage() {
               steps={funnel.steps}
               name={funnel.name}
               connections={funnel.connections}
+              onAnalyzePage={(stepIndex) => {
+                setActiveTab("analysis");
+                setAnalysisMode("page");
+                setSelectedPage(stepIndex);
+              }}
             />
           </div>
         )}

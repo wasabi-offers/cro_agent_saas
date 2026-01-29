@@ -16,7 +16,7 @@ import ReactFlow, {
   useReactFlow,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { Users, TrendingDown, Percent, X } from 'lucide-react';
+import { Users, TrendingDown, Percent, X, ExternalLink, FileSearch } from 'lucide-react';
 
 interface FunnelStep {
   name: string;
@@ -36,6 +36,7 @@ interface FunnelVisualizerProps {
   steps: FunnelStep[];
   name: string;
   connections?: FunnelConnection[];  // Optional connections from database
+  onAnalyzePage?: (stepIndex: number) => void;  // Callback when user clicks "Analisi pagina"
 }
 
 interface StepData {
@@ -127,7 +128,7 @@ const nodeTypes = {
 };
 
 // Componente interno con accesso a ReactFlow
-function FunnelVisualizerInner({ steps, name, connections }: FunnelVisualizerProps) {
+function FunnelVisualizerInner({ steps, name, connections, onAnalyzePage }: FunnelVisualizerProps) {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const { fitView } = useReactFlow();
 
@@ -377,9 +378,39 @@ function FunnelVisualizerInner({ steps, name, connections }: FunnelVisualizerPro
                 </p>
               </div>
             )}
+
+            {selectedNode.data.url && (
+              <div className="bg-[#2a2a2a] border border-[#2a2a2a] rounded-lg p-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <ExternalLink className="w-4 h-4 text-[#7c5cff]" />
+                  <span className="text-[12px] text-[#888888]">URL</span>
+                </div>
+                <a
+                  href={selectedNode.data.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[11px] text-[#7c5cff] hover:text-[#00d4aa] break-all line-clamp-2 block"
+                >
+                  {selectedNode.data.url}
+                </a>
+              </div>
+            )}
           </div>
 
-          <div className="mt-4 pt-4 border-t border-white/10">
+          <div className="mt-4 pt-4 border-t border-white/10 space-y-3">
+            {onAnalyzePage && selectedNode.data.url && (
+              <button
+                onClick={() => {
+                  const stepIndex = parseInt(selectedNode.id.replace('step-', ''), 10) - 1;
+                  onAnalyzePage(stepIndex);
+                  closeDetails();
+                }}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#7c5cff] hover:bg-[#6b4ce6] text-white text-[13px] font-medium rounded-lg transition-colors"
+              >
+                <FileSearch className="w-4 h-4" />
+                Analisi pagina
+              </button>
+            )}
             <p className="text-[11px] text-[#666666]">
               Click on other steps to compare metrics
             </p>
