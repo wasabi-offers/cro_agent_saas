@@ -322,7 +322,7 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
       {selectedNode && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4" onClick={() => setSelectedNode(null)}>
           <div
-            className="bg-[#0a0a0a] border-2 border-[#7c5cff] rounded-2xl p-6 w-full max-w-md shadow-2xl"
+            className="bg-[#0a0a0a] border-2 border-[#7c5cff] rounded-2xl p-6 w-full max-w-lg shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between mb-4">
@@ -365,7 +365,7 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
               <div className="bg-[#7c5cff]/10 border border-[#7c5cff]/20 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Users className="w-4 h-4 text-[#7c5cff]" />
-                  <span className="text-[12px] text-[#888888]">Visitatori</span>
+                  <span className="text-[12px] text-[#888888]">Visitors</span>
                 </div>
                 <p className="text-[24px] font-bold text-[#fafafa]">
                   {selectedNode.step.visitors.toLocaleString()}
@@ -402,7 +402,7 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
               )}
 
               <div className="bg-[#2a2a2a] rounded-lg p-3">
-                <span className="text-[11px] text-[#666666]">Flusso: </span>
+                <span className="text-[11px] text-[#666666]">Flow: </span>
                 {selectedNode.sourceNames.length > 0 && (
                   <span className="text-[11px] text-[#888888]">← {selectedNode.sourceNames.join(', ')}</span>
                 )}
@@ -428,6 +428,26 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
                   >
                     {selectedNode.step.url}
                   </a>
+                </div>
+              )}
+
+              {/* Page Preview */}
+              {selectedNode.step.url && !selectedNode.step.url.includes('clickbank.net') && (
+                <div className="relative rounded-lg overflow-hidden border border-[#333] bg-[#1a1a1a]" style={{ height: 180 }}>
+                  <iframe
+                    src={`/api/proxy-page?url=${encodeURIComponent(selectedNode.step.url)}`}
+                    title={`Preview: ${selectedNode.step.name}`}
+                    className="absolute top-0 left-0 border-0 pointer-events-none"
+                    style={{
+                      width: '1280px',
+                      height: '800px',
+                      transform: 'scale(0.22)',
+                      transformOrigin: 'top left',
+                    }}
+                    sandbox="allow-same-origin"
+                    loading="lazy"
+                    tabIndex={-1}
+                  />
                 </div>
               )}
             </div>

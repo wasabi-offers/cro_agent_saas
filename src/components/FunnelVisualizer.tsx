@@ -304,7 +304,7 @@ function FunnelVisualizerInner({ steps, name, connections, onAnalyzePage }: Funn
 
       {/* Details Panel */}
       {selectedNode && (
-        <div className="absolute top-4 right-4 bg-[#0a0a0a] border border-[#7c5cff] rounded-xl p-6 w-80 shadow-2xl z-50">
+        <div className="absolute top-4 right-4 bg-[#0a0a0a] border border-[#7c5cff] rounded-xl p-6 w-96 shadow-2xl z-50">
           <div className="flex items-start justify-between mb-4">
             <div>
               <h3 className="text-[16px] font-semibold text-[#fafafa] mb-1">
@@ -372,6 +372,26 @@ function FunnelVisualizerInner({ steps, name, connections, onAnalyzePage }: Funn
                 >
                   {selectedNode.data.url}
                 </a>
+              </div>
+            )}
+
+            {/* Page Preview */}
+            {selectedNode.data.url && !selectedNode.data.url.includes('clickbank.net') && (
+              <div className="relative rounded-lg overflow-hidden border border-[#333] bg-[#1a1a1a]" style={{ height: 180 }}>
+                <iframe
+                  src={`/api/proxy-page?url=${encodeURIComponent(selectedNode.data.url)}`}
+                  title={`Preview: ${selectedNode.data.label}`}
+                  className="absolute top-0 left-0 border-0 pointer-events-none"
+                  style={{
+                    width: '1280px',
+                    height: '800px',
+                    transform: 'scale(0.22)',
+                    transformOrigin: 'top left',
+                  }}
+                  sandbox="allow-same-origin"
+                  loading="lazy"
+                  tabIndex={-1}
+                />
               </div>
             )}
           </div>
