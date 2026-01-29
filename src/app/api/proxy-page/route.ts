@@ -31,16 +31,8 @@ export async function GET(request: NextRequest) {
 
     let html = await response.text();
 
-    // Remove or override base tag - prevents relative URLs from resolving to wrong domain
-    // (e.g. if page has base href pointing to our app, images would 404)
+    // Remove base tag - pages with wrong base may point images to our domain (404)
     html = html.replace(/<base[^>]*>/gi, '');
-    // Inject correct base so any missed relative URLs resolve to the source page
-    const correctBase = targetUrl.origin + targetUrl.pathname.replace(/\/[^/]*$/, '/');
-    if (/<head[\s>]/i.test(html)) {
-      html = html.replace(/<head([^>]*)>/i, `<head$1><base href="${correctBase}">`);
-    } else {
-      html = `<head><base href="${correctBase}"></head>` + html;
-    }
 
     // Remove all script tags to prevent CORS errors and unwanted JS execution
     html = html.replace(/<script[\s\S]*?<\/script>/gi, '');
@@ -57,20 +49,13 @@ export async function GET(request: NextRequest) {
     const origin = targetUrl.origin;
     const basePath = targetUrl.pathname.replace(/\/[^/]*$/, '/');
 
-    // Helper to resolve relative URLs to absolute (handles ../ and ./)
+    // Helper to resolve relative URLs to absolute
     const toAbsolute = (ref: string): string => {
       if (!ref || ref.startsWith('data:') || ref.startsWith('mailto:') || ref.startsWith('#') || ref.startsWith('javascript:')) return ref;
       if (ref.startsWith('//')) return 'https:' + ref;
       if (ref.startsWith('http://') || ref.startsWith('https://')) return ref;
       if (ref.startsWith('/')) return origin + ref;
-      // Resolve relative path with ../
-      const segments = (basePath + ref).split('/').filter(Boolean);
-      const resolved: string[] = [];
-      for (const seg of segments) {
-        if (seg === '..') resolved.pop();
-        else if (seg !== '.') resolved.push(seg);
-      }
-      return origin + '/' + resolved.join('/');
+      return origin + basePath + ref;
     };
 
     // Helper to proxy a URL through our API to avoid CORS

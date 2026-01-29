@@ -48,17 +48,6 @@ interface StepData {
 
 function StepNode({ data }: { data: StepData }) {
   const hasPreview = !!data.url && !data.url.includes('clickbank.net');
-  const [previewError, setPreviewError] = useState(false);
-  const [previewLoaded, setPreviewLoaded] = useState(false);
-
-  // Timeout fallback: if proxy-page returns error (404/500), iframe may load JSON - detect via timeout
-  useEffect(() => {
-    if (!hasPreview || previewError) return;
-    const t = setTimeout(() => {
-      if (!previewLoaded) setPreviewError(true);
-    }, 12000);
-    return () => clearTimeout(t);
-  }, [hasPreview, previewError, previewLoaded]);
 
   return (
     <div className="relative">
@@ -96,7 +85,7 @@ function StepNode({ data }: { data: StepData }) {
 
         {/* Page Preview */}
         <div className="relative bg-[#1a1a1a] border-t border-[#2a2a2a]" style={{ height: 160 }}>
-          {hasPreview && !previewError ? (
+          {hasPreview ? (
             <>
               <iframe
                 src={`/api/proxy-page?url=${encodeURIComponent(data.url!)}`}
@@ -111,22 +100,12 @@ function StepNode({ data }: { data: StepData }) {
                 sandbox="allow-same-origin"
                 loading="lazy"
                 tabIndex={-1}
-                referrerPolicy="no-referrer"
-                onError={() => setPreviewError(true)}
-                onLoad={() => setPreviewLoaded(true)}
               />
-              {!previewLoaded && (
-                <div className="absolute inset-0 flex items-center justify-center bg-[#1a1a1a]">
-                  <div className="animate-pulse text-[10px] text-[#666666]">Caricamento...</div>
-                </div>
-              )}
               <div className="absolute inset-0" />
             </>
           ) : (
             <div className="flex items-center justify-center h-full">
-              <p className="text-[10px] text-[#444444]">
-                {hasPreview && previewError ? 'Anteprima non caricata' : 'Anteprima non disponibile'}
-              </p>
+              <p className="text-[10px] text-[#444444]">Anteprima non disponibile</p>
             </div>
           )}
         </div>

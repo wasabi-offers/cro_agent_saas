@@ -9,11 +9,6 @@ export async function GET(request: NextRequest) {
 
   try {
     const targetUrl = new URL(url);
-    // Block self-referencing: pages with wrong base may point to our domain
-    const ourOrigin = request.nextUrl.origin;
-    if (targetUrl.origin === ourOrigin) {
-      return new NextResponse(null, { status: 404 });
-    }
 
     const response = await fetch(targetUrl.toString(), {
       headers: {
