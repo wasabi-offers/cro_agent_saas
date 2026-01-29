@@ -33,39 +33,20 @@ export async function GET(request: NextRequest) {
 
     // Inject base tag to handle relative URLs
     const baseTag = `<base href="${targetUrl.origin}${targetUrl.pathname}" target="_blank">`;
-    // Inject styles/scripts to mute videos and prevent autoplay
-    const muteScript = `
-      <style>
-        video, audio, iframe[src*="youtube"], iframe[src*="vimeo"], iframe[src*="wistia"] {
-          pointer-events: none !important;
-        }
-      </style>
-      <script>
-        document.addEventListener('DOMContentLoaded', function() {
-          // Mute and pause all videos
-          document.querySelectorAll('video').forEach(function(v) {
-            v.muted = true;
-            v.pause();
-            v.autoplay = false;
-            v.removeAttribute('autoplay');
-          });
-          // Mute and pause all audio
-          document.querySelectorAll('audio').forEach(function(a) {
-            a.muted = true;
-            a.pause();
-            a.autoplay = false;
-            a.removeAttribute('autoplay');
-          });
-        });
-        // Intercept any new media elements
-        var origPlay = HTMLMediaElement.prototype.play;
-        HTMLMediaElement.prototype.play = function() {
-          this.muted = true;
-          return origPlay.call(this);
-        };
-      </script>
-    `;
-    html = html.replace('<head>', `<head>${baseTag}${muteScript}`);
+
+    // Remove all script tags to prevent CORS errors and unwanted JS execution
+    // This is for preview only - we just need the visual HTML+CSS
+    html = html.replace(/<script[\s\S]*?<\/script>/gi, '');
+    html = html.replace(/<script[^>]*\/>/gi, '');
+
+    // Remove video/audio autoplay
+    html = html.replace(/autoplay/gi, 'data-noautoplay');
+
+    // Mute all video/audio elements
+    html = html.replace(/<video/gi, '<video muted');
+    html = html.replace(/<audio/gi, '<audio muted');
+
+    html = html.replace('<head>', `<head>${baseTag}`);
 
     // Return HTML without X-Frame-Options
     return new NextResponse(html, {
