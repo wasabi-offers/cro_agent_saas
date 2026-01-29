@@ -91,7 +91,7 @@ function StepNode({ data }: { data: StepData }) {
             <>
               <div className="absolute inset-2 rounded-md overflow-hidden border border-[#333] bg-[#1a1a1a]">
                 <iframe
-                  src={`/api/proxy-page?url=${encodeURIComponent(data.url!)}&scripts=1`}
+                  src={`/api/proxy-page?url=${encodeURIComponent(data.url!)}&scripts=${useScripts ? '1' : '0'}`}
                   title={`Preview: ${data.label}`}
                   className="absolute top-0 left-0 border-0 pointer-events-none w-[1280px] h-[800px]"
                   style={{
@@ -382,7 +382,7 @@ function FunnelVisualizerInner({ steps, name, connections, onAnalyzePage }: Funn
             {selectedNode.data.url && (
               <div className="relative rounded-lg overflow-hidden border border-[#333] bg-[#1a1a1a]" style={{ height: 180 }}>
                 <iframe
-                  src={`/api/proxy-page?url=${encodeURIComponent(selectedNode.data.url)}&scripts=1`}
+                  src={`/api/proxy-page?url=${encodeURIComponent(selectedNode.data.url)}&scripts=${!isCheckoutPage(selectedNode.data.label, selectedNode.data.url) ? '1' : '0'}`}
                   title={`Preview: ${selectedNode.data.label}`}
                   className="absolute top-0 left-0 border-0 pointer-events-none"
                   style={{

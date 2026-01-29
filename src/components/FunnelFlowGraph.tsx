@@ -435,7 +435,7 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
               {selectedNode.step.url && (
                 <div className="relative rounded-lg overflow-hidden border border-[#333] bg-[#1a1a1a]" style={{ height: 180 }}>
                   <iframe
-                    src={`/api/proxy-page?url=${encodeURIComponent(selectedNode.step.url)}&scripts=1`}
+                    src={`/api/proxy-page?url=${encodeURIComponent(selectedNode.step.url)}&scripts=${!/checkout|order|clickbank|pay|payment|cart/i.test((selectedNode.step.name + ' ' + selectedNode.step.url).toLowerCase()) ? '1' : '0'}`}
                     title={`Preview: ${selectedNode.step.name}`}
                     className="absolute top-0 left-0 border-0 pointer-events-none"
                     style={{
