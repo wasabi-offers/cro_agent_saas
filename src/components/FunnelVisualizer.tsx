@@ -47,14 +47,17 @@ interface StepData {
   url?: string;
 }
 
-function isCheckoutPage(label: string, url?: string): boolean {
+// Pagine con CORS/JS problematici: usare scripts=0 per evitare pagine bianche
+// Replit, quiz, LP, checkout hanno spesso CORS/script che causano pagine bianche
+function shouldUseScripts(label: string, url?: string): boolean {
+  if (/replit\.com|replit\.dev|repl\.co/i.test(url || '')) return false;
   const s = (label + ' ' + (url || '')).toLowerCase();
-  return /checkout|order|clickbank|pay|payment|cart/i.test(s);
+  return !/checkout|order|clickbank|pay|payment|cart|quiz|lp\d|landing/i.test(s);
 }
 
 function StepNode({ data }: { data: StepData }) {
   const hasPreview = !!data.url;
-  const useScripts = !isCheckoutPage(data.label, data.url);
+  const useScripts = shouldUseScripts(data.label, data.url);
 
   return (
     <div className="relative">
@@ -72,19 +75,19 @@ function StepNode({ data }: { data: StepData }) {
           <h3 className="text-[13px] font-semibold text-[#fafafa] mb-1.5 truncate">
             {data.label}
           </h3>
-          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
             <div className="flex items-center gap-1 text-[11px] text-[#888888]">
               <Users className="w-3 h-3 text-[#7c5cff]" />
-              <span>{data.visitors.toLocaleString()}</span>
+              <span>{(data.visitors ?? 0).toLocaleString()}</span>
             </div>
             <div className="flex items-center gap-1 text-[11px] text-[#888888]">
               <Percent className="w-3 h-3 text-[#00d4aa]" />
-              <span>{data.conversionRate.toFixed(1)}%</span>
+              <span>{Number.isFinite(data.conversionRate) ? data.conversionRate.toFixed(1) : '0'}%</span>
             </div>
-            {data.dropoff > 0 && (
+            {(data.dropoff ?? 0) > 0 && (
               <div className="flex items-center gap-1 text-[11px] text-[#ff6b6b]">
                 <TrendingDown className="w-3 h-3" />
-                <span>{data.dropoff.toFixed(1)}%</span>
+                <span>{Number.isFinite(data.dropoff) ? data.dropoff.toFixed(1) : '0'}%</span>
               </div>
             )}
           </div>
@@ -158,9 +161,12 @@ function FunnelVisualizerInner({ steps, name, connections, onAnalyzePage }: Funn
   useEffect(() => {
     // Create nodes - IDs DEVONO INIZIARE DA 1 (come FunnelBuilder) !!!
     const newNodes: Node[] = steps.map((step, index) => {
+      const firstVisitors = steps[0]?.visitors ?? 0;
       const conversionRate = index === 0
         ? 100
-        : ((step.visitors / steps[0].visitors) * 100);
+        : firstVisitors > 0
+          ? ((step.visitors ?? 0) / firstVisitors) * 100
+          : 0;
 
       return {
         id: `step-${index + 1}`,  // ← FIX CRITICO: era step-${index}
@@ -171,9 +177,9 @@ function FunnelVisualizerInner({ steps, name, connections, onAnalyzePage }: Funn
         },
         data: {
           label: step.name,
-          visitors: step.visitors,
-          dropoff: step.dropoff,
-          conversionRate,
+          visitors: step.visitors ?? 0,
+          dropoff: step.dropoff ?? 0,
+          conversionRate: Number.isFinite(conversionRate) ? conversionRate : 0,
           url: step.url,
         },
       };
@@ -359,10 +365,10 @@ function FunnelVisualizerInner({ steps, name, connections, onAnalyzePage }: Funn
                   <span className="text-[12px] text-[#888888]">Drop-off Rate</span>
                 </div>
                 <p className="text-[24px] font-bold text-[#fafafa]">
-                  {selectedNode.data.dropoff.toFixed(1)}%
+                  {Number.isFinite(selectedNode.data.dropoff) ? selectedNode.data.dropoff.toFixed(1) : '0'}%
                 </p>
                 <p className="text-[11px] text-[#888888] mt-2">
-                  {Math.round(selectedNode.data.visitors * (selectedNode.data.dropoff / 100)).toLocaleString()} visitors left at this stage
+                  {Math.round((selectedNode.data.visitors ?? 0) * ((selectedNode.data.dropoff ?? 0) / 100)).toLocaleString()} visitors left at this stage
                 </p>
               </div>
             )}
@@ -388,7 +394,7 @@ function FunnelVisualizerInner({ steps, name, connections, onAnalyzePage }: Funn
             {selectedNode.data.url && (
               <div className="relative rounded-lg overflow-hidden border border-[#333] bg-[#1a1a1a]" style={{ height: 180 }}>
                 <iframe
-                  src={`/api/proxy-page?url=${encodeURIComponent(selectedNode.data.url)}&scripts=${!isCheckoutPage(selectedNode.data.label, selectedNode.data.url) ? '1' : '0'}`}
+                  src={`/api/proxy-page?url=${encodeURIComponent(selectedNode.data.url)}&scripts=${shouldUseScripts(selectedNode.data.label, selectedNode.data.url) ? '1' : '0'}`}
                   title={`Preview: ${selectedNode.data.label}`}
                   className="absolute top-0 left-0 border-0 pointer-events-none"
                   style={{

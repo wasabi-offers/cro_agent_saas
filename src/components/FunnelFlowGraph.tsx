@@ -285,7 +285,7 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
                     </div>
                     <div className="text-right flex-shrink-0">
                       <p className={`text-[16px] font-bold leading-tight ${node.isExit ? 'text-[#00d4aa]' : 'text-[#fafafa]'}`}>
-                        {node.step.visitors.toLocaleString()}
+                        {(node.step.visitors ?? 0).toLocaleString()}
                       </p>
                       <p className="text-[9px] text-[#666666]">visitors</p>
                     </div>
@@ -380,7 +380,9 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
                   </div>
                   <p className="text-[24px] font-bold text-[#fafafa]">
                     {steps[0]?.visitors > 0
-                      ? ((selectedNode.step.visitors / steps[0].visitors) * 100).toFixed(1)
+                      ? (Number.isFinite((selectedNode.step.visitors ?? 0) / steps[0].visitors)
+                          ? ((selectedNode.step.visitors ?? 0) / steps[0].visitors * 100).toFixed(1)
+                          : '0')
                       : '0'}%
                   </p>
                 </div>
@@ -435,7 +437,7 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
               {selectedNode.step.url && (
                 <div className="relative rounded-lg overflow-hidden border border-[#333] bg-[#1a1a1a]" style={{ height: 180 }}>
                   <iframe
-                    src={`/api/proxy-page?url=${encodeURIComponent(selectedNode.step.url)}&scripts=${!/checkout|order|clickbank|pay|payment|cart/i.test((selectedNode.step.name + ' ' + selectedNode.step.url).toLowerCase()) ? '1' : '0'}`}
+                    src={`/api/proxy-page?url=${encodeURIComponent(selectedNode.step.url)}&scripts=${!/replit\.com|replit\.dev|repl\.co|checkout|order|clickbank|pay|payment|cart|quiz|lp\d|landing/i.test((selectedNode.step.name + ' ' + (selectedNode.step.url || '')).toLowerCase()) ? '1' : '0'}`}
                     title={`Preview: ${selectedNode.step.name}`}
                     className="absolute top-0 left-0 border-0 pointer-events-none"
                     style={{
