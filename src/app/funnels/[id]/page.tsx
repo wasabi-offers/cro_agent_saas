@@ -778,7 +778,18 @@ export default function FunnelDetailPage() {
             <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8">
               <h2 className="text-[18px] font-semibold text-[#fafafa] mb-6">Funnel Flow</h2>
 
-              <FunnelFlowGraph steps={funnel.steps} connections={funnel.connections || []} firstStep={firstStep} getDropoffColor={getDropoffColor} updateTrigger={updateTrigger} />
+              <FunnelFlowGraph
+                steps={funnel.steps}
+                connections={funnel.connections || []}
+                firstStep={firstStep}
+                getDropoffColor={getDropoffColor}
+                updateTrigger={updateTrigger}
+                onAnalyzePage={(stepIndex) => {
+                  setActiveTab("analysis");
+                  setAnalysisMode("page");
+                  setSelectedPage(stepIndex);
+                }}
+              />
             </div>
           </div>
 

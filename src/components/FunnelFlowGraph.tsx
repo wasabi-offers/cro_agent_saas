@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
-import { TrendingDown, GitBranch, GitMerge, LogIn, LogOut } from "lucide-react";
+import { useMemo, useState } from "react";
+import { TrendingDown, GitBranch, GitMerge, LogIn, LogOut, X, ExternalLink, FileSearch, Users, Percent } from "lucide-react";
 
 interface FunnelStep {
   name: string;
@@ -21,6 +21,7 @@ interface FunnelFlowGraphProps {
   firstStep: FunnelStep;
   getDropoffColor: (dropoff: number) => string;
   updateTrigger: number;
+  onAnalyzePage?: (stepIndex: number) => void;
 }
 
 interface LayoutNode {
@@ -38,7 +39,7 @@ interface LayoutNode {
   targetNames: string[];
 }
 
-export default function FunnelFlowGraph({ steps, connections, firstStep, getDropoffColor, updateTrigger }: FunnelFlowGraphProps) {
+export default function FunnelFlowGraph({ steps, connections, firstStep, getDropoffColor, updateTrigger, onAnalyzePage }: FunnelFlowGraphProps) {
   const layout = useMemo(() => {
     if (!steps || steps.length === 0) return { nodes: [] as LayoutNode[], levels: 0, maxLane: 0 };
 
@@ -140,6 +141,8 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
     }).filter(Boolean) as { source: LayoutNode; target: LayoutNode }[];
   }, [connections, layout.nodes]);
 
+  const [selectedNode, setSelectedNode] = useState<LayoutNode | null>(null);
+
   if (!steps || steps.length === 0) return null;
 
   // Layout constants
@@ -163,76 +166,16 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
   };
 
   return (
-    <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: '700px' }}>
+    <div className="overflow-x-auto overflow-y-auto relative" style={{ maxHeight: '700px' }}>
       <div className="relative" style={{ width: Math.max(totalWidth, 600), height: Math.max(totalHeight, 300), minWidth: '100%' }}>
-        {/* SVG connection lines */}
-        <svg
-          className="absolute inset-0 pointer-events-none"
-          width={Math.max(totalWidth, 600)}
-          height={Math.max(totalHeight, 300)}
-          style={{ zIndex: 0 }}
-        >
-          <defs>
-            <marker id="arrowhead" markerWidth="10" markerHeight="8" refX="10" refY="4" orient="auto">
-              <polygon points="0 0, 10 4, 0 8" fill="#7c5cff" />
-            </marker>
-          </defs>
-          {svgConnections.map((conn, idx) => {
-            const srcPos = getNodePos(conn.source);
-            const tgtPos = getNodePos(conn.target);
-            const x1 = srcPos.x + NODE_WIDTH;
-            const y1 = srcPos.y + NODE_HEIGHT / 2;
-            const x2 = tgtPos.x;
-            const y2 = tgtPos.y + NODE_HEIGHT / 2;
-
-            const srcVisitors = conn.source.step.visitors;
-            const tgtVisitors = conn.target.step.visitors;
-            const dropPercent = srcVisitors > 0 ? Math.round(((srcVisitors - tgtVisitors) / srcVisitors) * 100) : 0;
-
-            const midX = (x1 + x2) / 2;
-            const midY = (y1 + y2) / 2;
-            const dx = x2 - x1;
-            const cp1x = x1 + dx * 0.4;
-            const cp2x = x1 + dx * 0.6;
-
-            return (
-              <g key={idx}>
-                <path
-                  d={`M ${x1} ${y1} C ${cp1x} ${y1}, ${cp2x} ${y2}, ${x2} ${y2}`}
-                  fill="none"
-                  stroke="#7c5cff"
-                  strokeWidth="2"
-                  strokeOpacity="0.5"
-                  markerEnd="url(#arrowhead)"
-                />
-                {srcVisitors > 0 && tgtVisitors > 0 && dropPercent > 0 && (
-                  <>
-                    <rect x={midX - 24} y={midY - 10} width={48} height={20} rx={6}
-                      fill="#0a0a0a"
-                      stroke={dropPercent > 50 ? '#ff6b6b' : dropPercent > 20 ? '#f59e0b' : '#00d4aa'}
-                      strokeWidth="1" strokeOpacity="0.5"
-                    />
-                    <text x={midX} y={midY + 4} textAnchor="middle"
-                      fill={dropPercent > 50 ? '#ff6b6b' : dropPercent > 20 ? '#f59e0b' : '#00d4aa'}
-                      fontSize="10" fontWeight="600"
-                    >
-                      -{dropPercent}%
-                    </text>
-                  </>
-                )}
-              </g>
-            );
-          })}
-        </svg>
-
-        {/* Node cards */}
+        {/* Node cards - z-index 1 */}
         {layout.nodes.map((node) => {
           const pos = getNodePos(node);
 
           return (
             <div
               key={`${node.id}-${updateTrigger}`}
-              className="absolute"
+              className="absolute cursor-pointer"
               style={{
                 left: pos.x,
                 top: pos.y,
@@ -240,8 +183,9 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
                 height: NODE_HEIGHT,
                 zIndex: 1,
               }}
+              onClick={() => setSelectedNode(node)}
             >
-              <div className={`relative h-full rounded-xl border overflow-hidden transition-all hover:shadow-lg ${
+              <div className={`relative h-full rounded-xl border overflow-hidden transition-all hover:shadow-lg hover:border-[#7c5cff]/60 ${
                 node.isExit
                   ? 'border-[#00d4aa]/40 hover:shadow-[#00d4aa]/10'
                   : node.isEntry
@@ -310,7 +254,201 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
             </div>
           );
         })}
+
+        {/* SVG connection lines - sopra le card (z-index 2) per frecce visibili */}
+        <svg
+          className="absolute inset-0 pointer-events-none"
+          width={Math.max(totalWidth, 600)}
+          height={Math.max(totalHeight, 300)}
+          style={{ zIndex: 2 }}
+        >
+          <defs>
+            <marker id="arrowhead" markerWidth="12" markerHeight="10" refX="12" refY="5" orient="auto">
+              <polygon points="0 0, 12 5, 0 10" fill="#7c5cff" stroke="#7c5cff" strokeWidth="0.5" />
+            </marker>
+          </defs>
+          {svgConnections.map((conn, idx) => {
+            const srcPos = getNodePos(conn.source);
+            const tgtPos = getNodePos(conn.target);
+            const x1 = srcPos.x + NODE_WIDTH;
+            const y1 = srcPos.y + NODE_HEIGHT / 2;
+            const x2 = tgtPos.x;
+            const y2 = tgtPos.y + NODE_HEIGHT / 2;
+
+            const srcVisitors = conn.source.step.visitors;
+            const tgtVisitors = conn.target.step.visitors;
+            const dropPercent = srcVisitors > 0 ? Math.round(((srcVisitors - tgtVisitors) / srcVisitors) * 100) : 0;
+
+            const midX = (x1 + x2) / 2;
+            const midY = (y1 + y2) / 2;
+            const dx = x2 - x1;
+            const cp1x = x1 + dx * 0.4;
+            const cp2x = x1 + dx * 0.6;
+            // Dropoff box sotto la linea per non coprire la freccia
+            const dropY = midY + 8;
+
+            return (
+              <g key={idx}>
+                <path
+                  d={`M ${x1} ${y1} C ${cp1x} ${y1}, ${cp2x} ${y2}, ${x2} ${y2}`}
+                  fill="none"
+                  stroke="#7c5cff"
+                  strokeWidth="3"
+                  strokeOpacity="0.9"
+                  markerEnd="url(#arrowhead)"
+                />
+                {srcVisitors > 0 && tgtVisitors > 0 && dropPercent > 0 && (
+                  <>
+                    <rect x={midX - 26} y={dropY} width={52} height={20} rx={6}
+                      fill="#0a0a0a"
+                      stroke={dropPercent > 50 ? '#ff6b6b' : dropPercent > 20 ? '#f59e0b' : '#00d4aa'}
+                      strokeWidth="1.5" strokeOpacity="0.8"
+                    />
+                    <text x={midX} y={dropY + 10} textAnchor="middle" dominantBaseline="middle"
+                      fill={dropPercent > 50 ? '#ff6b6b' : dropPercent > 20 ? '#f59e0b' : '#00d4aa'}
+                      fontSize="10" fontWeight="600"
+                    >
+                      -{dropPercent}%
+                    </text>
+                  </>
+                )}
+              </g>
+            );
+          })}
+        </svg>
       </div>
+
+      {/* Expanded card modal - tutti i dati */}
+      {selectedNode && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4" onClick={() => setSelectedNode(null)}>
+          <div
+            className="bg-[#0a0a0a] border-2 border-[#7c5cff] rounded-2xl p-6 w-full max-w-md shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h3 className="text-[18px] font-semibold text-[#fafafa] mb-1">
+                  {selectedNode.step.name}
+                </h3>
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  {selectedNode.isEntry && (
+                    <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded bg-[#7c5cff]/20 border border-[#7c5cff]/30 text-[9px] font-medium text-[#7c5cff]">
+                      <LogIn className="w-3 h-3" /> ENTRY
+                    </span>
+                  )}
+                  {selectedNode.isMerge && (
+                    <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded bg-[#ffa500]/20 border border-[#ffa500]/30 text-[9px] font-medium text-[#ffa500]">
+                      <GitMerge className="w-3 h-3" /> MERGE
+                    </span>
+                  )}
+                  {selectedNode.isBranch && (
+                    <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded bg-[#00d4aa]/20 border border-[#00d4aa]/30 text-[9px] font-medium text-[#00d4aa]">
+                      <GitBranch className="w-3 h-3" /> BRANCH
+                    </span>
+                  )}
+                  {selectedNode.isExit && (
+                    <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded bg-[#00d4aa]/20 border border-[#00d4aa]/30 text-[9px] font-medium text-[#00d4aa]">
+                      <LogOut className="w-3 h-3" /> EXIT
+                    </span>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedNode(null)}
+                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5 text-[#888888] hover:text-[#fafafa] transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+              <div className="bg-[#7c5cff]/10 border border-[#7c5cff]/20 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Users className="w-4 h-4 text-[#7c5cff]" />
+                  <span className="text-[12px] text-[#888888]">Visitatori</span>
+                </div>
+                <p className="text-[24px] font-bold text-[#fafafa]">
+                  {selectedNode.step.visitors.toLocaleString()}
+                </p>
+              </div>
+
+              {!selectedNode.isEntry && (
+                <div className="bg-[#00d4aa]/10 border border-[#00d4aa]/20 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Percent className="w-4 h-4 text-[#00d4aa]" />
+                    <span className="text-[12px] text-[#888888]">Conversion Rate</span>
+                  </div>
+                  <p className="text-[24px] font-bold text-[#fafafa]">
+                    {steps[0]?.visitors > 0
+                      ? ((selectedNode.step.visitors / steps[0].visitors) * 100).toFixed(1)
+                      : '0'}%
+                  </p>
+                </div>
+              )}
+
+              {selectedNode.step.dropoff > 0 && (
+                <div className="bg-[#ff6b6b]/10 border border-[#ff6b6b]/20 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <TrendingDown className="w-4 h-4 text-[#ff6b6b]" />
+                    <span className="text-[12px] text-[#888888]">Drop-off</span>
+                  </div>
+                  <p className="text-[24px] font-bold text-[#fafafa]">
+                    {selectedNode.step.dropoff}%
+                  </p>
+                  <p className="text-[11px] text-[#888888] mt-2">
+                    {Math.round(selectedNode.step.visitors * (selectedNode.step.dropoff / 100)).toLocaleString()} visitatori persi
+                  </p>
+                </div>
+              )}
+
+              <div className="bg-[#2a2a2a] rounded-lg p-3">
+                <span className="text-[11px] text-[#666666]">Flusso: </span>
+                {selectedNode.sourceNames.length > 0 && (
+                  <span className="text-[11px] text-[#888888]">← {selectedNode.sourceNames.join(', ')}</span>
+                )}
+                {selectedNode.sourceNames.length > 0 && selectedNode.targetNames.length > 0 && (
+                  <span className="text-[#555555]"> • </span>
+                )}
+                {selectedNode.targetNames.length > 0 && (
+                  <span className="text-[11px] text-[#888888]">→ {selectedNode.targetNames.join(', ')}</span>
+                )}
+              </div>
+
+              {selectedNode.step.url && (
+                <div className="bg-[#2a2a2a] border border-[#2a2a2a] rounded-lg p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <ExternalLink className="w-4 h-4 text-[#7c5cff]" />
+                    <span className="text-[12px] text-[#888888]">URL</span>
+                  </div>
+                  <a
+                    href={selectedNode.step.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] text-[#7c5cff] hover:text-[#00d4aa] break-all line-clamp-2 block"
+                  >
+                    {selectedNode.step.url}
+                  </a>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-white/10 space-y-3">
+              {onAnalyzePage && selectedNode.step.url && (
+                <button
+                  onClick={() => {
+                    onAnalyzePage(selectedNode.index);
+                    setSelectedNode(null);
+                  }}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#7c5cff] hover:bg-[#6b4ce6] text-white text-[13px] font-medium rounded-lg transition-colors"
+                >
+                  <FileSearch className="w-4 h-4" />
+                  Analisi pagina
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
