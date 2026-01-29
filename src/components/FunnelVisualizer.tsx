@@ -343,7 +343,7 @@ function FunnelVisualizerInner({ steps, name, connections, onAnalyzePage }: Funn
                 <span className="text-[12px] text-[#888888]">Total Visitors</span>
               </div>
               <p className="text-[24px] font-bold text-[#fafafa]">
-                {selectedNode.data.visitors.toLocaleString()}
+                {(selectedNode.data.visitors ?? 0).toLocaleString()}
               </p>
             </div>
 
@@ -353,7 +353,7 @@ function FunnelVisualizerInner({ steps, name, connections, onAnalyzePage }: Funn
                 <span className="text-[12px] text-[#888888]">Conversion Rate</span>
               </div>
               <p className="text-[24px] font-bold text-[#fafafa]">
-                {selectedNode.data.conversionRate.toFixed(1)}%
+                {Number.isFinite(selectedNode.data.conversionRate) ? selectedNode.data.conversionRate.toFixed(1) : '0'}%
               </p>
             </div>
 
