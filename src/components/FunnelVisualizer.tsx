@@ -97,7 +97,7 @@ function StepNode({ data }: { data: StepData }) {
                   transform: 'scale(0.22)',
                   transformOrigin: 'top left',
                 }}
-                sandbox="allow-same-origin allow-scripts"
+                sandbox="allow-same-origin"
                 loading="lazy"
                 tabIndex={-1}
               />
