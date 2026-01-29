@@ -31,11 +31,7 @@ export async function GET(request: NextRequest) {
 
     let html = await response.text();
 
-    // Inject base tag to handle relative URLs
-    const baseTag = `<base href="${targetUrl.origin}${targetUrl.pathname}" target="_blank">`;
-
     // Remove all script tags to prevent CORS errors and unwanted JS execution
-    // This is for preview only - we just need the visual HTML+CSS
     html = html.replace(/<script[\s\S]*?<\/script>/gi, '');
     html = html.replace(/<script[^>]*\/>/gi, '');
 
@@ -46,6 +42,55 @@ export async function GET(request: NextRequest) {
     html = html.replace(/<video/gi, '<video muted');
     html = html.replace(/<audio/gi, '<audio muted');
 
+    // Rewrite relative URLs to absolute for CSS, images, links
+    const origin = targetUrl.origin;
+    const basePath = targetUrl.pathname.replace(/\/[^/]*$/, '/');
+
+    // Helper to resolve relative URLs
+    const resolveUrl = (ref: string): string => {
+      if (!ref || ref.startsWith('data:') || ref.startsWith('mailto:') || ref.startsWith('#') || ref.startsWith('javascript:')) return ref;
+      if (ref.startsWith('http://') || ref.startsWith('https://') || ref.startsWith('//')) return ref;
+      if (ref.startsWith('/')) return origin + ref;
+      return origin + basePath + ref;
+    };
+
+    // Rewrite href in <link> tags (CSS)
+    html = html.replace(/<link([^>]*?)href=["']([^"']+)["']/gi, (match, before, href) => {
+      return `<link${before}href="${resolveUrl(href)}"`;
+    });
+
+    // Rewrite src in <img> tags
+    html = html.replace(/<img([^>]*?)src=["']([^"']+)["']/gi, (match, before, src) => {
+      return `<img${before}src="${resolveUrl(src)}"`;
+    });
+
+    // Rewrite url() in inline styles and style tags
+    html = html.replace(/url\(["']?(?!data:)([^"')]+)["']?\)/gi, (match, ref) => {
+      return `url("${resolveUrl(ref)}")`;
+    });
+
+    // Rewrite srcset in <img> and <source> tags
+    html = html.replace(/srcset=["']([^"']+)["']/gi, (match, srcset) => {
+      const resolved = srcset.split(',').map((entry: string) => {
+        const parts = entry.trim().split(/\s+/);
+        if (parts[0]) parts[0] = resolveUrl(parts[0]);
+        return parts.join(' ');
+      }).join(', ');
+      return `srcset="${resolved}"`;
+    });
+
+    // Rewrite poster in <video> tags
+    html = html.replace(/<video([^>]*?)poster=["']([^"']+)["']/gi, (match, before, poster) => {
+      return `<video${before}poster="${resolveUrl(poster)}"`;
+    });
+
+    // Rewrite source src in <source> tags
+    html = html.replace(/<source([^>]*?)src=["']([^"']+)["']/gi, (match, before, src) => {
+      return `<source${before}src="${resolveUrl(src)}"`;
+    });
+
+    // Inject base tag as fallback for anything we missed
+    const baseTag = `<base href="${origin}${basePath}" target="_blank">`;
     html = html.replace('<head>', `<head>${baseTag}`);
 
     // Return HTML without X-Frame-Options
@@ -53,10 +98,10 @@ export async function GET(request: NextRequest) {
       status: 200,
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
-        // Remove X-Frame-Options to allow iframe
         'X-Frame-Options': 'ALLOWALL',
-        // Set CSP to allow embedding
         'Content-Security-Policy': "frame-ancestors 'self'",
+        // Allow cross-origin resources
+        'Access-Control-Allow-Origin': '*',
       },
     });
   } catch (error: any) {
