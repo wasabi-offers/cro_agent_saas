@@ -47,6 +47,21 @@ export async function GET(request: NextRequest) {
       html = `<head><base href="${correctBase}"></head>` + html;
     }
 
+    // Anti-iframe bypass: evita che checkout/pagine nascondano contenuto quando rilevano iframe
+    if (allowScripts) {
+      const antiIframeScript = `<script>
+(function(){try{
+  var w=window;
+  if(w.top!==w.self){
+    Object.defineProperty(w,'top',{get:function(){return w.self;},configurable:true});
+    Object.defineProperty(w,'parent',{get:function(){return w.self;},configurable:true});
+  }
+}catch(e){}
+})();
+</script>`;
+      html = html.replace(/<head([^>]*)>/i, `$&${antiIframeScript}`);
+    }
+
     // Inject CORS proxy ONLY for same-domain requests (page we're previewing).
     // Don't proxy Supabase, Clarity, analytics - they need auth or break with 500.
     if (allowScripts) {
