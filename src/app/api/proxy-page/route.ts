@@ -84,7 +84,16 @@ export async function GET(request: NextRequest) {
       html = html.replace(/<link[^>]*as\s*=\s*["']script["'][^>]*>/gi, '');
     }
 
-    // Videos: autoplay muted (no audio) - browsers require muted for autoplay in iframes
+    // Inject mute script DOPO strip - SEMPRE senza audio nelle anteprime
+    const muteScript = `<script>
+(function(){function m(e){if(e&&!e.muted){e.muted=true;e.volume=0;}}
+function ma(){document.querySelectorAll('video,audio').forEach(m);}
+ma();var o=new MutationObserver(ma);o.observe(document.documentElement,{childList:true,subtree:true});
+setTimeout(ma,500);setTimeout(ma,1500);})();
+</script>`;
+    html = html.replace(/<head([^>]*)>/i, `$&${muteScript}`);
+
+    // Videos: SEMPRE muted (no audio) - anteprime devono partire senza audio
     html = html.replace(/<video([^>]*)>/gi, (match, attrs) => {
       let a = attrs;
       if (!/muted/i.test(a)) a += ' muted';
@@ -92,8 +101,12 @@ export async function GET(request: NextRequest) {
       if (!/playsinline/i.test(a)) a += ' playsinline';
       return `<video${a}>`;
     });
-    // Audio: keep muted, no autoplay (user requested video only)
-    html = html.replace(/<audio/gi, '<audio muted');
+    // Audio: sempre muted, no autoplay
+    html = html.replace(/<audio([^>]*)>/gi, (match, attrs) => {
+      let a = attrs;
+      if (!/muted/i.test(a)) a += ' muted';
+      return `<audio${a}>`;
+    });
 
     // Rewrite relative URLs to absolute for CSS, images, links
     const origin = targetUrl.origin;
