@@ -47,8 +47,14 @@ interface StepData {
   url?: string;
 }
 
+function isCheckoutPage(label: string, url?: string): boolean {
+  const s = (label + ' ' + (url || '')).toLowerCase();
+  return /checkout|order|clickbank|pay|payment|cart/i.test(s);
+}
+
 function StepNode({ data }: { data: StepData }) {
   const hasPreview = !!data.url;
+  const useScripts = !isCheckoutPage(data.label, data.url);
 
   return (
     <div className="relative">
