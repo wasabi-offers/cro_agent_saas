@@ -396,7 +396,7 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
                     {selectedNode.step.dropoff}%
                   </p>
                   <p className="text-[11px] text-[#888888] mt-2">
-                    {Math.round(selectedNode.step.visitors * (selectedNode.step.dropoff / 100)).toLocaleString()} visitatori persi
+                    {Math.round(selectedNode.step.visitors * (selectedNode.step.dropoff / 100)).toLocaleString()} visitors lost
                   </p>
                 </div>
               )}
@@ -442,7 +442,7 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
                   className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#7c5cff] hover:bg-[#6b4ce6] text-white text-[13px] font-medium rounded-lg transition-colors"
                 >
                   <FileSearch className="w-4 h-4" />
-                  Analisi pagina
+                  Page Analysis
                 </button>
               )}
             </div>

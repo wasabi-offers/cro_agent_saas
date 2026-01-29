@@ -301,7 +301,7 @@ export default function ProductFunnelsPage() {
               className="flex items-center gap-2 px-5 py-3 bg-[#0a0a0a] border border-[#7c5cff]/50 text-[#7c5cff] text-[14px] font-medium rounded-xl hover:bg-[#7c5cff]/10 transition-all"
             >
               <Upload className="w-4 h-4" />
-              Importa Flussi
+              Import Flows
             </button>
             <button
               onClick={() => setShowBuilder(true)}
@@ -339,7 +339,7 @@ export default function ProductFunnelsPage() {
             <div className="bg-[#000000]/50 border border-white/5 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Target className="w-4 h-4 text-[#7c5cff]" />
-                <span className="text-[11px] text-[#666666] uppercase">Funnel Attivi</span>
+                <span className="text-[11px] text-[#666666] uppercase">Active Funnels</span>
               </div>
               <p className="text-[24px] font-bold text-[#fafafa]">{activeFunnels.length}</p>
             </div>
@@ -355,7 +355,7 @@ export default function ProductFunnelsPage() {
             <div className="bg-[#000000]/50 border border-white/5 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
                 <TrendingUp className="w-4 h-4 text-[#00d4aa]" />
-                <span className="text-[11px] text-[#666666] uppercase">Conversioni</span>
+                <span className="text-[11px] text-[#666666] uppercase">Conversions</span>
               </div>
               <p className="text-[24px] font-bold text-[#00d4aa]">{totalConversions.toLocaleString()}</p>
             </div>
@@ -400,7 +400,7 @@ export default function ProductFunnelsPage() {
                     <TrendingDown className="w-5 h-5 text-[#ff6b6b]" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-[11px] text-[#666666] uppercase mb-1">Da Migliorare</p>
+                    <p className="text-[11px] text-[#666666] uppercase mb-1">Needs Improvement</p>
                     <p className="text-[15px] font-semibold text-[#fafafa]">{worstFunnel.name}</p>
                   </div>
                   <div className="text-right">

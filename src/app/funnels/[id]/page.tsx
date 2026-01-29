@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import DateRangePicker from "@/components/DateRangePicker";
@@ -118,6 +118,9 @@ export default function FunnelDetailPage() {
   // User paths analysis state
   const [userPaths, setUserPaths] = useState<any>(null);
   const [isLoadingPaths, setIsLoadingPaths] = useState(false);
+
+  // Ref per scroll automatico al blocco Analisi
+  const analysisSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -465,7 +468,7 @@ export default function FunnelDetailPage() {
 
     if (success) {
       setShowEditBuilder(false);
-      alert('✅ Funnel modificato con successo!');
+      alert('✅ Funnel updated successfully!');
 
       // Reload data - useEffect will re-run automatically
       setIsLoading(true);
@@ -604,11 +607,11 @@ export default function FunnelDetailPage() {
             The funnel you're looking for doesn't exist.
           </p>
           <Link
-            href="/funnels"
+            href={funnel?.product_id ? `/products/${funnel.product_id}` : "/products"}
             className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white rounded-xl font-medium text-[14px] hover:shadow-lg hover:shadow-purple-500/20 transition-all"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Funnels
+            Back
           </Link>
         </div>
       </div>
@@ -626,11 +629,11 @@ export default function FunnelDetailPage() {
         {/* Back Button & Stats Header */}
         <div className="flex items-center justify-between mb-8">
           <Link
-            href="/funnels"
+            href={funnel?.product_id ? `/products/${funnel.product_id}` : "/products"}
             className="flex items-center gap-2 text-[14px] text-[#888888] hover:text-[#7c5cff] transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Funnels
+            Back
           </Link>
 
           <div className="flex items-center gap-6">
@@ -660,7 +663,7 @@ export default function FunnelDetailPage() {
               className="px-4 py-2.5 bg-[#7c5cff] text-white rounded-xl text-[14px] font-medium hover:bg-[#6b4ee6] transition-all flex items-center gap-2"
             >
               <FileSearch className="w-4 h-4" />
-              Modifica Funnel
+              Edit Funnel
             </button>
           </div>
         </div>
@@ -788,6 +791,9 @@ export default function FunnelDetailPage() {
                   setActiveTab("analysis");
                   setAnalysisMode("page");
                   setSelectedPage(stepIndex);
+                  setTimeout(() => {
+                    analysisSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }, 100);
                 }}
               />
             </div>
@@ -797,7 +803,7 @@ export default function FunnelDetailPage() {
         )}
 
         {activeTab === "analysis" && (
-          <div className="space-y-6">
+          <div ref={analysisSectionRef} className="space-y-6">
             {/* Analysis Options */}
             <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8">
               <div className="flex items-center gap-3 mb-6">

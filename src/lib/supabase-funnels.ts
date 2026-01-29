@@ -25,6 +25,7 @@ export interface ConversionFunnel {
   connections?: FunnelConnection[];  // Optional for backwards compatibility
   conversionRate: number;
   is_active?: boolean;  // Whether funnel is active for analysis
+  product_id?: string;
   abTests?: {
     pendingCount: number;
     activeCount: number;
@@ -251,6 +252,7 @@ export async function fetchFunnel(funnelId: string): Promise<ConversionFunnel | 
       name: funnelData.name,
       conversionRate: Number(funnelData.conversion_rate),
       is_active: funnelData.is_active !== false,  // Default to true if not set
+      product_id: funnelData.product_id || undefined,
       steps: (stepsData || []).map((step) => ({
         name: step.name,
         visitors: step.visitors,

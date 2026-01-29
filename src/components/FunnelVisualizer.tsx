@@ -106,7 +106,7 @@ function StepNode({ data }: { data: StepData }) {
             </>
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
-              <p className="text-[10px] text-[#555555]">Anteprima non disponibile</p>
+              <p className="text-[10px] text-[#555555]">Preview not available</p>
             </div>
           )}
         </div>
@@ -387,7 +387,7 @@ function FunnelVisualizerInner({ steps, name, connections, onAnalyzePage }: Funn
                 className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#7c5cff] hover:bg-[#6b4ce6] text-white text-[13px] font-medium rounded-lg transition-colors"
               >
                 <FileSearch className="w-4 h-4" />
-                Analisi pagina
+                Page Analysis
               </button>
             )}
             <p className="text-[11px] text-[#666666]">
