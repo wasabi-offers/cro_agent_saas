@@ -168,7 +168,69 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
   return (
     <div className="overflow-x-auto overflow-y-auto relative" style={{ maxHeight: '700px' }}>
       <div className="relative" style={{ width: Math.max(totalWidth, 600), height: Math.max(totalHeight, 300), minWidth: '100%' }}>
-        {/* Node cards - z-index 1 */}
+        {/* SVG connections - DIETRO le card (z-index 0) - ordine corretto: prima linee, poi card sopra */}
+        <svg
+          className="absolute inset-0 pointer-events-none"
+          width={Math.max(totalWidth, 600)}
+          height={Math.max(totalHeight, 300)}
+          style={{ zIndex: 0 }}
+        >
+          <defs>
+            <marker id="arrowhead" markerWidth="12" markerHeight="10" refX="12" refY="5" orient="auto">
+              <polygon points="0 0, 12 5, 0 10" fill="#7c5cff" stroke="#7c5cff" strokeWidth="0.5" />
+            </marker>
+          </defs>
+          {svgConnections.map((conn, idx) => {
+            const srcPos = getNodePos(conn.source);
+            const tgtPos = getNodePos(conn.target);
+            // Inizia 4px dopo la card sorgente, termina 14px prima della card target - frecce visibili nello spazio tra le card
+            const x1 = srcPos.x + NODE_WIDTH + 4;
+            const y1 = srcPos.y + NODE_HEIGHT / 2;
+            const x2 = tgtPos.x - 14;
+            const y2 = tgtPos.y + NODE_HEIGHT / 2;
+
+            const srcVisitors = conn.source.step.visitors;
+            const tgtVisitors = conn.target.step.visitors;
+            const dropPercent = srcVisitors > 0 ? Math.round(((srcVisitors - tgtVisitors) / srcVisitors) * 100) : 0;
+
+            const midX = (x1 + x2) / 2;
+            const midY = (y1 + y2) / 2;
+            const dx = x2 - x1;
+            const cp1x = x1 + dx * 0.4;
+            const cp2x = x1 + dx * 0.6;
+            const dropY = midY + 8;
+
+            return (
+              <g key={idx}>
+                <path
+                  d={`M ${x1} ${y1} C ${cp1x} ${y1}, ${cp2x} ${y2}, ${x2} ${y2}`}
+                  fill="none"
+                  stroke="#7c5cff"
+                  strokeWidth="3"
+                  strokeOpacity="0.9"
+                  markerEnd="url(#arrowhead)"
+                />
+                {srcVisitors > 0 && tgtVisitors > 0 && dropPercent > 0 && (
+                  <>
+                    <rect x={midX - 26} y={dropY} width={52} height={20} rx={6}
+                      fill="#0a0a0a"
+                      stroke={dropPercent > 50 ? '#ff6b6b' : dropPercent > 20 ? '#f59e0b' : '#00d4aa'}
+                      strokeWidth="1.5" strokeOpacity="0.8"
+                    />
+                    <text x={midX} y={dropY + 10} textAnchor="middle" dominantBaseline="middle"
+                      fill={dropPercent > 50 ? '#ff6b6b' : dropPercent > 20 ? '#f59e0b' : '#00d4aa'}
+                      fontSize="10" fontWeight="600"
+                    >
+                      -{dropPercent}%
+                    </text>
+                  </>
+                )}
+              </g>
+            );
+          })}
+        </svg>
+
+        {/* Node cards - SOPRA le connessioni (z-index 1) */}
         {layout.nodes.map((node) => {
           const pos = getNodePos(node);
 
@@ -254,68 +316,6 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
             </div>
           );
         })}
-
-        {/* SVG connection lines - sopra le card (z-index 2) per frecce visibili */}
-        <svg
-          className="absolute inset-0 pointer-events-none"
-          width={Math.max(totalWidth, 600)}
-          height={Math.max(totalHeight, 300)}
-          style={{ zIndex: 2 }}
-        >
-          <defs>
-            <marker id="arrowhead" markerWidth="12" markerHeight="10" refX="12" refY="5" orient="auto">
-              <polygon points="0 0, 12 5, 0 10" fill="#7c5cff" stroke="#7c5cff" strokeWidth="0.5" />
-            </marker>
-          </defs>
-          {svgConnections.map((conn, idx) => {
-            const srcPos = getNodePos(conn.source);
-            const tgtPos = getNodePos(conn.target);
-            const x1 = srcPos.x + NODE_WIDTH;
-            const y1 = srcPos.y + NODE_HEIGHT / 2;
-            const x2 = tgtPos.x;
-            const y2 = tgtPos.y + NODE_HEIGHT / 2;
-
-            const srcVisitors = conn.source.step.visitors;
-            const tgtVisitors = conn.target.step.visitors;
-            const dropPercent = srcVisitors > 0 ? Math.round(((srcVisitors - tgtVisitors) / srcVisitors) * 100) : 0;
-
-            const midX = (x1 + x2) / 2;
-            const midY = (y1 + y2) / 2;
-            const dx = x2 - x1;
-            const cp1x = x1 + dx * 0.4;
-            const cp2x = x1 + dx * 0.6;
-            // Dropoff box sotto la linea per non coprire la freccia
-            const dropY = midY + 8;
-
-            return (
-              <g key={idx}>
-                <path
-                  d={`M ${x1} ${y1} C ${cp1x} ${y1}, ${cp2x} ${y2}, ${x2} ${y2}`}
-                  fill="none"
-                  stroke="#7c5cff"
-                  strokeWidth="3"
-                  strokeOpacity="0.9"
-                  markerEnd="url(#arrowhead)"
-                />
-                {srcVisitors > 0 && tgtVisitors > 0 && dropPercent > 0 && (
-                  <>
-                    <rect x={midX - 26} y={dropY} width={52} height={20} rx={6}
-                      fill="#0a0a0a"
-                      stroke={dropPercent > 50 ? '#ff6b6b' : dropPercent > 20 ? '#f59e0b' : '#00d4aa'}
-                      strokeWidth="1.5" strokeOpacity="0.8"
-                    />
-                    <text x={midX} y={dropY + 10} textAnchor="middle" dominantBaseline="middle"
-                      fill={dropPercent > 50 ? '#ff6b6b' : dropPercent > 20 ? '#f59e0b' : '#00d4aa'}
-                      fontSize="10" fontWeight="600"
-                    >
-                      -{dropPercent}%
-                    </text>
-                  </>
-                )}
-              </g>
-            );
-          })}
-        </svg>
       </div>
 
       {/* Expanded card modal - tutti i dati */}

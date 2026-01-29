@@ -132,14 +132,8 @@ function FunnelVisualizerInner({ steps, name, connections, onAnalyzePage }: Funn
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const { fitView } = useReactFlow();
 
-  // DEBUG: Log per verificare i dati ricevuti
-  console.log('🔍 FunnelVisualizer - Steps ricevuti:', steps);
-  console.log('🔍 FunnelVisualizer - Nome funnel:', name);
-  console.log('🔍 FunnelVisualizer - Numero steps:', steps?.length);
-
   // VALIDAZIONE: Verifica che ci siano step
   if (!steps || steps.length === 0) {
-    console.error('❌ FunnelVisualizer - Nessuno step ricevuto!');
     return (
       <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8 text-center">
         <p className="text-[#ff6b6b] text-[16px]">⚠️ Errore: Nessuno step trovato nel funnel</p>
@@ -153,9 +147,6 @@ function FunnelVisualizerInner({ steps, name, connections, onAnalyzePage }: Funn
 
   // Inizializza nodes ed edges quando cambiano gli steps (COPIATO DA FunnelBuilder)
   useEffect(() => {
-    console.log('🔧 FunnelVisualizer - useEffect triggered, steps:', steps.length);
-    console.log('🔧 FunnelVisualizer - Connections from database:', connections);
-
     // Create nodes - IDs DEVONO INIZIARE DA 1 (come FunnelBuilder) !!!
     const newNodes: Node[] = steps.map((step, index) => {
       const conversionRate = index === 0
@@ -245,16 +236,8 @@ function FunnelVisualizerInner({ steps, name, connections, onAnalyzePage }: Funn
           },
         }));
 
-    console.log('🔧 Nodes creati:', newNodes.length);
-    console.log('🔧 Node IDs:', newNodes.map(n => n.id));
-    console.log('🔧 Edges creati:', newEdges.length);
-    console.log('🔧 Edge details:', newEdges.map(e => `${e.id}: ${e.source} → ${e.target}`));
-
     setNodes(newNodes);
     setEdges(newEdges);
-
-    console.log('✅ Nodes e edges impostati!');
-    console.log('🔍 Connections from database:', connections);
   }, [steps, connections, setNodes, setEdges]);
 
   // FitView automatico quando i nodi cambiano
@@ -270,10 +253,6 @@ function FunnelVisualizerInner({ steps, name, connections, onAnalyzePage }: Funn
       }, 100);
     }
   }, [nodes, fitView]);
-
-  // DEBUG: Log dopo inizializzazione state (RENDER-TIME)
-  console.log('🔍 RENDER - Nodes in state:', nodes.length, nodes);
-  console.log('🔍 RENDER - Edges in state:', edges.length, edges);
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
     setSelectedNode(node);

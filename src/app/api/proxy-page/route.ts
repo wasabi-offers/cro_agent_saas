@@ -34,6 +34,13 @@ export async function GET(request: NextRequest) {
     // Remove base tag - pages with wrong base may point images to our domain (404)
     html = html.replace(/<base[^>]*>/gi, '');
 
+    // Remove link preload - evita warning "preloaded but not used" e "Blocked script execution" in iframe sandboxed
+    html = html.replace(/<link[^>]*rel\s*=\s*["']preload["'][^>]*>/gi, '');
+    html = html.replace(/<link[^>]*rel\s*=\s*["']modulepreload["'][^>]*>/gi, '');
+
+    // Remove event handlers (onclick, onload, etc.) - possono triggerare script bloccati dal sandbox
+    html = html.replace(/\s+on\w+=["'][^"']*["']/gi, '');
+
     // Remove all script tags to prevent CORS errors and unwanted JS execution
     html = html.replace(/<script[\s\S]*?<\/script>/gi, '');
     html = html.replace(/<script[^>]*\/>/gi, '');
