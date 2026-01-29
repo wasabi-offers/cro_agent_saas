@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Users, TrendingDown, GitBranch, GitMerge, LogIn, LogOut } from "lucide-react";
+import { TrendingDown, GitBranch, GitMerge, LogIn, LogOut } from "lucide-react";
 
 interface FunnelStep {
   name: string;
@@ -142,11 +142,11 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
 
   if (!steps || steps.length === 0) return null;
 
-  // Layout constants - bigger cards for preview
-  const NODE_WIDTH = 300;
-  const NODE_HEIGHT = 280;
-  const LEVEL_GAP = 100;
-  const LANE_GAP = 32;
+  // Layout constants
+  const NODE_WIDTH = 280;
+  const NODE_HEIGHT = 120;
+  const LEVEL_GAP = 80;
+  const LANE_GAP = 24;
   const PADDING = 32;
 
   const totalWidth = layout.levels * (NODE_WIDTH + LEVEL_GAP) - LEVEL_GAP + PADDING * 2;
@@ -228,7 +228,6 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
         {/* Node cards */}
         {layout.nodes.map((node) => {
           const pos = getNodePos(node);
-          const hasUrl = !!node.step.url && !node.step.url.includes('clickbank.net');
 
           return (
             <div
@@ -284,39 +283,6 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
                       </p>
                       <p className="text-[9px] text-[#666666]">visitors</p>
                     </div>
-                  </div>
-
-                  {/* Page Preview */}
-                  <div className="flex-1 relative bg-[#0a0a0a] overflow-hidden">
-                    {hasUrl ? (
-                      <div className="w-full h-full relative">
-                        <iframe
-                          src={node.step.url}
-                          title={`Preview: ${node.step.name}`}
-                          className="absolute top-0 left-0 border-0 pointer-events-none"
-                          style={{
-                            width: '1280px',
-                            height: '800px',
-                            transform: 'scale(0.225)',
-                            transformOrigin: 'top left',
-                          }}
-                          sandbox="allow-same-origin"
-                          loading="lazy"
-                          tabIndex={-1}
-                        />
-                        {/* Overlay to prevent interaction */}
-                        <div className="absolute inset-0" />
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center h-full">
-                        <div className="text-center">
-                          <div className="w-8 h-8 bg-[#1a1a1a] rounded-lg flex items-center justify-center mx-auto mb-1.5">
-                            <Users className="w-4 h-4 text-[#444444]" />
-                          </div>
-                          <p className="text-[10px] text-[#444444]">Anteprima non disponibile</p>
-                        </div>
-                      </div>
-                    )}
                   </div>
 
                   {/* Footer: dropoff + connections */}
