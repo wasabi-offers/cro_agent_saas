@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const url = searchParams.get('url');
+  const allowScripts = searchParams.get('scripts') === '1'; // Per anteprime: permette JS per pagine SPA
 
   if (!url) {
     return NextResponse.json(
@@ -18,7 +19,10 @@ export async function GET(request: NextRequest) {
     // Fetch the page
     const response = await fetch(targetUrl.toString(), {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Referer': targetUrl.origin + '/',
       },
     });
 
@@ -34,16 +38,31 @@ export async function GET(request: NextRequest) {
     // Remove base tag - pages with wrong base may point images to our domain (404)
     html = html.replace(/<base[^>]*>/gi, '');
 
-    // Remove link preload - evita warning "preloaded but not used" e "Blocked script execution" in iframe sandboxed
-    html = html.replace(/<link[^>]*rel\s*=\s*["']preload["'][^>]*>/gi, '');
-    html = html.replace(/<link[^>]*rel\s*=\s*["']modulepreload["'][^>]*>/gi, '');
+    // Inject correct base - any missed relative URLs resolve to source domain (fix 404 images)
+    const correctBase = targetUrl.origin + targetUrl.pathname.replace(/\/[^/]*$/, '/') || targetUrl.origin + '/';
+    if (/<head[\s>]/i.test(html)) {
+      html = html.replace(/<head([^>]*)>/i, `<head$1><base href="${correctBase}">`);
+    } else {
+      html = `<head><base href="${correctBase}"></head>` + html;
+    }
 
-    // Remove event handlers (onclick, onload, etc.) - possono triggerare script bloccati dal sandbox
-    html = html.replace(/\s+on\w+=["'][^"']*["']/gi, '');
+    // Remove link preload (solo se non allowScripts - altrimenti gli script ne hanno bisogno)
+    if (!allowScripts) {
+      html = html.replace(/<link[^>]*rel\s*=\s*["']preload["'][^>]*>/gi, '');
+      html = html.replace(/<link[^>]*rel\s*=\s*["']modulepreload["'][^>]*>/gi, '');
+    }
 
-    // Remove all script tags to prevent CORS errors and unwanted JS execution
-    html = html.replace(/<script[\s\S]*?<\/script>/gi, '');
-    html = html.replace(/<script[^>]*\/>/gi, '');
+    // Remove event handlers (solo se non allowScripts - altrimenti la pagina ne ha bisogno)
+    if (!allowScripts) {
+      html = html.replace(/\s+on\w+=["'][^"']*["']/gi, '');
+    }
+
+    // Remove script tags only if not in preview mode (scripts=1 per pagine SPA che necessitano JS)
+    if (!allowScripts) {
+      html = html.replace(/<script[\s\S]*?<\/script>/gi, '');
+      html = html.replace(/<script[^>]*\/>/gi, '');
+      html = html.replace(/<link[^>]*as\s*=\s*["']script["'][^>]*>/gi, '');
+    }
 
     // Remove video/audio autoplay
     html = html.replace(/autoplay/gi, 'data-noautoplay');

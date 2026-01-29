@@ -91,14 +91,14 @@ function StepNode({ data }: { data: StepData }) {
             <>
               <div className="absolute inset-2 rounded-md overflow-hidden border border-[#333] bg-[#1a1a1a]">
                 <iframe
-                  src={`/api/proxy-page?url=${encodeURIComponent(data.url!)}`}
+                  src={`/api/proxy-page?url=${encodeURIComponent(data.url!)}&scripts=1`}
                   title={`Preview: ${data.label}`}
                   className="absolute top-0 left-0 border-0 pointer-events-none w-[1280px] h-[800px]"
                   style={{
                     transform: 'scale(0.22)',
                     transformOrigin: 'top left',
                   }}
-                  sandbox="allow-same-origin"
+                  sandbox="allow-same-origin allow-scripts"
                   loading="lazy"
                   tabIndex={-1}
                 />
@@ -379,7 +379,7 @@ function FunnelVisualizerInner({ steps, name, connections, onAnalyzePage }: Funn
             {selectedNode.data.url && !selectedNode.data.url.includes('clickbank.net') && (
               <div className="relative rounded-lg overflow-hidden border border-[#333] bg-[#1a1a1a]" style={{ height: 180 }}>
                 <iframe
-                  src={`/api/proxy-page?url=${encodeURIComponent(selectedNode.data.url)}`}
+                  src={`/api/proxy-page?url=${encodeURIComponent(selectedNode.data.url)}&scripts=1`}
                   title={`Preview: ${selectedNode.data.label}`}
                   className="absolute top-0 left-0 border-0 pointer-events-none"
                   style={{
@@ -388,7 +388,7 @@ function FunnelVisualizerInner({ steps, name, connections, onAnalyzePage }: Funn
                     transform: 'scale(0.22)',
                     transformOrigin: 'top left',
                   }}
-                  sandbox="allow-same-origin"
+                  sandbox="allow-same-origin allow-scripts"
                   loading="lazy"
                   tabIndex={-1}
                 />
