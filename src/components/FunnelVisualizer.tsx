@@ -43,12 +43,15 @@ interface StepData {
   visitors: number;
   dropoff: number;
   conversionRate: number;
+  url?: string;
 }
 
 function StepNode({ data }: { data: StepData }) {
+  const hasPreview = !!data.url && !data.url.includes('clickbank.net');
+
   return (
     <div className="relative">
-      {/* Input Handle (Left) - Where connections come IN */}
+      {/* Input Handle (Left) */}
       <Handle
         type="target"
         position={Position.Left}
@@ -56,29 +59,59 @@ function StepNode({ data }: { data: StepData }) {
         style={{ left: -8 }}
       />
 
-      <div className="bg-[#0a0a0a] border-2 border-[#7c5cff] rounded-xl p-4 min-w-[200px] shadow-lg hover:border-[#00d4aa] transition-all cursor-pointer">
-        <div className="flex flex-col gap-2">
-          <h3 className="text-[14px] font-semibold text-[#fafafa] mb-2">
+      <div className="bg-[#0a0a0a] border-2 border-[#7c5cff] rounded-xl overflow-hidden shadow-lg hover:border-[#00d4aa] transition-all cursor-pointer" style={{ width: 280 }}>
+        {/* Header */}
+        <div className="p-3 pb-2">
+          <h3 className="text-[13px] font-semibold text-[#fafafa] mb-1.5 truncate">
             {data.label}
           </h3>
-        <div className="flex items-center gap-2 text-[12px] text-[#888888]">
-          <Users className="w-3.5 h-3.5 text-[#7c5cff]" />
-          <span>{data.visitors.toLocaleString()} visitors</span>
-        </div>
-        <div className="flex items-center gap-2 text-[12px] text-[#888888]">
-          <Percent className="w-3.5 h-3.5 text-[#00d4aa]" />
-          <span>{data.conversionRate.toFixed(1)}% conversion</span>
-        </div>
-        {data.dropoff > 0 && (
-          <div className="flex items-center gap-2 text-[12px] text-[#ff6b6b]">
-            <TrendingDown className="w-3.5 h-3.5" />
-            <span>{data.dropoff.toFixed(1)}% dropoff</span>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 text-[11px] text-[#888888]">
+              <Users className="w-3 h-3 text-[#7c5cff]" />
+              <span>{data.visitors.toLocaleString()}</span>
+            </div>
+            <div className="flex items-center gap-1 text-[11px] text-[#888888]">
+              <Percent className="w-3 h-3 text-[#00d4aa]" />
+              <span>{data.conversionRate.toFixed(1)}%</span>
+            </div>
+            {data.dropoff > 0 && (
+              <div className="flex items-center gap-1 text-[11px] text-[#ff6b6b]">
+                <TrendingDown className="w-3 h-3" />
+                <span>{data.dropoff.toFixed(1)}%</span>
+              </div>
+            )}
           </div>
-        )}
+        </div>
+
+        {/* Page Preview */}
+        <div className="relative bg-[#1a1a1a] border-t border-[#2a2a2a]" style={{ height: 160 }}>
+          {hasPreview ? (
+            <>
+              <iframe
+                src={data.url}
+                title={`Preview: ${data.label}`}
+                className="absolute top-0 left-0 border-0 pointer-events-none"
+                style={{
+                  width: '1280px',
+                  height: '800px',
+                  transform: 'scale(0.22)',
+                  transformOrigin: 'top left',
+                }}
+                sandbox="allow-same-origin"
+                loading="lazy"
+                tabIndex={-1}
+              />
+              <div className="absolute inset-0" />
+            </>
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-[10px] text-[#444444]">Anteprima non disponibile</p>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Output Handle (Right) - Where connections go OUT */}
+      {/* Output Handle (Right) */}
       <Handle
         type="source"
         position={Position.Right}
@@ -140,6 +173,7 @@ function FunnelVisualizerInner({ steps, name, connections }: FunnelVisualizerPro
           visitors: step.visitors,
           dropoff: step.dropoff,
           conversionRate,
+          url: step.url,
         },
       };
     });
