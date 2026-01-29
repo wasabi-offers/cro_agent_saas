@@ -47,12 +47,12 @@ interface StepData {
   url?: string;
 }
 
-// Pagine con CORS/JS problematici: usare scripts=0 per evitare pagine bianche
-// Replit, quiz, LP - checkout usa scripts=1 per mostrare la preview (senza JS resta bianco)
+// Pagine con CORS/JS problematici: usare scripts=0 per evitare pagine bianche/API Forbidden
+// Checkout: scripts=0 evita "API Forbidden" (le API bloccano richieste da iframe)
 function shouldUseScripts(label: string, url?: string): boolean {
   if (/replit\.com|replit\.dev|repl\.co/i.test(url || '')) return false;
   const s = (label + ' ' + (url || '')).toLowerCase();
-  return !/quiz|lp\d|landing/i.test(s);
+  return !/checkout|order|clickbank|pay|payment|cart|quiz|lp\d|landing/i.test(s);
 }
 
 function StepNode({ data }: { data: StepData }) {
