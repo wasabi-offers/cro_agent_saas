@@ -770,148 +770,127 @@ export default function FunnelDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Funnel Steps - Flow Structure */}
             <div className="lg:col-span-2 bg-[#0a0a0a] border border-white/10 rounded-2xl p-8">
-              <h2 className="text-[18px] font-semibold text-[#fafafa] mb-6">Funnel Steps Flow</h2>
+              <h2 className="text-[18px] font-semibold text-[#fafafa] mb-6">Funnel Flow</h2>
 
-              <div className="space-y-4">
-                {funnel.steps.map((step, index) => {
-                  // Analyze connections for this step
+              <div className="space-y-3">
+                {(() => {
+                  // Organize steps by flow levels
                   const connections = funnel.connections || [];
-                  const incomingConnections = connections.filter((conn: any) => {
-                    // Extract target step name from ID (e.g., "step-3" -> get step at index 2)
-                    const targetIndex = parseInt(conn.target.replace('step-', '')) - 1;
-                    return targetIndex >= 0 && targetIndex < funnel.steps.length &&
-                           funnel.steps[targetIndex].name === step.name;
+                  const stepsByName = new Map(funnel.steps.map((s, i) => [s.name, { step: s, index: i }]));
+
+                  // Find entry points (no incoming connections)
+                  const entryPoints: any[] = [];
+                  const otherSteps: any[] = [];
+
+                  funnel.steps.forEach((step, index) => {
+                    const hasIncoming = connections.some((conn: any) => {
+                      const targetIndex = parseInt(conn.target.replace('step-', '')) - 1;
+                      return funnel.steps[targetIndex]?.name === step.name;
+                    });
+
+                    if (!hasIncoming) {
+                      entryPoints.push({ step, index });
+                    } else {
+                      otherSteps.push({ step, index });
+                    }
                   });
-                  const outgoingConnections = connections.filter((conn: any) => {
-                    const sourceIndex = parseInt(conn.source.replace('step-', '')) - 1;
-                    return sourceIndex >= 0 && sourceIndex < funnel.steps.length &&
-                           funnel.steps[sourceIndex].name === step.name;
-                  });
 
-                  const isEntryPoint = incomingConnections.length === 0;
-                  const isConvergence = incomingConnections.length > 1;
-                  const isExitPoint = outgoingConnections.length === 0;
-                  const isBranching = outgoingConnections.length > 1;
+                  // Combine: entry points first, then others
+                  const orderedSteps = [...entryPoints, ...otherSteps];
 
-                  const widthPercentage = (step.visitors / firstStep.visitors) * 100;
+                  return orderedSteps.map(({ step, index }) => {
+                    const incomingConnections = connections.filter((conn: any) => {
+                      const targetIndex = parseInt(conn.target.replace('step-', '')) - 1;
+                      return funnel.steps[targetIndex]?.name === step.name;
+                    });
 
-                  // Get source and target step names
-                  const sourceSteps = incomingConnections.map((conn: any) => {
-                    const sourceIndex = parseInt(conn.source.replace('step-', '')) - 1;
-                    return sourceIndex >= 0 && sourceIndex < funnel.steps.length ?
-                           funnel.steps[sourceIndex].name : '';
-                  }).filter(Boolean);
+                    const outgoingConnections = connections.filter((conn: any) => {
+                      const sourceIndex = parseInt(conn.source.replace('step-', '')) - 1;
+                      return funnel.steps[sourceIndex]?.name === step.name;
+                    });
 
-                  const targetSteps = outgoingConnections.map((conn: any) => {
-                    const targetIndex = parseInt(conn.target.replace('step-', '')) - 1;
-                    return targetIndex >= 0 && targetIndex < funnel.steps.length ?
-                           funnel.steps[targetIndex].name : '';
-                  }).filter(Boolean);
+                    const isEntryPoint = incomingConnections.length === 0;
+                    const isConvergence = incomingConnections.length > 1;
+                    const isBranching = outgoingConnections.length > 1;
 
-                  return (
-                    <div key={`${step.name}-${step.visitors}-${updateTrigger}`}>
-                      <div className="relative">
-                        {/* Background bar */}
-                        <div className="relative rounded-xl border border-[#2a2a2a] bg-[#111111] overflow-hidden">
-                          {/* Progress bar showing relative volume */}
-                          <div
-                            className={`absolute inset-0 transition-all ${
-                              isExitPoint
-                                ? 'bg-gradient-to-r from-[#00d4aa]/30 to-[#00d4aa]/10'
-                                : isEntryPoint
-                                ? 'bg-gradient-to-r from-[#7c5cff]/40 to-[#7c5cff]/15'
-                                : 'bg-gradient-to-r from-[#7c5cff]/30 to-[#7c5cff]/10'
-                            }`}
-                            style={{ width: `${Math.max(widthPercentage, 8)}%` }}
-                          />
+                    const sourceSteps = incomingConnections.map((conn: any) => {
+                      const sourceIndex = parseInt(conn.source.replace('step-', '')) - 1;
+                      return funnel.steps[sourceIndex]?.name;
+                    }).filter(Boolean);
 
-                          {/* Content layer */}
-                          <div className="relative z-10 p-6 space-y-3">
-                            {/* Header: Name, Badges, and Visitors */}
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3 flex-1">
-                                <p className="text-[15px] font-semibold text-[#fafafa]">{step.name}</p>
+                    const targetSteps = outgoingConnections.map((conn: any) => {
+                      const targetIndex = parseInt(conn.target.replace('step-', '')) - 1;
+                      return funnel.steps[targetIndex]?.name;
+                    }).filter(Boolean);
 
-                                {/* Badges */}
-                                <div className="flex items-center gap-2">
+                    return (
+                      <div
+                        key={`${step.name}-${step.visitors}`}
+                        className="group relative bg-[#111111] border border-[#2a2a2a] rounded-xl p-4 hover:border-[#7c5cff]/30 transition-all"
+                      >
+                        <div className="flex items-center justify-between">
+                          {/* Left: Step name and badges */}
+                          <div className="flex items-center gap-3 flex-1">
+                            <div className="flex flex-col">
+                              <div className="flex items-center gap-2">
+                                <span className="text-[15px] font-semibold text-[#fafafa]">
+                                  {step.name}
+                                </span>
+                                <div className="flex items-center gap-1">
                                   {isEntryPoint && (
-                                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#7c5cff]/20 border border-[#7c5cff]/30">
-                                      <LogIn className="w-3 h-3 text-[#7c5cff]" />
-                                      <span className="text-[10px] font-medium text-[#7c5cff]">Entry</span>
+                                    <div className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#7c5cff]/20 text-[#7c5cff] border border-[#7c5cff]/30">
+                                      ENTRY
                                     </div>
                                   )}
                                   {isConvergence && (
-                                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#ffa500]/20 border border-[#ffa500]/30">
-                                      <GitMerge className="w-3 h-3 text-[#ffa500]" />
-                                      <span className="text-[10px] font-medium text-[#ffa500]">Convergence</span>
+                                    <div className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#ffa500]/20 text-[#ffa500] border border-[#ffa500]/30">
+                                      MERGE
                                     </div>
                                   )}
                                   {isBranching && (
-                                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#00d4aa]/20 border border-[#00d4aa]/30">
-                                      <GitBranch className="w-3 h-3 text-[#00d4aa]" />
-                                      <span className="text-[10px] font-medium text-[#00d4aa]">Branch</span>
-                                    </div>
-                                  )}
-                                  {isExitPoint && (
-                                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#00d4aa]/20 border border-[#00d4aa]/30">
-                                      <LogOut className="w-3 h-3 text-[#00d4aa]" />
-                                      <span className="text-[10px] font-medium text-[#00d4aa]">Exit</span>
+                                    <div className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#00d4aa]/20 text-[#00d4aa] border border-[#00d4aa]/30">
+                                      SPLIT
                                     </div>
                                   )}
                                 </div>
                               </div>
+                              {/* Flow info */}
+                              <div className="flex items-center gap-2 mt-1 text-[11px] text-[#666666]">
+                                {sourceSteps.length > 0 && (
+                                  <span>← {sourceSteps.length === 1 ? sourceSteps[0] : `${sourceSteps.length} sources`}</span>
+                                )}
+                                {sourceSteps.length > 0 && targetSteps.length > 0 && (
+                                  <span>•</span>
+                                )}
+                                {targetSteps.length > 0 && (
+                                  <span>→ {targetSteps.length === 1 ? targetSteps[0] : `${targetSteps.length} targets`}</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
 
+                          {/* Right: Metrics */}
+                          <div className="flex items-center gap-4">
+                            <div className="text-right">
+                              <div className="text-[18px] font-bold text-[#fafafa]">
+                                {step.visitors.toLocaleString()}
+                              </div>
+                              <div className="text-[10px] text-[#666666]">visitors</div>
+                            </div>
+                            {step.dropoff > 0 && (
                               <div className="text-right">
-                                <p className={`text-[20px] font-bold ${isExitPoint ? 'text-[#00d4aa]' : 'text-[#fafafa]'}`}>
-                                  {step.visitors.toLocaleString()}
-                                </p>
-                                <p className="text-[11px] text-[#666666]">users</p>
-                              </div>
-                            </div>
-
-                            {/* Connections Info */}
-                            <div className="flex items-start gap-6 text-[12px]">
-                              {sourceSteps.length > 0 && (
-                                <div className="flex items-start gap-2">
-                                  <span className="text-[#666666] whitespace-nowrap">From:</span>
-                                  <div className="flex flex-wrap items-center gap-1.5">
-                                    {sourceSteps.map((source, idx) => (
-                                      <span key={idx} className="text-[#888888] bg-[#1a1a1a] px-2 py-0.5 rounded">
-                                        {source}
-                                      </span>
-                                    ))}
-                                  </div>
+                                <div className={`text-[14px] font-bold ${step.dropoff > 30 ? 'text-[#ff6b6b]' : step.dropoff > 15 ? 'text-[#ffa500]' : 'text-[#00d4aa]'}`}>
+                                  -{step.dropoff}%
                                 </div>
-                              )}
-                              {targetSteps.length > 0 && (
-                                <div className="flex items-start gap-2">
-                                  <span className="text-[#666666] whitespace-nowrap">To:</span>
-                                  <div className="flex flex-wrap items-center gap-1.5">
-                                    {targetSteps.map((target, idx) => (
-                                      <span key={idx} className="text-[#888888] bg-[#1a1a1a] px-2 py-0.5 rounded">
-                                        {target}
-                                      </span>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Drop-off info if not first step */}
-                            {!isEntryPoint && step.dropoff !== undefined && (
-                              <div className="flex items-center gap-2 pt-1">
-                                <ChevronDown className={`w-4 h-4 ${getDropoffColor(step.dropoff)}`} />
-                                <span className={`text-[12px] font-medium ${getDropoffColor(step.dropoff)}`}>
-                                  {step.dropoff}% drop-off from incoming steps
-                                </span>
+                                <div className="text-[10px] text-[#666666]">drop-off</div>
                               </div>
                             )}
                           </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  });
+                })()}
               </div>
             </div>
 
