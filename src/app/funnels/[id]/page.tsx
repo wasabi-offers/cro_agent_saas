@@ -40,6 +40,7 @@ import CROComparisonTable from "@/components/CROComparisonTable";
 import SaveItemDialog from "@/components/SaveItemDialog";
 import FunnelVisualizer from "@/components/FunnelVisualizer";
 import FunnelBuilder from "@/components/FunnelBuilder";
+import FunnelFlowGraph from "@/components/FunnelFlowGraph";
 import VisualAnnotations from "@/components/VisualAnnotations";
 import HeatmapVisualization from "@/components/HeatmapVisualization";
 import { CROTableRow, SavedFunnel, funnelStorage } from "@/lib/saved-items";
@@ -772,126 +773,7 @@ export default function FunnelDetailPage() {
             <div className="lg:col-span-2 bg-[#0a0a0a] border border-white/10 rounded-2xl p-8">
               <h2 className="text-[18px] font-semibold text-[#fafafa] mb-6">Funnel Flow</h2>
 
-              <div className="space-y-3">
-                {(() => {
-                  // Organize steps by flow levels
-                  const connections = funnel.connections || [];
-                  const stepsByName = new Map(funnel.steps.map((s, i) => [s.name, { step: s, index: i }]));
-
-                  // Find entry points (no incoming connections)
-                  const entryPoints: any[] = [];
-                  const otherSteps: any[] = [];
-
-                  funnel.steps.forEach((step, index) => {
-                    const hasIncoming = connections.some((conn: any) => {
-                      const targetIndex = parseInt(conn.target.replace('step-', '')) - 1;
-                      return funnel.steps[targetIndex]?.name === step.name;
-                    });
-
-                    if (!hasIncoming) {
-                      entryPoints.push({ step, index });
-                    } else {
-                      otherSteps.push({ step, index });
-                    }
-                  });
-
-                  // Combine: entry points first, then others
-                  const orderedSteps = [...entryPoints, ...otherSteps];
-
-                  return orderedSteps.map(({ step, index }) => {
-                    const incomingConnections = connections.filter((conn: any) => {
-                      const targetIndex = parseInt(conn.target.replace('step-', '')) - 1;
-                      return funnel.steps[targetIndex]?.name === step.name;
-                    });
-
-                    const outgoingConnections = connections.filter((conn: any) => {
-                      const sourceIndex = parseInt(conn.source.replace('step-', '')) - 1;
-                      return funnel.steps[sourceIndex]?.name === step.name;
-                    });
-
-                    const isEntryPoint = incomingConnections.length === 0;
-                    const isConvergence = incomingConnections.length > 1;
-                    const isBranching = outgoingConnections.length > 1;
-
-                    const sourceSteps = incomingConnections.map((conn: any) => {
-                      const sourceIndex = parseInt(conn.source.replace('step-', '')) - 1;
-                      return funnel.steps[sourceIndex]?.name;
-                    }).filter(Boolean);
-
-                    const targetSteps = outgoingConnections.map((conn: any) => {
-                      const targetIndex = parseInt(conn.target.replace('step-', '')) - 1;
-                      return funnel.steps[targetIndex]?.name;
-                    }).filter(Boolean);
-
-                    return (
-                      <div
-                        key={`${step.name}-${step.visitors}`}
-                        className="group relative bg-[#111111] border border-[#2a2a2a] rounded-xl p-4 hover:border-[#7c5cff]/30 transition-all"
-                      >
-                        <div className="flex items-center justify-between">
-                          {/* Left: Step name and badges */}
-                          <div className="flex items-center gap-3 flex-1">
-                            <div className="flex flex-col">
-                              <div className="flex items-center gap-2">
-                                <span className="text-[15px] font-semibold text-[#fafafa]">
-                                  {step.name}
-                                </span>
-                                <div className="flex items-center gap-1">
-                                  {isEntryPoint && (
-                                    <div className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#7c5cff]/20 text-[#7c5cff] border border-[#7c5cff]/30">
-                                      ENTRY
-                                    </div>
-                                  )}
-                                  {isConvergence && (
-                                    <div className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#ffa500]/20 text-[#ffa500] border border-[#ffa500]/30">
-                                      MERGE
-                                    </div>
-                                  )}
-                                  {isBranching && (
-                                    <div className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#00d4aa]/20 text-[#00d4aa] border border-[#00d4aa]/30">
-                                      SPLIT
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                              {/* Flow info */}
-                              <div className="flex items-center gap-2 mt-1 text-[11px] text-[#666666]">
-                                {sourceSteps.length > 0 && (
-                                  <span>← {sourceSteps.length === 1 ? sourceSteps[0] : `${sourceSteps.length} sources`}</span>
-                                )}
-                                {sourceSteps.length > 0 && targetSteps.length > 0 && (
-                                  <span>•</span>
-                                )}
-                                {targetSteps.length > 0 && (
-                                  <span>→ {targetSteps.length === 1 ? targetSteps[0] : `${targetSteps.length} targets`}</span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Right: Metrics */}
-                          <div className="flex items-center gap-4">
-                            <div className="text-right">
-                              <div className="text-[18px] font-bold text-[#fafafa]">
-                                {step.visitors.toLocaleString()}
-                              </div>
-                              <div className="text-[10px] text-[#666666]">visitors</div>
-                            </div>
-                            {step.dropoff > 0 && (
-                              <div className="text-right">
-                                <div className={`text-[14px] font-bold ${step.dropoff > 30 ? 'text-[#ff6b6b]' : step.dropoff > 15 ? 'text-[#ffa500]' : 'text-[#00d4aa]'}`}>
-                                  -{step.dropoff}%
-                                </div>
-                                <div className="text-[10px] text-[#666666]">drop-off</div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  });
-                })()}
-              </div>
+              <FunnelFlowGraph steps={funnel.steps} connections={funnel.connections || []} firstStep={firstStep} getDropoffColor={getDropoffColor} updateTrigger={updateTrigger} />
             </div>
 
             {/* Sidebar Stats */}
