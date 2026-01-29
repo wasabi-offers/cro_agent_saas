@@ -48,11 +48,11 @@ interface StepData {
 }
 
 // Pagine con CORS/JS problematici: usare scripts=0 per evitare pagine bianche
-// Replit, quiz, LP, checkout hanno spesso CORS/script che causano pagine bianche
+// Replit, quiz, LP - checkout usa scripts=1 per mostrare la preview (senza JS resta bianco)
 function shouldUseScripts(label: string, url?: string): boolean {
   if (/replit\.com|replit\.dev|repl\.co/i.test(url || '')) return false;
   const s = (label + ' ' + (url || '')).toLowerCase();
-  return !/checkout|order|clickbank|pay|payment|cart|quiz|lp\d|landing/i.test(s);
+  return !/quiz|lp\d|landing/i.test(s);
 }
 
 function StepNode({ data }: { data: StepData }) {
