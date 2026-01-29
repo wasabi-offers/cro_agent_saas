@@ -106,9 +106,8 @@ export async function GET(request: NextRequest) {
       return `<source${before}src="${resolveAndProxy(src)}"`;
     });
 
-    // Inject base tag as fallback for anything we missed
-    const baseTag = `<base href="${origin}${basePath}" target="_blank">`;
-    html = html.replace('<head>', `<head>${baseTag}`);
+    // NO base tag - all URLs are already rewritten to absolute or proxied
+    // A base tag would break our /api/proxy-asset relative URLs
 
     // Return HTML without X-Frame-Options
     return new NextResponse(html, {
