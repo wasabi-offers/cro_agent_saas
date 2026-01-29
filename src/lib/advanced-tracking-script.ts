@@ -90,8 +90,8 @@ export function generateAdvancedTrackingScript(options: {
   // Global error handler - prevent script from breaking page
   try {
 
-  // Configuration
-  const API_ENDPOINT = "https://cro-agent-saas.vercel.app/api/track";
+  // Configuration (Vercel, Replit - pass apiEndpoint or set NEXT_PUBLIC_APP_URL)
+  const API_ENDPOINT = "${(options.apiEndpoint || (typeof process !== 'undefined' && process?.env?.NEXT_PUBLIC_APP_URL) || 'https://cro-agent.vercel.app').replace(/\\/$/, '')}/api/track";
   const FUNNEL_ID = ${options.funnelId ? `"${options.funnelId}"` : 'null'};
   const FUNNEL_STEP = ${options.funnelStepName ? `"${options.funnelStepName}"` : 'null'};
   const ENABLE_HEATMAP = ${options.enableHeatmap !== false};
