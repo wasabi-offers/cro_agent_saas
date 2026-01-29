@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (e: any) {
     console.error('proxy-fetch error:', e?.message);
-    return NextResponse.json({ error: e?.message || 'Proxy failed' }, { status: 500 });
+    return new NextResponse(null, { status: 502 });
   }
 }
 
@@ -73,6 +73,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (e: any) {
     console.error('proxy-fetch POST error:', e?.message);
-    return NextResponse.json({ error: e?.message || 'Proxy failed' }, { status: 500 });
+    return new NextResponse(null, { status: 502 });
   }
 }

@@ -47,14 +47,16 @@ export async function GET(request: NextRequest) {
       html = `<head><base href="${correctBase}"></head>` + html;
     }
 
-    // Inject CORS proxy script when scripts allowed - routes XHR/fetch through our API to avoid CORS
+    // Inject CORS proxy ONLY for same-domain requests (page we're previewing).
+    // Don't proxy Supabase, Clarity, analytics - they need auth or break with 500.
     if (allowScripts) {
+      const pageOrigin = targetUrl.origin;
       const corsProxyScript = `<script>
 (function(){
-  var o=window.location.origin;
+  var pageOrigin="${pageOrigin}";
   var p="${appOrigin}/api/proxy-fetch?url=";
   function resolve(u){try{return new URL(u,document.baseURI||location.href).href;}catch(e){return u;}}
-  function proxy(u){var r=resolve(u);try{if(new URL(r).origin===o)return u;}catch(e){}return p+encodeURIComponent(r);}
+  function proxy(u){try{var r=resolve(u);var o=new URL(r).origin;if(o!==pageOrigin)return u;return p+encodeURIComponent(r);}catch(e){return u;}}
   var f=window.fetch;
   window.fetch=function(u,o2){var s=typeof u==="string"?u:u&&u.url;if(s){var pr=proxy(s);if(pr!==s)return f(pr,o2);}return f.apply(this,arguments);};
   var X=window.XMLHttpRequest;
