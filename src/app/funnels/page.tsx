@@ -16,8 +16,10 @@ import {
   ChevronDown,
   Trash2,
   RefreshCw,
+  Upload,
 } from "lucide-react";
 import FunnelBuilder from "@/components/FunnelBuilder";
+import FunnelFlowImporter from "@/components/FunnelFlowImporter";
 import { ConversionFunnel, fetchFunnels, createFunnel, deleteFunnel, enrichFunnelsWithLiveData, enrichFunnelsWithABTestData } from "@/lib/supabase-funnels";
 
 export default function FunnelsListPage() {
@@ -26,6 +28,7 @@ export default function FunnelsListPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"name" | "conversion" | "visitors">("conversion");
   const [showBuilder, setShowBuilder] = useState(false);
+  const [showImporter, setShowImporter] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
   const loadData = useCallback(async (showLoader = true) => {
@@ -202,6 +205,13 @@ export default function FunnelsListPage() {
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
               Refresh
+            </button>
+            <button
+              onClick={() => setShowImporter(true)}
+              className="flex items-center gap-2 px-5 py-3 bg-[#0a0a0a] border border-[#7c5cff]/50 text-[#7c5cff] text-[14px] font-medium rounded-xl hover:bg-[#7c5cff]/10 transition-all"
+            >
+              <Upload className="w-4 h-4" />
+              Importa Flussi
             </button>
             <button
               onClick={() => setShowBuilder(true)}
@@ -414,6 +424,13 @@ export default function FunnelsListPage() {
           </>
         )}
       </div>
+
+      {/* Flow Importer Modal */}
+      <FunnelFlowImporter
+        isOpen={showImporter}
+        onClose={() => setShowImporter(false)}
+        onImport={handleSaveFunnel}
+      />
     </div>
   );
 }
