@@ -17,6 +17,10 @@ import {
   Trash2,
   RefreshCw,
   Folder,
+  Power,
+  BarChart3,
+  Activity,
+  TrendingDown,
 } from "lucide-react";
 import FunnelBuilder from "@/components/FunnelBuilder";
 import { ConversionFunnel, createFunnel, deleteFunnel } from "@/lib/supabase-funnels";
@@ -139,8 +143,23 @@ export default function ProductFunnelsPage() {
     }
   };
 
-  // Filter only ACTIVE funnels for statistics
-  const activeFunnels = funnels.filter(f => f.is_active !== false);
+  const handleToggleActive = async (funnelId: string, currentStatus: boolean) => {
+    try {
+      const response = await fetch(`/api/funnels/${funnelId}/active`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_active: !currentStatus }),
+      });
+
+      if (response.ok) {
+        setFunnels(funnels.map(f =>
+          f.id === funnelId ? { ...f, is_active: !currentStatus } : f
+        ));
+      }
+    } catch (error) {
+      console.error('Error toggling funnel active status:', error);
+    }
+  };
 
   const filteredFunnels = funnels
     .filter((funnel) =>
@@ -159,12 +178,26 @@ export default function ProductFunnelsPage() {
       }
     });
 
-  // Calculate stats ONLY from active funnels
+  // Filter active funnels for macro analysis
+  const activeFunnels = funnels.filter(f => f.is_active !== false);
+  const inactiveFunnels = funnels.filter(f => f.is_active === false);
+
+  // Stats only for active funnels
   const totalVisitors = activeFunnels.reduce((sum, f) => sum + f.steps[0].visitors, 0);
   const totalConversions = activeFunnels.reduce((sum, f) => sum + f.steps[f.steps.length - 1].visitors, 0);
   const avgConversionRate = activeFunnels.length > 0
     ? activeFunnels.reduce((sum, f) => sum + f.conversionRate, 0) / activeFunnels.length
     : 0;
+  const overallConversionRate = totalVisitors > 0 ? (totalConversions / totalVisitors) * 100 : 0;
+  const totalDropoff = totalVisitors > 0 ? ((totalVisitors - totalConversions) / totalVisitors) * 100 : 0;
+
+  // Find best and worst performing active funnels
+  const bestFunnel = activeFunnels.length > 0
+    ? activeFunnels.reduce((best, f) => f.conversionRate > best.conversionRate ? f : best, activeFunnels[0])
+    : null;
+  const worstFunnel = activeFunnels.length > 0
+    ? activeFunnels.reduce((worst, f) => f.conversionRate < worst.conversionRate ? f : worst, activeFunnels[0])
+    : null;
 
   const handleToggleFunnelActive = async (funnelId: string, currentStatus: boolean) => {
     try {
@@ -270,56 +303,103 @@ export default function ProductFunnelsPage() {
           </div>
         </div>
 
-        {/* Summary Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6">
-            <div className="flex items-center gap-3 mb-3">
+        {/* Macro Analysis Section - Only Active Funnels */}
+        <div className="bg-gradient-to-br from-[#0a0a0a] to-[#111111] border border-white/10 rounded-2xl p-6 mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
-                <Target className="w-5 h-5 text-[#7c5cff]" />
+                <BarChart3 className="w-5 h-5 text-[#7c5cff]" />
               </div>
-              <span className="text-[13px] text-[#888888]">Active Funnels</span>
+              <div>
+                <h2 className="text-[18px] font-semibold text-[#fafafa]">Analisi Macro Funnel Attivi</h2>
+                <p className="text-[13px] text-[#666666]">
+                  {activeFunnels.length} funnel attivi su {funnels.length} totali
+                </p>
+              </div>
             </div>
-            <p className="text-[28px] font-bold text-[#fafafa]">
-              {activeFunnels.length}
-              <span className="text-[16px] text-[#666666] ml-2">/ {funnels.length}</span>
-            </p>
+            {activeFunnels.length === 0 && (
+              <div className="px-4 py-2 bg-[#f59e0b]/10 border border-[#f59e0b]/20 rounded-lg">
+                <span className="text-[13px] text-[#f59e0b]">Nessun funnel attivo</span>
+              </div>
+            )}
           </div>
 
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
-                <Users className="w-5 h-5 text-[#00d4aa]" />
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+            <div className="bg-[#000000]/50 border border-white/5 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Target className="w-4 h-4 text-[#7c5cff]" />
+                <span className="text-[11px] text-[#666666] uppercase">Funnel Attivi</span>
               </div>
-              <span className="text-[13px] text-[#888888]">Total Visitors</span>
+              <p className="text-[24px] font-bold text-[#fafafa]">{activeFunnels.length}</p>
             </div>
-            <p className="text-[28px] font-bold text-[#fafafa]">
-              {totalVisitors.toLocaleString()}
-            </p>
+
+            <div className="bg-[#000000]/50 border border-white/5 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Users className="w-4 h-4 text-[#00d4aa]" />
+                <span className="text-[11px] text-[#666666] uppercase">Visitatori</span>
+              </div>
+              <p className="text-[24px] font-bold text-[#fafafa]">{totalVisitors.toLocaleString()}</p>
+            </div>
+
+            <div className="bg-[#000000]/50 border border-white/5 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingUp className="w-4 h-4 text-[#00d4aa]" />
+                <span className="text-[11px] text-[#666666] uppercase">Conversioni</span>
+              </div>
+              <p className="text-[24px] font-bold text-[#00d4aa]">{totalConversions.toLocaleString()}</p>
+            </div>
+
+            <div className="bg-[#000000]/50 border border-white/5 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Activity className="w-4 h-4 text-[#7c5cff]" />
+                <span className="text-[11px] text-[#666666] uppercase">Conv. Rate</span>
+              </div>
+              <p className="text-[24px] font-bold text-[#7c5cff]">{overallConversionRate.toFixed(1)}%</p>
+            </div>
+
+            <div className="bg-[#000000]/50 border border-white/5 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingDown className="w-4 h-4 text-[#ff6b6b]" />
+                <span className="text-[11px] text-[#666666] uppercase">Drop-off</span>
+              </div>
+              <p className="text-[24px] font-bold text-[#ff6b6b]">{totalDropoff.toFixed(1)}%</p>
+            </div>
           </div>
 
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-[#f59e0b]" />
-              </div>
-              <span className="text-[13px] text-[#888888]">Total Conversions</span>
+          {/* Best/Worst Performers */}
+          {activeFunnels.length > 1 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-white/5">
+              {bestFunnel && (
+                <div className="flex items-center gap-4 bg-[#00d4aa]/5 border border-[#00d4aa]/20 rounded-xl p-4">
+                  <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5 text-[#00d4aa]" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[11px] text-[#666666] uppercase mb-1">Migliore Performance</p>
+                    <p className="text-[15px] font-semibold text-[#fafafa]">{bestFunnel.name}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[20px] font-bold text-[#00d4aa]">{bestFunnel.conversionRate.toFixed(1)}%</p>
+                  </div>
+                </div>
+              )}
+              {worstFunnel && bestFunnel?.id !== worstFunnel?.id && (
+                <div className="flex items-center gap-4 bg-[#ff6b6b]/5 border border-[#ff6b6b]/20 rounded-xl p-4">
+                  <div className="w-10 h-10 bg-[#ff6b6b]/20 rounded-lg flex items-center justify-center">
+                    <TrendingDown className="w-5 h-5 text-[#ff6b6b]" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[11px] text-[#666666] uppercase mb-1">Da Migliorare</p>
+                    <p className="text-[15px] font-semibold text-[#fafafa]">{worstFunnel.name}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[20px] font-bold text-[#ff6b6b]">{worstFunnel.conversionRate.toFixed(1)}%</p>
+                  </div>
+                </div>
+              )}
             </div>
-            <p className="text-[28px] font-bold text-[#fafafa]">
-              {totalConversions.toLocaleString()}
-            </p>
-          </div>
-
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
-                <Target className="w-5 h-5 text-[#7c5cff]" />
-              </div>
-              <span className="text-[13px] text-[#888888]">Avg Conversion</span>
-            </div>
-            <p className="text-[28px] font-bold text-[#fafafa]">
-              {avgConversionRate.toFixed(1)}%
-            </p>
-          </div>
+          )}
         </div>
 
         {/* Funnel Builder */}
@@ -370,8 +450,11 @@ export default function ProductFunnelsPage() {
                 {filteredFunnels.map((funnel) => {
                   const firstStep = funnel.steps[0];
                   const lastStep = funnel.steps[funnel.steps.length - 1];
-                  const totalDropoff = ((firstStep.visitors - lastStep.visitors) / firstStep.visitors) * 100;
+                  const funnelDropoff = firstStep.visitors > 0
+                    ? ((firstStep.visitors - lastStep.visitors) / firstStep.visitors) * 100
+                    : 0;
                   const isGoodConversion = funnel.conversionRate >= avgConversionRate;
+                  const isActive = funnel.is_active !== false;
 
                   const isActive = funnel.is_active !== false;
 
@@ -380,20 +463,23 @@ export default function ProductFunnelsPage() {
                       key={funnel.id}
                       className={`group bg-[#0a0a0a] border rounded-2xl p-6 transition-all ${
                         isActive
-                          ? 'border-white/10 hover:border-[#7c5cff]/50 hover:shadow-lg hover:shadow-[#7c5cff]/10'
-                          : 'border-white/5 opacity-60'
+                          ? "border-white/10 hover:border-[#7c5cff]/50 hover:shadow-lg hover:shadow-[#7c5cff]/10"
+                          : "border-white/5 opacity-60"
                       }`}
                     >
                       {/* Header */}
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <h3 className="text-[18px] font-semibold text-[#fafafa] group-hover:text-[#7c5cff] transition-colors">
+                            <Link
+                              href={`/funnels/${funnel.id}`}
+                              className="text-[18px] font-semibold text-[#fafafa] hover:text-[#7c5cff] transition-colors"
+                            >
                               {funnel.name}
-                            </h3>
+                            </Link>
                             {!isActive && (
-                              <span className="px-2 py-0.5 text-[10px] font-bold text-[#666666] bg-[#1a1a1a] rounded">
-                                INACTIVE
+                              <span className="px-2 py-0.5 bg-[#666666]/20 text-[#666666] text-[10px] uppercase rounded">
+                                Inattivo
                               </span>
                             )}
                           </div>
@@ -411,13 +497,29 @@ export default function ProductFunnelsPage() {
                           >
                             {funnel.conversionRate.toFixed(1)}%
                           </div>
+                          {/* Active Toggle */}
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleToggleActive(funnel.id, isActive);
+                            }}
+                            className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${
+                              isActive
+                                ? "bg-[#00d4aa]/10 text-[#00d4aa] hover:bg-[#00d4aa]/20"
+                                : "bg-[#666666]/10 text-[#666666] hover:bg-[#666666]/20"
+                            }`}
+                            title={isActive ? "Disattiva funnel (escludi da analisi)" : "Attiva funnel (includi in analisi)"}
+                          >
+                            <Power className="w-4 h-4" />
+                          </button>
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               handleDeleteFunnel(funnel.id, funnel.name);
                             }}
                             className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#ff6b6b]/10 text-[#666666] hover:text-[#ff6b6b] transition-colors"
-                            title="Delete funnel"
+                            title="Elimina funnel"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -466,7 +568,7 @@ export default function ProductFunnelsPage() {
                         <div>
                           <p className="text-[11px] text-[#666666] uppercase mb-1">Drop-off</p>
                           <p className="text-[16px] font-bold text-[#ff6b6b]">
-                            {totalDropoff.toFixed(0)}%
+                            {isNaN(funnelDropoff) ? "0" : funnelDropoff.toFixed(0)}%
                           </p>
                         </div>
                       </div>
@@ -474,7 +576,7 @@ export default function ProductFunnelsPage() {
                       {/* View Details Link */}
                       <Link
                         href={`/funnels/${funnel.id}`}
-                        className="mt-4 flex items-center justify-end gap-2 text-[13px] text-[#7c5cff] group-hover:gap-3 transition-all"
+                        className="mt-4 flex items-center justify-end gap-2 text-[13px] text-[#7c5cff] hover:gap-3 transition-all"
                       >
                         View Details
                         <ArrowRight className="w-4 h-4" />
