@@ -33,7 +33,39 @@ export async function GET(request: NextRequest) {
 
     // Inject base tag to handle relative URLs
     const baseTag = `<base href="${targetUrl.origin}${targetUrl.pathname}" target="_blank">`;
-    html = html.replace('<head>', `<head>${baseTag}`);
+    // Inject styles/scripts to mute videos and prevent autoplay
+    const muteScript = `
+      <style>
+        video, audio, iframe[src*="youtube"], iframe[src*="vimeo"], iframe[src*="wistia"] {
+          pointer-events: none !important;
+        }
+      </style>
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          // Mute and pause all videos
+          document.querySelectorAll('video').forEach(function(v) {
+            v.muted = true;
+            v.pause();
+            v.autoplay = false;
+            v.removeAttribute('autoplay');
+          });
+          // Mute and pause all audio
+          document.querySelectorAll('audio').forEach(function(a) {
+            a.muted = true;
+            a.pause();
+            a.autoplay = false;
+            a.removeAttribute('autoplay');
+          });
+        });
+        // Intercept any new media elements
+        var origPlay = HTMLMediaElement.prototype.play;
+        HTMLMediaElement.prototype.play = function() {
+          this.muted = true;
+          return origPlay.call(this);
+        };
+      </script>
+    `;
+    html = html.replace('<head>', `<head>${baseTag}${muteScript}`);
 
     // Return HTML without X-Frame-Options
     return new NextResponse(html, {
