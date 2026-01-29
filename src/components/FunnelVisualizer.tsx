@@ -88,7 +88,7 @@ function StepNode({ data }: { data: StepData }) {
           {hasPreview ? (
             <>
               <iframe
-                src={data.url}
+                src={`/api/proxy-page?url=${encodeURIComponent(data.url!)}`}
                 title={`Preview: ${data.label}`}
                 className="absolute top-0 left-0 border-0 pointer-events-none"
                 style={{
@@ -97,7 +97,7 @@ function StepNode({ data }: { data: StepData }) {
                   transform: 'scale(0.22)',
                   transformOrigin: 'top left',
                 }}
-                sandbox="allow-same-origin"
+                sandbox="allow-same-origin allow-scripts"
                 loading="lazy"
                 tabIndex={-1}
               />
