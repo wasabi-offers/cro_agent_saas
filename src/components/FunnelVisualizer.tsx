@@ -47,12 +47,11 @@ interface StepData {
   url?: string;
 }
 
-// Pagine con CORS/JS problematici: usare scripts=0 per evitare pagine bianche/API Forbidden
-// Checkout: scripts=0 evita "API Forbidden" (le API bloccano richieste da iframe)
+// Solo Replit e quiz/lp usano scripts=0 - checkout e resto usano scripts=1 come prima
 function shouldUseScripts(label: string, url?: string): boolean {
   if (/replit\.com|replit\.dev|repl\.co/i.test(url || '')) return false;
   const s = (label + ' ' + (url || '')).toLowerCase();
-  return !/checkout|order|clickbank|pay|payment|cart|quiz|lp\d|landing/i.test(s);
+  return !/quiz|lp\d|landing/i.test(s);
 }
 
 function StepNode({ data }: { data: StepData }) {
