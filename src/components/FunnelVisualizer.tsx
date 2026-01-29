@@ -48,7 +48,7 @@ interface StepData {
 }
 
 function StepNode({ data }: { data: StepData }) {
-  const hasPreview = !!data.url && !data.url.includes('clickbank.net');
+  const hasPreview = !!data.url;
 
   return (
     <div className="relative">
@@ -99,6 +99,7 @@ function StepNode({ data }: { data: StepData }) {
                     transformOrigin: 'top left',
                   }}
                   sandbox="allow-same-origin allow-scripts"
+                  allow="autoplay"
                   loading="lazy"
                   tabIndex={-1}
                 />
@@ -106,7 +107,9 @@ function StepNode({ data }: { data: StepData }) {
             </>
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
-              <p className="text-[10px] text-[#555555]">Preview not available</p>
+              <p className="text-[10px] text-[#555555] text-center px-2">
+                {data.url ? 'Preview loading...' : 'Add URL in Edit Funnel'}
+              </p>
             </div>
           )}
         </div>
@@ -376,7 +379,7 @@ function FunnelVisualizerInner({ steps, name, connections, onAnalyzePage }: Funn
             )}
 
             {/* Page Preview */}
-            {selectedNode.data.url && !selectedNode.data.url.includes('clickbank.net') && (
+            {selectedNode.data.url && (
               <div className="relative rounded-lg overflow-hidden border border-[#333] bg-[#1a1a1a]" style={{ height: 180 }}>
                 <iframe
                   src={`/api/proxy-page?url=${encodeURIComponent(selectedNode.data.url)}&scripts=1`}
@@ -389,6 +392,7 @@ function FunnelVisualizerInner({ steps, name, connections, onAnalyzePage }: Funn
                     transformOrigin: 'top left',
                   }}
                   sandbox="allow-same-origin allow-scripts"
+                  allow="autoplay"
                   loading="lazy"
                   tabIndex={-1}
                 />

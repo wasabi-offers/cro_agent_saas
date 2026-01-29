@@ -432,7 +432,7 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
               )}
 
               {/* Page Preview */}
-              {selectedNode.step.url && !selectedNode.step.url.includes('clickbank.net') && (
+              {selectedNode.step.url && (
                 <div className="relative rounded-lg overflow-hidden border border-[#333] bg-[#1a1a1a]" style={{ height: 180 }}>
                   <iframe
                     src={`/api/proxy-page?url=${encodeURIComponent(selectedNode.step.url)}&scripts=1`}
@@ -445,6 +445,7 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
                       transformOrigin: 'top left',
                     }}
                     sandbox="allow-same-origin allow-scripts"
+                    allow="autoplay"
                     loading="lazy"
                     tabIndex={-1}
                   />

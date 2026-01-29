@@ -40,10 +40,28 @@ export async function GET(request: NextRequest) {
 
     // Inject correct base - any missed relative URLs resolve to source domain (fix 404 images)
     const correctBase = targetUrl.origin + targetUrl.pathname.replace(/\/[^/]*$/, '/') || targetUrl.origin + '/';
+    const appOrigin = request.nextUrl.origin;
     if (/<head[\s>]/i.test(html)) {
       html = html.replace(/<head([^>]*)>/i, `<head$1><base href="${correctBase}">`);
     } else {
       html = `<head><base href="${correctBase}"></head>` + html;
+    }
+
+    // Inject CORS proxy script when scripts allowed - routes XHR/fetch through our API to avoid CORS
+    if (allowScripts) {
+      const corsProxyScript = `<script>
+(function(){
+  var o=window.location.origin;
+  var p="${appOrigin}/api/proxy-fetch?url=";
+  function resolve(u){try{return new URL(u,document.baseURI||location.href).href;}catch(e){return u;}}
+  function proxy(u){var r=resolve(u);try{if(new URL(r).origin===o)return u;}catch(e){}return p+encodeURIComponent(r);}
+  var f=window.fetch;
+  window.fetch=function(u,o2){var s=typeof u==="string"?u:u&&u.url;if(s){var pr=proxy(s);if(pr!==s)return f(pr,o2);}return f.apply(this,arguments);};
+  var X=window.XMLHttpRequest;
+  window.XMLHttpRequest=function(){var xhr=new X();var o2=xhr.open;xhr.open=function(m,u){if(u)arguments[1]=proxy(u);return o2.apply(this,arguments);};return xhr;};
+})();
+</script>`;
+      html = html.replace(/<head([^>]*)>/i, `$&${corsProxyScript}`);
     }
 
     // Remove link preload (solo se non allowScripts - altrimenti gli script ne hanno bisogno)
@@ -64,11 +82,15 @@ export async function GET(request: NextRequest) {
       html = html.replace(/<link[^>]*as\s*=\s*["']script["'][^>]*>/gi, '');
     }
 
-    // Remove video/audio autoplay
-    html = html.replace(/autoplay/gi, 'data-noautoplay');
-
-    // Mute all video/audio elements
-    html = html.replace(/<video/gi, '<video muted');
+    // Videos: autoplay muted (no audio) - browsers require muted for autoplay in iframes
+    html = html.replace(/<video([^>]*)>/gi, (match, attrs) => {
+      let a = attrs;
+      if (!/muted/i.test(a)) a += ' muted';
+      if (!/autoplay/i.test(a)) a += ' autoplay';
+      if (!/playsinline/i.test(a)) a += ' playsinline';
+      return `<video${a}>`;
+    });
+    // Audio: keep muted, no autoplay (user requested video only)
     html = html.replace(/<audio/gi, '<audio muted');
 
     // Rewrite relative URLs to absolute for CSS, images, links
@@ -85,8 +107,9 @@ export async function GET(request: NextRequest) {
     };
 
     // Helper to proxy a URL through our API to avoid CORS
+    // Use absolute URL so base tag (pointing to source) doesn't break our proxy paths
     const proxyUrl = (absoluteUrl: string): string => {
-      return `/api/proxy-asset?url=${encodeURIComponent(absoluteUrl)}`;
+      return `${appOrigin}/api/proxy-asset?url=${encodeURIComponent(absoluteUrl)}`;
     };
 
     // Resolve then proxy
@@ -105,9 +128,24 @@ export async function GET(request: NextRequest) {
       return `<link${before}href="${toAbsolute(href)}"`;
     });
 
-    // Rewrite src in <img> tags - proxy images
+    // Rewrite src in <img> tags - proxy images (all types: jpg, png, webp, svg, gif, avif, etc.)
     html = html.replace(/<img([^>]*?)src=["']([^"']+)["']/gi, (match, before, src) => {
       return `<img${before}src="${resolveAndProxy(src)}"`;
+    });
+
+    // Rewrite srcset in <source> (picture element) - proxy images
+    html = html.replace(/<source([^>]*?)srcset=["']([^"']+)["']/gi, (match, before, srcset) => {
+      const resolved = srcset.split(',').map((entry: string) => {
+        const parts = entry.trim().split(/\s+/);
+        if (parts[0]) parts[0] = resolveAndProxy(parts[0]);
+        return parts.join(' ');
+      }).join(', ');
+      return `<source${before}srcset="${resolved}"`;
+    });
+
+    // Rewrite src in <video> tags (direct video src)
+    html = html.replace(/<video([^>]*?)src=["']([^"']+)["']/gi, (match, before, src) => {
+      return `<video${before}src="${resolveAndProxy(src)}"`;
     });
 
     // Rewrite url() in inline styles and style tags - proxy fonts/bg images
