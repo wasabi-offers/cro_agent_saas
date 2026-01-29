@@ -46,34 +46,51 @@ export async function GET(request: NextRequest) {
     const origin = targetUrl.origin;
     const basePath = targetUrl.pathname.replace(/\/[^/]*$/, '/');
 
-    // Helper to resolve relative URLs
-    const resolveUrl = (ref: string): string => {
+    // Helper to resolve relative URLs to absolute
+    const toAbsolute = (ref: string): string => {
       if (!ref || ref.startsWith('data:') || ref.startsWith('mailto:') || ref.startsWith('#') || ref.startsWith('javascript:')) return ref;
-      if (ref.startsWith('http://') || ref.startsWith('https://') || ref.startsWith('//')) return ref;
+      if (ref.startsWith('//')) return 'https:' + ref;
+      if (ref.startsWith('http://') || ref.startsWith('https://')) return ref;
       if (ref.startsWith('/')) return origin + ref;
       return origin + basePath + ref;
     };
 
-    // Rewrite href in <link> tags (CSS)
+    // Helper to proxy a URL through our API to avoid CORS
+    const proxyUrl = (absoluteUrl: string): string => {
+      return `/api/proxy-asset?url=${encodeURIComponent(absoluteUrl)}`;
+    };
+
+    // Resolve then proxy
+    const resolveAndProxy = (ref: string): string => {
+      const abs = toAbsolute(ref);
+      if (abs.startsWith('data:') || abs.startsWith('mailto:') || abs.startsWith('#') || abs.startsWith('javascript:')) return abs;
+      return proxyUrl(abs);
+    };
+
+    // Rewrite href in <link> tags (CSS) - proxy CSS files
     html = html.replace(/<link([^>]*?)href=["']([^"']+)["']/gi, (match, before, href) => {
-      return `<link${before}href="${resolveUrl(href)}"`;
+      // Only proxy stylesheet links
+      if (/rel=["']stylesheet["']/i.test(before) || /\.css/i.test(href)) {
+        return `<link${before}href="${resolveAndProxy(href)}"`;
+      }
+      return `<link${before}href="${toAbsolute(href)}"`;
     });
 
-    // Rewrite src in <img> tags
+    // Rewrite src in <img> tags - proxy images
     html = html.replace(/<img([^>]*?)src=["']([^"']+)["']/gi, (match, before, src) => {
-      return `<img${before}src="${resolveUrl(src)}"`;
+      return `<img${before}src="${resolveAndProxy(src)}"`;
     });
 
-    // Rewrite url() in inline styles and style tags
+    // Rewrite url() in inline styles and style tags - proxy fonts/bg images
     html = html.replace(/url\(["']?(?!data:)([^"')]+)["']?\)/gi, (match, ref) => {
-      return `url("${resolveUrl(ref)}")`;
+      return `url("${resolveAndProxy(ref)}")`;
     });
 
-    // Rewrite srcset in <img> and <source> tags
+    // Rewrite srcset
     html = html.replace(/srcset=["']([^"']+)["']/gi, (match, srcset) => {
       const resolved = srcset.split(',').map((entry: string) => {
         const parts = entry.trim().split(/\s+/);
-        if (parts[0]) parts[0] = resolveUrl(parts[0]);
+        if (parts[0]) parts[0] = resolveAndProxy(parts[0]);
         return parts.join(' ');
       }).join(', ');
       return `srcset="${resolved}"`;
@@ -81,12 +98,12 @@ export async function GET(request: NextRequest) {
 
     // Rewrite poster in <video> tags
     html = html.replace(/<video([^>]*?)poster=["']([^"']+)["']/gi, (match, before, poster) => {
-      return `<video${before}poster="${resolveUrl(poster)}"`;
+      return `<video${before}poster="${resolveAndProxy(poster)}"`;
     });
 
     // Rewrite source src in <source> tags
     html = html.replace(/<source([^>]*?)src=["']([^"']+)["']/gi, (match, before, src) => {
-      return `<source${before}src="${resolveUrl(src)}"`;
+      return `<source${before}src="${resolveAndProxy(src)}"`;
     });
 
     // Inject base tag as fallback for anything we missed
