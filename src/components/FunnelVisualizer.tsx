@@ -84,29 +84,29 @@ function StepNode({ data }: { data: StepData }) {
           </div>
         </div>
 
-        {/* Page Preview */}
-        <div className="relative bg-[#1a1a1a] border-t border-[#2a2a2a]" style={{ height: 160 }}>
+        {/* Page Preview - frame scuro per evitare effetto bianco piatto */}
+        <div className="relative overflow-hidden" style={{ height: 160 }}>
+          <div className="absolute inset-0 bg-[#0f0f0f] border-t border-[#2a2a2a]" />
           {hasPreview ? (
             <>
-              <iframe
-                src={`/api/proxy-page?url=${encodeURIComponent(data.url!)}`}
-                title={`Preview: ${data.label}`}
-                className="absolute top-0 left-0 border-0 pointer-events-none"
-                style={{
-                  width: '1280px',
-                  height: '800px',
-                  transform: 'scale(0.22)',
-                  transformOrigin: 'top left',
-                }}
-                sandbox="allow-same-origin"
-                loading="lazy"
-                tabIndex={-1}
-              />
-              <div className="absolute inset-0" />
+              <div className="absolute inset-2 rounded-md overflow-hidden border border-[#333] bg-[#1a1a1a]">
+                <iframe
+                  src={`/api/proxy-page?url=${encodeURIComponent(data.url!)}`}
+                  title={`Preview: ${data.label}`}
+                  className="absolute top-0 left-0 border-0 pointer-events-none w-[1280px] h-[800px]"
+                  style={{
+                    transform: 'scale(0.22)',
+                    transformOrigin: 'top left',
+                  }}
+                  sandbox="allow-same-origin"
+                  loading="lazy"
+                  tabIndex={-1}
+                />
+              </div>
             </>
           ) : (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-[10px] text-[#444444]">Anteprima non disponibile</p>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <p className="text-[10px] text-[#555555]">Anteprima non disponibile</p>
             </div>
           )}
         </div>

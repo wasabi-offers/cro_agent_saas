@@ -255,9 +255,9 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
                   : 'border-[#2a2a2a] hover:border-[#7c5cff]/30'
               } bg-[#111111]`}>
 
-                <div className="relative z-10 flex flex-col h-full">
+                <div className="relative z-10 flex flex-col h-full bg-[#111111]">
                   {/* Header: name + badges + visitors */}
-                  <div className="p-3 pb-2 flex items-start justify-between gap-2 border-b border-[#2a2a2a]">
+                  <div className="p-3 pb-2 flex items-start justify-between gap-2 border-b border-[#2a2a2a] flex-shrink-0">
                     <div className="flex-1 min-w-0">
                       <p className="text-[13px] font-semibold text-[#fafafa] truncate">{node.step.name}</p>
                       <div className="flex items-center gap-1 mt-1 flex-wrap">
@@ -292,7 +292,7 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
                   </div>
 
                   {/* Footer: dropoff + connections */}
-                  <div className="p-2.5 border-t border-[#2a2a2a] flex items-center justify-between gap-2">
+                  <div className="p-2.5 border-t border-[#2a2a2a] flex items-center justify-between gap-2 flex-shrink-0 bg-[#111111]">
                     <div className="text-[9px] text-[#555555] truncate">
                       {node.sourceNames.length > 0 && (
                         <span>← {node.sourceNames.length > 1 ? `${node.sourceNames.length} sources` : node.sourceNames[0]}</span>
