@@ -58,13 +58,13 @@ interface StepCardContextType {
 }
 const StepCardContext = createContext<StepCardContextType>({});
 
-// Solo Replit e quiz/lp usano scripts=0 - checkout e resto usano scripts=1 come prima
+// Solo Replit usa scripts=0 - quiz, checkout, landing sono SPA che necessitano JS per renderizzare
 function shouldUseScripts(label: string, url?: string): boolean {
   if (/replit\.com|replit\.dev|repl\.co/i.test(url || '')) return false;
   const s = (label + ' ' + (url || '')).toLowerCase();
-  // Checkout, payment, order: sempre scripts=1 (SPA che altrimenti sparirebbero)
-  if (/checkout|payment|order|carrello|pagamento|clickbank|stripe/i.test(s)) return true;
-  return !/quiz|lp\d|landing/i.test(s);
+  // Quiz, checkout, payment: sempre scripts=1 (SPA - altrimenti anteprima vuota)
+  if (/quiz|checkout|payment|order|carrello|pagamento|clickbank|stripe|lp\d|landing/i.test(s)) return true;
+  return true; // default scripts=1 per tutte le altre pagine
 }
 
 function StepNode({ data }: { data: StepData }) {

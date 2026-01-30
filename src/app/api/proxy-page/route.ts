@@ -76,11 +76,16 @@ function proxy(u){if(!u||u.indexOf(O)!==0)return null;return A+'?url='+encodeURI
 var _f=window.fetch;window.fetch=function(u,o){var url=typeof u==='string'?u:(u&&u.url);var p=proxy(url);if(p)return _f(p,o);return _f.apply(this,arguments);};
 var X=window.XMLHttpRequest;window.XMLHttpRequest=function(){var x=new X();var _open=x.open;x.open=function(m,u){var p=proxy(u);_open.call(x,m,p||u);};return x;};
 })();</script>` : '';
-    // Blocca redirect JS in anteprima - evita che checkout SPA sparisca dopo il load
+    // Blocca redirect e history manipulation in anteprima - evita SecurityError replaceState e checkout che sparisce
     const redirectBlockerScript = allowScripts ? `<script>
 (function(){if(window.parent===window)return;
 window.location.replace=function(){};
 window.location.assign=function(){};
+try{
+var _rs=history.replaceState;_ps=history.pushState;
+history.replaceState=function(s,t,u){try{_rs.call(history,s,t,window.location.href);}catch(e){}};
+history.pushState=function(s,t,u){try{_ps.call(history,s,t,window.location.href);}catch(e){}};
+}catch(e){}
 })();</script>` : '';
     const muteScript = `<script>(function(){function m(e){if(e&&!e.muted){e.muted=true;e.volume=0;}}
 function ma(){document.querySelectorAll('video,audio').forEach(m);}ma();

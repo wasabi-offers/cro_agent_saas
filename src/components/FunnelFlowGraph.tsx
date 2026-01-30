@@ -27,8 +27,8 @@ interface FunnelFlowGraphProps {
 function shouldUseScripts(label: string, url?: string): boolean {
   if (/replit\.com|replit\.dev|repl\.co/i.test(url || '')) return false;
   const s = (label + ' ' + (url || '')).toLowerCase();
-  if (/checkout|payment|order|carrello|pagamento|clickbank|stripe/i.test(s)) return true;
-  return !/quiz|lp\d|landing/i.test(s);
+  // Quiz, checkout, landing: sempre scripts=1 (SPA - altrimenti anteprima vuota)
+  return true;
 }
 
 interface LayoutNode {
