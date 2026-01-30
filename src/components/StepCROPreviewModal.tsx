@@ -1,4 +1,3 @@
-si
 "use client";
 
 import { useState, useEffect } from "react";
@@ -121,9 +120,7 @@ export default function StepCROPreviewModal({
                     className="bg-[#ff6b6b]/10 border border-[#ff6b6b]/30 rounded-xl p-4"
                   >
                     <span className="text-[10px] text-[#ff6b6b] font-medium uppercase">{item.category}</span>
-                    <div className="mt-2">
-                      <CROInsightCard insight={item.insight} category={item.category} />
-                    </div>
+                    <p className="text-[13px] text-[#fafafa] mt-1 leading-relaxed">{item.insight}</p>
                   </div>
                 ))}
               </div>
