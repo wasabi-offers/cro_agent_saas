@@ -44,6 +44,7 @@ import FunnelFlowGraph from "@/components/FunnelFlowGraph";
 import VisualAnnotations from "@/components/VisualAnnotations";
 import HeatmapVisualization from "@/components/HeatmapVisualization";
 import RAGInsightsPanel from "@/components/RAGInsightsPanel";
+import FunnelOverview from "@/components/FunnelOverview";
 import { CROTableRow, SavedFunnel, funnelStorage } from "@/lib/saved-items";
 import { ConversionFunnel, fetchFunnel, updateFunnel, enrichFunnelsWithLiveData } from "@/lib/supabase-funnels";
 
@@ -776,31 +777,27 @@ export default function FunnelDetailPage() {
         {!showEditBuilder && (
         <>
         {activeTab === "overview" && (
-          <>
-          <div>
-            {/* Funnel Steps - Flow Structure */}
-            <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8">
-              <h2 className="text-[18px] font-semibold text-[#fafafa] mb-6">Funnel Flow</h2>
-
-              <FunnelFlowGraph
-                steps={funnel.steps}
-                connections={funnel.connections || []}
-                firstStep={firstStep}
-                getDropoffColor={getDropoffColor}
-                updateTrigger={updateTrigger}
-                onAnalyzePage={(stepIndex) => {
-                  setActiveTab("analysis");
-                  setAnalysisMode("page");
-                  setSelectedPage(stepIndex);
-                  setTimeout(() => {
-                    analysisSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                  }, 100);
-                }}
-              />
-            </div>
-          </div>
-
-          </>
+          <FunnelOverview
+            funnelName={funnel.name}
+            steps={funnel.steps}
+            connections={funnel.connections || []}
+            firstStep={firstStep}
+            lastStep={lastStep}
+            conversionRate={funnel.conversionRate}
+            getDropoffColor={getDropoffColor}
+            updateTrigger={updateTrigger}
+            onAnalyzePage={(stepIndex) => {
+              setActiveTab("analysis");
+              setAnalysisMode("page");
+              setSelectedPage(stepIndex);
+              setTimeout(() => {
+                analysisSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }, 100);
+            }}
+            onNavigateToAnalysis={() => setActiveTab("analysis")}
+            onNavigateToHeatmap={() => setActiveTab("heatmap")}
+            onNavigateToABTests={() => setActiveTab("abtests")}
+          />
         )}
 
         {activeTab === "analysis" && (
