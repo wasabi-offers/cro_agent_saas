@@ -142,9 +142,15 @@ export default function FunnelDetailPage() {
         }
 
         // Use same live API as funnel list for consistent stats (avoids RLS/client vs server discrepancy)
-        // No date filter = all-time, matching the funnel list cards
+        // Pass date range so header metrics reflect selected period
+        const liveUrl = new URL('/api/funnel-stats/live', window.location.origin);
+        liveUrl.searchParams.set('funnelId', funnelId);
+        if (dateRange?.start && dateRange?.end) {
+          liveUrl.searchParams.set('startDate', dateRange.start);
+          liveUrl.searchParams.set('endDate', dateRange.end);
+        }
         const liveRes = await fetch(
-          `/api/funnel-stats/live?funnelId=${funnelId}`,
+          liveUrl.toString(),
           { cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } }
         );
 
@@ -697,7 +703,7 @@ export default function FunnelDetailPage() {
             <div className="text-right">
               <p className="text-[12px] text-[#888888]">Conversions</p>
               <p className="text-[24px] font-bold text-[#00d4aa]">
-                {lastStep.visitors.toLocaleString()}
+                {(goalStep?.visitors ?? 0).toLocaleString()}
               </p>
             </div>
             <div className="h-10 w-px bg-[#2a2a2a]" />
