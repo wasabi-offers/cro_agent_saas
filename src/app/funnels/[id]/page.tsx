@@ -141,9 +141,37 @@ export default function FunnelDetailPage() {
           return;
         }
 
-        // Enrich with LIVE data from tracking_events (same as dashboard)
-        const [enrichedFunnel] = await enrichFunnelsWithLiveData([funnelConfig]);
+        // Use same live API as funnel list for consistent stats (avoids RLS/client vs server discrepancy)
+        // No date filter = all-time, matching the funnel list cards
+        const liveRes = await fetch(
+          `/api/funnel-stats/live?funnelId=${funnelId}`,
+          { cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } }
+        );
 
+        if (liveRes.ok) {
+          const liveData = await liveRes.json();
+          if (liveData.success && liveData.liveStats) {
+            const enrichedFunnel: ConversionFunnel = {
+              ...funnelConfig,
+              steps: funnelConfig.steps.map((step) => {
+                const liveStat = liveData.liveStats.find((ls: { stepName: string }) => ls.stepName === step.name);
+                return {
+                  ...step,
+                  visitors: liveStat?.visitors ?? step.visitors,
+                  dropoff: liveStat?.dropoff ?? step.dropoff,
+                };
+              }),
+              conversionRate: liveData.conversionRate ?? funnelConfig.conversionRate,
+            };
+            setFunnel(enrichedFunnel);
+            setUpdateTrigger((prev) => prev + 1);
+            setIsLoading(false);
+            return;
+          }
+        }
+
+        // Fallback: enrich from client (may show fewer due to RLS)
+        const [enrichedFunnel] = await enrichFunnelsWithLiveData([funnelConfig]);
         setFunnel(enrichedFunnel);
         setUpdateTrigger(prev => prev + 1);
       } catch (error) {
