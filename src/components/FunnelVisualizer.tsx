@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, createContext, useContext } from 'react';
 import ReactFlow, {
   Node,
   Edge,
@@ -37,6 +37,7 @@ interface FunnelConnection {
 interface FunnelVisualizerProps {
   steps: FunnelStep[];
   name: string;
+  funnelId?: string;
   connections?: FunnelConnection[];  // Optional connections from database
   onAnalyzePage?: (stepIndex: number) => void;  // Callback when user clicks "Analisi pagina"
 }
@@ -49,9 +50,13 @@ interface StepData {
   url?: string;
   funnelId?: string;
   stepIndex?: number;
+}
+
+interface StepCardContextType {
   onDataAnalysisClick?: (stepIndex: number) => void;
   onCROPreviewClick?: (stepIndex: number) => void;
 }
+const StepCardContext = createContext<StepCardContextType>({});
 
 // Solo Replit e quiz/lp usano scripts=0 - checkout e resto usano scripts=1 come prima
 function shouldUseScripts(label: string, url?: string): boolean {
@@ -65,6 +70,8 @@ function shouldUseScripts(label: string, url?: string): boolean {
 function StepNode({ data }: { data: StepData }) {
   const hasPreview = !!data.url;
   const useScripts = shouldUseScripts(data.label, data.url);
+  const stepIndex = data.stepIndex ?? 0;
+  const { onDataAnalysisClick, onCROPreviewClick } = useContext(StepCardContext);
 
   return (
     <div className="relative">
@@ -133,14 +140,16 @@ function StepNode({ data }: { data: StepData }) {
         {/* Action Buttons */}
         <div className="p-2 flex gap-2 border-t border-[#2a2a2a]">
           <button
-            onClick={(e) => { e.stopPropagation(); data.onDataAnalysisClick?.(stepIndex); }}
+            type="button"
+            onClick={(e) => { e.stopPropagation(); e.preventDefault(); onDataAnalysisClick?.(stepIndex); }}
             className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 bg-[#7c5cff]/20 hover:bg-[#7c5cff]/30 text-[#7c5cff] rounded-lg text-[10px] font-medium transition-colors"
           >
             <BarChart3 className="w-3 h-3" />
             Data
           </button>
           <button
-            onClick={(e) => { e.stopPropagation(); data.onCROPreviewClick?.(stepIndex); }}
+            type="button"
+            onClick={(e) => { e.stopPropagation(); e.preventDefault(); onCROPreviewClick?.(stepIndex); }}
             disabled={!data.url}
             className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 bg-[#00d4aa]/20 hover:bg-[#00d4aa]/30 text-[#00d4aa] rounded-lg text-[10px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -211,8 +220,6 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
           url: step.url,
           funnelId,
           stepIndex: index,
-          onDataAnalysisClick: funnelId ? setDataAnalysisStep : undefined,
-          onCROPreviewClick: setCroPreviewStep,
         },
       };
     });
@@ -309,7 +316,13 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
     setSelectedNode(null);
   };
 
+  const stepCardContextValue: StepCardContextType = {
+    onDataAnalysisClick: funnelId ? setDataAnalysisStep : undefined,
+    onCROPreviewClick: setCroPreviewStep,
+  };
+
   return (
+    <StepCardContext.Provider value={stepCardContextValue}>
     <div className="relative">
       <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
         <div className="px-6 py-4 border-b border-white/10">
@@ -495,6 +508,7 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
         />
       )}
     </div>
+    </StepCardContext.Provider>
   );
 }
 
