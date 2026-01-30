@@ -214,9 +214,12 @@ export default function ProductFunnelsPage() {
   const activeFunnels = funnels.filter(f => f.is_active !== false);
   const inactiveFunnels = funnels.filter(f => f.is_active === false);
 
-  // Stats only for active funnels
+  // Stats only for active funnels (use conversions from goal step when available)
   const totalVisitors = activeFunnels.reduce((sum, f) => sum + f.steps[0].visitors, 0);
-  const totalConversions = activeFunnels.reduce((sum, f) => sum + f.steps[f.steps.length - 1].visitors, 0);
+  const totalConversions = activeFunnels.reduce((sum, f) => {
+    const conv = f.conversions ?? f.steps[f.steps.length - 1]?.visitors ?? 0;
+    return sum + conv;
+  }, 0);
   const avgConversionRate = activeFunnels.length > 0
     ? activeFunnels.reduce((sum, f) => sum + f.conversionRate, 0) / activeFunnels.length
     : 0;
@@ -488,9 +491,9 @@ export default function ProductFunnelsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredFunnels.map((funnel) => {
                   const firstStep = funnel.steps[0];
-                  const lastStep = funnel.steps[funnel.steps.length - 1];
+                  const conversions = funnel.conversions ?? funnel.steps[funnel.steps.length - 1]?.visitors ?? 0;
                   const funnelDropoff = firstStep.visitors > 0
-                    ? ((firstStep.visitors - lastStep.visitors) / firstStep.visitors) * 100
+                    ? ((firstStep.visitors - conversions) / firstStep.visitors) * 100
                     : 0;
                   const isGoodConversion = funnel.conversionRate >= avgConversionRate;
                   const isActive = funnel.is_active !== false;
@@ -611,7 +614,7 @@ export default function ProductFunnelsPage() {
                         <div>
                           <p className="text-[11px] text-[#666666] uppercase mb-1">Converted</p>
                           <p className="text-[16px] font-bold text-[#00d4aa]">
-                            {lastStep.visitors.toLocaleString()}
+                            {conversions.toLocaleString()}
                           </p>
                         </div>
                         <div>

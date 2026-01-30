@@ -70,8 +70,9 @@ export async function GET(
           console.error('Error fetching connections:', connectionsError);
         }
 
-        // Map steps
+        // Map steps (include id for goal step lookup)
         const mappedSteps = steps.map((step: any) => ({
+          id: step.id,
           name: step.name,
           url: step.url || '',
           visitors: step.visitors || 0,
@@ -118,11 +119,17 @@ export async function GET(
           };
         });
 
-        // Calculate conversion rate
+        // Goal step: use goal_step_id if set, else last step
+        const goalStepId = funnel.goal_step_id;
+        const goalStep = goalStepId
+          ? liveSteps.find((s: any) => s.id === goalStepId) ?? liveSteps[liveSteps.length - 1]
+          : liveSteps[liveSteps.length - 1];
+        const conversions = goalStep?.visitors || 0;
+
+        // Calculate conversion rate (based on goal step)
         const firstStepVisitors = liveSteps[0]?.visitors || 0;
-        const lastStepVisitors = liveSteps[liveSteps.length - 1]?.visitors || 0;
         const conversionRate = firstStepVisitors > 0
-          ? (lastStepVisitors / firstStepVisitors) * 100
+          ? (conversions / firstStepVisitors) * 100
           : 0;
 
         return {
@@ -130,6 +137,7 @@ export async function GET(
           name: funnel.name,
           description: funnel.description,
           conversionRate,
+          conversions,
           is_active: funnel.is_active !== false, // Default to true if not set
           steps: liveSteps,
           connections: mappedConnections,

@@ -25,6 +25,7 @@ export interface ConversionFunnel {
   steps: FunnelStep[];
   connections?: FunnelConnection[];  // Optional for backwards compatibility
   conversionRate: number;
+  conversions?: number;  // Visitors at goal step (from live API)
   goal_step_id?: string | null;  // Step that counts as conversion (null = last step)
   is_active?: boolean;  // Whether funnel is active for analysis
   product_id?: string;

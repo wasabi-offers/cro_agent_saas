@@ -70,6 +70,7 @@ export default function FunnelsListPage() {
                 ...funnel,
                 steps: updatedSteps,
                 conversionRate: liveData.conversionRate,
+                conversions: liveData.conversions ?? updatedSteps[updatedSteps.length - 1]?.visitors ?? 0,
               };
             }
           }
@@ -321,8 +322,8 @@ export default function FunnelsListPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredFunnels.map((funnel) => {
               const firstStep = funnel.steps[0];
-              const lastStep = funnel.steps[funnel.steps.length - 1];
-              const totalDropoff = ((firstStep.visitors - lastStep.visitors) / firstStep.visitors) * 100;
+              const conversions = funnel.conversions ?? funnel.steps[funnel.steps.length - 1]?.visitors ?? 0;
+              const totalDropoff = firstStep.visitors > 0 ? ((firstStep.visitors - conversions) / firstStep.visitors) * 100 : 0;
               const isGoodConversion = funnel.conversionRate >= avgConversionRate;
 
               return (
@@ -376,7 +377,7 @@ export default function FunnelsListPage() {
                     <div>
                       <p className="text-[11px] text-[#666666] uppercase mb-1">Converted</p>
                       <p className="text-[16px] font-bold text-[#00d4aa]">
-                        {lastStep.visitors.toLocaleString()}
+                        {conversions.toLocaleString()}
                       </p>
                     </div>
                     <div>
