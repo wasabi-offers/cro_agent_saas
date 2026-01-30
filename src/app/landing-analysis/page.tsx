@@ -440,7 +440,7 @@ export default function LandingAnalysisPage() {
                 </h2>
                 {analysisSource && (
                   <span className="text-[11px] px-2 py-1 rounded bg-[#2a2a2a] text-[#888888]">
-                    Fonte: {analysisSource}
+                    Source: {analysisSource}
                   </span>
                 )}
               </div>

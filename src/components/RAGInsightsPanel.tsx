@@ -16,8 +16,8 @@ interface RAGInsightsPanelProps {
 
 export default function RAGInsightsPanel({
   defaultQuestion = "",
-  placeholder = "Chiedi al RAG CRO: best practices, raccomandazioni, A/B test...",
-  title = "RAG CRO Insights",
+  placeholder = "Ask RAG CRO: best practices, recommendations, A/B tests...",
+  title = "RAG CRO - Insights",
   maxHeight = "300px",
 }: RAGInsightsPanelProps) {
   const [question, setQuestion] = useState(defaultQuestion);
@@ -49,7 +49,7 @@ export default function RAGInsightsPanel({
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Errore RAG");
+        throw new Error(data.error || "RAG Error");
       }
 
       setAnswer(data.answer || "");
@@ -62,7 +62,7 @@ export default function RAGInsightsPanel({
         );
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Errore di connessione");
+      setError(err instanceof Error ? err.message : "Connection error");
     } finally {
       setIsLoading(false);
     }
@@ -108,7 +108,7 @@ export default function RAGInsightsPanel({
               ) : (
                 <Sparkles className="w-4 h-4" />
               )}
-              {isLoading ? "..." : "Chiedi"}
+              {isLoading ? "..." : "Ask"}
             </button>
           </div>
 
@@ -124,10 +124,10 @@ export default function RAGInsightsPanel({
               <p className="text-[13px] text-[#fafafa] whitespace-pre-wrap leading-relaxed">
                 {answer}
               </p>
-              <p className="text-[11px] text-[#666666] mt-2">Fonte: RAG</p>
+              <p className="text-[11px] text-[#666666] mt-2">Source: RAG</p>
               {sources.length > 0 && (
                 <div className="mt-3 pt-3 border-t border-[#2a2a2a]">
-                  <p className="text-[11px] text-[#666666] mb-1">Fonti:</p>
+                  <p className="text-[11px] text-[#666666] mb-1">Sources:</p>
                   <ul className="text-[11px] text-[#888888] space-y-0.5">
                     {sources.slice(0, 3).map((s, i) => (
                       <li key={i} className="truncate">

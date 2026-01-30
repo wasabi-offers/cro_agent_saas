@@ -55,8 +55,7 @@ export default function Error({
             marginBottom: "20px",
           }}
         >
-          Si è verificato un errore. Controlla la console del browser (F12) per
-          maggiori dettagli.
+          An error occurred. Check the browser console (F12) for more details.
         </p>
         <pre
           style={{

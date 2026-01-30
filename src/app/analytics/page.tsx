@@ -133,9 +133,9 @@ export default function AnalyticsPage() {
         {/* RAG CRO Insights */}
         <div className="mb-8">
           <RAGInsightsPanel
-            defaultQuestion="Quali metriche CRO sono più importanti? Come ridurre bounce rate e migliorare conversion?"
-            placeholder="Chiedi al RAG: metriche, conversion rate, bounce rate..."
-            title="RAG CRO - Insights Analytics"
+            defaultQuestion="Which CRO metrics matter most? How to reduce bounce rate and improve conversion?"
+            placeholder="Ask RAG: metrics, conversion rate, bounce rate..."
+            title="RAG CRO - Analytics Insights"
           />
         </div>
 

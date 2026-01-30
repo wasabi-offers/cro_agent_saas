@@ -70,7 +70,7 @@ export default function FunnelOverview({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          question: `Funnel "${funnelName}" - ${summary}. Conversion rate: ${conversionRate}%. ${bottleneckStep?.dropoff ? `Bottleneck: ${bottleneckStep.name} con ${bottleneckStep.dropoff}% drop-off.` : ""} Fornisci un breve summary (2-3 frasi) con il problema principale e una raccomandazione prioritaria.`,
+          question: `Funnel "${funnelName}" - ${summary}. Conversion rate: ${conversionRate}%. ${bottleneckStep?.dropoff ? `Bottleneck: ${bottleneckStep.name} with ${bottleneckStep.dropoff}% drop-off.` : ""} Provide a brief summary (2-3 sentences) with the main problem and a top priority recommendation.`,
           user_id: "overview",
           top_k: 5,
         }),
@@ -82,7 +82,7 @@ export default function FunnelOverview({
         setRagError(data.error || "RAG non configurato");
       }
     } catch {
-      setRagError("Errore di connessione");
+      setRagError("Connection error");
     } finally {
       setIsLoadingRag(false);
     }
@@ -163,7 +163,7 @@ export default function FunnelOverview({
               ) : (
                 <Sparkles className="w-4 h-4" />
               )}
-              {isLoadingRag ? "Caricamento..." : "Genera insights"}
+              {isLoadingRag ? "Loading..." : "Generate insights"}
             </button>
           </div>
           {ragError && (
@@ -174,12 +174,12 @@ export default function FunnelOverview({
               <p className="text-[14px] text-[#fafafa] leading-relaxed whitespace-pre-wrap">
                 {ragSummary}
               </p>
-              <p className="text-[11px] text-[#666666] mt-3">Fonte: RAG</p>
+              <p className="text-[11px] text-[#666666] mt-3">Source: RAG</p>
             </>
           )}
           {!ragSummary && !ragError && !isLoadingRag && (
             <p className="text-[13px] text-[#666666]">
-              Clicca "Genera insights" per ottenere un summary CRO basato sui dati del funnel.
+              Click "Generate insights" to get a CRO summary based on funnel data.
             </p>
           )}
         </div>

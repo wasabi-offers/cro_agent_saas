@@ -178,8 +178,8 @@ export default function Home() {
         <div className="mb-8">
           <RAGInsightsPanel
             defaultQuestion="Qual è la più grande opportunità di ottimizzazione CRO? Come migliorare conversion rate?"
-            placeholder="Chiedi al RAG: opportunità CRO, conversion rate, A/B test..."
-            title="RAG CRO - Insights Dashboard"
+            placeholder="Ask RAG: CRO opportunities, conversion rate, A/B tests..."
+            title="RAG CRO - Dashboard Insights"
           />
         </div>
 
@@ -321,7 +321,7 @@ export default function Home() {
                 </div>
                 {aiAnalysisSource && (
                   <span className="text-[11px] px-2 py-1 rounded bg-[#2a2a2a] text-[#888888]">
-                    Fonte: {aiAnalysisSource === 'rag' ? 'RAG' : aiAnalysisSource === 'claude' ? 'Claude' : aiAnalysisSource}
+                    Source: {aiAnalysisSource === 'rag' ? 'RAG' : aiAnalysisSource === 'claude' ? 'Claude' : aiAnalysisSource}
                   </span>
                 )}
                 <div>

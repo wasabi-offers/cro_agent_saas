@@ -795,9 +795,9 @@ export default function FunnelDetailPage() {
           <div ref={analysisSectionRef} className="space-y-6">
             {/* RAG CRO Insights */}
             <RAGInsightsPanel
-              defaultQuestion="Come ridurre il drop-off nel checkout funnel? Best practices CRO"
-              placeholder="Chiedi al RAG: drop-off, conversion funnel, checkout..."
-              title="RAG CRO - Insights Funnel"
+              defaultQuestion="How to reduce checkout funnel drop-off? CRO best practices"
+              placeholder="Ask RAG: drop-off, conversion funnel, checkout..."
+              title="RAG CRO - Funnel Insights"
             />
 
             {/* Analysis Options */}
@@ -971,7 +971,7 @@ export default function FunnelDetailPage() {
                     </h2>
                     {analysisSource && (
                       <span className="text-[11px] px-2 py-1 rounded bg-[#2a2a2a] text-[#888888]">
-                        Fonte: {analysisSource}
+                        Source: {analysisSource}
                       </span>
                     )}
                   </div>

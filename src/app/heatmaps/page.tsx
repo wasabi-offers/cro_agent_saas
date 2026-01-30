@@ -162,9 +162,9 @@ export default function HeatmapsPage() {
         {/* RAG CRO Insights */}
         <div className="mb-8">
           <RAGInsightsPanel
-            defaultQuestion="Come interpretare dead clicks e rage clicks nelle heatmap? Best practices CRO"
-            placeholder="Chiedi al RAG: interpretazione heatmap, dead clicks, rage clicks..."
-            title="RAG CRO - Insights Heatmap"
+            defaultQuestion="How to interpret dead clicks and rage clicks in heatmaps? CRO best practices"
+            placeholder="Ask RAG: heatmap interpretation, dead clicks, rage clicks..."
+            title="RAG CRO - Heatmap Insights"
           />
         </div>
 

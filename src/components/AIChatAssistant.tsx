@@ -246,7 +246,7 @@ export default function AIChatAssistant() {
                     </span>
                     {message.type === 'assistant' && message.source && (
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#2a2a2a] text-[#888888]">
-                        Fonte: {message.source === 'rag-cro' ? 'RAG' : 'Claude'}
+                        Source: {message.source === 'rag-cro' ? 'RAG' : 'Claude'}
                       </span>
                     )}
                   </div>

@@ -47,7 +47,7 @@ export default function GlobalError({
                 marginBottom: "16px",
               }}
             >
-              Errore dell&apos;applicazione
+              Application error
             </h2>
             <p
               style={{
