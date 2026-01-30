@@ -25,6 +25,7 @@ import {
   Activity,
 } from "lucide-react";
 import type { CRODashboardData } from "@/lib/supabase-data";
+import RAGInsightsPanel from "@/components/RAGInsightsPanel";
 
 export default function Home() {
   const [dashboardData, setDashboardData] = useState<CRODashboardData | null>(null);
@@ -170,6 +171,15 @@ export default function Home() {
           <div className="flex items-center gap-4">
             <DateRangePicker value={dateRange} onChange={setDateRange} />
           </div>
+        </div>
+
+        {/* RAG CRO Insights */}
+        <div className="mb-8">
+          <RAGInsightsPanel
+            defaultQuestion="Qual è la più grande opportunità di ottimizzazione CRO? Come migliorare conversion rate?"
+            placeholder="Chiedi al RAG: opportunità CRO, conversion rate, A/B test..."
+            title="RAG CRO - Insights Dashboard"
+          />
         </div>
 
         {/* AI Analysis Banner */}

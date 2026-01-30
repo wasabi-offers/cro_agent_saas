@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { getDataForAIAnalysis, fetchCRODashboardData } from "@/lib/supabase-data";
+import { queryRAG } from "@/lib/rag-client";
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -77,7 +78,31 @@ Concentrati su:
 3. Perché gli utenti tornano indietro rapidamente?
 4. Come migliorare l'esperienza su mobile vs desktop`;
     } else {
-      // Custom question
+      // Custom question: prova RAG prima
+      if (question?.trim()) {
+        const ragResult = await queryRAG({
+          question: `${question}\n\nContesto dati: ${analyticsContext?.substring(0, 2000) || "Nessun dato"}`,
+          user_id: "cro_analysis",
+          top_k: 12,
+        });
+        if (ragResult?.answer) {
+          return NextResponse.json({
+            success: true,
+            analysis: ragResult.answer,
+            source: "rag",
+            dataSnapshot: dashboardData
+              ? {
+                  totalSessions: dashboardData.summary.totalSessions,
+                  totalUsers: dashboardData.summary.totalUsers,
+                  uxIssuesCount: dashboardData.uxIssues.length,
+                  deadClicks: dashboardData.summary.totalDeadClicks,
+                  rageClicks: dashboardData.summary.totalRageClicks,
+                  mobilePercentage: dashboardData.summary.mobilePercentage.toFixed(1),
+                }
+              : undefined,
+          });
+        }
+      }
       userPrompt = `${question}
 
 Ecco i dati analytics attuali:
@@ -103,6 +128,7 @@ ${analyticsContext}`;
     return NextResponse.json({
       success: true,
       analysis: responseText,
+      source: "claude",
       dataSnapshot: {
         totalSessions: dashboardData.summary.totalSessions,
         totalUsers: dashboardData.summary.totalUsers,

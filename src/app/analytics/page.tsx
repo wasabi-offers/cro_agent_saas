@@ -20,6 +20,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import type { CRODashboardData } from "@/lib/supabase-data";
+import RAGInsightsPanel from "@/components/RAGInsightsPanel";
 
 export default function AnalyticsPage() {
   const [dashboardData, setDashboardData] = useState<CRODashboardData | null>(null);
@@ -127,6 +128,15 @@ export default function AnalyticsPage() {
             <Brain className="w-4 h-4" />
             Explore with AI
           </Link>
+        </div>
+
+        {/* RAG CRO Insights */}
+        <div className="mb-8">
+          <RAGInsightsPanel
+            defaultQuestion="Quali metriche CRO sono più importanti? Come ridurre bounce rate e migliorare conversion?"
+            placeholder="Chiedi al RAG: metriche, conversion rate, bounce rate..."
+            title="RAG CRO - Insights Analytics"
+          />
         </div>
 
         {/* Quick Stats */}

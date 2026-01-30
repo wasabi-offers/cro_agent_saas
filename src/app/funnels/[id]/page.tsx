@@ -43,6 +43,7 @@ import FunnelBuilder from "@/components/FunnelBuilder";
 import FunnelFlowGraph from "@/components/FunnelFlowGraph";
 import VisualAnnotations from "@/components/VisualAnnotations";
 import HeatmapVisualization from "@/components/HeatmapVisualization";
+import RAGInsightsPanel from "@/components/RAGInsightsPanel";
 import { CROTableRow, SavedFunnel, funnelStorage } from "@/lib/saved-items";
 import { ConversionFunnel, fetchFunnel, updateFunnel, enrichFunnelsWithLiveData } from "@/lib/supabase-funnels";
 
@@ -804,6 +805,13 @@ export default function FunnelDetailPage() {
 
         {activeTab === "analysis" && (
           <div ref={analysisSectionRef} className="space-y-6">
+            {/* RAG CRO Insights */}
+            <RAGInsightsPanel
+              defaultQuestion="Come ridurre il drop-off nel checkout funnel? Best practices CRO"
+              placeholder="Chiedi al RAG: drop-off, conversion funnel, checkout..."
+              title="RAG CRO - Insights Funnel"
+            />
+
             {/* Analysis Options */}
             <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8">
               <div className="flex items-center gap-3 mb-6">

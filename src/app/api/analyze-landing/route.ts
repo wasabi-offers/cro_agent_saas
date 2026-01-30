@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { queryRAG } from "@/lib/rag-client";
 import {
   TrendingUp,
   Type,
@@ -206,6 +207,17 @@ export async function POST(request: Request) {
 
       const filtersList = filters.join(", ");
 
+      // RAG: recupera best practices CRO per arricchire il contesto
+      let ragContext = "";
+      const ragResult = await queryRAG({
+        question: `Best practices CRO per analisi landing page: ${filtersList}. CTA, copywriting, colori, UX, conversion rate optimization.`,
+        user_id: "landing_analysis",
+        top_k: 8,
+      });
+      if (ragResult?.answer) {
+        ragContext = `\n\n## Best practices dal knowledge base CRO:\n${ragResult.answer}\n`;
+      }
+
       // System prompt with prompt caching for cost optimization
       const systemPrompt = `You are THE WORLD'S #1 CRO (Conversion Rate Optimization) EXPERT with 20+ years of experience. You have:
 - Optimized 1000+ landing pages generating $500M+ in revenue
@@ -229,6 +241,8 @@ Output: "Headline 'Revolutionary AI Platform' is vague - doesn't explain what it
 **Example 3 - Trust Signal Analysis (ACTIONABLE):**
 Input: Testimonials in footer, no photos
 Output: "Testimonials hidden in footer (only 8% see them). Current: generic text 'Great product!' with no credibility. ACTION: Move 3 testimonials above fold (position 350px, right before CTA). Use format: '★★★★★ Increased our conversions 67% in 2 weeks - Sarah Chen, Head of Marketing @ TechCorp' with headshot. Psychology: Social Proof (Cialdini) + Specificity. Expected: +18-26% conversion rate. Confidence: 82%. Effort: MEDIUM."
+
+${ragContext}
 
 CRITICAL INSTRUCTIONS:
 You MUST provide EXTREMELY DETAILED, SCIENTIFIC, DATA-DRIVEN analysis following the examples above.

@@ -18,6 +18,7 @@ import {
   Info,
 } from "lucide-react";
 import type { CRODashboardData } from "@/lib/supabase-data";
+import RAGInsightsPanel from "@/components/RAGInsightsPanel";
 
 export default function HeatmapsPage() {
   const [dashboardData, setDashboardData] = useState<CRODashboardData | null>(null);
@@ -156,6 +157,15 @@ export default function HeatmapsPage() {
               </Link>
             </div>
           </div>
+        </div>
+
+        {/* RAG CRO Insights */}
+        <div className="mb-8">
+          <RAGInsightsPanel
+            defaultQuestion="Come interpretare dead clicks e rage clicks nelle heatmap? Best practices CRO"
+            placeholder="Chiedi al RAG: interpretazione heatmap, dead clicks, rage clicks..."
+            title="RAG CRO - Insights Heatmap"
+          />
         </div>
 
         {/* Device Filter */}

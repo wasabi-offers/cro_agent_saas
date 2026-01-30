@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
+import { queryRAG } from "@/lib/rag-client";
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -9,6 +10,17 @@ export async function POST(req: NextRequest) {
   try {
     const { message, context } = await req.json();
 
+    // Prova RAG CRO se configurato
+    const ragResult = await queryRAG({
+      question: message,
+      user_id: "chat",
+      top_k: 10,
+    });
+    if (ragResult?.answer) {
+      return NextResponse.json({ message: ragResult.answer, source: "rag-cro" });
+    }
+
+    // Fallback: Claude
     // System prompt with context about the CRO tool
     const systemPrompt = `You are an expert CRO (Conversion Rate Optimization) AI assistant integrated into a comprehensive analytics and optimization platform.
 
@@ -50,6 +62,7 @@ Keep responses focused and practical. Use emojis sparingly but effectively.`;
     return NextResponse.json({
       message: assistantMessage,
       usage: response.usage,
+      source: "claude",
     });
   } catch (error: any) {
     console.error("Chat API Error:", error);
