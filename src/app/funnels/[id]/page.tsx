@@ -37,6 +37,8 @@ import {
   LogOut,
 } from "lucide-react";
 import CROComparisonTable from "@/components/CROComparisonTable";
+import CROExecutiveSummary from "@/components/CROExecutiveSummary";
+import CROInsightCard from "@/components/CROInsightCard";
 import SaveItemDialog from "@/components/SaveItemDialog";
 import FunnelVisualizer from "@/components/FunnelVisualizer";
 import FunnelBuilder from "@/components/FunnelBuilder";
@@ -961,6 +963,7 @@ export default function FunnelDetailPage() {
             {/* Analysis Results */}
             {analysisResults.length > 0 && (
               <div className="space-y-6">
+                <CROExecutiveSummary results={analysisResults} source={analysisSource} />
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <CheckCircle2 className="w-6 h-6 text-[#00d4aa]" />
@@ -1057,15 +1060,14 @@ export default function FunnelDetailPage() {
 
                       {/* Insights */}
                       <div className="space-y-3 mb-6">
-                        <h4 className="text-[14px] font-semibold text-[#fafafa] mb-3">📊 Analysis</h4>
+                        <h4 className="text-[14px] font-semibold text-[#fafafa] mb-3">Analysis</h4>
                         {result.insights.map((insight, idx) => (
-                          <div
+                          <CROInsightCard
                             key={idx}
-                            className="flex items-start gap-3 text-[14px] text-[#888888] bg-[#111111] rounded-xl p-4"
-                          >
-                            <div className="w-1.5 h-1.5 bg-[#7c5cff] rounded-full mt-2 flex-shrink-0" />
-                            <p className="leading-relaxed">{insight}</p>
-                          </div>
+                            insight={insight}
+                            category={result.category}
+                            index={idx}
+                          />
                         ))}
                       </div>
 

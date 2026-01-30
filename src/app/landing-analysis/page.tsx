@@ -6,6 +6,8 @@ import VisualAnnotations from "@/components/VisualAnnotations";
 import BeforeAfterTracking from "@/components/BeforeAfterTracking";
 import ExportShareButtons from "@/components/ExportShareButtons";
 import CROComparisonTable from "@/components/CROComparisonTable";
+import CROExecutiveSummary from "@/components/CROExecutiveSummary";
+import CROInsightCard from "@/components/CROInsightCard";
 import HeatmapVisualization from "@/components/HeatmapVisualization";
 import SaveItemDialog from "@/components/SaveItemDialog";
 import {
@@ -33,6 +35,12 @@ interface AnalysisResult {
   insights: string[];
   score: number;
   icon: string;
+  proposals?: Array<{
+    element: string;
+    current: string;
+    proposed: string;
+    impact: string;
+  }>;
 }
 
 const iconMap: Record<string, any> = {
@@ -472,6 +480,9 @@ export default function LandingAnalysisPage() {
             {/* Export Content Wrapper */}
             <div ref={exportContentRef}>
 
+            {/* Executive Summary */}
+            <CROExecutiveSummary results={results} source={analysisSource} />
+
             {/* View Toggle */}
             <div className="flex justify-center mb-6">
               <div className="flex items-center gap-2 bg-[#0a0a0a] border border-[#2a2a2a] rounded-xl p-1">
@@ -612,17 +623,49 @@ export default function LandingAnalysisPage() {
                     </div>
                   </div>
 
-                  <div className="space-y-3">
+                  <div className="space-y-3 mb-6">
+                    <h4 className="text-[14px] font-semibold text-[#fafafa] mb-3">Analysis</h4>
                     {result.insights.map((insight, idx) => (
-                      <div
+                      <CROInsightCard
                         key={idx}
-                        className="flex items-start gap-3 text-[14px] text-[#888888] bg-[#111111] rounded-xl p-4"
-                      >
-                        <div className="w-1.5 h-1.5 bg-[#7c5cff] rounded-full mt-2 flex-shrink-0" />
-                        <p className="leading-relaxed">{insight}</p>
-                      </div>
+                        insight={insight}
+                        category={result.category}
+                        index={idx}
+                      />
                     ))}
                   </div>
+
+                  {/* Proposals */}
+                  {result.proposals && result.proposals.length > 0 && (
+                    <div className="space-y-3">
+                      <h4 className="text-[14px] font-semibold text-[#00d4aa] mb-3">Concrete Proposals</h4>
+                      {result.proposals.map((proposal: any, idx: number) => (
+                        <div
+                          key={idx}
+                          className="bg-[#111111] border border-[#00d4aa]/20 rounded-xl p-5"
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <h5 className="text-[15px] font-semibold text-[#fafafa]">{proposal.element}</h5>
+                            <span className="text-[12px] font-bold text-[#00d4aa] bg-[#00d4aa]/10 px-3 py-1 rounded-full">
+                              {proposal.impact}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                              <p className="text-[12px] text-[#888888] mb-1">Current</p>
+                              <p className="text-[14px] text-[#fafafa] bg-[#0a0a0a] p-3 rounded-lg">{proposal.current}</p>
+                            </div>
+                            <div>
+                              <p className="text-[12px] text-[#888888] mb-1">Proposed</p>
+                              <div className="text-[14px] text-[#00d4aa] bg-[#0a0a0a] p-3 rounded-lg whitespace-pre-line">
+                                {proposal.proposed}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               );
             })}
