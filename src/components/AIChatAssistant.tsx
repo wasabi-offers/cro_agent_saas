@@ -9,6 +9,7 @@ interface Message {
   type: "user" | "assistant";
   content: string;
   timestamp: Date;
+  source?: "rag-cro" | "claude";
 }
 
 interface AppContext {
@@ -120,7 +121,8 @@ export default function AIChatAssistant() {
         id: (Date.now() + 1).toString(),
         type: "assistant",
         content: data.message,
-        timestamp: new Date()
+        timestamp: new Date(),
+        source: data.source,
       };
 
       setMessages(prev => [...prev, assistantMessage]);
@@ -236,11 +238,18 @@ export default function AIChatAssistant() {
                   }`}
                 >
                   <p className="text-[14px] leading-relaxed whitespace-pre-wrap">{message.content}</p>
-                  <p className={`text-[10px] mt-1 ${
+                  <div className={`flex items-center gap-2 mt-1 flex-wrap ${
                     message.type === 'user' ? 'text-white/70' : 'text-[#666666]'
                   }`}>
-                    {message.timestamp.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-                  </p>
+                    <span className="text-[10px]">
+                      {message.timestamp.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                    {message.type === 'assistant' && message.source && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#2a2a2a] text-[#888888]">
+                        Fonte: {message.source === 'rag-cro' ? 'RAG' : 'Claude'}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

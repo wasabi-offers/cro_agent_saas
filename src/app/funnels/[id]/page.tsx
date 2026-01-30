@@ -85,6 +85,7 @@ export default function FunnelDetailPage() {
   const [selectedFilters, setSelectedFilters] = useState<string[]>(["all"]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResults, setAnalysisResults] = useState<AnalysisResult[]>([]);
+  const [analysisSource, setAnalysisSource] = useState<string | null>(null);
   const [analysisError, setAnalysisError] = useState("");
   const [croTableRows, setCroTableRows] = useState<CROTableRow[]>([]);
   const [isGeneratingCROTable, setIsGeneratingCROTable] = useState(false);
@@ -968,6 +969,11 @@ export default function FunnelDetailPage() {
                         </span>
                       )}
                     </h2>
+                    {analysisSource && (
+                      <span className="text-[11px] px-2 py-1 rounded bg-[#2a2a2a] text-[#888888]">
+                        Fonte: {analysisSource}
+                      </span>
+                    )}
                   </div>
 
                   {/* View Mode Toggle */}

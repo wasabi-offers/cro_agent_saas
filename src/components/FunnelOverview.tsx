@@ -170,9 +170,12 @@ export default function FunnelOverview({
             <p className="text-[13px] text-[#888888] italic">{ragError}</p>
           )}
           {ragSummary && (
-            <p className="text-[14px] text-[#fafafa] leading-relaxed whitespace-pre-wrap">
-              {ragSummary}
-            </p>
+            <>
+              <p className="text-[14px] text-[#fafafa] leading-relaxed whitespace-pre-wrap">
+                {ragSummary}
+              </p>
+              <p className="text-[11px] text-[#666666] mt-3">Fonte: RAG</p>
+            </>
           )}
           {!ragSummary && !ragError && !isLoadingRag && (
             <p className="text-[13px] text-[#666666]">

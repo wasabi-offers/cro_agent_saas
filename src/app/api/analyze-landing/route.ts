@@ -381,7 +381,7 @@ Analyze the ACTUAL content above and generate the JSON response following the sy
             success: true,
             results,
             analyzedAt: new Date().toISOString(),
-            source: "ai",
+            source: ragContext ? "RAG + Claude" : "Claude",
           });
         } catch (parseError) {
           console.error("❌ Error parsing AI response:", parseError);

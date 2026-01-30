@@ -30,6 +30,7 @@ import RAGInsightsPanel from "@/components/RAGInsightsPanel";
 export default function Home() {
   const [dashboardData, setDashboardData] = useState<CRODashboardData | null>(null);
   const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
+  const [aiAnalysisSource, setAiAnalysisSource] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -318,6 +319,11 @@ export default function Home() {
                 <div className="w-10 h-10 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-xl flex items-center justify-center">
                   <Brain className="w-5 h-5 text-white" />
                 </div>
+                {aiAnalysisSource && (
+                  <span className="text-[11px] px-2 py-1 rounded bg-[#2a2a2a] text-[#888888]">
+                    Fonte: {aiAnalysisSource === 'rag' ? 'RAG' : aiAnalysisSource === 'claude' ? 'Claude' : aiAnalysisSource}
+                  </span>
+                )}
                 <div>
                   <h2 className="text-[18px] font-semibold text-[#fafafa]">
                     CRO Expert Analysis

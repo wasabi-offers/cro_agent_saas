@@ -47,6 +47,7 @@ export default function LandingAnalysisPage() {
   const [selectedFilters, setSelectedFilters] = useState<string[]>(["all"]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [results, setResults] = useState<AnalysisResult[]>([]);
+  const [analysisSource, setAnalysisSource] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [viewMode, setViewMode] = useState<"visual" | "list" | "history" | "cro-table" | "heatmap">("visual");
 
@@ -157,6 +158,7 @@ export default function LandingAnalysisPage() {
 
       const analysisData = await analysisResponse.json();
       setResults(analysisData.results);
+      setAnalysisSource(analysisData.source || null);
 
       // CRO table is optional - don't fail if it errors
       if (croTableResponse.ok) {
@@ -436,6 +438,11 @@ export default function LandingAnalysisPage() {
                 <h2 className="text-[20px] font-semibold text-[#fafafa]">
                   Analysis Results
                 </h2>
+                {analysisSource && (
+                  <span className="text-[11px] px-2 py-1 rounded bg-[#2a2a2a] text-[#888888]">
+                    Fonte: {analysisSource}
+                  </span>
+                )}
               </div>
 
               <div className="flex items-center gap-3">

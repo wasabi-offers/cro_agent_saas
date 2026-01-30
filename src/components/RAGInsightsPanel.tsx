@@ -124,6 +124,7 @@ export default function RAGInsightsPanel({
               <p className="text-[13px] text-[#fafafa] whitespace-pre-wrap leading-relaxed">
                 {answer}
               </p>
+              <p className="text-[11px] text-[#666666] mt-2">Fonte: RAG</p>
               {sources.length > 0 && (
                 <div className="mt-3 pt-3 border-t border-[#2a2a2a]">
                   <p className="text-[11px] text-[#666666] mb-1">Fonti:</p>
