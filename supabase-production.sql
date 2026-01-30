@@ -69,6 +69,10 @@ COMMENT ON COLUMN funnel_steps.dropoff IS 'Percentage dropoff from previous step
 COMMENT ON COLUMN funnel_steps.position_x IS 'X position in visual builder';
 COMMENT ON COLUMN funnel_steps.position_y IS 'Y position in visual builder';
 
+-- Add goal_step_id to funnels (step that counts as conversion)
+ALTER TABLE funnels ADD COLUMN IF NOT EXISTS goal_step_id TEXT REFERENCES funnel_steps(id) ON DELETE SET NULL;
+COMMENT ON COLUMN funnels.goal_step_id IS 'Step that counts as conversion. Null = use last step.';
+
 -- ============================================
 -- TABLE 3: FUNNEL CONNECTIONS (for non-linear funnels)
 -- ============================================

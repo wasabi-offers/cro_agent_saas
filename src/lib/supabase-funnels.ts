@@ -5,6 +5,7 @@ import { supabase, isSupabaseConfigured } from "./supabase";
 // ============================================
 
 export interface FunnelStep {
+  id?: string;  // DB step id (for goal step selection)
   name: string;
   visitors: number;
   dropoff: number;
@@ -24,6 +25,7 @@ export interface ConversionFunnel {
   steps: FunnelStep[];
   connections?: FunnelConnection[];  // Optional for backwards compatibility
   conversionRate: number;
+  goal_step_id?: string | null;  // Step that counts as conversion (null = last step)
   is_active?: boolean;  // Whether funnel is active for analysis
   product_id?: string;
   abTests?: {
@@ -251,9 +253,11 @@ export async function fetchFunnel(funnelId: string): Promise<ConversionFunnel | 
       id: funnelData.id,
       name: funnelData.name,
       conversionRate: Number(funnelData.conversion_rate),
+      goal_step_id: funnelData.goal_step_id || undefined,
       is_active: funnelData.is_active !== false,  // Default to true if not set
       product_id: funnelData.product_id || undefined,
       steps: (stepsData || []).map((step) => ({
+        id: step.id,
         name: step.name,
         visitors: step.visitors,
         dropoff: Number(step.dropoff),

@@ -41,6 +41,17 @@ export async function GET(req: NextRequest) {
 
     const supabase = getSupabaseClient();
 
+    // Get funnel (for goal_step_id - which step counts as conversion)
+    const { data: funnelRow, error: funnelError } = await supabase
+      .from('funnels')
+      .select('goal_step_id')
+      .eq('id', funnelId)
+      .single();
+
+    if (funnelError) {
+      console.warn('Could not fetch funnel goal_step_id:', funnelError);
+    }
+
     // Get funnel steps (ordered)
     const { data: steps, error: stepsError } = await supabase
       .from('funnel_steps')
@@ -54,6 +65,12 @@ export async function GET(req: NextRequest) {
         error: "No steps found for this funnel"
       }, { status: 404 });
     }
+
+    // Goal step: use goal_step_id if set, else last step
+    const goalStepId = funnelRow?.goal_step_id;
+    const goalStep = goalStepId
+      ? steps.find((s) => s.id === goalStepId) ?? steps[steps.length - 1]
+      : steps[steps.length - 1];
 
     // Query tracking events for this funnel
     let query = supabase
@@ -128,11 +145,12 @@ export async function GET(req: NextRequest) {
       previousVisitors = uniqueVisitors;
     }
 
-    // Calculate overall conversion rate
+    // Calculate overall conversion rate (based on goal step, not necessarily last step)
     const firstStepVisitors = liveStats[0]?.visitors || 0;
-    const lastStepVisitors = liveStats[liveStats.length - 1]?.visitors || 0;
+    const goalStepStat = liveStats.find((ls) => ls.stepName === goalStep.name);
+    const conversions = goalStepStat?.visitors || 0;
     const conversionRate = firstStepVisitors > 0
-      ? (lastStepVisitors / firstStepVisitors) * 100
+      ? (conversions / firstStepVisitors) * 100
       : 0;
 
     const response = {
@@ -140,7 +158,8 @@ export async function GET(req: NextRequest) {
       liveStats,
       conversionRate: Math.round(conversionRate * 100) / 100,
       totalVisitors: firstStepVisitors,
-      conversions: lastStepVisitors,
+      conversions,
+      goalStepName: goalStep.name,
     };
 
     return NextResponse.json(response, {

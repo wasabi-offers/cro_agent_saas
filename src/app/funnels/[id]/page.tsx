@@ -153,10 +153,12 @@ export default function FunnelDetailPage() {
           if (liveData.success && liveData.liveStats) {
             const enrichedFunnel: ConversionFunnel = {
               ...funnelConfig,
+              goal_step_id: funnelConfig.goal_step_id,
               steps: funnelConfig.steps.map((step) => {
                 const liveStat = liveData.liveStats.find((ls: { stepName: string }) => ls.stepName === step.name);
                 return {
                   ...step,
+                  id: step.id,
                   visitors: liveStat?.visitors ?? step.visitors,
                   dropoff: liveStat?.dropoff ?? step.dropoff,
                 };
@@ -522,10 +524,12 @@ export default function FunnelDetailPage() {
               id: funnelData.id,
               name: funnelData.name,
               conversionRate: liveData.conversionRate,
+              goal_step_id: funnelData.goal_step_id,
               connections: funnelData.connections,
               steps: funnelData.steps.map((step: any) => {
                 const liveStat = liveData.liveStats.find((ls: any) => ls.stepName === step.name);
                 return {
+                  id: step.id,
                   name: step.name,
                   url: step.url,
                   x: step.x,
@@ -655,6 +659,10 @@ export default function FunnelDetailPage() {
 
   const firstStep = funnel.steps[0];
   const lastStep = funnel.steps[funnel.steps.length - 1];
+  // Goal step: step that counts as conversion (from Setup). Fallback to last step.
+  const goalStep = funnel.goal_step_id
+    ? funnel.steps.find((s) => s.id === funnel.goal_step_id) ?? lastStep
+    : lastStep;
 
   return (
     <div className="min-h-screen bg-black">
@@ -816,7 +824,7 @@ export default function FunnelDetailPage() {
             steps={funnel.steps}
             connections={funnel.connections || []}
             firstStep={firstStep}
-            lastStep={lastStep}
+            goalStep={goalStep}
             conversionRate={funnel.conversionRate}
             onNavigateToAnalysis={() => setActiveTab("analysis")}
             onNavigateToHeatmap={() => setActiveTab("heatmap")}
@@ -1617,15 +1625,57 @@ export default function FunnelDetailPage() {
 
         {/* Setup Tab */}
         {activeTab === "setup" && funnel && (
-          <TrackingSetup
-            funnelId={funnel.id}
-            funnelName={funnel.name}
-            steps={funnel.steps.map((step, index) => ({
-              name: step.name,
-              page: index === 0 ? '/' : `/${step.name.toLowerCase().replace(/\s+/g, '-')}`,
-              url: step.url // Pass the saved URL if it exists
-            }))}
-          />
+          <div className="space-y-6">
+            {/* Conversion Goal */}
+            <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-xl flex items-center justify-center">
+                  <Target className="w-5 h-5 text-[#00d4aa]" />
+                </div>
+                <div>
+                  <h3 className="text-[16px] font-semibold text-[#fafafa]">Conversion Goal</h3>
+                  <p className="text-[12px] text-[#888888]">Choose which step counts as &quot;Converted&quot;</p>
+                </div>
+              </div>
+              <select
+                value={funnel.goal_step_id ?? ""}
+                onChange={async (e) => {
+                  const goalStepId = e.target.value || null;
+                  try {
+                    const res = await fetch(`/api/funnels/${funnelId}/goal`, {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ goalStepId }),
+                    });
+                    if (res.ok) {
+                      setFunnel((prev) => prev ? { ...prev, goal_step_id: goalStepId } : null);
+                      setUpdateTrigger((t) => t + 1);
+                    }
+                  } catch (err) {
+                    console.error("Failed to update goal:", err);
+                  }
+                }}
+                className="w-full max-w-md px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#fafafa] text-[14px] focus:outline-none focus:border-[#7c5cff]"
+              >
+                <option value="">Last step (default)</option>
+                {funnel.steps.map((step) => (
+                  <option key={step.id ?? step.name} value={step.id ?? ""}>
+                    {step.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <TrackingSetup
+              funnelId={funnel.id}
+              funnelName={funnel.name}
+              steps={funnel.steps.map((step, index) => ({
+                name: step.name,
+                page: index === 0 ? '/' : `/${step.name.toLowerCase().replace(/\s+/g, '-')}`,
+                url: step.url // Pass the saved URL if it exists
+              }))}
+            />
+          </div>
         )}
         </>
         )}

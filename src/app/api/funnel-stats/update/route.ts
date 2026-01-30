@@ -36,10 +36,10 @@ export async function POST(req: NextRequest) {
 
     console.log("📊 Updating funnel stats...", funnelId ? `for funnel: ${funnelId}` : "for all funnels");
 
-    // Get funnels to update
+    // Get funnels to update (include goal_step_id for conversion calculation)
     const funnelsQuery = supabase
       .from('funnels')
-      .select('id, name');
+      .select('id, name, goal_step_id');
 
     if (funnelId) {
       funnelsQuery.eq('id', funnelId);
@@ -137,11 +137,14 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // Calculate overall conversion rate (last step / first step)
+      // Calculate overall conversion rate (goal step / first step, or last step if no goal)
       const firstStepVisitors = stepStats[0]?.visitors || 0;
-      const lastStepVisitors = stepStats[stepStats.length - 1]?.visitors || 0;
+      const goalStepStat = funnel.goal_step_id
+        ? stepStats.find((s) => s.stepId === funnel.goal_step_id)
+        : null;
+      const conversionVisitors = goalStepStat?.visitors ?? stepStats[stepStats.length - 1]?.visitors ?? 0;
       const conversionRate = firstStepVisitors > 0
-        ? (lastStepVisitors / firstStepVisitors) * 100
+        ? (conversionVisitors / firstStepVisitors) * 100
         : 0;
 
       // Update funnel conversion rate
