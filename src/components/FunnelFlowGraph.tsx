@@ -24,6 +24,13 @@ interface FunnelFlowGraphProps {
   onAnalyzePage?: (stepIndex: number) => void;
 }
 
+function shouldUseScripts(label: string, url?: string): boolean {
+  if (/replit\.com|replit\.dev|repl\.co/i.test(url || '')) return false;
+  const s = (label + ' ' + (url || '')).toLowerCase();
+  if (/checkout|payment|order|carrello|pagamento|clickbank|stripe/i.test(s)) return true;
+  return !/quiz|lp\d|landing/i.test(s);
+}
+
 interface LayoutNode {
   id: string;
   step: FunnelStep;
@@ -437,7 +444,7 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
               {selectedNode.step.url && (
                 <div className="relative rounded-lg overflow-hidden border border-[#333] bg-[#1a1a1a]" style={{ height: 180 }}>
                   <iframe
-                    src={`/api/proxy-page?url=${encodeURIComponent(selectedNode.step.url)}&scripts=${!/replit\.com|replit\.dev|repl\.co|quiz|lp\d|landing/i.test((selectedNode.step.name + ' ' + (selectedNode.step.url || '')).toLowerCase()) ? '1' : '0'}`}
+                    src={`/api/proxy-page?url=${encodeURIComponent(selectedNode.step.url)}&scripts=${shouldUseScripts(selectedNode.step.name, selectedNode.step.url) ? '1' : '0'}`}
                     title={`Preview: ${selectedNode.step.name}`}
                     className="absolute top-0 left-0 border-0 pointer-events-none"
                     style={{

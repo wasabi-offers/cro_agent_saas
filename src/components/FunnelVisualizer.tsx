@@ -51,6 +51,8 @@ interface StepData {
 function shouldUseScripts(label: string, url?: string): boolean {
   if (/replit\.com|replit\.dev|repl\.co/i.test(url || '')) return false;
   const s = (label + ' ' + (url || '')).toLowerCase();
+  // Checkout, payment, order: sempre scripts=1 (SPA che altrimenti sparirebbero)
+  if (/checkout|payment|order|carrello|pagamento|clickbank|stripe/i.test(s)) return true;
   return !/quiz|lp\d|landing/i.test(s);
 }
 

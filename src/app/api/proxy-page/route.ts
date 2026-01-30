@@ -38,6 +38,9 @@ export async function GET(request: NextRequest) {
     // Remove base tag - pages with wrong base may point images to our domain (404)
     html = html.replace(/<base[^>]*>/gi, '');
 
+    // Remove meta refresh - evita che checkout/pagine facciano redirect e spariscano dall'anteprima
+    html = html.replace(/<meta[^>]*http-equiv\s*=\s*["']refresh["'][^>]*>/gi, '');
+
     // Inject correct base - any missed relative URLs resolve to source domain (fix 404 images)
     const correctBase = targetUrl.origin + targetUrl.pathname.replace(/\/[^/]*$/, '/') || targetUrl.origin + '/';
     const appOrigin = request.nextUrl.origin;
@@ -65,7 +68,7 @@ export async function GET(request: NextRequest) {
       html = html.replace(/<link[^>]*as\s*=\s*["']script["'][^>]*>/gi, '');
     }
 
-    // Inject scripts in ONE replace - ordine corretto: originVar -> corsProxy -> mute
+    // Inject scripts in ONE replace - ordine corretto: originVar -> corsProxy -> redirectBlocker -> mute
     // (ogni replace inserisce dopo <head>, quindi l'ultimo finirebbe primo - un solo replace evita il bug)
     const corsProxyScript = allowScripts ? `<script>
 (function(){var O=window.__CRO_PROXY_ORIGIN__;var A=window.__CRO_PROXY_API__;if(!O||!A)return;
@@ -73,11 +76,17 @@ function proxy(u){if(!u||u.indexOf(O)!==0)return null;return A+'?url='+encodeURI
 var _f=window.fetch;window.fetch=function(u,o){var url=typeof u==='string'?u:(u&&u.url);var p=proxy(url);if(p)return _f(p,o);return _f.apply(this,arguments);};
 var X=window.XMLHttpRequest;window.XMLHttpRequest=function(){var x=new X();var _open=x.open;x.open=function(m,u){var p=proxy(u);_open.call(x,m,p||u);};return x;};
 })();</script>` : '';
+    // Blocca redirect JS in anteprima - evita che checkout SPA sparisca dopo il load
+    const redirectBlockerScript = allowScripts ? `<script>
+(function(){if(window.parent===window)return;
+window.location.replace=function(){};
+window.location.assign=function(){};
+})();</script>` : '';
     const muteScript = `<script>(function(){function m(e){if(e&&!e.muted){e.muted=true;e.volume=0;}}
 function ma(){document.querySelectorAll('video,audio').forEach(m);}ma();
 var o=new MutationObserver(ma);o.observe(document.documentElement,{childList:true,subtree:true});
 setTimeout(ma,500);setTimeout(ma,1500);})();</script>`;
-    const allScripts = `<script>window.__CRO_PROXY_ORIGIN__="${targetUrl.origin}";window.__CRO_PROXY_API__="${appOrigin}/api/proxy-fetch";</script>${corsProxyScript}${muteScript}`;
+    const allScripts = `<script>window.__CRO_PROXY_ORIGIN__="${targetUrl.origin}";window.__CRO_PROXY_API__="${appOrigin}/api/proxy-fetch";</script>${corsProxyScript}${redirectBlockerScript}${muteScript}`;
     html = html.replace(/<head([^>]*)>/i, `$&${allScripts}`);
 
     // Videos: SEMPRE muted (no audio) - anteprime devono partire senza audio

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, CheckCircle2, Code, ExternalLink, Zap } from "lucide-react";
+import { Copy, CheckCircle2, Code, Download, ExternalLink, Zap } from "lucide-react";
 import { getTrackingScriptTag } from "@/lib/advanced-tracking-script";
 
 interface TrackingSetupProps {
@@ -30,6 +30,23 @@ export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingS
     setTimeout(() => setCopied(null), 2000);
   };
 
+  const handleDownloadAll = () => {
+    const content = trackingScripts.map((item, i) => {
+      const header = `\n${"=".repeat(60)}\nStep ${i + 1}: ${item.stepName}${item.url ? `\nURL: ${item.url}` : ""}\n${"=".repeat(60)}\n`;
+      return header + item.script;
+    }).join("\n");
+
+    const fullContent = `CRO Agent - Tracking Scripts for "${funnelName}"\nGenerated: ${new Date().toISOString()}\n\nPaste each script before </body> on the corresponding page.\n${content}`;
+
+    const blob = new Blob([fullContent], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `cro-tracking-${funnelName.replace(/[^a-z0-9]/gi, "-")}-${funnelId}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -51,7 +68,16 @@ export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingS
 
       {/* Tracking Scripts for Each Step */}
       <div className="space-y-4">
-        <h4 className="text-[16px] font-semibold text-[#fafafa]">Script di Tracking per Step</h4>
+        <div className="flex items-center justify-between">
+          <h4 className="text-[16px] font-semibold text-[#fafafa]">Script di Tracking per Step</h4>
+          <button
+            onClick={handleDownloadAll}
+            className="flex items-center gap-2 px-4 py-2 bg-[#00d4aa] hover:bg-[#00b894] text-white text-[13px] font-medium rounded-lg transition-all"
+          >
+            <Download className="w-4 h-4" />
+            Download All Scripts
+          </button>
+        </div>
 
         {trackingScripts.map((item, index) => (
           <div key={index} className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-2xl p-6">
