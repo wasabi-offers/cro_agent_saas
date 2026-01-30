@@ -691,6 +691,7 @@ export default function FunnelDetailPage() {
               key={`funnel-viz-${updateTrigger}`}
               steps={funnel.steps}
               name={funnel.name}
+              funnelId={funnelId}
               connections={funnel.connections}
               onAnalyzePage={(stepIndex) => {
                 setActiveTab("analysis");

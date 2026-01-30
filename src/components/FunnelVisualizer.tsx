@@ -16,7 +16,9 @@ import ReactFlow, {
   useReactFlow,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { Users, TrendingDown, Percent, X, ExternalLink, FileSearch } from 'lucide-react';
+import { Users, TrendingDown, Percent, X, ExternalLink, FileSearch, BarChart3, Eye } from 'lucide-react';
+import StepDataAnalysisModal from './StepDataAnalysisModal';
+import StepCROPreviewModal from './StepCROPreviewModal';
 
 interface FunnelStep {
   name: string;
@@ -45,6 +47,10 @@ interface StepData {
   dropoff: number;
   conversionRate: number;
   url?: string;
+  funnelId?: string;
+  stepIndex?: number;
+  onDataAnalysisClick?: (stepIndex: number) => void;
+  onCROPreviewClick?: (stepIndex: number) => void;
 }
 
 // Solo Replit e quiz/lp usano scripts=0 - checkout e resto usano scripts=1 come prima
@@ -123,6 +129,25 @@ function StepNode({ data }: { data: StepData }) {
             </div>
           )}
         </div>
+
+        {/* Action Buttons */}
+        <div className="p-2 flex gap-2 border-t border-[#2a2a2a]">
+          <button
+            onClick={(e) => { e.stopPropagation(); data.onDataAnalysisClick?.(stepIndex); }}
+            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 bg-[#7c5cff]/20 hover:bg-[#7c5cff]/30 text-[#7c5cff] rounded-lg text-[10px] font-medium transition-colors"
+          >
+            <BarChart3 className="w-3 h-3" />
+            Data
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); data.onCROPreviewClick?.(stepIndex); }}
+            disabled={!data.url}
+            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 bg-[#00d4aa]/20 hover:bg-[#00d4aa]/30 text-[#00d4aa] rounded-lg text-[10px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Eye className="w-3 h-3" />
+            CRO
+          </button>
+        </div>
       </div>
 
       {/* Output Handle (Right) */}
@@ -182,6 +207,10 @@ function FunnelVisualizerInner({ steps, name, connections, onAnalyzePage }: Funn
           dropoff: step.dropoff ?? 0,
           conversionRate: Number.isFinite(conversionRate) ? conversionRate : 0,
           url: step.url,
+          funnelId,
+          stepIndex: index,
+          onDataAnalysisClick: funnelId ? setDataAnalysisStep : undefined,
+          onCROPreviewClick: setCroPreviewStep,
         },
       };
     });
@@ -432,6 +461,36 @@ function FunnelVisualizerInner({ steps, name, connections, onAnalyzePage }: Funn
             </p>
           </div>
         </div>
+      )}
+
+      {/* Data Analysis Modal */}
+      {dataAnalysisStep !== null && funnelId && steps[dataAnalysisStep] && (
+        <StepDataAnalysisModal
+          isOpen={true}
+          onClose={() => setDataAnalysisStep(null)}
+          stepName={steps[dataAnalysisStep].name}
+          stepUrl={steps[dataAnalysisStep].url}
+          funnelId={funnelId}
+          stepVisitors={steps[dataAnalysisStep].visitors ?? 0}
+          stepDropoff={steps[dataAnalysisStep].dropoff ?? 0}
+          stepConversionRate={
+            dataAnalysisStep === 0
+              ? 100
+              : (steps[0]?.visitors ?? 0) > 0
+                ? ((steps[dataAnalysisStep].visitors ?? 0) / (steps[0].visitors ?? 1)) * 100
+                : 0
+          }
+        />
+      )}
+
+      {/* CRO Preview Modal */}
+      {croPreviewStep !== null && steps[croPreviewStep]?.url && (
+        <StepCROPreviewModal
+          isOpen={true}
+          onClose={() => setCroPreviewStep(null)}
+          stepName={steps[croPreviewStep].name}
+          stepUrl={steps[croPreviewStep].url!}
+        />
       )}
     </div>
   );
