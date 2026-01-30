@@ -115,7 +115,7 @@ export default function ProductFunnelsPage() {
     if (newFunnel) {
       setFunnels([newFunnel, ...funnels]);
       setShowBuilder(false);
-      alert('✅ Funnel creato con successo!');
+      alert('✅ Funnel created successfully!');
     } else {
       // If Supabase not configured, still add locally
       const localFunnel: ConversionFunnel = {
@@ -133,7 +133,7 @@ export default function ProductFunnelsPage() {
   };
 
   const handleDeleteFunnel = async (funnelId: string, funnelName: string) => {
-    if (!confirm(`Sei sicuro di voler eliminare il funnel "${funnelName}"? Questa azione non può essere annullata.`)) {
+    if (!confirm(`Are you sure you want to delete the funnel "${funnelName}"? This action cannot be undone.`)) {
       return;
     }
 
@@ -187,7 +187,7 @@ export default function ProductFunnelsPage() {
     if (newFunnel) {
       setFunnels([newFunnel, ...funnels]);
       loadData(false);
-      alert("✅ Funnel clonato con successo!");
+      alert("✅ Funnel cloned successfully!");
     } else {
       alert("❌ Errore durante la clonazione del funnel.");
     }
@@ -350,15 +350,15 @@ export default function ProductFunnelsPage() {
                 <BarChart3 className="w-5 h-5 text-[#7c5cff]" />
               </div>
               <div>
-                <h2 className="text-[18px] font-semibold text-[#fafafa]">Analisi Macro Funnel Attivi</h2>
+                <h2 className="text-[18px] font-semibold text-[#fafafa]">Macro Analysis of Active Funnels</h2>
                 <p className="text-[13px] text-[#666666]">
-                  {activeFunnels.length} funnel attivi su {funnels.length} totali
+                  {activeFunnels.length} active funnels out of {funnels.length} total
                 </p>
               </div>
             </div>
             {activeFunnels.length === 0 && (
               <div className="px-4 py-2 bg-[#f59e0b]/10 border border-[#f59e0b]/20 rounded-lg">
-                <span className="text-[13px] text-[#f59e0b]">Nessun funnel attivo</span>
+                <span className="text-[13px] text-[#f59e0b]">No active funnels</span>
               </div>
             )}
           </div>
@@ -415,7 +415,7 @@ export default function ProductFunnelsPage() {
                     <TrendingUp className="w-5 h-5 text-[#00d4aa]" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-[11px] text-[#666666] uppercase mb-1">Migliore Performance</p>
+                    <p className="text-[11px] text-[#666666] uppercase mb-1">Best Performance</p>
                     <p className="text-[15px] font-semibold text-[#fafafa]">{bestFunnel.name}</p>
                   </div>
                   <div className="text-right">
@@ -542,7 +542,7 @@ export default function ProductFunnelsPage() {
                               handleCloneFunnel(funnel);
                             }}
                             className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#7c5cff]/10 text-[#666666] hover:text-[#7c5cff] transition-colors"
-                            title="Clona funnel"
+                            title="Clone funnel"
                           >
                             <Copy className="w-4 h-4" />
                           </button>
@@ -568,7 +568,7 @@ export default function ProductFunnelsPage() {
                               handleDeleteFunnel(funnel.id, funnel.name);
                             }}
                             className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#ff6b6b]/10 text-[#666666] hover:text-[#ff6b6b] transition-colors"
-                            title="Elimina funnel"
+                            title="Delete funnel"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>

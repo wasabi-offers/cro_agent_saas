@@ -79,7 +79,7 @@ export default function FunnelOverview({
       if (res.ok && data.answer) {
         setRagSummary(data.answer);
       } else {
-        setRagError(data.error || "RAG non configurato");
+        setRagError(data.error || "RAG not configured");
       }
     } catch {
       setRagError("Connection error");

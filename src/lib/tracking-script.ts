@@ -12,7 +12,7 @@ export function generateTrackingScript(landingId: string, apiEndpoint: string): 
   let eventQueue = [];
   let sessionId = generateSessionId();
 
-  // Genera session ID univoco
+  // Generate unique session ID
   function generateSessionId() {
     return 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
   }
@@ -149,7 +149,7 @@ export function generateTrackingScript(landingId: string, apiEndpoint: string): 
 `;
 }
 
-// Genera tag <script> da inserire nell'HTML
+// Generate <script> tag to insert in HTML
 export function getTrackingScriptTag(landingId: string): string {
   const apiEndpoint = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/track`;
   const script = generateTrackingScript(landingId, apiEndpoint);

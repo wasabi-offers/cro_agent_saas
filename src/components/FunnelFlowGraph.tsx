@@ -318,7 +318,7 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
         })}
       </div>
 
-      {/* Expanded card modal - tutti i dati */}
+      {/* Expanded card modal - all data */}
       {selectedNode && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4" onClick={() => setSelectedNode(null)}>
           <div

@@ -8,8 +8,8 @@ export interface FunnelTrackingConfig {
 }
 
 /**
- * Genera lo script di tracking da iniettare nelle pagine del funnel
- * @param config - Configurazione del tracking (funnelId, stepName, apiEndpoint)
+ * Generates the tracking script to inject into funnel pages
+ * @param config - Tracking configuration (funnelId, stepName, apiEndpoint)
  * @returns Script JavaScript come stringa
  */
 export function generateFunnelTrackingScript(config: FunnelTrackingConfig): string {
@@ -73,7 +73,7 @@ export function generateFunnelTrackingScript(config: FunnelTrackingConfig): stri
 }
 
 /**
- * Genera il tag <script> completo da inserire nell'HTML
+ * Generates the complete <script> tag to insert in HTML
  * @param funnelId - ID del funnel
  * @param stepName - Nome dello step
  * @returns Tag script HTML
@@ -91,7 +91,7 @@ export function getFunnelTrackingScriptTag(funnelId: string, stepName: string): 
 }
 
 /**
- * Genera istruzioni per l'utente su come installare il tracking
+ * Generates instructions for the user on how to install tracking
  * @param funnelId - ID del funnel
  * @param stepName - Nome dello step
  * @param stepUrl - URL della pagina dello step
@@ -112,21 +112,21 @@ ${scriptTag}
 
 ### ✅ Verifica
 
-1. Aggiungi lo script alla tua pagina
-2. Visita la pagina nel browser
-3. Apri la Console del browser (F12)
-4. Dovresti vedere: \`🔍 CRO Funnel Tracking attivo - Funnel: ${funnelId} Step: ${stepName}\`
-5. Controlla che appaia anche: \`✅ Funnel step tracked: ${stepName}\`
+1. Add the script to your page
+2. Visit the page in the browser
+3. Open the browser Console (F12)
+4. You should see: \`🔍 CRO Funnel Tracking active - Funnel: ${funnelId} Step: ${stepName}\`
+5. Check that this also appears: \`✅ Funnel step tracked: ${stepName}\`
 
-### 🔄 Aggiornamento Dati
+### 🔄 Data Update
 
-Dopo aver installato il tracking e ricevuto visite reali, aggiorna le statistiche del funnel:
+After installing tracking and receiving real visits, update funnel statistics:
 
-**Metodo 1: Automatico (raccomandato)**
-Visita: \`/api/funnel-stats/update?funnelId=${funnelId}\`
+**Method 1: Automatic (recommended)**
+Visit: \`/api/funnel-stats/update?funnelId=${funnelId}\`
 
-**Metodo 2: Manuale**
-Usa l'API POST: \`/api/funnel-stats/update\`
+**Method 2: Manual**
+Use POST API: \`/api/funnel-stats/update\`
 
 \`\`\`bash
 curl -X POST http://localhost:3000/api/funnel-stats/update \\
@@ -138,7 +138,7 @@ curl -X POST http://localhost:3000/api/funnel-stats/update \\
 
 - Il tracking usa \`sessionStorage\` per identificare utenti unici
 - Ogni utente viene tracciato una sola volta per step (no duplicati)
-- I dati vengono salvati in tempo reale nel database
-- Ricordati di aggiornare le statistiche regolarmente per vedere i dati nel dashboard
+- Data is saved in real time to the database
+- Remember to update statistics regularly to see data in the dashboard
 `;
 }

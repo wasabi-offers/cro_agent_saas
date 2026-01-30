@@ -301,7 +301,7 @@ export default function FunnelFlowImporter({ isOpen, onClose, onImport }: Funnel
 
       const parsed = parseFlows(text);
       if (parsed.length === 0) {
-        setError(`Flow ${i + 1}: nessun URL valido trovato. Assicurati di inserire URL completi (es: https://example.com/page)`);
+        setError(`Flow ${i + 1}: no valid URL found. Make sure to enter full URLs (e.g. https://example.com/page)`);
         return;
       }
 

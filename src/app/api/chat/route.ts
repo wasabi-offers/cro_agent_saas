@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
   try {
     const { message, context } = await req.json();
 
-    // Prova RAG CRO se configurato
+    // Try RAG CRO if configured
     const ragResult = await queryRAG({
       question: message,
       user_id: "chat",

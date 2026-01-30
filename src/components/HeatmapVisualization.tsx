@@ -191,10 +191,10 @@ export default function HeatmapVisualization({
           <AlertCircle className="w-6 h-6 text-white flex-shrink-0" />
           <div className="flex-1">
             <p className="text-[14px] font-semibold text-white">
-              ⚠️ QUESTI SONO DEMO DATA - NON DATI REALI!
+              ⚠️ THESE ARE DEMO DATA - NOT REAL DATA!
             </p>
             <p className="text-[12px] text-white/90 mt-1">
-              Installa lo script di tracking dalla scheda "Setup" per vedere dati reali.
+              Install the tracking script from the "Setup" tab to see real data.
             </p>
           </div>
         </div>
@@ -256,7 +256,7 @@ export default function HeatmapVisualization({
                     NESSUN DATO REALE DISPONIBILE
                   </p>
                   <p className="text-[14px] text-[#888888]">
-                    Installa lo script di tracking dalla scheda "Setup" su: {stepName}
+                    Install the tracking script from the "Setup" tab for: {stepName}
                   </p>
                 </div>
               </div>

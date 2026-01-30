@@ -169,7 +169,7 @@ function StepNode({ data, id }: { data: StepNodeData; id: string }) {
               ) : (
                 <div className="mb-2 flex items-center gap-1 text-[10px] text-[#666666]">
                   <LinkIcon className="w-3 h-3" />
-                  <span>Nessun URL impostato</span>
+                  <span>No URL set</span>
                 </div>
               )}
 
@@ -403,7 +403,7 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
 
     const isolatedNodes = nodes.filter(n => !connectedNodes.has(n.id));
     if (isolatedNodes.length > 0) {
-      setError(`❌ Alcuni step non sono collegati: ${isolatedNodes.map(n => n.data.label).join(', ')}. Collega tutti gli step al funnel.`);
+      setError(`❌ Some steps are not connected: ${isolatedNodes.map(n => n.data.label).join(', ')}. Connect all steps to the funnel.`);
       return;
     }
 
@@ -412,7 +412,7 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
     const startNodes = nodes.filter(n => !incomingEdges.has(n.id));
 
     if (startNodes.length === 0) {
-      setError('❌ Il funnel deve avere almeno uno step iniziale (senza frecce in entrata)');
+      setError('❌ The funnel must have at least one initial step (with no incoming arrows)');
       return;
     }
 
@@ -599,27 +599,27 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
                 3
               </div>
               <h4 className="text-[14px] font-semibold text-[#fafafa] mb-2">
-                Personalizza
+                Customize
               </h4>
               <p className="text-[13px] text-[#888888]">
-                Doppio click sul nome per modificare, trascina per riposizionare, usa il cestino per eliminare
+                Double-click the name to edit, drag to reposition, use the trash icon to delete
               </p>
             </div>
           </div>
           <div className="mt-4 bg-[#0a0a0a]/80 border border-[#00d4aa]/30 rounded-xl p-4">
-            <p className="text-[12px] text-[#888888] mb-2">💡 <span className="text-[#fafafa] font-semibold">Esempi di funnel che puoi creare:</span></p>
+            <p className="text-[12px] text-[#888888] mb-2">💡 <span className="text-[#fafafa] font-semibold">Examples of funnels you can create:</span></p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px] text-[#888888]">
               <div>
-                <span className="text-[#00d4aa]">→</span> <span className="text-[#fafafa]">Lineare:</span> Landing → Checkout → Thank You
+                <span className="text-[#00d4aa]">→</span> <span className="text-[#fafafa]">Linear:</span> Landing → Checkout → Thank You
               </div>
               <div>
-                <span className="text-[#00d4aa]">→</span> <span className="text-[#fafafa]">Ramificato:</span> Landing → (Product A / Product B) → Checkout
+                <span className="text-[#00d4aa]">→</span> <span className="text-[#fafafa]">Branched:</span> Landing → (Product A / Product B) → Checkout
               </div>
               <div>
-                <span className="text-[#00d4aa]">→</span> <span className="text-[#fafafa]">Convergente:</span> (Landing A / Landing B) → Checkout → Thank You
+                <span className="text-[#00d4aa]">→</span> <span className="text-[#fafafa]">Convergent:</span> (Landing A / Landing B) → Checkout → Thank You
               </div>
               <div>
-                <span className="text-[#00d4aa]">→</span> <span className="text-[#fafafa]">Complesso:</span> Più percorsi che si uniscono e si dividono
+                <span className="text-[#00d4aa]">→</span> <span className="text-[#fafafa]">Complex:</span> Multiple paths that merge and branch
               </div>
             </div>
           </div>
@@ -633,11 +633,11 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[#00d4aa]"></div>
-                <span className="text-[12px] text-[#888888]">Cerchio verde = Uscita (trascina da qui)</span>
+                <span className="text-[12px] text-[#888888]">Green circle = Output (drag from here)</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[#7c5cff]"></div>
-                <span className="text-[12px] text-[#888888]">Cerchio viola = Entrata (collega qui)</span>
+                <span className="text-[12px] text-[#888888]">Purple circle = Input (connect here)</span>
               </div>
             </div>
             {nodes.length > 0 && (
@@ -645,7 +645,7 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
                 onClick={() => setShowTutorial(true)}
                 className="text-[12px] text-[#7c5cff] hover:text-[#00d4aa] transition-colors"
               >
-                Mostra tutorial
+                Show tutorial
               </button>
             )}
           </div>
@@ -802,7 +802,7 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
                 </h4>
                 <ul className="text-[13px] text-[#888888] space-y-1 list-disc list-inside">
                   <li>Ogni landing page ha uno script unico con il suo <code className="px-1.5 py-0.5 bg-[#0a0a0a] rounded text-[#00d4aa]">landingId</code></li>
-                  <li>Non modificare il <code className="px-1.5 py-0.5 bg-[#0a0a0a] rounded text-[#00d4aa]">landingId</code> altrimenti i dati non saranno tracciati correttamente</li>
+                  <li>Do not modify the <code className="px-1.5 py-0.5 bg-[#0a0a0a] rounded text-[#00d4aa]">landingId</code> otherwise data will not be tracked correctly</li>
                   <li>Assicurati che le tue landing pages possano contattare il dominio: <code className="px-1.5 py-0.5 bg-[#0a0a0a] rounded text-[#7c5cff]">{typeof window !== 'undefined' ? window.location.origin : 'https://your-app.vercel.app'}</code></li>
                 </ul>
               </div>

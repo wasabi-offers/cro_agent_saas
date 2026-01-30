@@ -282,7 +282,7 @@ export async function createFunnel(funnel: {
   // Cannot create if Supabase is not configured
   if (!isSupabaseConfigured() || !supabase) {
     console.error("❌ Cannot create funnel: Supabase not configured");
-    alert("⚠️ Supabase non configurato! Il funnel non verrà salvato permanentemente.");
+    alert("⚠️ Supabase not configured! The funnel will not be saved permanently.");
     return null;
   }
 
@@ -311,7 +311,7 @@ export async function createFunnel(funnel: {
 
     if (funnelError || !funnelData) {
       console.error("Error creating funnel:", funnelError);
-      alert("❌ Errore durante la creazione del funnel");
+      alert("❌ Error creating funnel");
       return null;
     }
 
@@ -385,7 +385,7 @@ export async function createFunnel(funnel: {
     };
   } catch (error) {
     console.error("Unexpected error creating funnel:", error);
-    alert("❌ Errore imprevisto durante la creazione del funnel");
+    alert("❌ Unexpected error creating funnel");
     return null;
   }
 }
@@ -433,7 +433,7 @@ export async function updateFunnel(
 
     if (funnelError) {
       console.error("❌ Error updating funnel:", funnelError);
-      alert("❌ Errore durante l'aggiornamento del funnel");
+      alert("❌ Error updating funnel");
       return false;
     }
 
@@ -475,7 +475,7 @@ export async function updateFunnel(
 
     if (stepsError) {
       console.error("❌ Error creating new steps:", stepsError);
-      alert("❌ Errore durante la creazione dei nuovi step");
+      alert("❌ Error creating new steps");
       return false;
     }
 
@@ -551,7 +551,7 @@ export async function deleteFunnel(funnelId: string): Promise<boolean> {
   // Cannot delete if Supabase is not configured
   if (!isSupabaseConfigured() || !supabase) {
     console.error("❌ Cannot delete funnel: Supabase not configured");
-    alert("⚠️ Supabase non configurato!");
+    alert("⚠️ Supabase not configured!");
     return false;
   }
 
@@ -571,7 +571,7 @@ export async function deleteFunnel(funnelId: string): Promise<boolean> {
     return true;
   } catch (error) {
     console.error("Unexpected error deleting funnel:", error);
-    alert("❌ Errore imprevisto durante l'eliminazione del funnel");
+    alert("❌ Unexpected error deleting funnel");
     return false;
   }
 }

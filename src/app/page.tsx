@@ -177,7 +177,7 @@ export default function Home() {
         {/* RAG CRO Insights */}
         <div className="mb-8">
           <RAGInsightsPanel
-            defaultQuestion="Qual è la più grande opportunità di ottimizzazione CRO? Come migliorare conversion rate?"
+            defaultQuestion="What is the biggest CRO optimization opportunity? How to improve conversion rate?"
             placeholder="Ask RAG: CRO opportunities, conversion rate, A/B tests..."
             title="RAG CRO - Dashboard Insights"
           />

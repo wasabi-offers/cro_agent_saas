@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
   try {
     if (!isRAGConfigured()) {
       return NextResponse.json(
-        { error: 'RAG CRO non configurato. Imposta RUNPOD_ENDPOINT_ID e RUNPOD_API_KEY.' },
+        { error: 'RAG CRO not configured. Set RUNPOD_ENDPOINT_ID and RUNPOD_API_KEY.' },
         { status: 503 }
       );
     }

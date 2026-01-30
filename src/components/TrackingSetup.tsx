@@ -119,7 +119,7 @@ export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingS
               📊 Statistiche in Tempo Reale
             </h4>
             <p className="text-[13px] text-[#888888]">
-              Le statistiche del funnel si aggiornano automaticamente in tempo reale. Nessun bisogno di sincronizzare manualmente!
+              Funnel statistics update automatically in real time. No need to sync manually!
             </p>
           </div>
         </div>

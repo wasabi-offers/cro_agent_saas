@@ -10,8 +10,8 @@ export async function POST(req: NextRequest) {
   if (!isRAGConfigured()) {
     return NextResponse.json(
       {
-        error: "RAG CRO non configurato",
-        details: "Imposta RUNPOD_ENDPOINT_ID e RUNPOD_API_KEY in .env",
+        error: "RAG CRO not configured",
+        details: "Set RUNPOD_ENDPOINT_ID and RUNPOD_API_KEY in .env",
       },
       { status: 503 }
     );
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
     console.error("RAG CRO API error:", error);
     return NextResponse.json(
       {
-        error: "Errore interno RAG CRO",
+        error: "RAG CRO internal error",
         details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 }

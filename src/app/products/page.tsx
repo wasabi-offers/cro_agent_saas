@@ -92,7 +92,7 @@ export default function ProductsPage() {
   };
 
   const handleDeleteProduct = async (productId: string, productName: string) => {
-    if (!confirm(`Sei sicuro di voler eliminare "${productName}"? Questa azione non può essere annullata.`)) {
+    if (!confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) {
       return;
     }
 

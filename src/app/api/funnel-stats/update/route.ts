@@ -16,15 +16,15 @@ function getSupabaseClient() {
 /**
  * POST /api/funnel-stats/update
  *
- * Aggiorna i contatori dei funnel_steps basandosi sui dati reali di tracking
- * Calcola:
- * - Visitatori unici per ogni step
- * - Dropoff percentuale tra step consecutivi
- * - Conversion rate complessivo del funnel
+ * Updates funnel_steps counters based on real tracking data
+ * Calculates:
+ * - Unique visitors per step
+ * - Dropoff percentage between consecutive steps
+ * - Overall funnel conversion rate
  *
- * Body (opzionale):
+ * Body (optional):
  * {
- *   "funnelId": "funnel_123" // Se omesso, aggiorna tutti i funnel
+ *   "funnelId": "funnel_123" // If omitted, updates all funnels
  * }
  */
 export async function POST(req: NextRequest) {

@@ -147,8 +147,8 @@ function FunnelVisualizerInner({ steps, name, connections, onAnalyzePage }: Funn
   if (!steps || steps.length === 0) {
     return (
       <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8 text-center">
-        <p className="text-[#ff6b6b] text-[16px]">⚠️ Errore: Nessuno step trovato nel funnel</p>
-        <p className="text-[#888888] text-[13px] mt-2">Controlla che il funnel sia stato creato correttamente</p>
+        <p className="text-[#ff6b6b] text-[16px]">⚠️ Error: No steps found in funnel</p>
+        <p className="text-[#888888] text-[13px] mt-2">Check that the funnel was created correctly</p>
       </div>
     );
   }

@@ -57,8 +57,8 @@ export default function GlobalError({
                 marginBottom: "20px",
               }}
             >
-              Si è verificato un errore critico. Controlla la console del
-              browser (F12) per maggiori dettagli.
+              A critical error occurred. Check the browser
+              console (F12) for more details.
             </p>
             <pre
               style={{
@@ -88,7 +88,7 @@ export default function GlobalError({
                 cursor: "pointer",
               }}
             >
-              Riprova
+              Retry
             </button>
           </div>
         </div>

@@ -45,7 +45,7 @@ export default function Error({
             marginBottom: "16px",
           }}
         >
-          Errore dell&apos;applicazione
+          Application error
         </h2>
         <p
           style={{
@@ -85,7 +85,7 @@ export default function Error({
             cursor: "pointer",
           }}
         >
-          Riprova
+          Retry
         </button>
       </div>
     </div>

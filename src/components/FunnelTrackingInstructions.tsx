@@ -45,17 +45,17 @@ export default function FunnelTrackingInstructions({
       const data = await response.json();
 
       if (data.success) {
-        setUpdateMessage('✅ Statistiche aggiornate con successo!');
-        // Refresh page dopo 1 secondo per mostrare i nuovi dati
+        setUpdateMessage('✅ Statistics updated successfully!');
+        // Refresh page after 1 second to show new data
         setTimeout(() => {
           window.location.reload();
         }, 1000);
       } else {
-        setUpdateMessage('⚠️ Nessun dato da aggiornare');
+        setUpdateMessage('⚠️ No data to update');
       }
     } catch (error) {
       console.error("Failed to update stats:", error);
-      setUpdateMessage('❌ Errore durante l\'aggiornamento');
+      setUpdateMessage('❌ Error during update');
     } finally {
       setIsUpdating(false);
     }
@@ -135,7 +135,7 @@ export default function FunnelTrackingInstructions({
           </li>
           <li className="flex items-start gap-2">
             <span className="text-[#7c5cff] font-bold">4.</span>
-            <span>Clicca su "Aggiorna Statistiche" per vedere i dati nel dashboard</span>
+            <span>Click "Update Statistics" to see data in the dashboard</span>
           </li>
         </ol>
       </div>
@@ -148,7 +148,7 @@ export default function FunnelTrackingInstructions({
           className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#00d4aa] to-[#00a884] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <RefreshCw className={`w-4 h-4 ${isUpdating ? 'animate-spin' : ''}`} />
-          {isUpdating ? 'Aggiornamento...' : 'Aggiorna Statistiche'}
+          {isUpdating ? 'Updating...' : 'Update Statistics'}
         </button>
 
         {updateMessage && (

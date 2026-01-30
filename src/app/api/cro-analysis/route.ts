@@ -31,7 +31,7 @@ Format your responses in Italian (the user's language) with clear sections:
 - 🚨 Problemi Critici
 - 💡 Raccomandazioni Prioritarie
 - 🧪 A/B Test Suggeriti
-- 📊 Analisi Dettagliata
+- 📊 Detailed Analysis
 
 Be direct, practical, and focus on ROI-driven recommendations.`;
 
@@ -46,42 +46,42 @@ export async function POST(request: Request) {
     let userPrompt = "";
 
     if (analysisType === "full-analysis") {
-      userPrompt = `Analizza questi dati di Microsoft Clarity e fornisci un report CRO completo con priorità, problemi e A/B test da implementare:
+      userPrompt = `Analyze this Microsoft Clarity data and provide a complete CRO report with priorities, issues and A/B tests to implement:
 
 ${analyticsContext}
 
-Voglio un'analisi completa con:
-1. I 3 problemi più critici da risolvere subito
-2. 5 raccomandazioni prioritarie con stima dell'impatto
-3. 3 A/B test specifici da lanciare con ipotesi chiare
-4. Considerazioni su mobile vs desktop`;
+I want a complete analysis with:
+1. The 3 most critical issues to fix immediately
+2. 5 priority recommendations with impact estimate
+3. 3 specific A/B tests to launch with clear hypotheses
+4. Considerations on mobile vs desktop`;
     } else if (analysisType === "ab-tests") {
-      userPrompt = `Basandoti su questi dati, suggerisci 5-7 A/B test specifici da implementare:
+      userPrompt = `Based on this data, suggest 5-7 specific A/B tests to implement:
 
 ${analyticsContext}
 
-Per ogni test voglio:
-- Nome del test
-- Ipotesi da validare
-- Variante di controllo vs variante
-- KPI da monitorare
-- Impatto stimato (Alto/Medio/Basso)
-- Priorità (1-5)`;
+For each test I want:
+- Test name
+- Hypothesis to validate
+- Control variant vs variant
+- KPIs to monitor
+- Estimated impact (High/Medium/Low)
+- Priority (1-5)`;
     } else if (analysisType === "ux-issues") {
-      userPrompt = `Analizza i problemi UX rilevati (dead clicks, rage clicks, quickbacks) e suggerisci soluzioni:
+      userPrompt = `Analyze the UX issues detected (dead clicks, rage clicks, quickbacks) and suggest solutions:
 
 ${analyticsContext}
 
-Concentrati su:
-1. Perché gli utenti stanno cliccando su elementi non cliccabili?
-2. Cosa causa i rage clicks?
-3. Perché gli utenti tornano indietro rapidamente?
-4. Come migliorare l'esperienza su mobile vs desktop`;
+Focus on:
+1. Why are users clicking on non-clickable elements?
+2. What causes rage clicks?
+3. Why do users go back quickly?
+4. How to improve the experience on mobile vs desktop`;
     } else {
-      // Custom question: prova RAG prima
+      // Custom question: try RAG first
       if (question?.trim()) {
         const ragResult = await queryRAG({
-          question: `${question}\n\nContesto dati: ${analyticsContext?.substring(0, 2000) || "Nessun dato"}`,
+          question: `${question}\n\nData context: ${analyticsContext?.substring(0, 2000) || "No data"}`,
           user_id: "cro_analysis",
           top_k: 12,
         });
@@ -105,7 +105,7 @@ Concentrati su:
       }
       userPrompt = `${question}
 
-Ecco i dati analytics attuali:
+Here is the current analytics data:
 
 ${analyticsContext}`;
     }

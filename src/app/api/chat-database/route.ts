@@ -4,7 +4,7 @@ import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { fetchClarityInsights } from "@/lib/supabase-data";
 
 // ============================================
-// CONFIGURAZIONE
+// CONFIGURATION
 // ============================================
 
 const anthropic = new Anthropic({
@@ -12,13 +12,13 @@ const anthropic = new Anthropic({
 });
 
 // ============================================
-// DEFINIZIONE TOOLS PER CRO
+// CRO TOOL DEFINITIONS
 // ============================================
 
 const tools: Anthropic.Tool[] = [
   {
     name: "get_clarity_overview",
-    description: "Ottieni una panoramica generale dei dati Clarity: sessioni totali, utenti, metriche di engagement e problemi UX.",
+    description: "Get a general overview of Clarity data: total sessions, users, engagement metrics and UX issues.",
     input_schema: {
       type: "object" as const,
       properties: {},
@@ -34,7 +34,7 @@ const tools: Anthropic.Tool[] = [
         device: {
           type: "string",
           enum: ["Mobile", "Desktop", "Tablet", "PC"],
-          description: "Filtra per un dispositivo specifico (opzionale)",
+          description: "Filter by specific device (optional)",
         },
       },
       required: [],
@@ -42,14 +42,14 @@ const tools: Anthropic.Tool[] = [
   },
   {
     name: "get_ux_issues",
-    description: "Ottieni i problemi UX rilevati: dead clicks, rage clicks, quickbacks, script errors, excessive scroll. Può filtrare per dispositivo o tipo di problema.",
+    description: "Get detected UX issues: dead clicks, rage clicks, quickbacks, script errors, excessive scroll. Can filter by device or issue type.",
     input_schema: {
       type: "object" as const,
       properties: {
         device: {
           type: "string",
           enum: ["Mobile", "Desktop", "Tablet", "PC"],
-          description: "Filtra per dispositivo",
+          description: "Filter by device",
         },
         issue_type: {
           type: "string",
@@ -58,7 +58,7 @@ const tools: Anthropic.Tool[] = [
         },
         limit: {
           type: "number",
-          description: "Numero massimo di risultati (default 20)",
+          description: "Maximum number of results (default 20)",
         },
       },
       required: [],
@@ -66,14 +66,14 @@ const tools: Anthropic.Tool[] = [
   },
   {
     name: "get_engagement_metrics",
-    description: "Ottieni metriche di engagement: tempo totale, tempo attivo, scroll depth, pagine per sessione. Può filtrare per dispositivo.",
+    description: "Get engagement metrics: total time, active time, scroll depth, pages per session. Can filter by device.",
     input_schema: {
       type: "object" as const,
       properties: {
         device: {
           type: "string",
           enum: ["Mobile", "Desktop", "Tablet", "PC"],
-          description: "Filtra per dispositivo",
+          description: "Filter by device",
         },
       },
       required: [],
@@ -81,17 +81,17 @@ const tools: Anthropic.Tool[] = [
   },
   {
     name: "search_insights",
-    description: "Cerca negli insights di Clarity con filtri avanzati. Può filtrare per dimensione, valore, metrica, date.",
+    description: "Search Clarity insights with advanced filters. Can filter by dimension, value, metric, dates.",
     input_schema: {
       type: "object" as const,
       properties: {
         dimension: {
           type: "string",
-          description: "Dimensione (es: Device, Browser, Country)",
+          description: "Dimension (e.g. Device, Browser, Country)",
         },
         dimension_value: {
           type: "string",
-          description: "Valore della dimensione (es: Mobile, Chrome, Italy)",
+          description: "Dimension value (e.g. Mobile, Chrome, Italy)",
         },
         metric_name: {
           type: "string",
@@ -99,15 +99,15 @@ const tools: Anthropic.Tool[] = [
         },
         date_from: {
           type: "string",
-          description: "Data inizio (YYYY-MM-DD)",
+          description: "Start date (YYYY-MM-DD)",
         },
         date_to: {
           type: "string",
-          description: "Data fine (YYYY-MM-DD)",
+          description: "End date (YYYY-MM-DD)",
         },
         limit: {
           type: "number",
-          description: "Numero massimo di risultati (default 50)",
+          description: "Maximum number of results (default 50)",
         },
       },
       required: [],
@@ -115,7 +115,7 @@ const tools: Anthropic.Tool[] = [
   },
   {
     name: "get_statistics",
-    description: "Ottieni statistiche aggregate sui dati CRO.",
+    description: "Get aggregate statistics on CRO data.",
     input_schema: {
       type: "object" as const,
       properties: {
@@ -131,11 +131,11 @@ const tools: Anthropic.Tool[] = [
             "bot_traffic",
             "daily_trends",
           ],
-          description: "Tipo di statistica da calcolare",
+          description: "Type of statistic to calculate",
         },
         limit: {
           type: "number",
-          description: "Numero di risultati per ranking (default 10)",
+          description: "Number of results for ranking (default 10)",
         },
       },
       required: ["stat_type"],
@@ -143,7 +143,7 @@ const tools: Anthropic.Tool[] = [
   },
   {
     name: "find_cro_patterns",
-    description: "Trova pattern e anomalie nei dati CRO per identificare opportunità di ottimizzazione.",
+    description: "Find patterns and anomalies in CRO data to identify optimization opportunities.",
     input_schema: {
       type: "object" as const,
       properties: {
@@ -157,7 +157,7 @@ const tools: Anthropic.Tool[] = [
             "mobile_vs_desktop",
             "high_impact_issues",
           ],
-          description: "Tipo di pattern da cercare",
+          description: "Type of pattern to search for",
         },
       },
       required: ["pattern_type"],
@@ -165,14 +165,14 @@ const tools: Anthropic.Tool[] = [
   },
   {
     name: "compare_devices",
-    description: "Confronta le performance tra diversi dispositivi per identificare gap e opportunità.",
+    description: "Compare performance across different devices to identify gaps and opportunities.",
     input_schema: {
       type: "object" as const,
       properties: {
         metrics: {
           type: "array",
           items: { type: "string" },
-          description: "Metriche da confrontare (es: sessions, engagement, ux_issues)",
+          description: "Metrics to compare (e.g. sessions, engagement, ux_issues)",
         },
       },
       required: [],
@@ -180,18 +180,18 @@ const tools: Anthropic.Tool[] = [
   },
   {
     name: "get_ab_test_suggestions",
-    description: "Genera suggerimenti per A/B test basati sui dati attuali e sui problemi rilevati.",
+    description: "Generate A/B test suggestions based on current data and detected issues.",
     input_schema: {
       type: "object" as const,
       properties: {
         focus_area: {
           type: "string",
           enum: ["mobile", "desktop", "ux_issues", "engagement", "conversion"],
-          description: "Area su cui concentrare i suggerimenti",
+          description: "Area to focus suggestions on",
         },
         max_suggestions: {
           type: "number",
-          description: "Numero massimo di suggerimenti (default 5)",
+          description: "Maximum number of suggestions (default 5)",
         },
       },
       required: [],

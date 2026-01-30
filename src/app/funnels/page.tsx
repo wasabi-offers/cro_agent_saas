@@ -104,7 +104,7 @@ export default function FunnelsListPage() {
     if (newFunnel) {
       setFunnels([newFunnel, ...funnels]);
       setShowBuilder(false);
-      alert('✅ Funnel creato con successo!');
+      alert('✅ Funnel created successfully!');
     } else {
       // If Supabase not configured, still add locally
       const localFunnel: ConversionFunnel = {
@@ -131,7 +131,7 @@ export default function FunnelsListPage() {
     if (success) {
       // Remove from local state
       setFunnels(funnels.filter(f => f.id !== funnelId));
-      alert('✅ Funnel eliminato con successo!');
+      alert('✅ Funnel deleted successfully!');
     } else {
       // If Supabase not configured, still remove locally
       setFunnels(funnels.filter(f => f.id !== funnelId));
@@ -358,7 +358,7 @@ export default function FunnelsListPage() {
                           handleDeleteFunnel(funnel.id, funnel.name);
                         }}
                         className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#ff6b6b]/10 text-[#666666] hover:text-[#ff6b6b] transition-colors"
-                        title="Elimina funnel"
+                        title="Delete funnel"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
