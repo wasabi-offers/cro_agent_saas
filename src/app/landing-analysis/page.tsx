@@ -57,7 +57,7 @@ export default function LandingAnalysisPage() {
   const [results, setResults] = useState<AnalysisResult[]>([]);
   const [analysisSource, setAnalysisSource] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const [viewMode, setViewMode] = useState<"visual" | "list" | "history" | "cro-table" | "heatmap">("visual");
+  const [viewMode, setViewMode] = useState<"visual" | "list" | "history" | "cro-table" | "heatmap">("list");
 
   // CRO Table state
   const [croTableRows, setCroTableRows] = useState<CROTableRow[]>([]);
@@ -167,6 +167,7 @@ export default function LandingAnalysisPage() {
       const analysisData = await analysisResponse.json();
       setResults(analysisData.results);
       setAnalysisSource(analysisData.source || null);
+      setViewMode("list"); // Show structured analysis results
 
       // CRO table is optional - don't fail if it errors
       if (croTableResponse.ok) {

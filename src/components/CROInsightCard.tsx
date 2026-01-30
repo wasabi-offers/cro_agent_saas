@@ -16,29 +16,45 @@ function parseInsight(text: string): ParsedInsight {
   const result: ParsedInsight = { raw: text };
   const lower = text.toLowerCase();
 
-  // Extract ACTION
-  const actionMatch = text.match(/(?:ACTION:|action:)\s*(.+?)(?=(?:Psychology:|Principle:|Expected:|Impact:|Effort:|$))/is);
-  if (actionMatch) result.action = actionMatch[1].trim();
+  // Extract ACTION - multiple patterns (ACTION:, Action:, Change to, Replace with, Move to, Add)
+  const actionPatterns = [
+    /(?:ACTION|Action):\s*(.+?)(?=Psychology|Principle|Expected|Impact|Effort|Confidence|\.\s+[A-Z]|$)/is,
+    /(?:Change to|Replace with|Move to|Add)\s+(?:button to|headline to|text to)?\s*['"]?(.+?)(?:['"]?\s*\.|Psychology|Expected|$)/is,
+  ];
+  for (const p of actionPatterns) {
+    const m = text.match(p);
+    if (m && m[1].trim().length > 10) {
+      result.action = m[1].trim();
+      break;
+    }
+  }
 
-  // Extract Psychology/Principle
-  const psychMatch = text.match(/(?:Psychology|Principle):\s*(.+?)(?=(?:Expected:|Impact:|Effort:|ACTION:|$))/is);
+  // Extract Psychology/Principle - flexible
+  const psychMatch = text.match(/(?:Psychology|Principle|Why it works):\s*(.+?)(?=Expected|Impact|Effort|Confidence|\.\s+[A-Z]|$)/is);
   if (psychMatch) result.principle = psychMatch[1].trim();
 
-  // Extract Expected impact
-  const impactMatch = text.match(/(?:Expected|Impact):\s*([^.]*(?:\+\d+[%-]\d+[%-]?[^.]*)?)/i);
-  if (impactMatch) result.impact = impactMatch[1].trim();
+  // Extract Expected impact - catch +X-Y% patterns anywhere
+  const impactMatch = text.match(/(?:\+\d+[-–]\d+%[^.]*|Expected[:\s]+[^.]*\+\d+[^.]*)/i);
+  if (impactMatch) {
+    result.impact = impactMatch[0].replace(/^(Expected|Impact):\s*/i, "").trim();
+  }
 
   // Extract Effort
-  if (/\beffort:\s*low\b/i.test(lower)) result.effort = "low";
-  else if (/\beffort:\s*medium\b/i.test(lower)) result.effort = "medium";
-  else if (/\beffort:\s*high\b/i.test(lower)) result.effort = "high";
+  if (/\beffort:\s*low\b/i.test(lower) || /\blow\s*effort\b/i.test(lower)) result.effort = "low";
+  else if (/\beffort:\s*medium\b/i.test(lower) || /\bmedium\s*effort\b/i.test(lower)) result.effort = "medium";
+  else if (/\beffort:\s*high\b/i.test(lower) || /\bhigh\s*effort\b/i.test(lower)) result.effort = "high";
 
-  // Problem = text before ACTION (or first sentence if no ACTION)
-  if (actionMatch) {
-    result.problem = text.substring(0, text.indexOf(actionMatch[0])).trim();
+  // Problem = text before ACTION (or first 1-2 sentences)
+  if (result.action) {
+    const actionIdx = text.toLowerCase().indexOf("action:");
+    if (actionIdx > 0) result.problem = text.substring(0, actionIdx).trim();
+    else {
+      const sentences = text.split(/(?<=[.!?])\s+/);
+      if (sentences[0] && sentences[0].length > 15) result.problem = sentences[0].trim();
+    }
   } else {
-    const firstSentence = text.split(/[.!?]/)[0];
-    if (firstSentence && firstSentence.length > 20) result.problem = firstSentence.trim() + (text.includes(".") ? "." : "");
+    const sentences = text.split(/(?<=[.!?])\s+/);
+    if (sentences[0] && sentences[0].length > 20) result.problem = sentences[0].trim() + (sentences[0].match(/[.!?]$/) ? "" : ".");
   }
 
   return result;
@@ -56,7 +72,16 @@ export default function CROInsightCard({ insight, category, index, compact }: CR
   const [copied, setCopied] = useState(false);
   const parsed = parseInsight(insight);
 
-  const hasStructure = parsed.action || parsed.principle || parsed.impact;
+  const hasStructure = parsed.action || parsed.principle || parsed.impact || parsed.problem;
+  // Fallback: split first sentence as problem, rest as recommendation
+  if (!parsed.problem && insight.length > 60) {
+    const firstSentence = insight.match(/^[^.!?]+[.!?]?/)?.[0]?.trim();
+    if (firstSentence && firstSentence.length > 20) {
+      parsed.problem = firstSentence;
+      parsed.action = insight.slice(firstSentence.length).trim();
+    }
+  }
+  const showStructured = hasStructure || parsed.problem;
 
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -92,7 +117,7 @@ export default function CROInsightCard({ insight, category, index, compact }: CR
       >
         <div className="w-1.5 h-1.5 bg-[#7c5cff] rounded-full mt-2 flex-shrink-0" />
         <div className="flex-1 min-w-0">
-          {hasStructure && expanded ? (
+          {showStructured && expanded ? (
             <div className="space-y-3">
               {parsed.problem && (
                 <div>

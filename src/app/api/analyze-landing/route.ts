@@ -247,12 +247,14 @@ ${ragContext}
 CRITICAL INSTRUCTIONS:
 You MUST provide EXTREMELY DETAILED, SCIENTIFIC, DATA-DRIVEN analysis following the examples above.
 
-Each insight MUST be ACTIONABLE with CONCRETE implementation:
-• Start with the PROBLEM (what's wrong + metric)
-• Then EXACT ACTION to take (specific copy to write, exact change to make)
-• Why it works (psychological principle)
-• Expected impact with percentage
-• Example: "CTA says 'Get Started' (generic, -47% clicks vs specific copy). Change to 'Start My Free 14-Day Trial' (specificity + risk reversal). Psychology: Loss Aversion (Kahneman). Expected: +18-28% CTA clicks. Effort: LOW."
+Each insight MUST follow this EXACT structure (required for UI parsing):
+1. PROBLEM: One sentence describing what's wrong + metric
+2. ACTION: Exact change to make (specific copy, position, element)
+3. Psychology: Principle name (e.g. Cialdini, Kahneman)
+4. Expected: +X-Y% impact (e.g. +18-28% CTA clicks)
+5. Effort: LOW or MEDIUM or HIGH
+
+Example format: "CTA 'Get Started' is generic (-47% vs specific). ACTION: Change to 'Start My Free 14-Day Trial'. Psychology: Loss Aversion (Kahneman). Expected: +18-28% CTA clicks. Effort: LOW."
 
 For each requested category, provide:
 • Score 0-100 (be critical - score below 70 means serious issues)
