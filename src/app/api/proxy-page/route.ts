@@ -65,6 +65,22 @@ export async function GET(request: NextRequest) {
       html = html.replace(/<link[^>]*as\s*=\s*["']script["'][^>]*>/gi, '');
     }
 
+    // Inject origin for CORS proxy (quando allowScripts)
+    const originVar = `<script>window.__CRO_PROXY_ORIGIN__="${targetUrl.origin}";window.__CRO_PROXY_API__="${appOrigin}/api/proxy-fetch";</script>`;
+    html = html.replace(/<head([^>]*)>/i, `$&${originVar}`);
+
+    // Inject CORS proxy script - instrada fetch/XHR verso dominio originale tramite nostro server (bypass CORS)
+    const corsProxyScript = allowScripts ? `<script>
+(function(){
+var O=window.__CRO_PROXY_ORIGIN__;var A=window.__CRO_PROXY_API__;
+if(!O||!A)return;
+function proxy(u){if(!u||u.indexOf(O)!==0)return null;return A+'?url='+encodeURIComponent(u);}
+var _f=window.fetch;window.fetch=function(u,o){var url=typeof u==='string'?u:(u&&u.url);var p=proxy(url);if(p)return _f(p,o);return _f.apply(this,arguments);};
+var X=window.XMLHttpRequest;window.XMLHttpRequest=function(){var x=new X();var _open=x.open;x.open=function(m,u){var p=proxy(u);_open.call(x,m,p||u);};return x;};
+})();
+</script>` : '';
+    if (corsProxyScript) html = html.replace(/<head([^>]*)>/i, `$&${corsProxyScript}`);
+
     // Inject mute script - SEMPRE senza audio nelle anteprime
     const muteScript = `<script>
 (function(){function m(e){if(e&&!e.muted){e.muted=true;e.volume=0;}}
