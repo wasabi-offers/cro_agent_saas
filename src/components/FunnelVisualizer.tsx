@@ -166,8 +166,10 @@ const nodeTypes = {
 };
 
 // Componente interno con accesso a ReactFlow
-function FunnelVisualizerInner({ steps, name, connections, onAnalyzePage }: FunnelVisualizerProps) {
+function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePage }: FunnelVisualizerProps) {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [dataAnalysisStep, setDataAnalysisStep] = useState<number | null>(null);
+  const [croPreviewStep, setCroPreviewStep] = useState<number | null>(null);
   const { fitView } = useReactFlow();
 
   // VALIDAZIONE: Verifica che ci siano step
