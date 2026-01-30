@@ -135,14 +135,25 @@ setTimeout(ma,500);setTimeout(ma,1500);})();</script>`;
       return proxyUrl(abs);
     };
 
-    // Rewrite href in <link> tags (CSS) - proxy CSS files
+    // Rewrite href in <link> tags - proxy CSS e script (modulepreload, preload as=script)
     html = html.replace(/<link([^>]*?)href=["']([^"']+)["']/gi, (match, before, href) => {
-      // Only proxy stylesheet links
       if (/rel=["']stylesheet["']/i.test(before) || /\.css/i.test(href)) {
+        return `<link${before}href="${resolveAndProxy(href)}"`;
+      }
+      // Proxy script/modulepreload - evita CORS su quiz e SPA
+      if (/rel=["']modulepreload["']/i.test(before) || /as=["']script["']/i.test(before) || /\.js/i.test(href)) {
         return `<link${before}href="${resolveAndProxy(href)}"`;
       }
       return `<link${before}href="${toAbsolute(href)}"`;
     });
+
+    // Rewrite src in <script> tags - evita CORS su quiz e SPA (concealedqualify, ecc.)
+    if (allowScripts) {
+      html = html.replace(/<script([^>]*?)src=["']([^"']+)["']/gi, (match, before, src) => {
+        if (src.startsWith('data:') || src.startsWith('javascript:')) return match;
+        return `<script${before}src="${resolveAndProxy(src)}"`;
+      });
+    }
 
     // Rewrite src in <img> tags - proxy images (all types: jpg, png, webp, svg, gif, avif, etc.)
     html = html.replace(/<img([^>]*?)src=["']([^"']+)["']/gi, (match, before, src) => {
