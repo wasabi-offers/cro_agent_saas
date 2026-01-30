@@ -286,11 +286,10 @@
     console.error('[CRO Tracker] FUNNEL_ID:', FUNNEL_ID, 'FUNNEL_STEP:', FUNNEL_STEP);
   }
 
-  // Click tracking
+  // Click tracking - use pageX/pageY for accurate document coordinates
   document.addEventListener('click', function(e) {
-    const rect = document.body.getBoundingClientRect();
-    const x = e.clientX - rect.left + window.scrollX;
-    const y = e.clientY - rect.top + window.scrollY;
+    const x = (typeof e.pageX === 'number') ? e.pageX : (e.clientX + (window.scrollX || document.documentElement.scrollLeft));
+    const y = (typeof e.pageY === 'number') ? e.pageY : (e.clientY + (window.scrollY || document.documentElement.scrollTop));
 
     const isCtaClick = e.target.tagName === 'BUTTON' ||
                        e.target.tagName === 'A' ||
@@ -365,12 +364,13 @@
       if (now - lastMouseTrack < 500) return;
       lastMouseTrack = now;
 
-      const rect = document.body.getBoundingClientRect();
+      const mx = (typeof e.pageX === 'number') ? e.pageX : (e.clientX + (window.scrollX || document.documentElement.scrollLeft));
+      const my = (typeof e.pageY === 'number') ? e.pageY : (e.clientY + (window.scrollY || document.documentElement.scrollTop));
       trackEvent({
         type: 'mousemove',
         mouseData: {
-          x: Math.round(e.clientX - rect.left + window.scrollX),
-          y: Math.round(e.clientY - rect.top + window.scrollY),
+          x: Math.round(mx),
+          y: Math.round(my),
           movementSpeed: Math.round(Math.sqrt(e.movementX**2 + e.movementY**2))
         }
       });

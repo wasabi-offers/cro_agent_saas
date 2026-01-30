@@ -100,7 +100,7 @@ export async function GET(request: Request) {
 
           events.forEach(event => {
             // Process click events
-            if ((event.event_type === 'click' || event.event_type === 'cta_click') && event.click_x && event.click_y) {
+            if ((event.event_type === 'click' || event.event_type === 'cta_click' || event.event_type === 'rage_click' || event.event_type === 'dead_click') && event.click_x != null && event.click_y != null) {
               const key = `${Math.floor(event.click_x / 10)}_${Math.floor(event.click_y / 10)}`; // 10px grid
               clickMap[key] = (clickMap[key] || 0) + 1;
             }

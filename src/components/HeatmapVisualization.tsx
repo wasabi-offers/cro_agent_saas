@@ -148,21 +148,24 @@ export default function HeatmapVisualization({
       return;
     }
 
-    // Get actual container dimensions
+    // Get actual container dimensions (matches iframe/page preview)
     const containerWidth = containerRef.current.offsetWidth;
     const containerHeight = containerRef.current.offsetHeight;
 
-    // Assume original coordinates were captured on standard viewport (1920x1080)
-    const ORIGINAL_WIDTH = 1920;
-    const ORIGINAL_HEIGHT = 1980;
+    // Adaptive scaling: use data bounds so points from different viewports (mobile/desktop) fit correctly
+    const maxX = Math.max(...data.points.map(p => p.x), 1);
+    const maxY = Math.max(...data.points.map(p => p.y), 1);
+    const refWidth = Math.max(maxX * 1.1, containerWidth);
+    const refHeight = Math.max(maxY * 1.1, contentHeight, containerHeight);
 
-    // Scale coordinates to match current container size
-    const scaleX = containerWidth / ORIGINAL_WIDTH;
-    const scaleY = containerHeight / ORIGINAL_HEIGHT;
+    const scaleX = containerWidth / refWidth;
+    const scaleY = containerHeight / refHeight;
 
     console.log('📐 Heatmap scaling:', {
       containerWidth,
       containerHeight,
+      refWidth: Math.round(refWidth),
+      refHeight: Math.round(refHeight),
       scaleX: scaleX.toFixed(3),
       scaleY: scaleY.toFixed(3),
       originalPoints: data.points.length,
