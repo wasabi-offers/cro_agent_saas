@@ -13,8 +13,6 @@ import {
   Loader2,
   ChevronRight,
 } from "lucide-react";
-import FunnelFlowGraph from "./FunnelFlowGraph";
-
 interface FunnelStep {
   name: string;
   visitors: number;
@@ -34,9 +32,6 @@ interface FunnelOverviewProps {
   firstStep: FunnelStep;
   lastStep: FunnelStep;
   conversionRate: number;
-  getDropoffColor: (dropoff: number) => string;
-  updateTrigger: number;
-  onAnalyzePage: (stepIndex: number) => void;
   onNavigateToAnalysis: () => void;
   onNavigateToHeatmap: () => void;
   onNavigateToABTests: () => void;
@@ -49,9 +44,6 @@ export default function FunnelOverview({
   firstStep,
   lastStep,
   conversionRate,
-  getDropoffColor,
-  updateTrigger,
-  onAnalyzePage,
   onNavigateToAnalysis,
   onNavigateToHeatmap,
   onNavigateToABTests,
@@ -231,18 +223,6 @@ export default function FunnelOverview({
         </div>
       </div>
 
-      {/* Funnel Flow */}
-      <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8">
-        <h2 className="text-[18px] font-semibold text-[#fafafa] mb-6">Funnel Flow</h2>
-        <FunnelFlowGraph
-          steps={steps}
-          connections={connections}
-          firstStep={firstStep}
-          getDropoffColor={getDropoffColor}
-          updateTrigger={updateTrigger}
-          onAnalyzePage={onAnalyzePage}
-        />
-      </div>
     </div>
   );
 }

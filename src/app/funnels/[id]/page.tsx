@@ -784,16 +784,6 @@ export default function FunnelDetailPage() {
             firstStep={firstStep}
             lastStep={lastStep}
             conversionRate={funnel.conversionRate}
-            getDropoffColor={getDropoffColor}
-            updateTrigger={updateTrigger}
-            onAnalyzePage={(stepIndex) => {
-              setActiveTab("analysis");
-              setAnalysisMode("page");
-              setSelectedPage(stepIndex);
-              setTimeout(() => {
-                analysisSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-              }, 100);
-            }}
             onNavigateToAnalysis={() => setActiveTab("analysis")}
             onNavigateToHeatmap={() => setActiveTab("heatmap")}
             onNavigateToABTests={() => setActiveTab("abtests")}
