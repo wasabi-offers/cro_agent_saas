@@ -240,6 +240,7 @@ export default function FunnelDetailPage() {
     setIsAnalyzing(true);
     setAnalysisError("");
     setAnalysisResults([]);
+    setAnalysisSource(null);
     setCroTableRows([]);
 
     try {
@@ -295,6 +296,7 @@ export default function FunnelDetailPage() {
 
       const analysisData = await analysisResponse.json();
       setAnalysisResults(analysisData.results);
+      setAnalysisSource(analysisData.source || null);
 
       // CRO table is optional - don't fail if it errors
       if (croTableResponse.ok) {
@@ -1031,6 +1033,11 @@ export default function FunnelDetailPage() {
                           <h3 className="text-[18px] font-semibold text-[#fafafa]">
                             {result.category}
                           </h3>
+                          {analysisSource && (
+                            <span className="text-[10px] px-2 py-0.5 rounded bg-[#2a2a2a] text-[#888888]">
+                              Source: {analysisSource}
+                            </span>
+                          )}
                         </div>
                         <div
                           className={`px-4 py-2 rounded-xl border ${getScoreBgColor(

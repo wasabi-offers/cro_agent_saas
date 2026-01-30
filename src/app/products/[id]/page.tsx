@@ -18,6 +18,7 @@ import {
   RefreshCw,
   Folder,
   Power,
+  Copy,
   BarChart3,
   Activity,
   TrendingDown,
@@ -161,6 +162,34 @@ export default function ProductFunnelsPage() {
       }
     } catch (error) {
       console.error('Error toggling funnel active status:', error);
+    }
+  };
+
+  const handleCloneFunnel = async (funnel: ConversionFunnel) => {
+    const clonedSteps = funnel.steps.map((step) => ({
+      name: step.name,
+      visitors: 0,
+      dropoff: 0,
+      url: step.url,
+      x: step.x,
+      y: step.y,
+    }));
+
+    const funnelWithProduct = {
+      name: `${funnel.name} (copy)`,
+      steps: clonedSteps,
+      connections: funnel.connections || [],
+      product_id: productId,
+    };
+
+    const newFunnel = await createFunnel(funnelWithProduct);
+
+    if (newFunnel) {
+      setFunnels([newFunnel, ...funnels]);
+      loadData(false);
+      alert("✅ Funnel clonato con successo!");
+    } else {
+      alert("❌ Errore durante la clonazione del funnel.");
     }
   };
 
@@ -505,6 +534,18 @@ export default function ProductFunnelsPage() {
                           >
                             {funnel.conversionRate.toFixed(1)}%
                           </div>
+                          {/* Clone */}
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleCloneFunnel(funnel);
+                            }}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#7c5cff]/10 text-[#666666] hover:text-[#7c5cff] transition-colors"
+                            title="Clona funnel"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
                           {/* Active Toggle */}
                           <button
                             onClick={(e) => {

@@ -591,6 +591,11 @@ export default function LandingAnalysisPage() {
                       <h3 className="text-[18px] font-semibold text-[#fafafa]">
                         {result.category}
                       </h3>
+                      {analysisSource && (
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-[#2a2a2a] text-[#888888]">
+                          Source: {analysisSource}
+                        </span>
+                      )}
                     </div>
                     <div
                       className={`px-4 py-2 rounded-xl border ${getScoreBgColor(
