@@ -223,30 +223,34 @@ export default function HeatmapVisualization({
       {/* Heatmap Container - FULL WIDTH AND HEIGHT */}
       <div className="p-6">
         <div className="relative bg-[#111111] rounded-xl border border-[#2a2a2a]" style={{ width: '100%' }}>
-          {/* Full page wrapper - let iframe dictate size */}
+          {/* Full page wrapper - iframe sotto, heatmap sopra per sovrapposizione */}
           <div className="relative w-full" style={{ height: `${contentHeight}px` }}>
-            {/* Page Iframe - FULL SIZE */}
-            {showPage && pageUrl && (
+            {/* Page Iframe - sempre presente per dimensioni, nascosto solo visivamente con opacity */}
+            {pageUrl && (
               <iframe
                 ref={iframeRef}
                 src={pageUrl}
-                className="w-full block"
+                className="absolute top-0 left-0 w-full block"
                 style={{
                   pointerEvents: 'none',
                   height: `${contentHeight}px`,
-                  border: 'none'
+                  border: 'none',
+                  zIndex: 0,
+                  opacity: showPage ? 1 : 0,
+                  visibility: showPage ? 'visible' : 'hidden',
                 }}
                 sandbox="allow-same-origin allow-scripts"
               />
             )}
 
-            {/* Heatmap Overlay - matches iframe exactly */}
+            {/* Heatmap Overlay - SEMPRE sopra l'iframe, z-index alto per vedere i click sulla pagina */}
             <div
               ref={containerRef}
-              className="absolute top-0 left-0 w-full z-10"
+              className="absolute top-0 left-0 w-full bg-transparent"
               style={{
                 pointerEvents: 'none',
-                height: `${contentHeight}px`
+                height: `${contentHeight}px`,
+                zIndex: 10,
               }}
             />
 
