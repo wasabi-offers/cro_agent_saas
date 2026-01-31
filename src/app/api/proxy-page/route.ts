@@ -98,10 +98,11 @@ history.pushState=function(s,t,u){try{_ps.call(history,s,t,window.location.href)
 function ma(){document.querySelectorAll('video,audio').forEach(m);}ma();
 var o=new MutationObserver(ma);o.observe(document.documentElement,{childList:true,subtree:true});
 setTimeout(ma,500);setTimeout(ma,1500);})();</script>`;
-    // Block dynamic injection of cdn-cgi, cloudflare, trk - scripts that cause CORS/403 in iframe
+    // Block cdn-cgi, cloudflare, trk - override prototype to catch both setAttribute AND el.src= / el.href=
     const blockInjectScript = allowScripts ? `<script>
-(function(){var _ce=document.createElement.bind(document);var bad=/cdn-cgi|cloudflareinsights|trk\\.concealedqualify/i;
-document.createElement=function(tag){var el=_ce(tag);if(tag.toLowerCase()==='script'||tag.toLowerCase()==='link'){var _sa=el.setAttribute.bind(el);el.setAttribute=function(n,v){if((n==='src'||n==='href')&&v&&bad.test(v))return;_sa(n,v);};}return el;};
+(function(){var bad=/cdn-cgi|cloudflareinsights|trk\\.concealedqualify/i;
+var d=Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype,'src');if(d&&d.set){var _set=d.set;Object.defineProperty(HTMLScriptElement.prototype,'src',{set:function(v){if(v&&bad.test(v))return;_set.call(this,v);},get:d.get,configurable:true});}
+var d2=Object.getOwnPropertyDescriptor(HTMLLinkElement.prototype,'href');if(d2&&d2.set){var _set2=d2.set;Object.defineProperty(HTMLLinkElement.prototype,'href',{set:function(v){if(v&&bad.test(v))return;_set2.call(this,v);},get:d2.get,configurable:true});}
 })();</script>` : '';
     const allScripts = `<script>window.__CRO_PROXY_ORIGIN__="${targetUrl.origin}";window.__CRO_PROXY_API__="${appOrigin}/api/proxy-fetch";window.__CRO_APP_ORIGIN__="${appOrigin}";</script>${blockInjectScript}${corsProxyScript}${redirectBlockerScript}${muteScript}`;
     html = html.replace(/<head([^>]*)>/i, `$&${allScripts}`);
@@ -215,15 +216,16 @@ document.createElement=function(tag){var el=_ce(tag);if(tag.toLowerCase()==='scr
     // NO base tag - all URLs are already rewritten to absolute or proxied
     // A base tag would break our /api/proxy-asset relative URLs
 
-    // Return HTML without X-Frame-Options
+    // Return HTML - CSP connect-src 'self' blocks direct fetch/XHR to external domains (CORS)
+    // Our fetch override routes external URLs through proxy-fetch (same-origin), so they work
     return new NextResponse(html, {
       status: 200,
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
         'X-Frame-Options': 'ALLOWALL',
-        'Content-Security-Policy': "frame-ancestors 'self'",
-        // Allow cross-origin resources
+        'Content-Security-Policy': "frame-ancestors 'self'; connect-src 'self'",
         'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
       },
     });
   } catch (error: any) {
