@@ -66,8 +66,8 @@ function StepNode({ data, id }: { data: StepNodeData; id: string }) {
         style={{ left: -8 }}
       />
 
-      <div className="bg-[#0a0a0a] border-2 border-[#7c5cff] rounded-xl p-4 min-w-[220px] shadow-lg hover:border-[#00d4aa] transition-all">
-        <div className="flex flex-col gap-2">
+      <div className="bg-[#0a0a0a] border-2 border-[#7c5cff] rounded-xl p-4 w-[260px] min-w-[260px] max-w-[260px] min-h-[140px] shadow-lg hover:border-[#00d4aa] transition-all overflow-hidden">
+        <div className="flex flex-col gap-2 min-w-0">
           {isEditing ? (
             <div className="space-y-2">
               <div>
@@ -132,10 +132,11 @@ function StepNode({ data, id }: { data: StepNodeData; id: string }) {
             </div>
           ) : (
             <>
-              <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center justify-between gap-2 mb-1 min-w-0">
                 <h3
-                  className="text-[14px] font-semibold text-[#fafafa] cursor-pointer flex-1"
+                  className="text-[14px] font-semibold text-[#fafafa] cursor-pointer flex-1 min-w-0 truncate"
                   onDoubleClick={() => setIsEditing(true)}
+                  title={data.label}
                 >
                   {data.label}
                 </h3>
@@ -147,12 +148,12 @@ function StepNode({ data, id }: { data: StepNodeData; id: string }) {
                 </button>
               </div>
 
-              {/* URL Display */}
+              {/* URL Display - fixed height, truncate long URLs */}
               {data.url ? (
-                <div className="mb-2 bg-[#111111] border border-[#2a2a2a] rounded-lg p-2">
-                  <div className="flex items-center gap-2">
+                <div className="mb-2 bg-[#111111] border border-[#2a2a2a] rounded-lg p-2 min-w-0 overflow-hidden">
+                  <div className="flex items-center gap-2 min-w-0">
                     <LinkIcon className="w-3 h-3 text-[#00d4aa] flex-shrink-0" />
-                    <span className="text-[11px] text-[#888888] truncate flex-1" title={data.url}>
+                    <span className="text-[11px] text-[#888888] truncate flex-1 min-w-0" title={data.url}>
                       {data.url}
                     </span>
                     <a
