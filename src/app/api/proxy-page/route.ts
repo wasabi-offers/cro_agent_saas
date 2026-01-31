@@ -216,14 +216,13 @@ var d2=Object.getOwnPropertyDescriptor(HTMLLinkElement.prototype,'href');if(d2&&
     // NO base tag - all URLs are already rewritten to absolute or proxied
     // A base tag would break our /api/proxy-asset relative URLs
 
-    // Return HTML - CSP connect-src 'self' blocks direct fetch/XHR to external domains (CORS)
-    // Our fetch override routes external URLs through proxy-fetch (same-origin), so they work
+    // Return HTML - NO connect-src CSP: blocca fetch a clickbank/graphql e altre API, anteprime vuote
     return new NextResponse(html, {
       status: 200,
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
         'X-Frame-Options': 'ALLOWALL',
-        'Content-Security-Policy': "frame-ancestors 'self'; connect-src 'self'",
+        'Content-Security-Policy': "frame-ancestors 'self'",
         'Access-Control-Allow-Origin': '*',
         'Cache-Control': 'no-store, no-cache, must-revalidate',
       },
