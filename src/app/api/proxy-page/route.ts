@@ -68,13 +68,14 @@ export async function GET(request: NextRequest) {
       html = html.replace(/<link[^>]*as\s*=\s*["']script["'][^>]*>/gi, '');
     }
 
-    // Inject scripts in ONE replace - ordine corretto: originVar -> corsProxy -> redirectBlocker -> mute
-    // (ogni replace inserisce dopo <head>, quindi l'ultimo finirebbe primo - un solo replace evita il bug)
+    // Inject scripts - proxy ALL cross-origin fetch/XHR/sendBeacon (not just main page origin)
+    // Fixes CORS: cb/cdn-cgi/rum, trk.concealedqualify, db.*, etc. - pages call multiple domains
     const corsProxyScript = allowScripts ? `<script>
-(function(){var O=window.__CRO_PROXY_ORIGIN__;var A=window.__CRO_PROXY_API__;if(!O||!A)return;
-function proxy(u){if(!u||u.indexOf(O)!==0)return null;return A+'?url='+encodeURIComponent(u);}
+(function(){var A=window.__CRO_PROXY_API__;var O=window.__CRO_APP_ORIGIN__;if(!A||!O)return;
+function proxy(u){if(!u||typeof u!=='string')return null;if(u.indexOf(O)===0)return null;if(u.indexOf('http://')===0||u.indexOf('https://')===0)return A+'?url='+encodeURIComponent(u);return null;}
 var _f=window.fetch;window.fetch=function(u,o){var url=typeof u==='string'?u:(u&&u.url);var p=proxy(url);if(p)return _f(p,o);return _f.apply(this,arguments);};
 var X=window.XMLHttpRequest;window.XMLHttpRequest=function(){var x=new X();var _open=x.open;x.open=function(m,u){var p=proxy(u);_open.call(x,m,p||u);};return x;};
+var _sb=navigator.sendBeacon;if(_sb){navigator.sendBeacon=function(u,d){var p=proxy(u);if(p){_f(p,{method:'POST',body:d,keepalive:true}).catch(function(){});return true;}return _sb.call(navigator,u,d);};}
 })();</script>` : '';
     // Blocca redirect e history manipulation in anteprima - evita SecurityError replaceState e checkout che sparisce
     const redirectBlockerScript = allowScripts ? `<script>
@@ -91,7 +92,7 @@ history.pushState=function(s,t,u){try{_ps.call(history,s,t,window.location.href)
 function ma(){document.querySelectorAll('video,audio').forEach(m);}ma();
 var o=new MutationObserver(ma);o.observe(document.documentElement,{childList:true,subtree:true});
 setTimeout(ma,500);setTimeout(ma,1500);})();</script>`;
-    const allScripts = `<script>window.__CRO_PROXY_ORIGIN__="${targetUrl.origin}";window.__CRO_PROXY_API__="${appOrigin}/api/proxy-fetch";</script>${corsProxyScript}${redirectBlockerScript}${muteScript}`;
+    const allScripts = `<script>window.__CRO_PROXY_ORIGIN__="${targetUrl.origin}";window.__CRO_PROXY_API__="${appOrigin}/api/proxy-fetch";window.__CRO_APP_ORIGIN__="${appOrigin}";</script>${corsProxyScript}${redirectBlockerScript}${muteScript}`;
     html = html.replace(/<head([^>]*)>/i, `$&${allScripts}`);
 
     // Videos: SEMPRE muted (no audio) - anteprime devono partire senza audio
