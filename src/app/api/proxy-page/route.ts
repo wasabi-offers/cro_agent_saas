@@ -35,7 +35,36 @@ export async function GET(request: NextRequest) {
       clearTimeout(timeoutId);
     }
 
-    // Se proxy fallisce (404, 500, ecc.) → fallback: redirect iframe all'URL diretto (come browser)
+    // Se 404 su route SPA (es. /approval) → prova root (/) che spesso restituisce l'app shell
+    let injectedPath: string | null = null;
+    if (!response.ok && response.status === 404 && targetUrl.pathname !== '/' && targetUrl.pathname !== '') {
+      injectedPath = targetUrl.pathname + targetUrl.search + targetUrl.hash;
+      const rootUrl = targetUrl.origin + '/';
+      try {
+        const rootController = new AbortController();
+        const rootTimeout = setTimeout(() => rootController.abort(), isReplitOrSPA ? 30000 : 15000);
+        const rootResponse = await fetch(rootUrl, {
+          signal: rootController.signal,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Referer': targetUrl.origin + '/',
+          },
+        });
+        clearTimeout(rootTimeout);
+        if (rootResponse.ok) {
+          response = rootResponse;
+          targetUrl.pathname = '/';
+          targetUrl.search = '';
+          targetUrl.hash = '';
+        }
+      } catch {
+        injectedPath = null;
+      }
+    }
+
+    // Se ancora fallisce → redirect iframe all'URL diretto (come browser)
     if (!response.ok) {
       const directUrl = targetUrl.toString().replace(/"/g, '&quot;');
       const fallbackHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=${directUrl}"></head><body>Redirecting...</body></html>`;
@@ -120,7 +149,9 @@ setTimeout(ma,500);setTimeout(ma,1500);})();</script>`;
 var d=Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype,'src');if(d&&d.set){var _set=d.set;Object.defineProperty(HTMLScriptElement.prototype,'src',{set:function(v){if(v&&bad.test(v))return;_set.call(this,v);},get:d.get,configurable:true});}
 var d2=Object.getOwnPropertyDescriptor(HTMLLinkElement.prototype,'href');if(d2&&d2.set){var _set2=d2.set;Object.defineProperty(HTMLLinkElement.prototype,'href',{set:function(v){if(v&&bad.test(v))return;_set2.call(this,v);},get:d2.get,configurable:true});}
 })();</script>` : '';
-    const allScripts = `<script>window.__CRO_PROXY_ORIGIN__="${targetUrl.origin}";window.__CRO_PROXY_API__="${appOrigin}/api/proxy-fetch";window.__CRO_APP_ORIGIN__="${appOrigin}";</script>${blockInjectScript}${corsProxyScript}${redirectBlockerScript}${muteScript}`;
+    // Se abbiamo caricato root per route SPA, imposta path prima che il router monti
+    const pathScript = injectedPath ? `<script>window.__CRO_INJECTED_PATH__="${injectedPath.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}";(function(){var p=window.__CRO_INJECTED_PATH__;if(p)try{history.replaceState(null,'',p);}catch(e){}})();</script>` : '';
+    const allScripts = `<script>window.__CRO_PROXY_ORIGIN__="${targetUrl.origin}";window.__CRO_PROXY_API__="${appOrigin}/api/proxy-fetch";window.__CRO_APP_ORIGIN__="${appOrigin}";</script>${pathScript}${blockInjectScript}${corsProxyScript}${redirectBlockerScript}${muteScript}`;
     html = html.replace(/<head([^>]*)>/i, `$&${allScripts}`);
 
     // Videos: SEMPRE muted (no audio) - anteprime devono partire senza audio
