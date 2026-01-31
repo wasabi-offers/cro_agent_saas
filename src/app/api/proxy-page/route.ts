@@ -35,11 +35,18 @@ export async function GET(request: NextRequest) {
       clearTimeout(timeoutId);
     }
 
+    // Se proxy fallisce (404, 500, ecc.) → fallback: redirect iframe all'URL diretto (come browser)
     if (!response.ok) {
-      return NextResponse.json(
-        { error: `Failed to fetch page: ${response.status} ${response.statusText}` },
-        { status: response.status }
-      );
+      const directUrl = targetUrl.toString().replace(/"/g, '&quot;');
+      const fallbackHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=${directUrl}"></head><body>Redirecting...</body></html>`;
+      return new NextResponse(fallbackHtml, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+          'X-Frame-Options': 'ALLOWALL',
+          'Cache-Control': 'no-store',
+        },
+      });
     }
 
     let html = await response.text();
@@ -238,9 +245,30 @@ var d2=Object.getOwnPropertyDescriptor(HTMLLinkElement.prototype,'href');if(d2&&
     });
   } catch (error: any) {
     console.error('Proxy error:', error);
-    return NextResponse.json(
-      { error: `Failed to proxy page: ${error.message}` },
-      { status: 500 }
-    );
+    // Fallback: redirect iframe all'URL diretto (timeout, network error, ecc.)
+    if (!url) {
+      return NextResponse.json(
+        { error: `Failed to proxy page: ${error.message}` },
+        { status: 500 }
+      );
+    }
+    try {
+      const targetUrl = new URL(url);
+      const directUrl = targetUrl.toString().replace(/"/g, '&quot;');
+      const fallbackHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=${directUrl}"></head><body>Redirecting...</body></html>`;
+      return new NextResponse(fallbackHtml, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+          'X-Frame-Options': 'ALLOWALL',
+          'Cache-Control': 'no-store',
+        },
+      });
+    } catch {
+      return NextResponse.json(
+        { error: `Failed to proxy page: ${error.message}` },
+        { status: 500 }
+      );
+    }
   }
 }
