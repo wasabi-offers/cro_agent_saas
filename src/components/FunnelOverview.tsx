@@ -31,6 +31,7 @@ interface FunnelOverviewProps {
   connections: FunnelConnection[];
   firstStep: FunnelStep;
   goalStep: FunnelStep;  // Step that counts as conversion (from Setup)
+  totalVisitors?: number;  // Union of unique visitors across all entry steps (from live API)
   conversionRate: number;
   onNavigateToAnalysis: () => void;
   onNavigateToHeatmap: () => void;
@@ -43,6 +44,7 @@ export default function FunnelOverview({
   connections,
   firstStep,
   goalStep,
+  totalVisitors,
   conversionRate,
   onNavigateToAnalysis,
   onNavigateToHeatmap,
@@ -112,7 +114,7 @@ export default function FunnelOverview({
             <span className="text-[12px] text-[#888888]">Total Visitors</span>
           </div>
           <p className="text-[24px] font-bold text-[#fafafa]">
-            {(firstStep?.visitors ?? 0).toLocaleString()}
+            {(totalVisitors ?? firstStep?.visitors ?? 0).toLocaleString()}
           </p>
         </div>
 

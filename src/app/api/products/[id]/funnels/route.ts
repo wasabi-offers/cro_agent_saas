@@ -119,6 +119,23 @@ export async function GET(
           };
         });
 
+        // Entry steps = steps that are never a target in any connection
+        // When no connections (linear funnel), only first step is entry
+        const hasConnections = connectionRecords && connectionRecords.length > 0;
+        const targetStepIds = new Set((connectionRecords || []).map((c: any) => c.target_step_id));
+        const entryStepNames = hasConnections
+          ? new Set(steps.filter((s: any) => !targetStepIds.has(s.id)).map((s: any) => s.name))
+          : new Set<string>();
+        const effectiveEntryNames = entryStepNames.size > 0 ? entryStepNames : new Set([steps[0]?.name].filter(Boolean));
+
+        // Total visitors = union of unique sessions across all entry steps
+        const allEntrySessions = new Set<string>();
+        for (const stepName of effectiveEntryNames) {
+          const sessions = stepStats.get(stepName);
+          if (sessions) sessions.forEach((sid) => allEntrySessions.add(sid));
+        }
+        const totalVisitors = allEntrySessions.size;
+
         // Goal step: use goal_step_id if set, else last step
         const goalStepId = funnel.goal_step_id;
         const goalStep = goalStepId
@@ -126,10 +143,9 @@ export async function GET(
           : liveSteps[liveSteps.length - 1];
         const conversions = goalStep?.visitors || 0;
 
-        // Calculate conversion rate (based on goal step)
-        const firstStepVisitors = liveSteps[0]?.visitors || 0;
-        const conversionRate = firstStepVisitors > 0
-          ? (conversions / firstStepVisitors) * 100
+        // Calculate conversion rate (based on goal step, denominator = total visitors from all entries)
+        const conversionRate = totalVisitors > 0
+          ? (conversions / totalVisitors) * 100
           : 0;
 
         return {
@@ -138,6 +154,7 @@ export async function GET(
           description: funnel.description,
           conversionRate,
           conversions,
+          totalVisitors,
           is_active: funnel.is_active !== false, // Default to true if not set
           steps: liveSteps,
           connections: mappedConnections,

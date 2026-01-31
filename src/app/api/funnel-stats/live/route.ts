@@ -66,6 +66,23 @@ export async function GET(req: NextRequest) {
       }, { status: 404 });
     }
 
+    // Fetch connections to identify entry steps (steps with no incoming connections)
+    const { data: connectionRecords } = await supabase
+      .from('funnel_connections')
+      .select('source_step_id, target_step_id')
+      .eq('funnel_id', funnelId);
+
+    // Entry steps = steps that are never a target in any connection
+    // When no connections (linear funnel), only first step is entry
+    const hasConnections = connectionRecords && connectionRecords.length > 0;
+    const targetStepIds = new Set((connectionRecords || []).map((c: { target_step_id: string }) => c.target_step_id));
+    const entryStepNames = hasConnections
+      ? new Set(steps.filter((s: { id: string }) => !targetStepIds.has(s.id)).map((s: { name: string }) => s.name))
+      : new Set<string>();
+
+    // Fallback: if no connections or all steps are targets, treat first step as only entry (linear funnel)
+    const effectiveEntryNames = entryStepNames.size > 0 ? entryStepNames : new Set([steps[0].name]);
+
     // Goal step: use goal_step_id if set, else last step
     const goalStepId = funnelRow?.goal_step_id;
     const goalStep = goalStepId
@@ -145,19 +162,28 @@ export async function GET(req: NextRequest) {
       previousVisitors = uniqueVisitors;
     }
 
-    // Calculate overall conversion rate (based on goal step, not necessarily last step)
-    const firstStepVisitors = liveStats[0]?.visitors || 0;
+    // Total visitors = union of unique sessions across ALL entry steps (not just step 1)
+    const allEntrySessions = new Set<string>();
+    for (const stepName of effectiveEntryNames) {
+      const sessions = stepVisitors[stepName];
+      if (sessions) {
+        sessions.forEach((sid) => allEntrySessions.add(sid));
+      }
+    }
+    const totalVisitors = allEntrySessions.size;
+
+    // Calculate overall conversion rate (based on goal step, denominator = total visitors from all entries)
     const goalStepStat = liveStats.find((ls) => ls.stepName === goalStep.name);
     const conversions = goalStepStat?.visitors || 0;
-    const conversionRate = firstStepVisitors > 0
-      ? (conversions / firstStepVisitors) * 100
+    const conversionRate = totalVisitors > 0
+      ? (conversions / totalVisitors) * 100
       : 0;
 
     const response = {
       success: true,
       liveStats,
       conversionRate: Math.round(conversionRate * 100) / 100,
-      totalVisitors: firstStepVisitors,
+      totalVisitors,
       conversions,
       goalStepName: goalStep.name,
     };

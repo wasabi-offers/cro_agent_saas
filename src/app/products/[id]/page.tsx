@@ -491,9 +491,10 @@ export default function ProductFunnelsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredFunnels.map((funnel) => {
                   const firstStep = funnel.steps[0];
+                  const totalVisitors = funnel.totalVisitors ?? firstStep?.visitors ?? 0;
                   const conversions = funnel.conversions ?? funnel.steps[funnel.steps.length - 1]?.visitors ?? 0;
-                  const funnelDropoff = firstStep.visitors > 0
-                    ? ((firstStep.visitors - conversions) / firstStep.visitors) * 100
+                  const funnelDropoff = totalVisitors > 0
+                    ? ((totalVisitors - conversions) / totalVisitors) * 100
                     : 0;
                   const isGoodConversion = funnel.conversionRate >= avgConversionRate;
                   const isActive = funnel.is_active !== false;
@@ -608,7 +609,7 @@ export default function ProductFunnelsPage() {
                         <div>
                           <p className="text-[11px] text-[#666666] uppercase mb-1">Visitors</p>
                           <p className="text-[16px] font-bold text-[#fafafa]">
-                            {firstStep.visitors.toLocaleString()}
+                            {(funnel.totalVisitors ?? firstStep?.visitors ?? 0).toLocaleString()}
                           </p>
                         </div>
                         <div>

@@ -160,6 +160,7 @@ export default function FunnelDetailPage() {
             const enrichedFunnel: ConversionFunnel = {
               ...funnelConfig,
               goal_step_id: funnelConfig.goal_step_id,
+              totalVisitors: liveData.totalVisitors ?? funnelConfig.steps[0]?.visitors ?? 0,
               steps: funnelConfig.steps.map((step) => {
                 const liveStat = liveData.liveStats.find((ls: { stepName: string }) => ls.stepName === step.name);
                 return {
@@ -530,6 +531,7 @@ export default function FunnelDetailPage() {
               id: funnelData.id,
               name: funnelData.name,
               conversionRate: liveData.conversionRate,
+              totalVisitors: liveData.totalVisitors ?? funnelData.steps[0]?.visitors ?? 0,
               goal_step_id: funnelData.goal_step_id,
               connections: funnelData.connections,
               steps: funnelData.steps.map((step: any) => {
@@ -697,7 +699,7 @@ export default function FunnelDetailPage() {
             <div className="text-right">
               <p className="text-[12px] text-[#888888]">Total Visitors</p>
               <p className="text-[24px] font-bold text-[#fafafa]">
-                {firstStep.visitors.toLocaleString()}
+                {(funnel.totalVisitors ?? firstStep?.visitors ?? 0).toLocaleString()}
               </p>
             </div>
             <div className="text-right">
@@ -831,6 +833,7 @@ export default function FunnelDetailPage() {
             connections={funnel.connections || []}
             firstStep={firstStep}
             goalStep={goalStep}
+            totalVisitors={funnel.totalVisitors ?? firstStep?.visitors ?? 0}
             conversionRate={funnel.conversionRate}
             onNavigateToAnalysis={() => setActiveTab("analysis")}
             onNavigateToHeatmap={() => setActiveTab("heatmap")}
