@@ -204,7 +204,7 @@ export default function ProductFunnelsPage() {
         case "conversion":
           return b.conversionRate - a.conversionRate;
         case "visitors":
-          return b.steps[0].visitors - a.steps[0].visitors;
+          return (b.totalVisitors ?? b.steps[0]?.visitors ?? 0) - (a.totalVisitors ?? a.steps[0]?.visitors ?? 0);
         default:
           return 0;
       }
@@ -214,8 +214,8 @@ export default function ProductFunnelsPage() {
   const activeFunnels = funnels.filter(f => f.is_active !== false);
   const inactiveFunnels = funnels.filter(f => f.is_active === false);
 
-  // Stats only for active funnels (use conversions from goal step when available)
-  const totalVisitors = activeFunnels.reduce((sum, f) => sum + f.steps[0].visitors, 0);
+  // Stats only for active funnels - somma totalVisitors di ogni funnel (union di tutti gli entry point)
+  const totalVisitors = activeFunnels.reduce((sum, f) => sum + (f.totalVisitors ?? f.steps[0]?.visitors ?? 0), 0);
   const totalConversions = activeFunnels.reduce((sum, f) => {
     const conv = f.conversions ?? f.steps[f.steps.length - 1]?.visitors ?? 0;
     return sum + conv;

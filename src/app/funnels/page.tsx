@@ -151,14 +151,18 @@ export default function FunnelsListPage() {
         case "conversion":
           return b.conversionRate - a.conversionRate;
         case "visitors":
-          return b.steps[0].visitors - a.steps[0].visitors;
+          return (b.totalVisitors ?? b.steps[0]?.visitors ?? 0) - (a.totalVisitors ?? a.steps[0]?.visitors ?? 0);
         default:
           return 0;
       }
     });
 
-  const totalVisitors = funnels.reduce((sum, f) => sum + f.steps[0].visitors, 0);
-  const totalConversions = funnels.reduce((sum, f) => sum + f.steps[f.steps.length - 1].visitors, 0);
+  // Somma totalVisitors di ogni funnel (union di tutti gli entry point)
+  const totalVisitors = funnels.reduce((sum, f) => sum + (f.totalVisitors ?? f.steps[0]?.visitors ?? 0), 0);
+  const totalConversions = funnels.reduce((sum, f) => {
+    const conv = f.conversions ?? f.steps[f.steps.length - 1]?.visitors ?? 0;
+    return sum + conv;
+  }, 0);
   const avgConversionRate = funnels.length > 0
     ? funnels.reduce((sum, f) => sum + f.conversionRate, 0) / funnels.length
     : 0;
