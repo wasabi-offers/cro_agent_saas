@@ -187,6 +187,9 @@ export default function HeatmapVisualization({
 
   const hasData = heatmapData && heatmapData[heatmapType]?.points?.length > 0;
 
+  // Viewport width for page preview simulation (mobile/tablet/desktop)
+  const viewportWidth = device === "mobile" ? 375 : device === "tablet" ? 768 : null;
+
   return (
     <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl overflow-hidden">
       {/* Demo Data Warning */}
@@ -247,24 +250,35 @@ export default function HeatmapVisualization({
         </button>
       </div>
 
-      {/* Heatmap Container - FULL WIDTH AND HEIGHT */}
+      {/* Heatmap Container - viewport simulation for mobile/tablet */}
       <div className="p-6">
-        <div className="relative bg-[#111111] rounded-xl border border-[#2a2a2a]" style={{ width: '100%' }}>
+        <div
+          className={`relative bg-[#111111] rounded-xl border border-[#2a2a2a] ${viewportWidth ? "flex justify-center" : ""}`}
+          style={{ width: "100%" }}
+        >
           {/* Full page wrapper - iframe sotto, heatmap sopra per sovrapposizione */}
-          <div className="relative w-full" style={{ height: `${contentHeight}px` }}>
-            {/* Page Iframe - sempre presente per dimensioni, nascosto solo visivamente con opacity */}
+          <div
+            className="relative overflow-hidden"
+            style={{
+              width: viewportWidth ? `${viewportWidth}px` : "100%",
+              height: `${contentHeight}px`,
+              maxWidth: "100%",
+            }}
+          >
+            {/* Page Iframe - simula viewport mobile/tablet quando selezionato */}
             {pageUrl && (
               <iframe
                 ref={iframeRef}
                 src={pageUrl}
-                className="absolute top-0 left-0 w-full block"
+                className="absolute top-0 left-0 block"
                 style={{
-                  pointerEvents: 'none',
+                  pointerEvents: "none",
+                  width: viewportWidth ? `${viewportWidth}px` : "100%",
                   height: `${contentHeight}px`,
-                  border: 'none',
+                  border: "none",
                   zIndex: 0,
                   opacity: showPage ? 1 : 0,
-                  visibility: showPage ? 'visible' : 'hidden',
+                  visibility: showPage ? "visible" : "hidden",
                 }}
                 sandbox="allow-same-origin allow-scripts"
               />
@@ -273,9 +287,10 @@ export default function HeatmapVisualization({
             {/* Heatmap Overlay - SEMPRE sopra l'iframe, z-index alto per vedere i click sulla pagina */}
             <div
               ref={containerRef}
-              className="absolute top-0 left-0 w-full bg-transparent"
+              className="absolute top-0 left-0 bg-transparent"
               style={{
-                pointerEvents: 'none',
+                pointerEvents: "none",
+                width: viewportWidth ? `${viewportWidth}px` : "100%",
                 height: `${contentHeight}px`,
                 zIndex: 10,
               }}
