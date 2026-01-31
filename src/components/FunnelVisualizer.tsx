@@ -58,13 +58,13 @@ interface StepCardContextType {
 }
 const StepCardContext = createContext<StepCardContextType>({});
 
-// Solo Replit usa scripts=0 - quiz, checkout, landing sono SPA che necessitano JS per renderizzare
+// Replit e concealedqualify: SPA che necessitano JS per renderizzare - sempre scripts=1
+// (prima Replit usava scripts=0 causando anteprime vuote per quiz/approval/apply/success)
 function shouldUseScripts(label: string, url?: string): boolean {
-  if (/replit\.com|replit\.dev|repl\.co/i.test(url || '')) return false;
   const s = (label + ' ' + (url || '')).toLowerCase();
-  // Quiz, checkout, payment: sempre scripts=1 (SPA - altrimenti anteprima vuota)
-  if (/quiz|checkout|payment|order|carrello|pagamento|clickbank|stripe|lp\d|landing/i.test(s)) return true;
-  return true; // default scripts=1 per tutte le altre pagine
+  if (/replit\.com|replit\.dev|repl\.co|concealedqualify\.com/i.test(url || '')) return true;
+  if (/quiz|checkout|payment|approval|apply|success|landing|optin|order|carrello|pagamento|clickbank|stripe|lp\d/i.test(s)) return true;
+  return true; // default: SPA moderne necessitano JS
 }
 
 function StepNode({ data }: { data: StepData }) {

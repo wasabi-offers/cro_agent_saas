@@ -25,10 +25,12 @@ interface FunnelFlowGraphProps {
 }
 
 function shouldUseScripts(label: string, url?: string): boolean {
-  if (/replit\.com|replit\.dev|repl\.co/i.test(url || '')) return false;
+  // Replit e concealedqualify: SPA che necessitano JS per renderizzare - scripts=1
+  // (prima scripts=0 causava anteprime vuote per quiz/approval/apply/success)
   const s = (label + ' ' + (url || '')).toLowerCase();
-  // Quiz, checkout, landing: sempre scripts=1 (SPA - altrimenti anteprima vuota)
-  return true;
+  if (/replit\.com|replit\.dev|repl\.co|concealedqualify\.com/i.test(url || '')) return true;
+  if (/quiz|checkout|payment|approval|apply|success|landing|optin/i.test(s)) return true;
+  return true; // default: SPA moderne necessitano JS
 }
 
 interface LayoutNode {
