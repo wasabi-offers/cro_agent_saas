@@ -38,6 +38,12 @@ export async function GET(request: NextRequest) {
     // Remove base tag - pages with wrong base may point images to our domain (404)
     html = html.replace(/<base[^>]*>/gi, '');
 
+    // Remove Cloudflare RUM, cdn-cgi, analytics - cause CORS errors in iframe preview, not needed for display
+    html = html.replace(/<script[^>]*src=["'][^"']*\/cdn-cgi\/[^"']*["'][^>]*>[\s\S]*?<\/script>/gi, '');
+    html = html.replace(/<script[^>]*src=["'][^"']*cdn-cgi[^"']*["'][^>]*\/?>/gi, '');
+    html = html.replace(/<script[^>]*src=["'][^"']*cloudflareinsights[^"']*["'][^>]*\/?>/gi, '');
+    html = html.replace(/<link[^>]*href=["'][^"']*\/cdn-cgi\/[^"']*["'][^>]*\/?>/gi, '');
+
     // Remove meta refresh - evita che checkout/pagine facciano redirect e spariscano dall'anteprima
     html = html.replace(/<meta[^>]*http-equiv\s*=\s*["']refresh["'][^>]*>/gi, '');
 
@@ -92,7 +98,12 @@ history.pushState=function(s,t,u){try{_ps.call(history,s,t,window.location.href)
 function ma(){document.querySelectorAll('video,audio').forEach(m);}ma();
 var o=new MutationObserver(ma);o.observe(document.documentElement,{childList:true,subtree:true});
 setTimeout(ma,500);setTimeout(ma,1500);})();</script>`;
-    const allScripts = `<script>window.__CRO_PROXY_ORIGIN__="${targetUrl.origin}";window.__CRO_PROXY_API__="${appOrigin}/api/proxy-fetch";window.__CRO_APP_ORIGIN__="${appOrigin}";</script>${corsProxyScript}${redirectBlockerScript}${muteScript}`;
+    // Block dynamic injection of cdn-cgi, cloudflare, trk - scripts that cause CORS/403 in iframe
+    const blockInjectScript = allowScripts ? `<script>
+(function(){var _ce=document.createElement.bind(document);var bad=/cdn-cgi|cloudflareinsights|trk\\.concealedqualify/i;
+document.createElement=function(tag){var el=_ce(tag);if(tag.toLowerCase()==='script'||tag.toLowerCase()==='link'){var _sa=el.setAttribute.bind(el);el.setAttribute=function(n,v){if((n==='src'||n==='href')&&v&&bad.test(v))return;_sa(n,v);};}return el;};
+})();</script>` : '';
+    const allScripts = `<script>window.__CRO_PROXY_ORIGIN__="${targetUrl.origin}";window.__CRO_PROXY_API__="${appOrigin}/api/proxy-fetch";window.__CRO_APP_ORIGIN__="${appOrigin}";</script>${blockInjectScript}${corsProxyScript}${redirectBlockerScript}${muteScript}`;
     html = html.replace(/<head([^>]*)>/i, `$&${allScripts}`);
 
     // Videos: SEMPRE muted (no audio) - anteprime devono partire senza audio
