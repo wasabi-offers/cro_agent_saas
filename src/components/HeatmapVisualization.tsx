@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MousePointerClick, AlertCircle } from "lucide-react";
+import { MousePointerClick, AlertCircle, Monitor, Smartphone, Tablet, LayoutGrid } from "lucide-react";
 
 // Import heatmap.js
 // @ts-ignore
@@ -45,6 +45,7 @@ export default function HeatmapVisualization({
   const [showPage, setShowPage] = useState(true);
   const [contentHeight, setContentHeight] = useState(2000);
   const [isDemoData, setIsDemoData] = useState(false);
+  const [device, setDevice] = useState<"all" | "mobile" | "desktop" | "tablet">("all");
 
   // Detect iframe content height
   useEffect(() => {
@@ -107,7 +108,7 @@ export default function HeatmapVisualization({
     async function loadHeatmapData() {
       setIsLoading(true);
       try {
-        const url = `/api/heatmap-data?funnelId=${funnelId}&stepName=${encodeURIComponent(stepName)}`;
+        const url = `/api/heatmap-data?funnelId=${funnelId}&stepName=${encodeURIComponent(stepName)}&device=${device}`;
         const response = await fetch(url);
         if (response.ok) {
           const data = await response.json();
@@ -132,7 +133,7 @@ export default function HeatmapVisualization({
     }
 
     loadHeatmapData();
-  }, [funnelId, stepName]);
+  }, [funnelId, stepName, device]);
 
   // Update heatmap visualization with coordinate scaling
   useEffect(() => {
@@ -204,10 +205,36 @@ export default function HeatmapVisualization({
       )}
 
       {/* Controls */}
-      <div className="p-4 border-b border-[#2a2a2a] flex items-center justify-between">
+      <div className="p-4 border-b border-[#2a2a2a] flex flex-wrap items-center justify-between gap-3">
         <h3 className="text-[14px] font-medium text-[#fafafa]">
           {stepName} - {heatmapType.charAt(0).toUpperCase() + heatmapType.slice(1)} Heatmap
         </h3>
+        <div className="flex items-center gap-2">
+          <span className="text-[12px] text-[#666666]">Device:</span>
+          {[
+            { id: "all" as const, label: "All", icon: LayoutGrid },
+            { id: "desktop" as const, label: "Desktop", icon: Monitor },
+            { id: "mobile" as const, label: "Mobile", icon: Smartphone },
+            { id: "tablet" as const, label: "Tablet", icon: Tablet },
+          ].map((d) => {
+            const Icon = d.icon;
+            const isActive = device === d.id;
+            return (
+              <button
+                key={d.id}
+                onClick={() => setDevice(d.id)}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
+                  isActive
+                    ? "bg-[#7c5cff] text-white"
+                    : "bg-[#111111] text-[#666666] hover:text-[#888888] border border-[#2a2a2a]"
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {d.label}
+              </button>
+            );
+          })}
+        </div>
         <button
           onClick={() => setShowPage(!showPage)}
           className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all ${

@@ -32,6 +32,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const funnelId = searchParams.get("funnelId") || searchParams.get("landingId"); // Support both
     const stepName = searchParams.get("stepName");
+    const device = searchParams.get("device") || "all"; // all | mobile | desktop | tablet
     const dateFrom = searchParams.get("dateFrom") || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
     const dateTo = searchParams.get("dateTo") || new Date().toISOString();
 
@@ -39,6 +40,7 @@ export async function GET(request: Request) {
     console.log('🔥 GET /api/heatmap-data');
     console.log('Funnel ID:', funnelId);
     console.log('Step Name:', stepName);
+    console.log('Device filter:', device);
     console.log('Date Range:', dateFrom, 'to', dateTo);
 
     if (!funnelId) {
@@ -57,10 +59,18 @@ export async function GET(request: Request) {
       try {
         console.log('📊 Fetching heatmap data from tracking_events...');
 
-        // Build query
+        // Build query - join tracking_sessions for device filter
         let query = supabase
           .from('tracking_events')
-          .select('event_type, click_x, click_y, mouse_x, mouse_y, scroll_depth')
+          .select(`
+            event_type,
+            click_x,
+            click_y,
+            mouse_x,
+            mouse_y,
+            scroll_depth,
+            tracking_sessions!inner(device_type)
+          `)
           .eq('funnel_id', funnelId)
           .gte('timestamp', new Date(dateFrom).getTime())
           .lte('timestamp', new Date(dateTo).getTime());
@@ -70,7 +80,22 @@ export async function GET(request: Request) {
           query = query.eq('funnel_step_name', stepName);
         }
 
-        const { data: events, error } = await query.limit(10000);
+        // Filter by device (mobile, desktop, tablet)
+        if (device && device !== 'all') {
+          query = query.eq('tracking_sessions.device_type', device);
+        }
+
+        const { data: rawEvents, error } = await query.limit(10000);
+
+        // Flatten: rawEvents have tracking_sessions nested, extract event fields
+        const events = rawEvents?.map((e: any) => ({
+          event_type: e.event_type,
+          click_x: e.click_x,
+          click_y: e.click_y,
+          mouse_x: e.mouse_x,
+          mouse_y: e.mouse_y,
+          scroll_depth: e.scroll_depth,
+        })) || [];
 
         console.log('Query error:', error);
         console.log('Events found:', events?.length || 0);
