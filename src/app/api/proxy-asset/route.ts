@@ -24,25 +24,33 @@ export async function GET(request: NextRequest) {
     const contentType = response.headers.get('content-type') || 'application/octet-stream';
     const body = await response.arrayBuffer();
 
-    // For CSS files, also rewrite url() references inside them
+    // For CSS files, rewrite url() and @import references
     if (contentType.includes('text/css')) {
       let css = new TextDecoder().decode(body);
       const cssOrigin = targetUrl.origin;
       const cssBasePath = targetUrl.pathname.replace(/\/[^/]*$/, '/');
 
+      const toAbs = (ref: string) => {
+        if (ref.startsWith('http://') || ref.startsWith('https://')) return ref;
+        if (ref.startsWith('//')) return 'https:' + ref;
+        if (ref.startsWith('/')) return cssOrigin + ref;
+        return cssOrigin + cssBasePath + ref;
+      };
+      const toProxy = (abs: string) => `/api/proxy-asset?url=${encodeURIComponent(abs)}`;
+
+      // Rewrite @import url("...") or @import "..."
+      css = css.replace(/@import\s+url\(["']?([^"')]+)["']?\)\s*;?/gi, (match, ref) => {
+        if (ref.startsWith('data:') || ref.startsWith('#')) return match;
+        return `@import url("${toProxy(toAbs(ref))}");`;
+      });
+      css = css.replace(/@import\s+["']([^"']+)["']\s*;?/gi, (match, ref) => {
+        if (ref.startsWith('data:') || ref.startsWith('#')) return match;
+        return `@import url("${toProxy(toAbs(ref))}");`;
+      });
+
       css = css.replace(/url\(["']?(?!data:)([^"')]+)["']?\)/gi, (match, ref) => {
         if (ref.startsWith('data:') || ref.startsWith('#')) return match;
-        let abs: string;
-        if (ref.startsWith('http://') || ref.startsWith('https://')) {
-          abs = ref;
-        } else if (ref.startsWith('//')) {
-          abs = 'https:' + ref;
-        } else if (ref.startsWith('/')) {
-          abs = cssOrigin + ref;
-        } else {
-          abs = cssOrigin + cssBasePath + ref;
-        }
-        return `url("/api/proxy-asset?url=${encodeURIComponent(abs)}")`;
+        return `url("${toProxy(toAbs(ref))}")`;
       });
 
       return new NextResponse(css, {

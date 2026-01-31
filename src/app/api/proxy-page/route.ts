@@ -164,9 +164,9 @@ var d2=Object.getOwnPropertyDescriptor(HTMLLinkElement.prototype,'href');if(d2&&
       return proxyUrl(abs);
     };
 
-    // Rewrite href in <link> tags - proxy CSS e script (modulepreload, preload as=script)
+    // Rewrite href in <link> tags - proxy CSS e script (modulepreload, preload as=script/style)
     html = html.replace(/<link([^>]*?)href=["']([^"']+)["']/gi, (match, before, href) => {
-      if (/rel=["']stylesheet["']/i.test(before) || /\.css/i.test(href)) {
+      if (/rel=["']stylesheet["']/i.test(before) || /as=["']style["']/i.test(before) || /\.css/i.test(href)) {
         return `<link${before}href="${resolveAndProxy(href)}"`;
       }
       // Proxy script/modulepreload - evita CORS su quiz e SPA
