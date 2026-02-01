@@ -27,6 +27,7 @@ interface FunnelStep {
   url?: string;
   x?: number;  // Visual position X coordinate
   y?: number;  // Visual position Y coordinate
+  conversionRate?: number;  // From API: % passing to next page(s) with path attribution
 }
 
 interface FunnelConnection {
@@ -216,12 +217,15 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
 
     const newNodes: Node[] = steps.map((step, index) => {
       const stepVisitors = step.visitors ?? 0;
-      const nextIndices = outgoing.get(index) ?? [];
-      const nextVisitors = nextIndices.reduce((sum, j) => sum + (steps[j]?.visitors ?? 0), 0);
-      // Conversion rate = % of people who pass to the next page(s)
-      const conversionRate = stepVisitors > 0 && nextVisitors >= 0
-        ? (nextVisitors / stepVisitors) * 100
-        : 0;
+      // Use API conversionRate when available (path attribution - correct for branched flows)
+      let conversionRate = step.conversionRate;
+      if (conversionRate === undefined || conversionRate === null) {
+        const nextIndices = outgoing.get(index) ?? [];
+        const nextVisitors = nextIndices.reduce((sum, j) => sum + (steps[j]?.visitors ?? 0), 0);
+        conversionRate = stepVisitors > 0 && nextVisitors >= 0
+          ? (nextVisitors / stepVisitors) * 100
+          : 0;
+      }
 
       return {
         id: `step-${index + 1}`,  // ← FIX CRITICO: era step-${index}

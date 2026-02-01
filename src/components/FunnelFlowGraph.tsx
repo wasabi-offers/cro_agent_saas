@@ -8,6 +8,7 @@ interface FunnelStep {
   visitors: number;
   dropoff: number;
   url?: string;
+  conversionRate?: number;  // From API: % passing to next page(s) with path attribution
 }
 
 interface FunnelConnection {

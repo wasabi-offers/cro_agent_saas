@@ -168,6 +168,7 @@ export default function FunnelDetailPage() {
                   id: step.id,
                   visitors: liveStat?.visitors ?? step.visitors,
                   dropoff: liveStat?.dropoff ?? step.dropoff,
+                  conversionRate: liveStat?.conversionRate,
                 };
               }),
               conversionRate: liveData.conversionRate ?? funnelConfig.conversionRate,
@@ -543,7 +544,8 @@ export default function FunnelDetailPage() {
                   x: step.x,
                   y: step.y,
                   visitors: liveStat?.visitors || 0,
-                  dropoff: liveStat?.dropoff || 0
+                  dropoff: liveStat?.dropoff || 0,
+                  conversionRate: liveStat?.conversionRate,
                 };
               })
             };
