@@ -89,9 +89,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Se ancora fallisce → redirect iframe all'URL diretto (come browser)
+    // no-referrer: evita che quiz1/concealedqualify blocchi per Referer esterno (anti-embedding)
     if (!response.ok) {
       const directUrl = targetUrl.toString().replace(/"/g, '&quot;');
-      const fallbackHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=${directUrl}"></head><body>Redirecting...</body></html>`;
+      const fallbackHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer"><meta http-equiv="refresh" content="0;url=${directUrl}"></head><body>Redirecting...</body></html>`;
       return new NextResponse(fallbackHtml, {
         status: 200,
         headers: {
@@ -310,7 +311,7 @@ var d2=Object.getOwnPropertyDescriptor(HTMLLinkElement.prototype,'href');if(d2&&
     try {
       const targetUrl = new URL(url);
       const directUrl = targetUrl.toString().replace(/"/g, '&quot;');
-      const fallbackHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=${directUrl}"></head><body>Redirecting...</body></html>`;
+      const fallbackHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer"><meta http-equiv="refresh" content="0;url=${directUrl}"></head><body>Redirecting...</body></html>`;
       return new NextResponse(fallbackHtml, {
         status: 200,
         headers: {

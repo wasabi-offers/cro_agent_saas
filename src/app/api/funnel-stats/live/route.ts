@@ -129,13 +129,61 @@ export async function GET(req: NextRequest) {
 
     // Group events by step name and count unique sessions
     const stepVisitors: { [stepName: string]: Set<string> } = {};
+    const sessionSteps: { [sessionId: string]: Set<string> } = {};
 
     events?.forEach(event => {
       if (!stepVisitors[event.funnel_step_name]) {
         stepVisitors[event.funnel_step_name] = new Set();
       }
       stepVisitors[event.funnel_step_name].add(event.session_id);
+      if (!sessionSteps[event.session_id]) {
+        sessionSteps[event.session_id] = new Set();
+      }
+      sessionSteps[event.session_id].add(event.funnel_step_name);
     });
+
+    // Build map: step id -> next step names (from connections)
+    const stepIdToName = new Map(steps.map((s: { id: string; name: string }) => [s.id, s.name]));
+    const stepNameToId = new Map(steps.map((s: { id: string; name: string }) => [s.name, s.id]));
+    const outgoingByStepId = new Map<string, string[]>();
+    for (const s of steps) {
+      outgoingByStepId.set(s.id, []);
+    }
+    if (connectionRecords && connectionRecords.length > 0) {
+      for (const c of connectionRecords) {
+        const targetName = stepIdToName.get(c.target_step_id);
+        if (targetName) {
+          const arr = outgoingByStepId.get(c.source_step_id) || [];
+          if (!arr.includes(targetName)) arr.push(targetName);
+          outgoingByStepId.set(c.source_step_id, arr);
+        }
+      }
+    } else {
+      for (let i = 0; i < steps.length - 1; i++) {
+        outgoingByStepId.set(steps[i].id, [steps[i + 1].name]);
+      }
+    }
+
+    // For each step: proceededToNext = sessions that hit this step AND any of its next steps
+    const proceededByStep = new Map<string, number>();
+    for (const step of steps) {
+      const nextNames = outgoingByStepId.get(step.id) || [];
+      if (nextNames.length === 0) {
+        proceededByStep.set(step.name, 0);
+        continue;
+      }
+      const visitorsHere = stepVisitors[step.name];
+      if (!visitorsHere || visitorsHere.size === 0) {
+        proceededByStep.set(step.name, 0);
+        continue;
+      }
+      let count = 0;
+      visitorsHere.forEach((sid) => {
+        const visited = sessionSteps[sid];
+        if (visited && nextNames.some((n) => visited.has(n))) count++;
+      });
+      proceededByStep.set(step.name, count);
+    }
 
     // Calculate live stats for each step
     const liveStats = [];
@@ -144,6 +192,8 @@ export async function GET(req: NextRequest) {
     for (let i = 0; i < steps.length; i++) {
       const step = steps[i];
       const uniqueVisitors = stepVisitors[step.name]?.size || 0;
+      const proceeded = proceededByStep.get(step.name) ?? 0;
+      const stepConversionRate = uniqueVisitors > 0 ? (proceeded / uniqueVisitors) * 100 : 0;
 
       // Calculate dropoff from previous step
       let dropoff = 0;
@@ -157,6 +207,8 @@ export async function GET(req: NextRequest) {
         stepOrder: step.step_order,
         visitors: uniqueVisitors,
         dropoff: Math.max(0, Math.round(dropoff * 100) / 100),
+        proceededToNext: proceeded,
+        conversionRate: Math.round(stepConversionRate * 100) / 100,
       });
 
       previousVisitors = uniqueVisitors;

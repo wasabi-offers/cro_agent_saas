@@ -12,6 +12,7 @@ export interface FunnelStep {
   url?: string;
   x?: number;  // Visual position X coordinate
   y?: number;  // Visual position Y coordinate
+  conversionRate?: number;  // % passing to next page(s) - from live API with path attribution
 }
 
 export interface FunnelConnection {

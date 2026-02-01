@@ -37,6 +37,7 @@ interface UrgentTask {
   visitors: number;
   urgency: UrgencyLevel;
   insight: string;
+  interventions: string[];  // Mini-analysis: how to fix
 }
 
 interface FunnelOverviewProps {
@@ -101,6 +102,40 @@ export default function FunnelOverview({
             : urgency === "medium"
               ? `${visitorsLost} visitors lost. Review page flow and heatmap.`
               : `Minor drop-off. Optimize for incremental gains.`;
+
+      // Mini-analysis: how to intervene based on step type and urgency
+      const s = (step.name + " " + (step.url || "")).toLowerCase();
+      let interventions: string[] = [];
+      if (/checkout|payment|cb|clickbank|stripe|pay/.test(s)) {
+        interventions = [
+          "Verify payment gateway (no errors, correct redirect)",
+          "Test on mobile and different browsers",
+          "Simplify form fields – remove friction",
+          "Check Heatmap for dead clicks on CTA",
+        ];
+      } else if (/quiz|question|form/.test(s)) {
+        interventions = [
+          "Reduce number of questions or steps",
+          "Make CTA more visible (above fold, contrasting color)",
+          "A/B test copy and layout",
+          "Check Heatmap for rage clicks (frustration)",
+        ];
+      } else if (/landing|bridge|optin|lp/.test(s)) {
+        interventions = [
+          "Strengthen headline and value proposition",
+          "Add social proof (testimonials, trust badges)",
+          "Simplify CTA – single clear action",
+          "Check Heatmap for scroll depth and CTA visibility",
+        ];
+      } else {
+        interventions = [
+          "Identify friction points with Heatmap",
+          "Simplify page flow and reduce steps",
+          "A/B test CTA placement and copy",
+          "Run CRO Analysis for detailed recommendations",
+        ];
+      }
+
       tasks.push({
         stepName: step.name,
         stepUrl: step.url,
@@ -109,6 +144,7 @@ export default function FunnelOverview({
         visitors,
         urgency,
         insight,
+        interventions,
       });
     });
     return tasks.sort((a, b) => b.dropoff - a.dropoff);
@@ -359,6 +395,19 @@ export default function FunnelOverview({
                     <span>{task.dropoff}% drop-off</span>
                     <span>{task.visitorsLost.toLocaleString()} visitors lost</span>
                   </div>
+                  {task.interventions.length > 0 && (
+                    <div className="mt-3 pt-3 border-t border-[#2a2a2a]">
+                      <p className="text-[12px] font-semibold text-[#00d4aa] mb-2">Mini analisi – Come intervenire:</p>
+                      <ul className="space-y-1.5 text-[12px] text-[#cccccc]">
+                        {task.interventions.map((item, j) => (
+                          <li key={j} className="flex items-start gap-2">
+                            <span className="text-[#00d4aa] flex-shrink-0">•</span>
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-2 flex-shrink-0">
                   <button

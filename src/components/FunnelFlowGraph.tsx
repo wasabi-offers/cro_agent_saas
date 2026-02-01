@@ -389,6 +389,9 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
                 </div>
                 <p className="text-[24px] font-bold text-[#fafafa]">
                   {(() => {
+                    if (selectedNode.step.conversionRate != null && Number.isFinite(selectedNode.step.conversionRate)) {
+                      return selectedNode.step.conversionRate.toFixed(1);
+                    }
                     const stepVisitors = selectedNode.step.visitors ?? 0;
                     const nextIndices = connections.length > 0
                       ? connections

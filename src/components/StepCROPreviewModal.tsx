@@ -85,6 +85,7 @@ export default function StepCROPreviewModal({
               <iframe
                 src={`/api/proxy-page?url=${encodeURIComponent(stepUrl)}&scripts=1`}
                 title={`Preview: ${stepName}`}
+                referrerPolicy="no-referrer"
                 className="absolute top-0 left-0 border-0 pointer-events-none"
                 style={{
                   width: "1280px",

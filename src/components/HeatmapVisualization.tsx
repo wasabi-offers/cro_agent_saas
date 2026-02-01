@@ -270,6 +270,7 @@ export default function HeatmapVisualization({
               <iframe
                 ref={iframeRef}
                 src={pageUrl}
+                referrerPolicy="no-referrer"
                 className="absolute top-0 left-0 block"
                 style={{
                   pointerEvents: "none",

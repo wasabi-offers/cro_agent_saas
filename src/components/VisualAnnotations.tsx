@@ -149,6 +149,7 @@ export default function VisualAnnotations({
               src={`/api/proxy-page?url=${encodeURIComponent(pageUrl)}`}
               className="w-full h-[800px] bg-white border border-[#2a2a2a]"
               title="Page preview"
+              referrerPolicy="no-referrer"
               sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
             />
           ) : (
