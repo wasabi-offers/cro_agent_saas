@@ -116,6 +116,7 @@ function StepNode({ data }: { data: StepData }) {
                 <iframe
                   src={`/api/proxy-page?url=${encodeURIComponent(data.url!)}&scripts=${useScripts ? '1' : '0'}`}
                   title={`Preview: ${data.label}`}
+                  referrerPolicy="no-referrer"
                   className="absolute top-0 left-0 border-0 pointer-events-none w-[1280px] h-[800px]"
                   style={{
                     transform: 'scale(0.22)',
@@ -175,7 +176,7 @@ const nodeTypes = {
 };
 
 // Componente interno con accesso a ReactFlow
-function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePage }: FunnelVisualizerProps) {
+function FunnelVisualizerInner({ steps, name, funnelId, connections, conversions = 0, onAnalyzePage }: FunnelVisualizerProps) {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [dataAnalysisStep, setDataAnalysisStep] = useState<number | null>(null);
   const [croPreviewStep, setCroPreviewStep] = useState<number | null>(null);
@@ -199,10 +200,12 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
     // Create nodes - IDs DEVONO INIZIARE DA 1 (come FunnelBuilder) !!!
     const newNodes: Node[] = steps.map((step, index) => {
       const firstVisitors = steps[0]?.visitors ?? 0;
+      const stepVisitors = step.visitors ?? 0;
+      // Entry step (index 0): use real funnel conversion (goal visitors / this step visitors), not hardcoded 100%
       const conversionRate = index === 0
-        ? 100
+        ? (conversions > 0 && stepVisitors > 0 ? (conversions / stepVisitors) * 100 : 0)
         : firstVisitors > 0
-          ? ((step.visitors ?? 0) / firstVisitors) * 100
+          ? (stepVisitors / firstVisitors) * 100
           : 0;
 
       return {
@@ -441,6 +444,7 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
                 <iframe
                   src={`/api/proxy-page?url=${encodeURIComponent(selectedNode.data.url)}&scripts=${shouldUseScripts(selectedNode.data.label, selectedNode.data.url) ? '1' : '0'}`}
                   title={`Preview: ${selectedNode.data.label}`}
+                  referrerPolicy="no-referrer"
                   className="absolute top-0 left-0 border-0 pointer-events-none"
                   style={{
                     width: '1280px',
