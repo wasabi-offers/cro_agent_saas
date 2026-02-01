@@ -47,6 +47,23 @@ export async function GET(request: NextRequest) {
       clearTimeout(timeoutId);
     }
 
+    // Replit/concealedqualify: 404 può essere cold start - retry una volta dopo 3s
+    if (!response.ok && response.status === 404 && isReplitOrSPA) {
+      await new Promise((r) => setTimeout(r, 3000));
+      const retryController = new AbortController();
+      const retryTimeout = setTimeout(() => retryController.abort(), 30000);
+      try {
+        const retryRes = await fetch(targetUrl.toString(), {
+          signal: retryController.signal,
+          headers: browserHeaders,
+        });
+        clearTimeout(retryTimeout);
+        if (retryRes.ok) response = retryRes;
+      } catch {
+        clearTimeout(retryTimeout);
+      }
+    }
+
     // Se 404 su route SPA (es. /approval) → prova root (/) che spesso restituisce l'app shell
     let injectedPath: string | null = null;
     if (!response.ok && response.status === 404 && targetUrl.pathname !== '/' && targetUrl.pathname !== '') {
