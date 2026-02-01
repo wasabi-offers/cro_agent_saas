@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   TrendingUp,
   Users,
@@ -12,6 +12,8 @@ import {
   Brain,
   Loader2,
   ChevronRight,
+  Filter,
+  Zap,
 } from "lucide-react";
 interface FunnelStep {
   name: string;
@@ -25,8 +27,21 @@ interface FunnelConnection {
   target: string;
 }
 
+type UrgencyLevel = "critical" | "high" | "medium" | "low";
+
+interface UrgentTask {
+  stepName: string;
+  stepUrl?: string;
+  dropoff: number;
+  visitorsLost: number;
+  visitors: number;
+  urgency: UrgencyLevel;
+  insight: string;
+}
+
 interface FunnelOverviewProps {
   funnelName: string;
+  funnelId?: string;
   steps: FunnelStep[];
   connections: FunnelConnection[];
   firstStep: FunnelStep;
@@ -40,6 +55,7 @@ interface FunnelOverviewProps {
 
 export default function FunnelOverview({
   funnelName,
+  funnelId,
   steps,
   connections,
   firstStep,
@@ -53,6 +69,8 @@ export default function FunnelOverview({
   const [ragSummary, setRagSummary] = useState<string | null>(null);
   const [isLoadingRag, setIsLoadingRag] = useState(false);
   const [ragError, setRagError] = useState<string | null>(null);
+  const [urgentFilterStep, setUrgentFilterStep] = useState<string>("all");
+  const [urgentFilterLevel, setUrgentFilterLevel] = useState<string>("all");
 
   // Bottleneck: step con drop-off più alto
   const bottleneckStep = steps.length > 0
@@ -60,6 +78,49 @@ export default function FunnelOverview({
         (step.dropoff ?? 0) > (worst.dropoff ?? 0) ? step : worst
       )
     : null;
+
+  // Urgent tasks: derive from drop-off data (funnel) + heatmap insights
+  const urgentTasks = useMemo((): UrgentTask[] => {
+    const tasks: UrgentTask[] = [];
+    steps.forEach((step) => {
+      const dropoff = step.dropoff ?? 0;
+      if (dropoff <= 0) return;
+      const visitors = step.visitors ?? 0;
+      const visitorsLost = Math.round(visitors * (dropoff / 100));
+      let urgency: UrgencyLevel = "low";
+      if (dropoff >= 80) urgency = "critical";
+      else if (dropoff >= 50) urgency = "high";
+      else if (dropoff >= 20) urgency = "medium";
+      const insight =
+        urgency === "critical"
+          ? dropoff >= 99
+            ? `100% drop-off – no visitors proceed. Fix immediately.`
+            : `Critical drop-off – ${visitorsLost} visitors lost. Fix immediately.`
+          : urgency === "high"
+            ? `High drop-off – ${visitorsLost} visitors lost. Check CTA visibility and friction.`
+            : urgency === "medium"
+              ? `${visitorsLost} visitors lost. Review page flow and heatmap.`
+              : `Minor drop-off. Optimize for incremental gains.`;
+      tasks.push({
+        stepName: step.name,
+        stepUrl: step.url,
+        dropoff,
+        visitorsLost,
+        visitors,
+        urgency,
+        insight,
+      });
+    });
+    return tasks.sort((a, b) => b.dropoff - a.dropoff);
+  }, [steps]);
+
+  const filteredUrgentTasks = useMemo(() => {
+    return urgentTasks.filter((t) => {
+      if (urgentFilterStep !== "all" && t.stepName !== urgentFilterStep) return false;
+      if (urgentFilterLevel !== "all" && t.urgency !== urgentFilterLevel) return false;
+      return true;
+    });
+  }, [urgentTasks, urgentFilterStep, urgentFilterLevel]);
 
   const fetchRagSummary = async () => {
     setIsLoadingRag(true);
@@ -229,6 +290,94 @@ export default function FunnelOverview({
             <ChevronRight className="w-5 h-5 text-[#666666] group-hover:text-[#f59e0b]" />
           </button>
         </div>
+      </div>
+
+      {/* Urgent Tasks – analysis based on funnel data and heatmap */}
+      <div className="bg-[#0a0a0a] border border-[#ff6b6b]/30 rounded-2xl p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <div className="flex items-center gap-2">
+            <Zap className="w-5 h-5 text-[#ff6b6b]" />
+            <h3 className="text-[16px] font-semibold text-[#fafafa]">Urgent Tasks</h3>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              <Filter className="w-4 h-4 text-[#666666]" />
+              <select
+                value={urgentFilterStep}
+                onChange={(e) => setUrgentFilterStep(e.target.value)}
+                className="bg-[#111111] border border-[#2a2a2a] rounded-lg px-3 py-1.5 text-[12px] text-[#fafafa] focus:outline-none focus:border-[#7c5cff]"
+              >
+                <option value="all">All pages</option>
+                {steps.map((s) => (
+                  <option key={s.name} value={s.name}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <select
+              value={urgentFilterLevel}
+              onChange={(e) => setUrgentFilterLevel(e.target.value)}
+              className="bg-[#111111] border border-[#2a2a2a] rounded-lg px-3 py-1.5 text-[12px] text-[#fafafa] focus:outline-none focus:border-[#7c5cff]"
+            >
+              <option value="all">All urgency</option>
+              <option value="critical">Critical (≥80%)</option>
+              <option value="high">High (50–79%)</option>
+              <option value="medium">Medium (20–49%)</option>
+              <option value="low">Low (&lt;20%)</option>
+            </select>
+          </div>
+        </div>
+        <p className="text-[12px] text-[#666666] mb-4">
+          Based on funnel drop-off data. Check the Heatmap tab for click patterns and CTA visibility.
+        </p>
+        {filteredUrgentTasks.length === 0 ? (
+          <p className="text-[13px] text-[#888888] py-4">
+            {urgentTasks.length === 0
+              ? "No urgent tasks – all steps have low or no drop-off."
+              : "No tasks match the current filters."}
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {filteredUrgentTasks.map((task, i) => (
+              <div
+                key={`${task.stepName}-${i}`}
+                className={`flex items-start gap-4 p-4 rounded-xl border ${
+                  task.urgency === "critical"
+                    ? "bg-[#ff6b6b]/10 border-[#ff6b6b]/30"
+                    : task.urgency === "high"
+                      ? "bg-[#f59e0b]/10 border-[#f59e0b]/30"
+                      : task.urgency === "medium"
+                        ? "bg-[#f59e0b]/5 border-[#f59e0b]/20"
+                        : "bg-[#2a2a2a]/50 border-[#333333]"
+                }`}
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="text-[14px] font-semibold text-[#fafafa]">{task.stepName}</p>
+                  <p className="text-[12px] text-[#888888] mt-1">{task.insight}</p>
+                  <div className="flex items-center gap-3 mt-2 text-[11px] text-[#666666]">
+                    <span>{task.dropoff}% drop-off</span>
+                    <span>{task.visitorsLost.toLocaleString()} visitors lost</span>
+                  </div>
+                </div>
+                <div className="flex gap-2 flex-shrink-0">
+                  <button
+                    onClick={onNavigateToAnalysis}
+                    className="px-3 py-1.5 bg-[#7c5cff]/20 hover:bg-[#7c5cff]/30 text-[#7c5cff] rounded-lg text-[11px] font-medium"
+                  >
+                    CRO Analysis
+                  </button>
+                  <button
+                    onClick={onNavigateToHeatmap}
+                    className="px-3 py-1.5 bg-[#00d4aa]/20 hover:bg-[#00d4aa]/30 text-[#00d4aa] rounded-lg text-[11px] font-medium"
+                  >
+                    Heatmap
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
     </div>

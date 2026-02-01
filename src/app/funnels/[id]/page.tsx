@@ -830,6 +830,7 @@ export default function FunnelDetailPage() {
         {activeTab === "overview" && (
           <FunnelOverview
             funnelName={funnel.name}
+            funnelId={funnelId}
             steps={funnel.steps}
             connections={funnel.connections || []}
             firstStep={firstStep}
