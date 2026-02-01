@@ -16,6 +16,23 @@ export async function GET(request: NextRequest) {
     // Validate URL
     const targetUrl = new URL(url);
 
+    // Headers browser-like per evitare bot detection (Replit/Cloudflare restituiscono 404 a fetch server)
+    const browserHeaders: Record<string, string> = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+      'Accept-Language': 'en-US,en;q=0.9',
+      'Accept-Encoding': 'gzip, deflate, br',
+      'Referer': targetUrl.origin + '/',
+      'Sec-Ch-Ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+      'Sec-Ch-Ua-Mobile': '?0',
+      'Sec-Ch-Ua-Platform': '"Windows"',
+      'Sec-Fetch-Dest': 'document',
+      'Sec-Fetch-Mode': 'navigate',
+      'Sec-Fetch-Site': 'none',
+      'Sec-Fetch-User': '?1',
+      'Upgrade-Insecure-Requests': '1',
+    };
+
     // Fetch the page - timeout 30s per Replit/SPA che possono essere lente
     const isReplitOrSPA = /replit\.com|replit\.dev|repl\.co|concealedqualify\.com/i.test(targetUrl.hostname);
     const controller = new AbortController();
@@ -24,12 +41,7 @@ export async function GET(request: NextRequest) {
     try {
       response = await fetch(targetUrl.toString(), {
         signal: controller.signal,
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-          'Accept-Language': 'en-US,en;q=0.9',
-          'Referer': targetUrl.origin + '/',
-        },
+        headers: browserHeaders,
       });
     } finally {
       clearTimeout(timeoutId);
@@ -45,12 +57,7 @@ export async function GET(request: NextRequest) {
         const rootTimeout = setTimeout(() => rootController.abort(), isReplitOrSPA ? 30000 : 15000);
         const rootResponse = await fetch(rootUrl, {
           signal: rootController.signal,
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Referer': targetUrl.origin + '/',
-          },
+          headers: { ...browserHeaders, Referer: rootUrl },
         });
         clearTimeout(rootTimeout);
         if (rootResponse.ok) {
