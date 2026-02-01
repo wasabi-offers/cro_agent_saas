@@ -739,7 +739,6 @@ export default function FunnelDetailPage() {
               name={funnel.name}
               funnelId={funnelId}
               connections={funnel.connections}
-              conversions={funnel.conversions ?? 0}
               onAnalyzePage={(stepIndex) => {
                 setActiveTab("analysis");
                 setAnalysisMode("page");

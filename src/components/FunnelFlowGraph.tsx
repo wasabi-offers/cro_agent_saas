@@ -381,21 +381,26 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
                 </p>
               </div>
 
-              {!selectedNode.isEntry && (
-                <div className="bg-[#00d4aa]/10 border border-[#00d4aa]/20 rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Percent className="w-4 h-4 text-[#00d4aa]" />
-                    <span className="text-[12px] text-[#888888]">Conversion Rate</span>
-                  </div>
-                  <p className="text-[24px] font-bold text-[#fafafa]">
-                    {steps[0]?.visitors > 0
-                      ? (Number.isFinite((selectedNode.step.visitors ?? 0) / steps[0].visitors)
-                          ? ((selectedNode.step.visitors ?? 0) / steps[0].visitors * 100).toFixed(1)
-                          : '0')
-                      : '0'}%
-                  </p>
+              <div className="bg-[#00d4aa]/10 border border-[#00d4aa]/20 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Percent className="w-4 h-4 text-[#00d4aa]" />
+                  <span className="text-[12px] text-[#888888]">Conversion Rate</span>
                 </div>
-              )}
+                <p className="text-[24px] font-bold text-[#fafafa]">
+                  {(() => {
+                    const stepVisitors = selectedNode.step.visitors ?? 0;
+                    const nextIndices = connections.length > 0
+                      ? connections
+                          .filter((c) => parseInt(c.source.replace('step-', ''), 10) - 1 === selectedNode.index)
+                          .map((c) => parseInt(c.target.replace('step-', ''), 10) - 1)
+                      : selectedNode.index + 1 < steps.length ? [selectedNode.index + 1] : [];
+                    const nextVisitors = nextIndices.reduce((s, j) => s + (steps[j]?.visitors ?? 0), 0);
+                    const rate = stepVisitors > 0 ? (nextVisitors / stepVisitors) * 100 : 0;
+                    return Number.isFinite(rate) ? rate.toFixed(1) : '0';
+                  })()}%
+                </p>
+                <p className="text-[11px] text-[#666666] mt-1">% passing to next page(s)</p>
+              </div>
 
               {selectedNode.step.dropoff > 0 && (
                 <div className="bg-[#ff6b6b]/10 border border-[#ff6b6b]/20 rounded-lg p-4">
@@ -448,6 +453,7 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
                   <iframe
                     src={`/api/proxy-page?url=${encodeURIComponent(selectedNode.step.url)}&scripts=${shouldUseScripts(selectedNode.step.name, selectedNode.step.url) ? '1' : '0'}`}
                     title={`Preview: ${selectedNode.step.name}`}
+                    referrerPolicy="no-referrer"
                     className="absolute top-0 left-0 border-0 pointer-events-none"
                     style={{
                       width: '1280px',

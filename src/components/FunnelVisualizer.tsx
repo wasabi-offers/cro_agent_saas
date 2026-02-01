@@ -176,7 +176,7 @@ const nodeTypes = {
 };
 
 // Componente interno con accesso a ReactFlow
-function FunnelVisualizerInner({ steps, name, funnelId, connections, conversions = 0, onAnalyzePage }: FunnelVisualizerProps) {
+function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePage }: FunnelVisualizerProps) {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [dataAnalysisStep, setDataAnalysisStep] = useState<number | null>(null);
   const [croPreviewStep, setCroPreviewStep] = useState<number | null>(null);
@@ -198,15 +198,30 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, conversions
   // Inizializza nodes ed edges quando cambiano gli steps (COPIATO DA FunnelBuilder)
   useEffect(() => {
     // Create nodes - IDs DEVONO INIZIARE DA 1 (come FunnelBuilder) !!!
+    // Build map: step index -> indices of direct next steps (from connections)
+    const outgoing = new Map<number, number[]>();
+    for (let i = 0; i < steps.length; i++) outgoing.set(i, []);
+    if (connections && connections.length > 0) {
+      for (const conn of connections) {
+        const srcIdx = parseInt(conn.source.replace('step-', ''), 10) - 1;
+        const tgtIdx = parseInt(conn.target.replace('step-', ''), 10) - 1;
+        if (srcIdx >= 0 && srcIdx < steps.length && tgtIdx >= 0 && tgtIdx < steps.length) {
+          outgoing.get(srcIdx)!.push(tgtIdx);
+        }
+      }
+    } else {
+      // Linear fallback: step i -> step i+1
+      for (let i = 0; i < steps.length - 1; i++) outgoing.get(i)!.push(i + 1);
+    }
+
     const newNodes: Node[] = steps.map((step, index) => {
-      const firstVisitors = steps[0]?.visitors ?? 0;
       const stepVisitors = step.visitors ?? 0;
-      // Entry step (index 0): use real funnel conversion (goal visitors / this step visitors), not hardcoded 100%
-      const conversionRate = index === 0
-        ? (conversions > 0 && stepVisitors > 0 ? (conversions / stepVisitors) * 100 : 0)
-        : firstVisitors > 0
-          ? (stepVisitors / firstVisitors) * 100
-          : 0;
+      const nextIndices = outgoing.get(index) ?? [];
+      const nextVisitors = nextIndices.reduce((sum, j) => sum + (steps[j]?.visitors ?? 0), 0);
+      // Conversion rate = % of people who pass to the next page(s)
+      const conversionRate = stepVisitors > 0 && nextVisitors >= 0
+        ? (nextVisitors / stepVisitors) * 100
+        : 0;
 
       return {
         id: `step-${index + 1}`,  // ← FIX CRITICO: era step-${index}
