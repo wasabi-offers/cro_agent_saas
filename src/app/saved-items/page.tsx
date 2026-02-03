@@ -205,9 +205,14 @@ export default function SavedItemsPage() {
 
                     {funnel.analysis && (
                       <div className="pt-4 border-t border-white/5">
-                        <div className="text-[12px] text-[#00d4aa] font-medium">
-                          ✓ Analysis available ({funnel.analysis.comparisonTable.length} opportunities)
-                        </div>
+                        <Link
+                          href={`/saved-items/${funnel.id}`}
+                          className="inline-flex items-center gap-2 text-[12px] text-[#00d4aa] font-medium hover:text-[#00e5b8] transition-colors cursor-pointer group"
+                        >
+                          <span className="group-hover:underline">
+                            ✓ Analysis available ({funnel.analysis.comparisonTable.length} opportunities)
+                          </span>
+                        </Link>
                       </div>
                     )}
                   </div>
@@ -274,9 +279,14 @@ export default function SavedItemsPage() {
 
                     {page.analysis && (
                       <div className="pt-4 border-t border-white/5">
-                        <div className="text-[12px] text-[#00d4aa] font-medium">
-                          ✓ Analysis available ({page.analysis.comparisonTable.length} opportunities)
-                        </div>
+                        <Link
+                          href={`/saved-items/${page.id}`}
+                          className="inline-flex items-center gap-2 text-[12px] text-[#00d4aa] font-medium hover:text-[#00e5b8] transition-colors cursor-pointer group"
+                        >
+                          <span className="group-hover:underline">
+                            ✓ Analysis available ({page.analysis.comparisonTable.length} opportunities)
+                          </span>
+                        </Link>
                       </div>
                     )}
                   </div>
