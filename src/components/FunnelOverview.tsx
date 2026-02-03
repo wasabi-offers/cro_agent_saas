@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Filter,
   Zap,
+  Lightbulb,
 } from "lucide-react";
 interface FunnelStep {
   name: string;
@@ -104,37 +105,35 @@ export default function FunnelOverview({
               : `Minor drop-off. Optimize for incremental gains.`;
 
       // Mini-analysis: how to intervene based on step type and urgency
-      const s = (step.name + " " + (step.url || "")).toLowerCase();
-      let interventions: string[] = [];
-      if (/checkout|payment|cb|clickbank|stripe|pay/.test(s)) {
-        interventions = [
-          "Verify payment gateway (no errors, correct redirect)",
-          "Test on mobile and different browsers",
-          "Simplify form fields – remove friction",
-          "Check Heatmap for dead clicks on CTA",
-        ];
-      } else if (/quiz|question|form/.test(s)) {
-        interventions = [
-          "Reduce number of questions or steps",
-          "Make CTA more visible (above fold, contrasting color)",
-          "A/B test copy and layout",
-          "Check Heatmap for rage clicks (frustration)",
-        ];
-      } else if (/landing|bridge|optin|lp/.test(s)) {
-        interventions = [
-          "Strengthen headline and value proposition",
-          "Add social proof (testimonials, trust badges)",
-          "Simplify CTA – single clear action",
-          "Check Heatmap for scroll depth and CTA visibility",
-        ];
-      } else {
-        interventions = [
-          "Identify friction points with Heatmap",
-          "Simplify page flow and reduce steps",
-          "A/B test CTA placement and copy",
-          "Run CRO Analysis for detailed recommendations",
-        ];
-      }
+      const stepKey = (step.name + " " + (step.url || "")).toLowerCase();
+      const interventions: string[] =
+        /checkout|payment|cb|clickbank|stripe|pay|cassa/.test(stepKey)
+          ? [
+              "Verify payment gateway (no errors, correct redirect)",
+              "Test on mobile and different browsers",
+              "Simplify form fields – remove friction",
+              "Check Heatmap for dead clicks on CTA",
+            ]
+          : /quiz|question|form/.test(stepKey)
+            ? [
+                "Reduce number of questions or steps",
+                "Make CTA more visible (above fold, contrasting color)",
+                "A/B test copy and layout",
+                "Check Heatmap for rage clicks (frustration)",
+              ]
+            : /landing|bridge|optin|lp/.test(stepKey)
+              ? [
+                  "Strengthen headline and value proposition",
+                  "Add social proof (testimonials, trust badges)",
+                  "Simplify CTA – single clear action",
+                  "Check Heatmap for scroll depth and CTA visibility",
+                ]
+              : [
+                  "Identify friction points with Heatmap",
+                  "Simplify page flow and reduce steps",
+                  "A/B test CTA placement and copy",
+                  "Run CRO Analysis for detailed recommendations",
+                ];
 
       tasks.push({
         stepName: step.name,
@@ -365,7 +364,7 @@ export default function FunnelOverview({
           </div>
         </div>
         <p className="text-[12px] text-[#666666] mb-4">
-          Based on funnel drop-off data. Check the Heatmap tab for click patterns and CTA visibility.
+          Basato sui dati di abbandono del funnel. Ogni compito include una mini analisi con consigli e idee da fare. Controlla la scheda Heatmap per i pattern di clic e la visibilità delle CTA.
         </p>
         {filteredUrgentTasks.length === 0 ? (
           <p className="text-[13px] text-[#888888] py-4">
@@ -396,12 +395,17 @@ export default function FunnelOverview({
                     <span>{task.visitorsLost.toLocaleString()} visitors lost</span>
                   </div>
                   {task.interventions.length > 0 && (
-                    <div className="mt-3 pt-3 border-t border-[#2a2a2a]">
-                      <p className="text-[12px] font-semibold text-[#00d4aa] mb-2">Mini analisi – Come intervenire:</p>
-                      <ul className="space-y-1.5 text-[12px] text-[#cccccc]">
+                    <div className="mt-4 p-4 rounded-lg bg-[#00d4aa]/5 border border-[#00d4aa]/20">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Lightbulb className="w-4 h-4 text-[#00d4aa]" />
+                        <p className="text-[13px] font-semibold text-[#00d4aa]">
+                          Mini analisi – Consigli e idee da fare:
+                        </p>
+                      </div>
+                      <ul className="space-y-2 text-[13px] text-[#e0e0e0]">
                         {task.interventions.map((item, j) => (
                           <li key={j} className="flex items-start gap-2">
-                            <span className="text-[#00d4aa] flex-shrink-0">•</span>
+                            <span className="text-[#00d4aa] flex-shrink-0 mt-0.5">✓</span>
                             <span>{item}</span>
                           </li>
                         ))}
