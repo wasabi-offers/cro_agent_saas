@@ -72,7 +72,7 @@ export default function HeatmapsPage() {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
             <div className="w-10 h-10 border-2 border-[#7c5cff] border-t-transparent rounded-full animate-spin" />
-            <p className="text-[#666666] text-[14px]">Loading click data...</p>
+            <p className="text-[#1a1a1a] text-[14px]">Loading click data...</p>
           </div>
         </div>
       </div>
@@ -122,7 +122,7 @@ export default function HeatmapsPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-[24px] font-bold text-[#1a1a1a] mb-2">Click & Interaction Data</h1>
-            <p className="text-[14px] text-[#666666]">
+            <p className="text-[14px] text-[#1a1a1a] font-semibold">
               User interaction patterns from Microsoft Clarity
             </p>
           </div>
@@ -136,22 +136,22 @@ export default function HeatmapsPage() {
         </div>
 
         {/* Info Banner */}
-        <div className="bg-[#0a0a0a] border border-[#7c5cff]/30 rounded-2xl p-6 mb-8">
+        <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6 mb-8">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 bg-[#7c5cff]/20 rounded-xl flex items-center justify-center flex-shrink-0">
               <Info className="w-6 h-6 text-[#7c5cff]" />
             </div>
             <div>
-              <h3 className="text-[16px] font-semibold text-[#1a1a1a] mb-2">
+              <h3 className="text-[16px] font-bold text-[#1a1a1a] mb-2">
                 Clarity Click Insights
               </h3>
-              <p className="text-[14px] text-[#888888] mb-3">
+              <p className="text-[14px] text-[#1a1a1a] mb-3">
                 This data comes from Microsoft Clarity which tracks dead clicks, rage clicks, and other 
                 user frustration signals. For visual heatmaps, connect Crazy Egg or Hotjar in Data Sources.
               </p>
               <Link
                 href="/data-sources"
-                className="text-[13px] text-[#7c5cff] hover:text-[#a78bff] transition-colors"
+                className="text-[13px] text-[#7c5cff] hover:text-[#a78bff] transition-colors font-semibold"
               >
                 Configure Data Sources →
               </Link>
@@ -178,7 +178,7 @@ export default function HeatmapsPage() {
               className={`px-4 py-2 rounded-lg text-[13px] font-medium transition-all capitalize ${
                 selectedDevice === device
                   ? 'bg-[#7c5cff] text-white'
-                  : 'bg-white/60 text-[#666666] border border-[#7c5cff]/30 hover:bg-white/80'
+                  : 'bg-white/60 text-[#1a1a1a] border border-[#7c5cff]/30 hover:bg-white/80'
               }`}
             >
               {device === 'all' ? 'All Devices' : device}
@@ -193,12 +193,12 @@ export default function HeatmapsPage() {
               <div className="w-10 h-10 bg-[#ff6b6b]/20 rounded-lg flex items-center justify-center">
                 <MousePointerClick className="w-5 h-5 text-[#ff6b6b]" />
               </div>
-              <span className="text-[13px] text-[#888888]">Dead Clicks</span>
+              <span className="text-[13px] text-[#1a1a1a] font-bold">Dead Clicks</span>
             </div>
             <p className="text-[32px] font-bold text-[#1a1a1a]">
               {summary.totalDeadClicks.toLocaleString()}
             </p>
-            <p className="text-[12px] text-[#666666] mt-1">
+            <p className="text-[12px] text-[#1a1a1a] mt-1">
               Clicks on non-interactive elements
             </p>
           </div>
@@ -208,12 +208,12 @@ export default function HeatmapsPage() {
               <div className="w-10 h-10 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center">
                 <Zap className="w-5 h-5 text-[#f59e0b]" />
               </div>
-              <span className="text-[13px] text-[#888888]">Rage Clicks</span>
+              <span className="text-[13px] text-[#1a1a1a] font-bold">Rage Clicks</span>
             </div>
             <p className="text-[32px] font-bold text-[#1a1a1a]">
               {summary.totalRageClicks.toLocaleString()}
             </p>
-            <p className="text-[12px] text-[#666666] mt-1">
+            <p className="text-[12px] text-[#1a1a1a] mt-1">
               Frustrated repeated clicking
             </p>
           </div>
@@ -228,7 +228,7 @@ export default function HeatmapsPage() {
             <p className="text-[32px] font-bold text-[#1a1a1a]">
               {summary.totalQuickbacks.toLocaleString()}
             </p>
-            <p className="text-[12px] text-[#666666] mt-1">
+            <p className="text-[12px] text-[#1a1a1a] mt-1">
               Quick navigation back
             </p>
           </div>
@@ -243,7 +243,7 @@ export default function HeatmapsPage() {
             <p className="text-[32px] font-bold text-[#1a1a1a]">
               {summary.avgScrollDepth.toFixed(0)}%
             </p>
-            <p className="text-[12px] text-[#666666] mt-1">
+            <p className="text-[12px] text-[#1a1a1a] mt-1">
               Average page scroll
             </p>
           </div>
@@ -283,21 +283,21 @@ export default function HeatmapsPage() {
                   </div>
                 </div>
               )) : (
-                <p className="text-[14px] text-[#666666] text-center py-4">No data for selected filter</p>
+                <p className="text-[14px] text-[#1a1a1a] text-center py-4">No data for selected filter</p>
               )}
             </div>
           </div>
 
           {/* Rage Clicks */}
-          <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl overflow-hidden">
-            <div className="px-6 py-5 border-b border-[#d0d0d0] flex items-center justify-between">
+          <div className="bg-gradient-to-br from-[#f59e0b]/20 to-[#f59e0b]/5 border border-[#f59e0b]/30 rounded-2xl overflow-hidden">
+            <div className="px-6 py-5 border-b border-[#f59e0b]/20 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center">
                   <Zap className="w-5 h-5 text-[#f59e0b]" />
                 </div>
                 <div>
-                  <h2 className="text-[16px] font-semibold text-[#1a1a1a]">Rage Clicks</h2>
-                  <p className="text-[12px] text-[#666666]">User frustration</p>
+                  <h2 className="text-[16px] font-bold text-[#1a1a1a]">Rage Clicks</h2>
+                  <p className="text-[12px] text-[#1a1a1a] font-semibold">User frustration</p>
                 </div>
               </div>
             </div>
@@ -320,7 +320,7 @@ export default function HeatmapsPage() {
                   </div>
                 </div>
               )) : (
-                <p className="text-[14px] text-[#666666] text-center py-4">No data for selected filter</p>
+                <p className="text-[14px] text-[#1a1a1a] text-center py-4">No data for selected filter</p>
               )}
             </div>
           </div>
@@ -347,7 +347,7 @@ export default function HeatmapsPage() {
                       <p className="text-[18px] font-bold text-[#ff6b6b]">
                         {err.sub_total.toLocaleString()} errors
                       </p>
-                      <p className="text-[11px] text-[#888888]">
+                      <p className="text-[11px] text-[#1a1a1a]">
                         {err.sessions_with_metric_percentage}% of sessions affected
                       </p>
                     </div>
@@ -384,7 +384,7 @@ export default function HeatmapsPage() {
                     </div>
                     <div>
                       <h3 className="text-[16px] font-semibold text-[#1a1a1a]">{device.device}</h3>
-                      <p className="text-[12px] text-[#666666]">{percentage.toFixed(1)}% of traffic</p>
+                      <p className="text-[12px] text-[#1a1a1a]">{percentage.toFixed(1)}% of traffic</p>
                     </div>
                   </div>
                   
@@ -393,13 +393,13 @@ export default function HeatmapsPage() {
                       <p className="text-[18px] font-bold text-[#1a1a1a]">
                         {device.total_session_count.toLocaleString()}
                       </p>
-                      <p className="text-[11px] text-[#666666]">Sessions</p>
+                      <p className="text-[11px] text-[#1a1a1a] font-semibold">Sessions</p>
                     </div>
                     <div className="text-center p-3 bg-white/80 rounded-lg border border-[#7c5cff]/20">
                       <p className="text-[18px] font-bold text-[#1a1a1a]">
                         {device.distinct_user_count.toLocaleString()}
                       </p>
-                      <p className="text-[11px] text-[#666666]">Users</p>
+                      <p className="text-[11px] text-[#1a1a1a] font-semibold">Users</p>
                     </div>
                   </div>
                 </div>
