@@ -262,7 +262,11 @@ export default function ExploreAIPage() {
                       key={action.id}
                       onClick={() => sendMessage(action.query)}
                       disabled={isLoading}
-                      className="p-5 bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl hover:border-[#7c5cff]/50 transition-all text-left group disabled:opacity-50"
+                      className="p-5 bg-gradient-to-br rounded-2xl hover:opacity-90 transition-all text-left group disabled:opacity-50 border"
+                      style={{
+                        background: `linear-gradient(to bottom right, ${action.color}20, ${action.color}05)`,
+                        borderColor: `${action.color}30`
+                      }}
                     >
                       <div
                         className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110"
@@ -270,7 +274,7 @@ export default function ExploreAIPage() {
                       >
                         <div style={{ color: action.color }}>{action.icon}</div>
                       </div>
-                      <h3 className="text-[15px] font-semibold text-[#fafafa] mb-1">
+                      <h3 className="text-[15px] font-semibold text-[#1a1a1a] mb-1">
                         {action.label}
                       </h3>
                       <p className="text-[13px] text-[#666666]">
@@ -552,7 +556,7 @@ export default function ExploreAIPage() {
             <div className="p-4 bg-gradient-to-br from-[#7c5cff]/10 to-[#00d4aa]/10 border border-[#7c5cff]/20 rounded-xl">
               <div className="flex items-center gap-2 mb-2">
                 <Brain className="w-4 h-4 text-[#7c5cff]" />
-                <p className="text-[12px] font-medium text-[#fafafa]">
+                <p className="text-[12px] font-medium text-[#1a1a1a]">
                   Powered by Claude AI
                 </p>
               </div>
