@@ -346,7 +346,7 @@ export default function ProductFunnelsPage() {
         </div>
 
         {/* Macro Analysis Section - Only Active Funnels */}
-        <div className="bg-gradient-to-br from-[#0a0a0a] to-[#111111] border border-[#d0d0d0] rounded-2xl p-6 mb-8">
+        <div className="bg-gradient-to-br from-white to-[#f8f9fa] border border-[#7c5cff]/30 rounded-2xl p-6 mb-8 shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
@@ -368,42 +368,42 @@ export default function ProductFunnelsPage() {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-            <div className="bg-[#000000]/50 border border-white/5 rounded-xl p-4">
+            <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Target className="w-4 h-4 text-[#7c5cff]" />
-                <span className="text-[11px] text-[#666666] uppercase">Active Funnels</span>
+                <span className="text-[11px] text-[#1a1a1a] uppercase font-bold">Active Funnels</span>
               </div>
               <p className="text-[24px] font-bold text-[#1a1a1a]">{activeFunnels.length}</p>
             </div>
 
-            <div className="bg-[#000000]/50 border border-white/5 rounded-xl p-4">
+            <div className="bg-gradient-to-br from-[#00d4aa]/20 to-[#00d4aa]/5 border border-[#00d4aa]/30 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Users className="w-4 h-4 text-[#00d4aa]" />
-                <span className="text-[11px] text-[#666666] uppercase">Visitatori</span>
+                <span className="text-[11px] text-[#1a1a1a] uppercase font-bold">Visitatori</span>
               </div>
               <p className="text-[24px] font-bold text-[#1a1a1a]">{totalVisitors.toLocaleString()}</p>
             </div>
 
-            <div className="bg-[#000000]/50 border border-white/5 rounded-xl p-4">
+            <div className="bg-gradient-to-br from-[#00d4aa]/20 to-[#00d4aa]/5 border border-[#00d4aa]/30 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
                 <TrendingUp className="w-4 h-4 text-[#00d4aa]" />
-                <span className="text-[11px] text-[#666666] uppercase">Conversions</span>
+                <span className="text-[11px] text-[#1a1a1a] uppercase font-bold">Conversions</span>
               </div>
               <p className="text-[24px] font-bold text-[#00d4aa]">{totalConversions.toLocaleString()}</p>
             </div>
 
-            <div className="bg-[#000000]/50 border border-white/5 rounded-xl p-4">
+            <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Activity className="w-4 h-4 text-[#7c5cff]" />
-                <span className="text-[11px] text-[#666666] uppercase">Conv. Rate</span>
+                <span className="text-[11px] text-[#1a1a1a] uppercase font-bold">Conv. Rate</span>
               </div>
               <p className="text-[24px] font-bold text-[#7c5cff]">{overallConversionRate.toFixed(1)}%</p>
             </div>
 
-            <div className="bg-[#000000]/50 border border-white/5 rounded-xl p-4">
+            <div className="bg-gradient-to-br from-[#ff6b6b]/20 to-[#ff6b6b]/5 border border-[#ff6b6b]/30 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
                 <TrendingDown className="w-4 h-4 text-[#ff6b6b]" />
-                <span className="text-[11px] text-[#666666] uppercase">Drop-off</span>
+                <span className="text-[11px] text-[#1a1a1a] uppercase font-bold">Drop-off</span>
               </div>
               <p className="text-[24px] font-bold text-[#ff6b6b]">{totalDropoff.toFixed(1)}%</p>
             </div>
@@ -411,14 +411,14 @@ export default function ProductFunnelsPage() {
 
           {/* Best/Worst Performers */}
           {activeFunnels.length > 1 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-white/5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-[#7c5cff]/20">
               {bestFunnel && (
                 <div className="flex items-center gap-4 bg-[#00d4aa]/5 border border-[#00d4aa]/20 rounded-xl p-4">
                   <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
                     <TrendingUp className="w-5 h-5 text-[#00d4aa]" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-[11px] text-[#666666] uppercase mb-1">Best Performance</p>
+                    <p className="text-[11px] text-[#1a1a1a] uppercase mb-1 font-bold">Best Performance</p>
                     <p className="text-[15px] font-semibold text-[#1a1a1a]">{bestFunnel.name}</p>
                   </div>
                   <div className="text-right">
@@ -432,7 +432,7 @@ export default function ProductFunnelsPage() {
                     <TrendingDown className="w-5 h-5 text-[#ff6b6b]" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-[11px] text-[#666666] uppercase mb-1">Needs Improvement</p>
+                    <p className="text-[11px] text-[#1a1a1a] uppercase mb-1 font-bold">Needs Improvement</p>
                     <p className="text-[15px] font-semibold text-[#1a1a1a]">{worstFunnel.name}</p>
                   </div>
                   <div className="text-right">
