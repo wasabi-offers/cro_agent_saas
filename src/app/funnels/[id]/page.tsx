@@ -35,6 +35,7 @@ import {
   GitMerge,
   LogIn,
   LogOut,
+  Trash2,
 } from "lucide-react";
 import CROComparisonTable from "@/components/CROComparisonTable";
 import CROExecutiveSummary from "@/components/CROExecutiveSummary";
@@ -928,31 +929,63 @@ export default function FunnelDetailPage() {
                         ) : (
                           <div className="space-y-2">
                             {step.url ? (
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 mb-2">
                                 <a
                                   href={step.url}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-[14px] text-[#7c5cff] hover:text-[#00d4aa] transition-colors break-all"
+                                  className="flex-1 text-[14px] text-[#7c5cff] hover:text-[#00d4aa] transition-colors break-all"
                                 >
                                   {step.url}
                                 </a>
-                                <ArrowRight className="w-4 h-4 text-[#666666]" />
+                                <ArrowRight className="w-4 h-4 text-[#666666] flex-shrink-0" />
                               </div>
                             ) : (
-                              <p className="text-[14px] text-[#666666] italic">
+                              <p className="text-[14px] text-[#666666] italic mb-2">
                                 Nessun URL configurato
                               </p>
                             )}
-                            <button
-                              onClick={() => {
-                                setEditingStepIndex(index);
-                                setEditingStepUrl(step.url || "");
-                              }}
-                              className="mt-2 px-4 py-2 bg-[#f8f9fa] border border-[#7c5cff]/30 text-[#7c5cff] rounded-lg text-[13px] font-medium hover:bg-[#7c5cff]/10 transition-all"
-                            >
-                              {step.url ? "Modifica URL" : "Aggiungi URL"}
-                            </button>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => {
+                                  setEditingStepIndex(index);
+                                  setEditingStepUrl(step.url || "");
+                                }}
+                                className="px-4 py-2 bg-[#f8f9fa] border border-[#7c5cff]/30 text-[#7c5cff] rounded-lg text-[13px] font-medium hover:bg-[#7c5cff]/10 transition-all"
+                              >
+                                {step.url ? "Modifica URL" : "Aggiungi URL"}
+                              </button>
+                              {step.url && (
+                                <button
+                                  onClick={async () => {
+                                    if (confirm(`Sei sicuro di voler eliminare l'URL per "${step.name}"?`)) {
+                                      const updatedSteps = [...funnel.steps];
+                                      updatedSteps[index] = {
+                                        ...updatedSteps[index],
+                                        url: undefined,
+                                      };
+                                      const success = await updateFunnel(funnelId, {
+                                        name: funnel.name,
+                                        steps: updatedSteps,
+                                        connections: funnel.connections,
+                                      });
+                                      if (success) {
+                                        // Reload funnel
+                                        const funnelData = await fetchFunnel(funnelId);
+                                        if (funnelData) {
+                                          setFunnel(funnelData);
+                                        }
+                                        alert('✅ URL eliminato con successo!');
+                                      }
+                                    }
+                                  }}
+                                  className="px-4 py-2 bg-[#ff6b6b]/10 border border-[#ff6b6b]/30 text-[#ff6b6b] rounded-lg text-[13px] font-medium hover:bg-[#ff6b6b]/20 transition-all flex items-center gap-2"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                  Elimina
+                                </button>
+                              )}
+                            </div>
                           </div>
                         )}
                       </div>
