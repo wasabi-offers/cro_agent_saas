@@ -261,14 +261,14 @@ export default function ABTestsPage() {
 
           {/* Filtri */}
           {proposals.length > 0 && (
-            <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl p-4 flex items-center gap-4">
+            <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-xl p-4 flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <Target className="w-4 h-4 text-[#888888]" />
-                <span className="text-[13px] text-[#888888]">Funnel:</span>
+                <Target className="w-4 h-4 text-[#666666]" />
+                <span className="text-[13px] text-[#666666]">Funnel:</span>
                 <select
                   value={selectedFunnel}
                   onChange={(e) => setSelectedFunnel(e.target.value)}
-                  className="px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[13px] text-[#1a1a1a] focus:outline-none focus:border-[#7c5cff] transition-all"
+                  className="px-3 py-2 bg-white/60 border border-[#7c5cff]/30 rounded-lg text-[13px] text-[#1a1a1a] focus:outline-none focus:border-[#7c5cff] transition-all"
                 >
                   <option value="all">All Funnels</option>
                   {availableFunnels.map(funnel => (
@@ -277,16 +277,16 @@ export default function ABTestsPage() {
                 </select>
               </div>
 
-              <div className="h-6 w-px bg-[#2a2a2a]" />
+              <div className="h-6 w-px bg-[#7c5cff]/30" />
 
               <div className="flex items-center gap-2">
-                <span className="text-[13px] text-[#888888]">Sort by:</span>
+                <span className="text-[13px] text-[#666666]">Sort by:</span>
                 <button
                   onClick={() => setSortBy("date")}
                   className={`px-3 py-2 rounded-lg text-[13px] font-medium transition-all ${
                     sortBy === "date"
                       ? "bg-[#7c5cff] text-white"
-                      : "bg-[#111111] text-[#888888] border border-[#2a2a2a]"
+                      : "bg-white/60 text-[#666666] border border-[#7c5cff]/30"
                   }`}
                 >
                   Date
@@ -296,7 +296,7 @@ export default function ABTestsPage() {
                   className={`px-3 py-2 rounded-lg text-[13px] font-medium transition-all ${
                     sortBy === "status"
                       ? "bg-[#7c5cff] text-white"
-                      : "bg-[#111111] text-[#888888] border border-[#2a2a2a]"
+                      : "bg-white/60 text-[#666666] border border-[#7c5cff]/30"
                   }`}
                 >
                   Status
@@ -321,7 +321,7 @@ export default function ABTestsPage() {
         {/* Stats from Real Data */}
         {abTestData && (
           <div className="grid grid-cols-4 gap-4 mb-8">
-            <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl p-4">
+            <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-xl p-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
                   <FlaskConical className="w-5 h-5 text-[#7c5cff]" />
@@ -332,7 +332,7 @@ export default function ABTestsPage() {
                 </div>
               </div>
             </div>
-            <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl p-4">
+            <div className="bg-gradient-to-br from-[#f59e0b]/20 to-[#f59e0b]/5 border border-[#f59e0b]/30 rounded-xl p-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center">
                   <Clock className="w-5 h-5 text-[#f59e0b]" />
@@ -345,7 +345,7 @@ export default function ABTestsPage() {
                 </div>
               </div>
             </div>
-            <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl p-4">
+            <div className="bg-gradient-to-br from-[#00d4aa]/20 to-[#00d4aa]/5 border border-[#00d4aa]/30 rounded-xl p-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
                   <Zap className="w-5 h-5 text-[#00d4aa]" />
@@ -358,7 +358,7 @@ export default function ABTestsPage() {
                 </div>
               </div>
             </div>
-            <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl p-4">
+            <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-xl p-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
                   <CheckCircle2 className="w-5 h-5 text-[#7c5cff]" />
@@ -379,8 +379,8 @@ export default function ABTestsPage() {
           {/* Tests List */}
           <div className="lg:col-span-2 space-y-4">
             {proposals.length === 0 ? (
-              <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-12 text-center">
-                <FlaskConical className="w-16 h-16 text-[#333333] mx-auto mb-4" />
+              <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-12 text-center">
+                <FlaskConical className="w-16 h-16 text-[#7c5cff]/50 mx-auto mb-4" />
                 <h3 className="text-[18px] font-semibold text-[#1a1a1a] mb-2">
                   No A/B Test Proposals Yet
                 </h3>
@@ -406,12 +406,12 @@ export default function ABTestsPage() {
                     <div
                       key={proposal.id}
                       onClick={() => setSelectedTest(proposal)}
-                      className={`bg-[#0a0a0a] rounded-2xl p-6 cursor-pointer transition-all hover:bg-[#111111] relative ${
+                      className={`bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 rounded-2xl p-6 cursor-pointer transition-all hover:from-[#7c5cff]/25 hover:to-[#7c5cff]/10 relative ${
                         selectedTest?.id === proposal.id
                           ? 'border-2 border-[#7c5cff]'
                           : isActive
                           ? 'border-2 border-[#00d4aa]/50'
-                          : 'border border-[#d0d0d0]'
+                          : 'border border-[#7c5cff]/30'
                       }`}
                     >
                       {isActive && (
@@ -459,10 +459,10 @@ export default function ABTestsPage() {
                         <ArrowRight className="w-5 h-5 text-[#666666]" />
                       </div>
 
-                      <div className="mt-4 pt-4 border-t border-[#2a2a2a] grid grid-cols-2 gap-4">
+                      <div className="mt-4 pt-4 border-t border-[#7c5cff]/20 grid grid-cols-2 gap-4">
                         <div>
                           <p className="text-[11px] text-[#666666] uppercase mb-1">Current</p>
-                          <p className="text-[13px] text-[#888888]">{proposal.current_value}</p>
+                          <p className="text-[13px] text-[#666666]">{proposal.current_value}</p>
                         </div>
                         <div>
                           <p className="text-[11px] text-[#666666] uppercase mb-1">Proposed</p>
@@ -478,7 +478,7 @@ export default function ABTestsPage() {
           {/* Detail Panel */}
           <div className="lg:col-span-1">
             {selectedTest ? (
-              <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6 sticky top-10">
+              <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6 sticky top-10">
                 <div className="flex items-center gap-2 mb-4">
                   <Sparkles className="w-5 h-5 text-[#7c5cff]" />
                   <h2 className="text-[16px] font-semibold text-[#1a1a1a]">Proposal Details</h2>
@@ -510,7 +510,7 @@ export default function ABTestsPage() {
 
                   <div>
                     <label className="text-[11px] text-[#666666] uppercase tracking-wide">Current Value</label>
-                    <p className="text-[14px] text-[#888888] mt-1 bg-[#111111] p-3 rounded-lg">{selectedTest.current_value}</p>
+                    <p className="text-[14px] text-[#666666] mt-1 bg-white/60 p-3 rounded-lg border border-[#7c5cff]/20">{selectedTest.current_value}</p>
                   </div>
 
                   <div>
@@ -554,10 +554,10 @@ export default function ABTestsPage() {
                     </p>
                   </div>
 
-                  <div className="pt-4 border-t border-[#2a2a2a]">
+                  <div className="pt-4 border-t border-[#7c5cff]/20">
                     <Link
                       href="/explore-ai"
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#7c5cff]/20 text-[#a78bff] rounded-lg text-[13px] font-medium hover:bg-[#7c5cff]/30 transition-all"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white/60 text-[#7c5cff] border border-[#7c5cff]/30 rounded-lg text-[13px] font-medium hover:bg-white/80 transition-all"
                     >
                       <Brain className="w-4 h-4" />
                       Get AI Implementation Guide
@@ -566,8 +566,8 @@ export default function ABTestsPage() {
                 </div>
               </div>
             ) : (
-              <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6 text-center">
-                <FlaskConical className="w-12 h-12 text-[#333333] mx-auto mb-4" />
+              <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6 text-center">
+                <FlaskConical className="w-12 h-12 text-[#7c5cff]/50 mx-auto mb-4" />
                 <p className="text-[14px] text-[#666666]">
                   Select a proposal to view details
                 </p>

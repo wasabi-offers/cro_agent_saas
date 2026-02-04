@@ -429,7 +429,7 @@ export default function LandingAnalysisPage() {
 
           {/* Input Mode Toggle */}
           <div className="mb-6">
-            <label className="block text-[14px] text-[#888888] mb-3">
+            <label className="block text-[14px] text-[#666666] mb-3">
               Analysis Source
             </label>
             <div className="flex gap-3">
@@ -442,7 +442,7 @@ export default function LandingAnalysisPage() {
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-medium transition-all ${
                   (inputMode || "url") === "url"
                     ? "bg-[#7c5cff] text-white"
-                    : "bg-[#111111] text-[#888888] border border-[#2a2a2a] hover:border-[#7c5cff]/50"
+                    : "bg-white/60 text-[#666666] border border-[#7c5cff]/30 hover:border-[#7c5cff]/50"
                 }`}
               >
                 <LinkIcon className="w-4 h-4" />
@@ -456,7 +456,7 @@ export default function LandingAnalysisPage() {
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-medium transition-all ${
                   inputMode === "screenshot"
                     ? "bg-[#7c5cff] text-white"
-                    : "bg-[#111111] text-[#888888] border border-[#2a2a2a] hover:border-[#7c5cff]/50"
+                    : "bg-white/60 text-[#666666] border border-[#7c5cff]/30 hover:border-[#7c5cff]/50"
                 }`}
               >
                 <ImageIcon className="w-4 h-4" />
@@ -468,7 +468,7 @@ export default function LandingAnalysisPage() {
           {/* URL Input */}
           {(inputMode || "url") === "url" && (
             <div className="mb-6">
-              <label className="block text-[14px] text-[#888888] mb-2">
+              <label className="block text-[14px] text-[#666666] mb-2">
                 Landing Page URL
               </label>
               <input
@@ -476,7 +476,7 @@ export default function LandingAnalysisPage() {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://example.com/landing-page"
-                className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#1a1a1a] text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all"
+                className="w-full px-4 py-3 bg-white/60 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all"
               />
             </div>
           )}
@@ -484,7 +484,7 @@ export default function LandingAnalysisPage() {
           {/* Screenshot Input */}
           {inputMode === "screenshot" && (
             <div className="mb-6">
-              <label className="block text-[14px] text-[#888888] mb-2">
+              <label className="block text-[14px] text-[#666666] mb-2">
                 Upload Screenshot
               </label>
               <div className="space-y-4">
@@ -498,10 +498,10 @@ export default function LandingAnalysisPage() {
                   />
                   <label
                     htmlFor="screenshot-upload"
-                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-[#2a2a2a] rounded-xl bg-[#111111] hover:border-[#7c5cff] cursor-pointer transition-all"
+                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-[#7c5cff]/30 rounded-xl bg-white/60 hover:border-[#7c5cff] cursor-pointer transition-all"
                   >
                     <ImageIcon className="w-8 h-8 text-[#666666] mb-2" />
-                    <span className="text-[14px] text-[#888888]">
+                    <span className="text-[14px] text-[#666666]">
                       Click to upload or drag and drop
                     </span>
                     <span className="text-[12px] text-[#666666] mt-1">
@@ -510,7 +510,7 @@ export default function LandingAnalysisPage() {
                   </label>
                 </div>
                 {screenshot && (
-                  <div className="relative rounded-xl overflow-hidden border border-[#2a2a2a] bg-[#111111]">
+                  <div className="relative rounded-xl overflow-hidden border border-[#7c5cff]/30 bg-white/60">
                     <img
                       src={screenshot}
                       alt="Screenshot preview"
@@ -535,7 +535,7 @@ export default function LandingAnalysisPage() {
 
           {/* Filters */}
           <div className="mb-6">
-            <label className="block text-[14px] text-[#888888] mb-3">
+            <label className="block text-[14px] text-[#666666] mb-3">
               Analysis Type
             </label>
             <div className="flex flex-wrap gap-3">
@@ -549,7 +549,7 @@ export default function LandingAnalysisPage() {
                     className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-medium transition-all ${
                       isSelected
                         ? "bg-[#7c5cff] text-white"
-                        : "bg-[#111111] text-[#888888] border border-[#2a2a2a] hover:border-[#7c5cff]/50"
+                        : "bg-white/60 text-[#666666] border border-[#7c5cff]/30 hover:border-[#7c5cff]/50"
                     }`}
                   >
                     <Icon className="w-4 h-4" />
@@ -598,7 +598,7 @@ export default function LandingAnalysisPage() {
                   Analysis Results
                 </h2>
                 {analysisSource && (
-                  <span className="text-[11px] px-2 py-1 rounded bg-[#e0e0e0] text-[#888888]">
+                  <span className="text-[11px] px-2 py-1 rounded bg-[#e0e0e0] text-[#666666]">
                     Source: {analysisSource}
                   </span>
                 )}
@@ -608,7 +608,7 @@ export default function LandingAnalysisPage() {
                 {/* Clear Analysis Button */}
                 <button
                   onClick={handleClearAnalysis}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-[#111111] border border-[#2a2a2a] text-[#888888] rounded-xl text-[14px] font-medium hover:border-[#ff6b6b]/50 hover:text-[#ff6b6b] transition-all"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-white/60 border border-[#7c5cff]/30 text-[#666666] rounded-xl text-[14px] font-medium hover:border-[#ff6b6b]/50 hover:text-[#ff6b6b] transition-all"
                 >
                   <X className="w-4 h-4" />
                   New Analysis
@@ -636,13 +636,13 @@ export default function LandingAnalysisPage() {
 
             {/* View Toggle */}
             <div className="flex justify-center mb-6">
-              <div className="flex items-center gap-2 bg-white border border-[#2a2a2a] rounded-xl p-1">
+              <div className="flex items-center gap-2 bg-white border border-[#7c5cff]/30 rounded-xl p-1">
                 <button
                   onClick={() => setViewMode("visual")}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${
                     viewMode === "visual"
                       ? "bg-[#7c5cff] text-white"
-                      : "text-[#888888] hover:text-[#1a1a1a]"
+                      : "text-[#666666] hover:text-[#1a1a1a]"
                   }`}
                 >
                   <Eye className="w-4 h-4" />
@@ -653,7 +653,7 @@ export default function LandingAnalysisPage() {
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${
                     viewMode === "list"
                       ? "bg-[#7c5cff] text-white"
-                      : "text-[#888888] hover:text-[#1a1a1a]"
+                      : "text-[#666666] hover:text-[#1a1a1a]"
                   }`}
                 >
                   <List className="w-4 h-4" />
@@ -665,7 +665,7 @@ export default function LandingAnalysisPage() {
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-all disabled:opacity-40 ${
                     viewMode === "cro-table"
                       ? "bg-[#7c5cff] text-white"
-                      : "text-[#888888] hover:text-[#1a1a1a]"
+                      : "text-[#666666] hover:text-[#1a1a1a]"
                   }`}
                 >
                   <Table className="w-4 h-4" />
@@ -676,7 +676,7 @@ export default function LandingAnalysisPage() {
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${
                     viewMode === "history"
                       ? "bg-[#7c5cff] text-white"
-                      : "text-[#888888] hover:text-[#1a1a1a]"
+                      : "text-[#666666] hover:text-[#1a1a1a]"
                   }`}
                 >
                   <Clock className="w-4 h-4" />
@@ -687,7 +687,7 @@ export default function LandingAnalysisPage() {
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${
                     viewMode === "heatmap"
                       ? "bg-[#7c5cff] text-white"
-                      : "text-[#888888] hover:text-[#1a1a1a]"
+                      : "text-[#666666] hover:text-[#1a1a1a]"
                   }`}
                 >
                   <Flame className="w-4 h-4" />
@@ -729,7 +729,7 @@ export default function LandingAnalysisPage() {
               ) : (
                 <div className="bg-white border border-[#e0e0e0] rounded-2xl p-12 text-center">
                   <Table className="w-16 h-16 text-[#666666] mx-auto mb-4" />
-                  <p className="text-[16px] text-[#888888] mb-2">No CRO Decision Table available</p>
+                  <p className="text-[16px] text-[#666666] mb-2">No CRO Decision Table available</p>
                   <p className="text-[14px] text-[#666666]">
                     The CRO table will be generated automatically during analysis
                   </p>
@@ -747,14 +747,14 @@ export default function LandingAnalysisPage() {
                 >
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-[#111111] rounded-xl flex items-center justify-center">
+                      <div className="w-10 h-10 bg-white/60 rounded-xl flex items-center justify-center">
                         <Icon className="w-5 h-5 text-[#7c5cff]" />
                       </div>
                       <h3 className="text-[18px] font-semibold text-[#1a1a1a]">
                         {result.category}
                       </h3>
                       {analysisSource && (
-                        <span className="text-[10px] px-2 py-0.5 rounded bg-[#e0e0e0] text-[#888888]">
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-[#e0e0e0] text-[#666666]">
                           Source: {analysisSource}
                         </span>
                       )}
@@ -793,7 +793,7 @@ export default function LandingAnalysisPage() {
                       {result.proposals.map((proposal: any, idx: number) => (
                         <div
                           key={idx}
-                          className="bg-[#111111] border border-[#00d4aa]/20 rounded-xl p-5"
+                          className="bg-white/60 border border-[#00d4aa]/20 rounded-xl p-5"
                         >
                           <div className="flex items-start justify-between mb-3">
                             <h5 className="text-[15px] font-semibold text-[#1a1a1a]">{proposal.element}</h5>
@@ -803,11 +803,11 @@ export default function LandingAnalysisPage() {
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div>
-                              <p className="text-[12px] text-[#888888] mb-1">Current</p>
+                              <p className="text-[12px] text-[#666666] mb-1">Current</p>
                               <p className="text-[14px] text-[#1a1a1a] bg-white p-3 rounded-lg">{proposal.current}</p>
                             </div>
                             <div>
-                              <p className="text-[12px] text-[#888888] mb-1">Proposed</p>
+                              <p className="text-[12px] text-[#666666] mb-1">Proposed</p>
                               <div className="text-[14px] text-[#00d4aa] bg-white p-3 rounded-lg whitespace-pre-line">
                                 {proposal.proposed}
                               </div>

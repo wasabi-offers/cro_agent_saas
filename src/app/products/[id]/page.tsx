@@ -580,7 +580,7 @@ export default function ProductFunnelsPage() {
                       </div>
 
                       {/* Active Toggle */}
-                      <div className="flex items-center justify-between py-3 px-4 bg-[#111111] rounded-xl mb-4">
+                      <div className="flex items-center justify-between py-3 px-4 bg-white/60 rounded-xl mb-4">
                         <div className="flex items-center gap-2">
                           <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-[#00d4aa]' : 'bg-[#666666]'}`} />
                           <span className="text-[13px] text-[#888888]">
