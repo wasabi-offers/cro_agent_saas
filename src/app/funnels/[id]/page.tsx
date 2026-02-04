@@ -844,6 +844,126 @@ export default function FunnelDetailPage() {
         {/* Tab Content */}
         {!showEditBuilder && (
         <>
+        {activeTab === "flussi" && (
+          <div className="space-y-6">
+            <div className="bg-gradient-to-br from-white to-[#f8f9fa] border border-[#7c5cff]/30 rounded-2xl p-6 shadow-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
+                  <List className="w-5 h-5 text-[#7c5cff]" />
+                </div>
+                <h2 className="text-[20px] font-semibold text-[#1a1a1a]">
+                  Modifica Flussi
+                </h2>
+              </div>
+
+              <div className="space-y-4">
+                {funnel.steps.map((step, index) => (
+                  <div
+                    key={index}
+                    className="bg-white border border-[#d0d0d0] rounded-xl p-4 hover:border-[#7c5cff]/50 transition-all"
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-10 h-10 bg-[#7c5cff]/10 rounded-lg flex items-center justify-center">
+                        <span className="text-[14px] font-bold text-[#7c5cff]">
+                          {index + 1}
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-[16px] font-semibold text-[#1a1a1a] mb-2">
+                          {step.name}
+                        </h3>
+                        {editingStepIndex === index ? (
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-[12px] text-[#666666] mb-1">
+                                URL
+                              </label>
+                              <input
+                                type="url"
+                                value={editingStepUrl}
+                                onChange={(e) => setEditingStepUrl(e.target.value)}
+                                placeholder="https://..."
+                                className="w-full px-4 py-2 bg-white border border-[#7c5cff]/30 rounded-lg text-[14px] text-[#1a1a1a] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                              />
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={async () => {
+                                  const updatedSteps = [...funnel.steps];
+                                  updatedSteps[index] = {
+                                    ...updatedSteps[index],
+                                    url: editingStepUrl || undefined,
+                                  };
+                                  const success = await updateFunnel(funnelId, {
+                                    name: funnel.name,
+                                    steps: updatedSteps,
+                                    connections: funnel.connections,
+                                  });
+                                  if (success) {
+                                    setEditingStepIndex(null);
+                                    setEditingStepUrl("");
+                                    // Reload funnel
+                                    const funnelData = await fetchFunnel(funnelId);
+                                    if (funnelData) {
+                                      setFunnel(funnelData);
+                                    }
+                                    alert('✅ URL aggiornato con successo!');
+                                  }
+                                }}
+                                className="px-4 py-2 bg-[#7c5cff] text-white rounded-lg text-[13px] font-medium hover:bg-[#6b4ee6] transition-all"
+                              >
+                                Salva
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setEditingStepIndex(null);
+                                  setEditingStepUrl("");
+                                }}
+                                className="px-4 py-2 bg-[#f8f9fa] border border-[#d0d0d0] text-[#666666] rounded-lg text-[13px] font-medium hover:bg-[#e9ecef] transition-all"
+                              >
+                                Annulla
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            {step.url ? (
+                              <div className="flex items-center gap-2">
+                                <a
+                                  href={step.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-[14px] text-[#7c5cff] hover:text-[#00d4aa] transition-colors break-all"
+                                >
+                                  {step.url}
+                                </a>
+                                <ArrowRight className="w-4 h-4 text-[#666666]" />
+                              </div>
+                            ) : (
+                              <p className="text-[14px] text-[#666666] italic">
+                                Nessun URL configurato
+                              </p>
+                            )}
+                            <button
+                              onClick={() => {
+                                setEditingStepIndex(index);
+                                setEditingStepUrl(step.url || "");
+                              }}
+                              className="mt-2 px-4 py-2 bg-[#f8f9fa] border border-[#7c5cff]/30 text-[#7c5cff] rounded-lg text-[13px] font-medium hover:bg-[#7c5cff]/10 transition-all"
+                            >
+                              {step.url ? "Modifica URL" : "Aggiungi URL"}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {activeTab === "overview" && (
           <FunnelOverview
             funnelName={funnel.name}
