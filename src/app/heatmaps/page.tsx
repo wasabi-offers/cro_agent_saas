@@ -365,7 +365,7 @@ export default function HeatmapsPage() {
         )}
 
         {/* Traffic Distribution */}
-        <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6">
+        <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6">
           <h2 className="text-[18px] font-semibold text-[#1a1a1a] mb-6">Traffic by Device</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {trafficByDevice.map((device) => {
@@ -374,7 +374,7 @@ export default function HeatmapsPage() {
                            device.device === 'Desktop' || device.device === 'PC' ? '#00d4aa' : '#f59e0b';
               
               return (
-                <div key={device.device} className="p-6 bg-[#111111] rounded-xl">
+                <div key={device.device} className="p-6 bg-white/60 rounded-xl border border-[#7c5cff]/20">
                   <div className="flex items-center gap-3 mb-4">
                     <div 
                       className="w-12 h-12 rounded-xl flex items-center justify-center"
@@ -389,17 +389,17 @@ export default function HeatmapsPage() {
                   </div>
                   
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="text-center p-3 bg-[#0a0a0a] rounded-lg">
+                    <div className="text-center p-3 bg-white/80 rounded-lg border border-[#7c5cff]/20">
                       <p className="text-[18px] font-bold text-[#1a1a1a]">
                         {device.total_session_count.toLocaleString()}
                       </p>
-                      <p className="text-[11px] text-[#888888]">Sessions</p>
+                      <p className="text-[11px] text-[#666666]">Sessions</p>
                     </div>
-                    <div className="text-center p-3 bg-[#0a0a0a] rounded-lg">
+                    <div className="text-center p-3 bg-white/80 rounded-lg border border-[#7c5cff]/20">
                       <p className="text-[18px] font-bold text-[#1a1a1a]">
                         {device.distinct_user_count.toLocaleString()}
                       </p>
-                      <p className="text-[11px] text-[#888888]">Users</p>
+                      <p className="text-[11px] text-[#666666]">Users</p>
                     </div>
                   </div>
                 </div>

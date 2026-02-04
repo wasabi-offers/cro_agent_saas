@@ -339,37 +339,37 @@ export default function DataSourcesPage() {
 
         {/* Status Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white border border-[#d0d0d0] rounded-xl p-5">
+          <div className="bg-gradient-to-br from-[#00d4aa]/20 to-[#00d4aa]/5 border border-[#00d4aa]/30 rounded-xl p-5">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-[#00d4aa]/20 rounded-xl flex items-center justify-center">
                 <CheckCircle className="w-6 h-6 text-[#00d4aa]" />
               </div>
               <div>
-                <p className="text-[28px] font-bold text-[#fafafa]">{connectedSources}</p>
+                <p className="text-[28px] font-bold text-[#1a1a1a]">{connectedSources}</p>
                 <p className="text-[13px] text-[#666666]">Connected</p>
               </div>
             </div>
           </div>
-          <div className="bg-white border border-[#d0d0d0] rounded-xl p-5">
+          <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-xl p-5">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-[#7c5cff]/20 rounded-xl flex items-center justify-center">
                 <Database className="w-6 h-6 text-[#7c5cff]" />
               </div>
               <div>
-                <p className="text-[28px] font-bold text-[#fafafa]">
+                <p className="text-[28px] font-bold text-[#1a1a1a]">
                   {dashboardData?.summary.totalSessions.toLocaleString() || '0'}
                 </p>
                 <p className="text-[13px] text-[#666666]">Total Sessions</p>
               </div>
             </div>
           </div>
-          <div className="bg-white border border-[#d0d0d0] rounded-xl p-5">
+          <div className="bg-gradient-to-br from-[#f59e0b]/20 to-[#f59e0b]/5 border border-[#f59e0b]/30 rounded-xl p-5">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-[#f59e0b]/20 rounded-xl flex items-center justify-center">
                 <Clock className="w-6 h-6 text-[#f59e0b]" />
               </div>
               <div>
-                <p className="text-[28px] font-bold text-[#fafafa]">Live</p>
+                <p className="text-[28px] font-bold text-[#1a1a1a]">Live</p>
                 <p className="text-[13px] text-[#666666]">Data Status</p>
               </div>
             </div>
@@ -610,7 +610,7 @@ export default function DataSourcesPage() {
                     setShowConnectModal(null);
                     setTempApiKey('');
                   }}
-                  className="px-6 py-2.5 bg-[#111111] text-[#888888] text-[14px] font-medium rounded-lg hover:bg-[#1a1a1a] hover:text-[#fafafa] transition-all"
+                  className="px-6 py-2.5 bg-white/60 text-[#666666] border border-[#7c5cff]/30 text-[14px] font-medium rounded-lg hover:bg-white/80 hover:text-[#1a1a1a] transition-all"
                 >
                   Cancel
                 </button>
