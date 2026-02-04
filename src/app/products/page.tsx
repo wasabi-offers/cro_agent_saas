@@ -91,8 +91,8 @@ export default function ProductsPage() {
     }
   };
 
-  const handleDeleteProduct = async (productId: string, productName: string) => {
-    if (!confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) {
+  const handleDeleteProduct = async (projectId: string, projectName: string) => {
+    if (!confirm(`Are you sure you want to delete "${projectName}"? This action cannot be undone.`)) {
       return;
     }
 
@@ -155,9 +155,9 @@ export default function ProductsPage() {
     }
   };
 
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredProducts = products.filter((project) =>
+    project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    project.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const totalFunnels = products.reduce((sum, p) => sum + p.funnelCount, 0);
@@ -289,19 +289,19 @@ export default function ProductsPage() {
                 <div className="flex items-start justify-between mb-4">
                   <div
                     className="w-14 h-14 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
-                    style={{ backgroundColor: `${product.color}20` }}
+                    style={{ backgroundColor: `${project.color}20` }}
                   >
-                    <Folder className="w-7 h-7" style={{ color: product.color }} />
+                    <Folder className="w-7 h-7" style={{ color: project.color }} />
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        handleOpenEdit(product);
+                        handleOpenEdit(project);
                       }}
                       className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#7c5cff]/10 text-[#666666] hover:text-[#7c5cff] transition-colors"
-                      title="Edit product"
+                      title="Edit project"
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
@@ -309,7 +309,7 @@ export default function ProductsPage() {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        handleDeleteProduct(product.id, product.name);
+                        handleDeleteProduct(project.id, project.name);
                       }}
                       className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#ff6b6b]/10 text-white/70 hover:text-[#ff6b6b] transition-colors"
                       title="Delete project"
@@ -321,13 +321,13 @@ export default function ProductsPage() {
 
                 {/* Name */}
                 <h3 className="text-[18px] font-semibold text-white mb-2 group-hover:text-[#7c5cff] transition-colors">
-                  {product.name}
+                  {project.name}
                 </h3>
 
                 {/* Description */}
-                {product.description && (
+                {project.description && (
                   <p className="text-[13px] text-white/70 mb-4 line-clamp-2">
-                    {product.description}
+                    {project.description}
                   </p>
                 )}
 
@@ -336,7 +336,7 @@ export default function ProductsPage() {
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] text-white/70 uppercase">Funnels</span>
                     <span className="text-[16px] font-bold text-white">
-                      {product.funnelCount}
+                      {project.funnelCount}
                     </span>
                   </div>
                 </div>
@@ -418,7 +418,7 @@ export default function ProductsPage() {
         </div>
       )}
 
-      {/* Edit Product Dialog */}
+      {/* Edit Project Dialog */}
       {showEditDialog && editingProduct && (
         <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-8 max-w-md w-full">
