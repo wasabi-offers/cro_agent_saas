@@ -147,12 +147,13 @@ export async function GET(request: NextRequest) {
 
     // Inject scripts - proxy ALL cross-origin fetch/XHR/sendBeacon (not just main page origin)
     // Fixes CORS: cb/cdn-cgi/rum, trk.concealedqualify, db.*, etc. - pages call multiple domains
+    // Preserves authorization headers for Supabase API calls
     const corsProxyScript = allowScripts ? `<script>
 (function(){var A=window.__CRO_PROXY_API__;var O=window.__CRO_APP_ORIGIN__;if(!A||!O)return;
 function proxy(u){if(!u||typeof u!=='string')return null;if(u.indexOf(O)===0)return null;if(u.indexOf('http://')===0||u.indexOf('https://')===0)return A+'?url='+encodeURIComponent(u);return null;}
-var _f=window.fetch;window.fetch=function(u,o){var url=typeof u==='string'?u:(u&&u.url);var p=proxy(url);if(p)return _f(p,o);return _f.apply(this,arguments);};
-var X=window.XMLHttpRequest;window.XMLHttpRequest=function(){var x=new X();var _open=x.open;x.open=function(m,u){var p=proxy(u);_open.call(x,m,p||u);};return x;};
-var _sb=navigator.sendBeacon;if(_sb){navigator.sendBeacon=function(u,d){var p=proxy(u);if(p){_f(p,{method:'POST',body:d,keepalive:true}).catch(function(){});return true;}return _sb.call(navigator,u,d);};}
+var _f=window.fetch;window.fetch=function(u,o){var url=typeof u==='string'?u:(u&&u.url);var p=proxy(url);if(p&&o&&o.headers){var h=o.headers;var apikey=h.get&&h.get('apikey')||h.apikey;var auth=h.get&&h.get('Authorization')||h.Authorization;var nh=new Headers(h);if(apikey)nh.set('x-proxy-apikey',apikey);if(auth)nh.set('x-proxy-authorization',auth);o.headers=nh;}if(p)return _f(p,o);return _f.apply(this,arguments);};
+var X=window.XMLHttpRequest;window.XMLHttpRequest=function(){var x=new X();var _open=x.open;var _setRequestHeader=x.setRequestHeader;x.open=function(m,u){var p=proxy(u);_open.call(x,m,p||u);};x.setRequestHeader=function(n,v){if(n==='apikey')x.setRequestHeader('x-proxy-apikey',v);else if(n==='Authorization')x.setRequestHeader('x-proxy-authorization',v);else _setRequestHeader.call(x,n,v);};return x;};
+var _sb=navigator.sendBeacon;if(_sb){navigator.sendBeacon=function(u,d){var p=proxy(u);if(p){var opts={method:'POST',body:d,keepalive:true};_f(p,opts).catch(function(){});return true;}return _sb.call(navigator,u,d);};}
 })();</script>` : '';
     // Blocca redirect e history manipulation in anteprima - evita SecurityError replaceState e checkout che sparisce
     const redirectBlockerScript = allowScripts ? `<script>

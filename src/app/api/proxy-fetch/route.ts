@@ -49,6 +49,14 @@ export async function POST(request: NextRequest) {
     const targetUrl = new URL(url);
     const body = await request.arrayBuffer();
     const contentType = request.headers.get('content-type') || 'application/x-www-form-urlencoded';
+    
+    // Get authorization headers from request - needed for Supabase API calls
+    const authHeaders: Record<string, string> = {};
+    const apikey = request.headers.get('x-proxy-apikey');
+    const authorization = request.headers.get('x-proxy-authorization');
+    
+    if (apikey) authHeaders['apikey'] = apikey;
+    if (authorization) authHeaders['Authorization'] = authorization;
 
     const res = await fetch(targetUrl.toString(), {
       method: 'POST',
@@ -57,6 +65,7 @@ export async function POST(request: NextRequest) {
         'Accept': '*/*',
         'Content-Type': contentType,
         'Referer': targetUrl.origin + '/',
+        ...authHeaders,
       },
       body,
     });
