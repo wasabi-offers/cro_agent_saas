@@ -13,7 +13,7 @@ import {
   Edit2,
 } from "lucide-react";
 
-interface Product {
+interface Project {
   id: string;
   name: string;
   description?: string;
@@ -25,12 +25,12 @@ interface Product {
 }
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editingProduct, setEditingProduct] = useState<Project | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
   // Form state
@@ -56,7 +56,7 @@ export default function ProductsPage() {
         }
       }
     } catch (error) {
-      console.error('Error loading products:', error);
+      console.error('Error loading projects:', error);
     } finally {
       setIsLoading(false);
     }
@@ -82,7 +82,7 @@ export default function ProductsPage() {
           setProducts([data.product, ...products]);
           setShowCreateDialog(false);
           setFormData({ name: "", description: "", color: "#7c5cff", icon: "Folder" });
-          alert('✅ Product created successfully!');
+          alert('✅ Project created successfully!');
         }
       }
     } catch (error) {
@@ -97,17 +97,17 @@ export default function ProductsPage() {
     }
 
     try {
-      const response = await fetch(`/api/products?productId=${productId}`, {
+      const response = await fetch(`/api/products?productId=${projectId}`, {
         method: 'DELETE',
       });
 
       const data = await response.json();
 
       if (response.ok && data.success) {
-        setProducts(products.filter(p => p.id !== productId));
+        setProducts(products.filter(p => p.id !== projectId));
         alert('✅ Product deleted successfully!');
       } else {
-        alert(`❌ ${data.error || 'Error deleting product'}`);
+        alert(`❌ ${data.error || 'Error deleting project'}`);
       }
     } catch (error) {
       console.error('Error deleting product:', error);
@@ -115,13 +115,13 @@ export default function ProductsPage() {
     }
   };
 
-  const handleOpenEdit = (product: Product) => {
-    setEditingProduct(product);
+  const handleOpenEdit = (project: Project) => {
+    setEditingProduct(project);
     setFormData({
-      name: product.name,
-      description: product.description || "",
-      color: product.color,
-      icon: product.icon,
+      name: project.name,
+      description: project.description || "",
+      color: project.color,
+      icon: project.icon,
     });
     setShowEditDialog(true);
   };
@@ -151,7 +151,7 @@ export default function ProductsPage() {
       }
     } catch (error) {
       console.error('Error updating product:', error);
-      alert('❌ Error updating product');
+      alert('❌ Error updating project');
     }
   };
 
@@ -169,7 +169,7 @@ export default function ProductsPage() {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
             <div className="w-10 h-10 border-2 border-[#7c5cff] border-t-transparent rounded-full animate-spin" />
-            <p className="text-[#666666] text-[14px]">Loading products...</p>
+            <p className="text-[#666666] text-[14px]">Loading projects...</p>
           </div>
         </div>
       </div>
@@ -184,9 +184,9 @@ export default function ProductsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-[28px] font-bold text-[#1a1a1a] mb-2">Products</h1>
+            <h1 className="text-[28px] font-bold text-[#1a1a1a] mb-2">Projects</h1>
             <p className="text-[15px] text-[#888888]">
-              Organize your funnels by product or project
+              Organize your funnels by project
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -222,7 +222,7 @@ export default function ProductsPage() {
               <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
                 <Folder className="w-5 h-5 text-[#7c5cff]" />
               </div>
-              <span className="text-[13px] text-white">Total Products</span>
+              <span className="text-[13px] text-white">Total Projects</span>
             </div>
             <p className="text-[28px] font-bold text-white">
               {products.length}
@@ -246,7 +246,7 @@ export default function ProductsPage() {
               <div className="w-10 h-10 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center">
                 <Target className="w-5 h-5 text-[#f59e0b]" />
               </div>
-              <span className="text-[13px] text-white">Avg Funnels/Product</span>
+              <span className="text-[13px] text-white">Avg Funnels/Project</span>
             </div>
             <p className="text-[28px] font-bold text-white">
               {products.length > 0 ? (totalFunnels / products.length).toFixed(1) : '0'}
@@ -272,17 +272,17 @@ export default function ProductsPage() {
         {filteredProducts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
             <Folder className="w-16 h-16 text-[#666666] mb-4" />
-            <p className="text-[16px] text-[#888888] mb-2">No products found</p>
+            <p className="text-[16px] text-[#888888] mb-2">No projects found</p>
             <p className="text-[14px] text-[#666666]">
-              {searchQuery ? "Try a different search term" : "Create your first product to organize your funnels"}
+              {searchQuery ? "Try a different search term" : "Create your first project to organize your funnels"}
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredProducts.map((product) => (
+            {filteredProducts.map((project) => (
               <Link
-                key={product.id}
-                href={`/products/${product.id}`}
+                key={project.id}
+                href={`/products/${project.id}`}
                 className="group bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6 hover:border-[#7c5cff]/50 hover:shadow-lg hover:shadow-[#7c5cff]/10 transition-all cursor-pointer"
               >
                 {/* Icon */}
@@ -312,7 +312,7 @@ export default function ProductsPage() {
                         handleDeleteProduct(product.id, product.name);
                       }}
                       className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#ff6b6b]/10 text-white/70 hover:text-[#ff6b6b] transition-colors"
-                      title="Delete product"
+                      title="Delete project"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -370,7 +370,7 @@ export default function ProductsPage() {
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Brief description of this product..."
+                  placeholder="Brief description of this project..."
                   rows={3}
                   className="w-full px-4 py-3 bg-[#111111] border border-[#d0d0d0] rounded-xl text-white text-[15px] placeholder:text-white/50 focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
                 />
@@ -422,11 +422,11 @@ export default function ProductsPage() {
       {showEditDialog && editingProduct && (
         <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-8 max-w-md w-full">
-            <h2 className="text-[22px] font-bold text-white mb-6">Edit Product</h2>
+            <h2 className="text-[22px] font-bold text-white mb-6">Edit Project</h2>
 
             <form onSubmit={handleUpdateProduct} className="space-y-4">
               <div>
-                <label className="block text-[13px] text-[#888888] mb-2">Product Name *</label>
+                <label className="block text-[13px] text-[#888888] mb-2">Project Name *</label>
                 <input
                   type="text"
                   required
@@ -442,7 +442,7 @@ export default function ProductsPage() {
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Brief description of this product..."
+                  placeholder="Brief description of this project..."
                   rows={3}
                   className="w-full px-4 py-3 bg-[#111111] border border-[#d0d0d0] rounded-xl text-white text-[15px] placeholder:text-white/50 focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
                 />
@@ -483,7 +483,7 @@ export default function ProductsPage() {
                   type="submit"
                   className="flex-1 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
                 >
-                  Update Product
+                  Update Project
                 </button>
               </div>
             </form>
