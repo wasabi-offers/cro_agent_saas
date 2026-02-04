@@ -348,7 +348,7 @@ export default function ExploreAIPage() {
                       className={`max-w-[85%] rounded-2xl p-5 ${
                         message.role === "user"
                           ? "bg-[#7c5cff] text-white"
-                          : "bg-[#0a0a0a] border border-white/10 text-[#d4d4d4]"
+                          : "bg-[#0a0a0a] border border-white/10 text-white"
                       }`}
                     >
                       {message.role === "assistant" ? (

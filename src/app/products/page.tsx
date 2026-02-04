@@ -200,7 +200,7 @@ export default function ProductsPage() {
             )}
             <button
               onClick={loadProducts}
-              className="flex items-center gap-2 px-5 py-3 bg-[#0a0a0a] border border-[#d0d0d0] text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-[#7c5cff]/50 transition-all"
+              className="flex items-center gap-2 px-5 py-3 bg-[#0a0a0a] border border-[#d0d0d0] text-white text-[14px] font-medium rounded-xl hover:border-[#7c5cff]/50 transition-all"
             >
               <RefreshCw className="w-4 h-4" />
               Refresh
@@ -263,7 +263,7 @@ export default function ProductsPage() {
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+              className="w-full pl-12 pr-4 py-3 bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl text-white text-[15px] placeholder:text-white/60 focus:outline-none focus:border-[#7c5cff] transition-all"
             />
           </div>
         </div>
@@ -311,7 +311,7 @@ export default function ProductsPage() {
                         e.stopPropagation();
                         handleDeleteProduct(product.id, product.name);
                       }}
-                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#ff6b6b]/10 text-[#666666] hover:text-[#ff6b6b] transition-colors"
+                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#ff6b6b]/10 text-white/70 hover:text-[#ff6b6b] transition-colors"
                       title="Delete product"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -320,22 +320,22 @@ export default function ProductsPage() {
                 </div>
 
                 {/* Name */}
-                <h3 className="text-[18px] font-semibold text-[#1a1a1a] mb-2 group-hover:text-[#7c5cff] transition-colors">
+                <h3 className="text-[18px] font-semibold text-white mb-2 group-hover:text-[#7c5cff] transition-colors">
                   {product.name}
                 </h3>
 
                 {/* Description */}
                 {product.description && (
-                  <p className="text-[13px] text-[#666666] mb-4 line-clamp-2">
+                  <p className="text-[13px] text-white/70 mb-4 line-clamp-2">
                     {product.description}
                   </p>
                 )}
 
                 {/* Stats */}
-                <div className="pt-4 border-t border-white/5">
+                <div className="pt-4 border-t border-white/10">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] text-[#666666] uppercase">Funnels</span>
-                    <span className="text-[16px] font-bold text-[#1a1a1a]">
+                    <span className="text-[11px] text-white/70 uppercase">Funnels</span>
+                    <span className="text-[16px] font-bold text-white">
                       {product.funnelCount}
                     </span>
                   </div>
