@@ -193,7 +193,7 @@ export default function ProductsPage() {
             {lastUpdate && (
               <div className="flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl">
                 <div className="w-2 h-2 rounded-full bg-[#00d4aa] animate-pulse" />
-                <span className="text-[13px] text-[#888888]">
+                <span className="text-[13px] text-white">
                   Updated {lastUpdate.toLocaleTimeString()}
                 </span>
               </div>
@@ -222,9 +222,9 @@ export default function ProductsPage() {
               <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
                 <Folder className="w-5 h-5 text-[#7c5cff]" />
               </div>
-              <span className="text-[13px] text-[#888888]">Total Products</span>
+              <span className="text-[13px] text-white">Total Products</span>
             </div>
-            <p className="text-[28px] font-bold text-[#1a1a1a]">
+            <p className="text-[28px] font-bold text-white">
               {products.length}
             </p>
           </div>
@@ -234,9 +234,9 @@ export default function ProductsPage() {
               <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
                 <Target className="w-5 h-5 text-[#00d4aa]" />
               </div>
-              <span className="text-[13px] text-[#888888]">Total Funnels</span>
+              <span className="text-[13px] text-white">Total Funnels</span>
             </div>
-            <p className="text-[28px] font-bold text-[#1a1a1a]">
+            <p className="text-[28px] font-bold text-white">
               {totalFunnels}
             </p>
           </div>
@@ -350,7 +350,7 @@ export default function ProductsPage() {
       {showCreateDialog && (
         <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-8 max-w-md w-full">
-            <h2 className="text-[22px] font-bold text-[#1a1a1a] mb-6">Create New Product</h2>
+            <h2 className="text-[22px] font-bold text-white mb-6">Create New Product</h2>
 
             <form onSubmit={handleCreateProduct} className="space-y-4">
               <div>
@@ -366,13 +366,13 @@ export default function ProductsPage() {
               </div>
 
               <div>
-                <label className="block text-[13px] text-[#888888] mb-2">Description</label>
+                <label className="block text-[13px] text-white/70 mb-2">Description</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Brief description of this product..."
                   rows={3}
-                  className="w-full px-4 py-3 bg-[#111111] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
+                  className="w-full px-4 py-3 bg-[#111111] border border-[#d0d0d0] rounded-xl text-white text-[15px] placeholder:text-white/50 focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
                 />
               </div>
 
@@ -402,7 +402,7 @@ export default function ProductsPage() {
                     setShowCreateDialog(false);
                     setFormData({ name: "", description: "", color: "#7c5cff", icon: "Folder" });
                   }}
-                  className="flex-1 px-5 py-3 bg-[#111111] border border-[#d0d0d0] text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-white/20 transition-all"
+                  className="flex-1 px-5 py-3 bg-[#111111] border border-[#d0d0d0] text-white text-[14px] font-medium rounded-xl hover:border-white/20 transition-all"
                 >
                   Cancel
                 </button>
@@ -422,7 +422,7 @@ export default function ProductsPage() {
       {showEditDialog && editingProduct && (
         <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-8 max-w-md w-full">
-            <h2 className="text-[22px] font-bold text-[#1a1a1a] mb-6">Edit Product</h2>
+            <h2 className="text-[22px] font-bold text-white mb-6">Edit Product</h2>
 
             <form onSubmit={handleUpdateProduct} className="space-y-4">
               <div>
@@ -438,13 +438,13 @@ export default function ProductsPage() {
               </div>
 
               <div>
-                <label className="block text-[13px] text-[#888888] mb-2">Description</label>
+                <label className="block text-[13px] text-white/70 mb-2">Description</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Brief description of this product..."
                   rows={3}
-                  className="w-full px-4 py-3 bg-[#111111] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
+                  className="w-full px-4 py-3 bg-[#111111] border border-[#d0d0d0] rounded-xl text-white text-[15px] placeholder:text-white/50 focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
                 />
               </div>
 
@@ -475,7 +475,7 @@ export default function ProductsPage() {
                     setEditingProduct(null);
                     setFormData({ name: "", description: "", color: "#7c5cff", icon: "Folder" });
                   }}
-                  className="flex-1 px-5 py-3 bg-[#111111] border border-[#d0d0d0] text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-white/20 transition-all"
+                  className="flex-1 px-5 py-3 bg-[#111111] border border-[#d0d0d0] text-white text-[14px] font-medium rounded-xl hover:border-white/20 transition-all"
                 >
                   Cancel
                 </button>
