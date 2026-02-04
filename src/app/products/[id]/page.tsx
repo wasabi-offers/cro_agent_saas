@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import FunnelBuilder from "@/components/FunnelBuilder";
 import FunnelFlowImporter from "@/components/FunnelFlowImporter";
-import { ConversionFunnel, createFunnel, deleteFunnel } from "@/lib/supabase-funnels";
+import { ConversionFunnel, createFunnel, deleteFunnel, updateFunnel } from "@/lib/supabase-funnels";
 
 interface Product {
   id: string;
@@ -48,6 +48,7 @@ export default function ProductFunnelsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"name" | "conversion" | "visitors">("conversion");
   const [showBuilder, setShowBuilder] = useState(false);
+  const [editingFunnelId, setEditingFunnelId] = useState<string | null>(null);
   const [showImporter, setShowImporter] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
@@ -448,7 +449,11 @@ export default function ProductFunnelsPage() {
         {showBuilder ? (
           <FunnelBuilder
             onSave={handleSaveFunnel}
-            onCancel={() => setShowBuilder(false)}
+            onCancel={() => {
+              setShowBuilder(false);
+              setEditingFunnelId(null);
+            }}
+            initialFunnel={editingFunnelId ? funnels.find(f => f.id === editingFunnelId) : undefined}
           />
         ) : (
           <>
@@ -538,6 +543,18 @@ export default function ProductFunnelsPage() {
                           >
                             {funnel.conversionRate.toFixed(1)}%
                           </div>
+                          {/* Edit */}
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleEditFunnel(funnel);
+                            }}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#7c5cff]/10 text-[#666666] hover:text-[#7c5cff] transition-colors"
+                            title="Edit funnel"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
                           {/* Clone */}
                           <button
                             onClick={(e) => {

@@ -17,10 +17,11 @@ import {
   Trash2,
   RefreshCw,
   Upload,
+  Edit2,
 } from "lucide-react";
 import FunnelBuilder from "@/components/FunnelBuilder";
 import FunnelFlowImporter from "@/components/FunnelFlowImporter";
-import { ConversionFunnel, fetchFunnels, createFunnel, deleteFunnel, enrichFunnelsWithLiveData, enrichFunnelsWithABTestData } from "@/lib/supabase-funnels";
+import { ConversionFunnel, fetchFunnels, createFunnel, deleteFunnel, updateFunnel, enrichFunnelsWithLiveData, enrichFunnelsWithABTestData } from "@/lib/supabase-funnels";
 
 export default function FunnelsListPage() {
   const [funnels, setFunnels] = useState<ConversionFunnel[]>([]);
@@ -101,26 +102,47 @@ export default function FunnelsListPage() {
   }, [loadData]);
 
   const handleSaveFunnel = async (funnel: { name: string; steps: any[]; connections?: any[] }) => {
-    const newFunnel = await createFunnel(funnel);
-
-    if (newFunnel) {
-      setFunnels([newFunnel, ...funnels]);
-      setShowBuilder(false);
-      alert('✅ Funnel created successfully!');
+    if (editingFunnelId) {
+      // Update existing funnel
+      const success = await updateFunnel(editingFunnelId, funnel);
+      
+      if (success) {
+        // Reload funnels to get updated data
+        await loadData(false);
+        setShowBuilder(false);
+        setEditingFunnelId(null);
+        alert('✅ Funnel aggiornato con successo!');
+      } else {
+        alert('❌ Errore durante l\'aggiornamento del funnel');
+      }
     } else {
-      // If Supabase not configured, still add locally
-      const localFunnel: ConversionFunnel = {
-        id: `funnel_${Date.now()}`,
-        name: funnel.name,
-        steps: funnel.steps,
-        connections: funnel.connections,
-        conversionRate: funnel.steps[0].visitors > 0
-          ? (funnel.steps[funnel.steps.length - 1].visitors / funnel.steps[0].visitors) * 100
-          : 0,
-      };
-      setFunnels([localFunnel, ...funnels]);
-      setShowBuilder(false);
+      // Create new funnel
+      const newFunnel = await createFunnel(funnel);
+
+      if (newFunnel) {
+        setFunnels([newFunnel, ...funnels]);
+        setShowBuilder(false);
+        alert('✅ Funnel created successfully!');
+      } else {
+        // If Supabase not configured, still add locally
+        const localFunnel: ConversionFunnel = {
+          id: `funnel_${Date.now()}`,
+          name: funnel.name,
+          steps: funnel.steps,
+          connections: funnel.connections,
+          conversionRate: funnel.steps[0].visitors > 0
+            ? (funnel.steps[funnel.steps.length - 1].visitors / funnel.steps[0].visitors) * 100
+            : 0,
+        };
+        setFunnels([localFunnel, ...funnels]);
+        setShowBuilder(false);
+      }
     }
+  };
+
+  const handleEditFunnel = (funnel: ConversionFunnel) => {
+    setEditingFunnelId(funnel.id);
+    setShowBuilder(true);
   };
 
   const handleDeleteFunnel = async (funnelId: string, funnelName: string) => {
@@ -358,6 +380,17 @@ export default function FunnelsListPage() {
                       >
                         {funnel.conversionRate.toFixed(1)}%
                       </div>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleEditFunnel(funnel);
+                        }}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#7c5cff]/10 text-[#666666] hover:text-[#7c5cff] transition-colors"
+                        title="Edit funnel"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
                       <button
                         onClick={(e) => {
                           e.preventDefault();
