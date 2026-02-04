@@ -84,7 +84,7 @@ export default function HeatmapsPage() {
       <div className="min-h-screen bg-white">
         <Header title="Heatmaps" breadcrumb={["Dashboard", "Heatmaps"]} />
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="flex flex-col items-center gap-4 p-6 bg-[#0a0a0a] border border-[#ff6b6b]/30 rounded-2xl">
+          <div className="flex flex-col items-center gap-4 p-6 bg-gradient-to-br from-[#ff6b6b]/20 to-[#ff6b6b]/5 border border-[#ff6b6b]/30 rounded-2xl">
             <AlertCircle className="w-10 h-10 text-[#ff6b6b]" />
             <p className="text-[#ff6b6b] text-[14px]">{error || 'No data available'}</p>
             <button
@@ -178,7 +178,7 @@ export default function HeatmapsPage() {
               className={`px-4 py-2 rounded-lg text-[13px] font-medium transition-all capitalize ${
                 selectedDevice === device
                   ? 'bg-[#7c5cff] text-white'
-                  : 'bg-[#111111] text-[#888888] hover:bg-[#1a1a1a] hover:text-[#1a1a1a]'
+                  : 'bg-white/60 text-[#666666] border border-[#7c5cff]/30 hover:bg-white/80'
               }`}
             >
               {device === 'all' ? 'All Devices' : device}
@@ -266,7 +266,7 @@ export default function HeatmapsPage() {
             </div>
             <div className="p-6 space-y-3">
               {deadClicks.length > 0 ? deadClicks.map((issue, idx) => (
-                <div key={idx} className="flex items-center justify-between p-4 bg-[#111111] rounded-xl">
+                <div key={idx} className="flex items-center justify-between p-4 bg-white/60 rounded-xl border border-[#ff6b6b]/20">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-[#ff6b6b]/20 rounded-lg flex items-center justify-center">
                       {getDeviceIcon(issue.device)}
@@ -303,7 +303,7 @@ export default function HeatmapsPage() {
             </div>
             <div className="p-6 space-y-3">
               {rageClicks.length > 0 ? rageClicks.map((issue, idx) => (
-                <div key={idx} className="flex items-center justify-between p-4 bg-[#111111] rounded-xl">
+                <div key={idx} className="flex items-center justify-between p-4 bg-white/60 rounded-xl border border-[#ff6b6b]/20">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center">
                       {getDeviceIcon(issue.device)}
@@ -339,7 +339,7 @@ export default function HeatmapsPage() {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   {scriptErrors.map((err, idx) => (
-                    <div key={idx} className="bg-[#0a0a0a]/50 rounded-lg p-3">
+                    <div key={idx} className="bg-white/60 rounded-lg p-3 border border-[#7c5cff]/20">
                       <div className="flex items-center gap-2 mb-1">
                         {getDeviceIcon(err.device)}
                         <span className="text-[13px] font-medium text-[#1a1a1a]">{err.device}</span>

@@ -205,8 +205,8 @@ export default function AnalyticsPage() {
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
           {/* Traffic by Device */}
-          <div className="bg-white border border-[#d0d0d0] rounded-2xl overflow-hidden">
-            <div className="px-6 py-5 border-b border-[#d0d0d0]">
+          <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl overflow-hidden">
+            <div className="px-6 py-5 border-b border-[#7c5cff]/20">
               <h2 className="text-[18px] font-semibold text-[#1a1a1a]">Traffic by Device</h2>
               <p className="text-[13px] text-[#666666] mt-1">Sessions and users breakdown</p>
             </div>
@@ -217,7 +217,7 @@ export default function AnalyticsPage() {
                              device.device === 'Desktop' || device.device === 'PC' ? '#00d4aa' : '#f59e0b';
                 
                 return (
-                  <div key={device.device} className="p-4 bg-[#111111] rounded-xl">
+                  <div key={device.device} className="p-4 bg-white/60 rounded-xl border border-[#7c5cff]/20">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <div 
@@ -271,8 +271,8 @@ export default function AnalyticsPage() {
           </div>
 
           {/* UX Issues by Device */}
-          <div className="bg-white border border-[#d0d0d0] rounded-2xl overflow-hidden">
-            <div className="px-6 py-5 border-b border-[#d0d0d0]">
+          <div className="bg-gradient-to-br from-[#ff6b6b]/20 to-[#ff6b6b]/5 border border-[#ff6b6b]/30 rounded-2xl overflow-hidden">
+            <div className="px-6 py-5 border-b border-[#ff6b6b]/20">
               <h2 className="text-[18px] font-semibold text-[#1a1a1a]">UX Issues by Device</h2>
               <p className="text-[13px] text-[#666666] mt-1">Click issues and user frustration</p>
             </div>
@@ -340,7 +340,7 @@ export default function AnalyticsPage() {
                 const isGood = engagementRate > 50;
                 
                 return (
-                  <div key={device.device} className="p-6 bg-[#111111] rounded-xl">
+                  <div key={device.device} className="p-6 bg-white/60 rounded-xl border border-[#00d4aa]/20">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
                         {getDeviceIcon(device.device)}

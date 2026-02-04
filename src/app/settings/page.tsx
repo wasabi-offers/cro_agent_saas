@@ -111,7 +111,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Data Sources Section */}
-        <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-8 mb-6">
+        <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-8 mb-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-xl flex items-center justify-center">
               <Key className="w-5 h-5 text-[#7c5cff]" />
@@ -147,7 +147,7 @@ export default function SettingsPage() {
                 value={settings.screenshot_api_access_key}
                 onChange={(e) => setSettings({ ...settings, screenshot_api_access_key: e.target.value })}
                 placeholder="2E6KAaX6dDYr (example)"
-                className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all font-mono"
+                className="w-full px-4 py-3 bg-white/60 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all font-mono"
               />
             </div>
 
@@ -160,7 +160,7 @@ export default function SettingsPage() {
                 value={settings.screenshot_api_secret_key}
                 onChange={(e) => setSettings({ ...settings, screenshot_api_secret_key: e.target.value })}
                 placeholder="Nnc5BoaQXEB8 (example)"
-                className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all font-mono"
+                className="w-full px-4 py-3 bg-white/60 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all font-mono"
               />
             </div>
 

@@ -381,7 +381,7 @@ export default function DataSourcesPage() {
           {dataSources.map((source) => (
             <div
               key={source.id}
-              className="bg-white border border-[#d0d0d0] rounded-2xl p-6 hover:border-white/20 transition-all"
+              className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6 hover:border-[#7c5cff]/50 transition-all"
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-5">
@@ -445,7 +445,7 @@ export default function DataSourcesPage() {
                     <button
                       onClick={() => handleSync(source.id)}
                       disabled={syncingId === source.id}
-                      className="flex items-center gap-2 px-4 py-2.5 bg-[#111111] text-[#fafafa] text-[13px] font-medium rounded-lg hover:bg-[#1a1a1a] transition-all disabled:opacity-50"
+                      className="flex items-center gap-2 px-4 py-2.5 bg-white/60 text-[#1a1a1a] border border-[#7c5cff]/30 text-[13px] font-medium rounded-lg hover:bg-white/80 transition-all disabled:opacity-50"
                     >
                       <RefreshCw className={`w-4 h-4 ${syncingId === source.id ? 'animate-spin' : ''}`} />
                       {syncingId === source.id ? 'Syncing...' : 'Sync Now'}
@@ -482,10 +482,10 @@ export default function DataSourcesPage() {
             ].map((integration) => (
               <div
                 key={integration.name}
-                className="bg-white border border-dashed border-white/20 rounded-xl p-5 hover:border-[#7c5cff]/50 transition-all cursor-pointer group"
+                className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-dashed border-[#7c5cff]/30 rounded-xl p-5 hover:border-[#7c5cff]/50 transition-all cursor-pointer group"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-[#111111] rounded-xl flex items-center justify-center text-[24px]">
+                  <div className="w-12 h-12 bg-white/60 rounded-xl flex items-center justify-center text-[24px] border border-[#7c5cff]/20">
                     {integration.icon}
                   </div>
                   <div className="flex-1">
@@ -548,7 +548,7 @@ export default function DataSourcesPage() {
 
               {showConnectModal === 'clarity' && (
                 <div className="space-y-5">
-                  <div className="bg-[#111111] border border-[#d0d0d0] rounded-xl p-5">
+                  <div className="bg-white/60 border border-[#7c5cff]/20 rounded-xl p-5">
                     <div className="flex items-start gap-3 mb-4">
                       <AlertCircle className="w-5 h-5 text-[#7c5cff] flex-shrink-0 mt-0.5" />
                       <div>
