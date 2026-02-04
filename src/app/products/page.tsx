@@ -191,16 +191,16 @@ export default function ProductsPage() {
           </div>
           <div className="flex items-center gap-3">
             {lastUpdate && (
-              <div className="flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl">
+              <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-[#00d4aa]/20 to-[#00d4aa]/5 border border-[#00d4aa]/30 rounded-xl">
                 <div className="w-2 h-2 rounded-full bg-[#00d4aa] animate-pulse" />
-                <span className="text-[13px] text-white">
+                <span className="text-[13px] text-[#1a1a1a] font-semibold">
                   Updated {lastUpdate.toLocaleTimeString()}
                 </span>
               </div>
             )}
             <button
               onClick={loadProducts}
-              className="flex items-center gap-2 px-5 py-3 bg-[#0a0a0a] border border-[#d0d0d0] text-white text-[14px] font-medium rounded-xl hover:border-[#7c5cff]/50 transition-all"
+              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-[#7c5cff]/50 transition-all"
             >
               <RefreshCw className="w-4 h-4" />
               Refresh
@@ -210,45 +210,45 @@ export default function ProductsPage() {
               className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
             >
               <Plus className="w-4 h-4" />
-              New Product
+              New Project
             </button>
           </div>
         </div>
 
         {/* Summary Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6">
+          <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
                 <Folder className="w-5 h-5 text-[#7c5cff]" />
               </div>
-              <span className="text-[13px] text-white">Total Projects</span>
+              <span className="text-[13px] text-[#1a1a1a] font-bold">Total Projects</span>
             </div>
-            <p className="text-[28px] font-bold text-white">
+            <p className="text-[28px] font-bold text-[#1a1a1a]">
               {products.length}
             </p>
           </div>
 
-          <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6">
+          <div className="bg-gradient-to-br from-[#00d4aa]/20 to-[#00d4aa]/5 border border-[#00d4aa]/30 rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
                 <Target className="w-5 h-5 text-[#00d4aa]" />
               </div>
-              <span className="text-[13px] text-white">Total Funnels</span>
+              <span className="text-[13px] text-[#1a1a1a] font-bold">Total Funnels</span>
             </div>
-            <p className="text-[28px] font-bold text-white">
+            <p className="text-[28px] font-bold text-[#1a1a1a]">
               {totalFunnels}
             </p>
           </div>
 
-          <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6">
+          <div className="bg-gradient-to-br from-[#f59e0b]/20 to-[#f59e0b]/5 border border-[#f59e0b]/30 rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center">
                 <Target className="w-5 h-5 text-[#f59e0b]" />
               </div>
-              <span className="text-[13px] text-white">Avg Funnels/Project</span>
+              <span className="text-[13px] text-[#1a1a1a] font-bold">Avg Funnels/Project</span>
             </div>
-            <p className="text-[28px] font-bold text-white">
+            <p className="text-[28px] font-bold text-[#1a1a1a]">
               {products.length > 0 ? (totalFunnels / products.length).toFixed(1) : '0'}
             </p>
           </div>
@@ -263,7 +263,7 @@ export default function ProductsPage() {
               placeholder="Search projects..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl text-white text-[15px] placeholder:text-white/60 focus:outline-none focus:border-[#7c5cff] transition-all"
+              className="w-full pl-12 pr-4 py-3 bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
             />
           </div>
         </div>
@@ -320,22 +320,22 @@ export default function ProductsPage() {
                 </div>
 
                 {/* Name */}
-                <h3 className="text-[18px] font-semibold text-white mb-2 group-hover:text-[#7c5cff] transition-colors">
+                <h3 className="text-[18px] font-semibold text-[#1a1a1a] mb-2 group-hover:text-[#7c5cff] transition-colors">
                   {project.name}
                 </h3>
 
                 {/* Description */}
                 {project.description && (
-                  <p className="text-[13px] text-white/70 mb-4 line-clamp-2">
+                  <p className="text-[13px] text-[#666666] mb-4 line-clamp-2">
                     {project.description}
                   </p>
                 )}
 
                 {/* Stats */}
-                <div className="pt-4 border-t border-white/10">
+                <div className="pt-4 border-t border-[#7c5cff]/20">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] text-white/70 uppercase">Funnels</span>
-                    <span className="text-[16px] font-bold text-white">
+                    <span className="text-[11px] text-[#666666] uppercase font-semibold">Funnels</span>
+                    <span className="text-[16px] font-bold text-[#1a1a1a]">
                       {project.funnelCount}
                     </span>
                   </div>
@@ -421,48 +421,48 @@ export default function ProductsPage() {
       {/* Edit Project Dialog */}
       {showEditDialog && editingProduct && (
         <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-8 max-w-md w-full">
-            <h2 className="text-[22px] font-bold text-white mb-6">Edit Project</h2>
+          <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-8 max-w-md w-full">
+            <h2 className="text-[22px] font-bold text-[#1a1a1a] mb-6">Edit Project</h2>
 
             <form onSubmit={handleUpdateProduct} className="space-y-4">
               <div>
-                <label className="block text-[13px] text-[#888888] mb-2">Project Name *</label>
+                <label className="block text-[13px] text-[#1a1a1a] mb-2 font-semibold">Project Name *</label>
                 <input
                   type="text"
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="E-commerce, SaaS, Mobile App..."
-                  className="w-full px-4 py-3 bg-[#111111] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-[13px] text-white/70 mb-2">Description</label>
+                <label className="block text-[13px] text-[#1a1a1a] mb-2 font-semibold">Description</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Brief description of this project..."
                   rows={3}
-                  className="w-full px-4 py-3 bg-[#111111] border border-[#d0d0d0] rounded-xl text-white text-[15px] placeholder:text-white/50 focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
+                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
                 />
               </div>
 
               <div>
-                <label className="block text-[13px] text-[#888888] mb-2">Color</label>
+                <label className="block text-[13px] text-[#1a1a1a] mb-2 font-semibold">Color</label>
                 <div className="flex items-center gap-3">
                   <input
                     type="color"
                     value={formData.color}
                     onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                    className="w-12 h-12 rounded-lg cursor-pointer bg-[#111111] border border-[#d0d0d0]"
+                    className="w-12 h-12 rounded-lg cursor-pointer bg-white/80 border border-[#7c5cff]/30"
                   />
                   <input
                     type="text"
                     value={formData.color}
                     onChange={(e) => setFormData({ ...formData, color: e.target.value })}
                     placeholder="#7c5cff"
-                    className="flex-1 px-4 py-3 bg-[#111111] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                    className="flex-1 px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
                   />
                 </div>
               </div>
@@ -475,7 +475,7 @@ export default function ProductsPage() {
                     setEditingProduct(null);
                     setFormData({ name: "", description: "", color: "#7c5cff", icon: "Folder" });
                   }}
-                  className="flex-1 px-5 py-3 bg-[#111111] border border-[#d0d0d0] text-white text-[14px] font-medium rounded-xl hover:border-white/20 transition-all"
+                  className="flex-1 px-5 py-3 bg-white/80 border border-[#7c5cff]/30 text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-[#7c5cff]/50 transition-all"
                 >
                   Cancel
                 </button>
