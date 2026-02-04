@@ -246,9 +246,9 @@ export default function ProductsPage() {
               <div className="w-10 h-10 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center">
                 <Target className="w-5 h-5 text-[#f59e0b]" />
               </div>
-              <span className="text-[13px] text-[#888888]">Avg Funnels/Product</span>
+              <span className="text-[13px] text-white">Avg Funnels/Product</span>
             </div>
-            <p className="text-[28px] font-bold text-[#1a1a1a]">
+            <p className="text-[28px] font-bold text-white">
               {products.length > 0 ? (totalFunnels / products.length).toFixed(1) : '0'}
             </p>
           </div>
