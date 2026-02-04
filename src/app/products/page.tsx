@@ -260,7 +260,7 @@ export default function ProductsPage() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#666666]" />
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder="Search projects..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-12 pr-4 py-3 bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl text-white text-[15px] placeholder:text-white/60 focus:outline-none focus:border-[#7c5cff] transition-all"
@@ -410,7 +410,7 @@ export default function ProductsPage() {
                   type="submit"
                   className="flex-1 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
                 >
-                  Create Product
+                  Create Project
                 </button>
               </div>
             </form>
