@@ -106,32 +106,53 @@ export default function ProductFunnelsPage() {
   }, [loadData]);
 
   const handleSaveFunnel = async (funnel: { name: string; steps: any[]; connections?: any[] }) => {
-    // Add product_id to funnel
-    const funnelWithProduct = {
-      ...funnel,
-      product_id: productId,
-    };
-
-    const newFunnel = await createFunnel(funnelWithProduct);
-
-    if (newFunnel) {
-      setFunnels([newFunnel, ...funnels]);
-      setShowBuilder(false);
-      alert('✅ Funnel created successfully!');
+    if (editingFunnelId) {
+      // Update existing funnel
+      const success = await updateFunnel(editingFunnelId, funnel);
+      
+      if (success) {
+        // Reload funnels to get updated data
+        await loadData(false);
+        setShowBuilder(false);
+        setEditingFunnelId(null);
+        alert('✅ Funnel aggiornato con successo!');
+      } else {
+        alert('❌ Errore durante l\'aggiornamento del funnel');
+      }
     } else {
-      // If Supabase not configured, still add locally
-      const localFunnel: ConversionFunnel = {
-        id: `funnel_${Date.now()}`,
-        name: funnel.name,
-        steps: funnel.steps,
-        connections: funnel.connections,
-        conversionRate: funnel.steps[0].visitors > 0
-          ? (funnel.steps[funnel.steps.length - 1].visitors / funnel.steps[0].visitors) * 100
-          : 0,
+      // Create new funnel
+      // Add product_id to funnel
+      const funnelWithProduct = {
+        ...funnel,
+        product_id: productId,
       };
-      setFunnels([localFunnel, ...funnels]);
-      setShowBuilder(false);
+
+      const newFunnel = await createFunnel(funnelWithProduct);
+
+      if (newFunnel) {
+        setFunnels([newFunnel, ...funnels]);
+        setShowBuilder(false);
+        alert('✅ Funnel created successfully!');
+      } else {
+        // If Supabase not configured, still add locally
+        const localFunnel: ConversionFunnel = {
+          id: `funnel_${Date.now()}`,
+          name: funnel.name,
+          steps: funnel.steps,
+          connections: funnel.connections,
+          conversionRate: funnel.steps[0].visitors > 0
+            ? (funnel.steps[funnel.steps.length - 1].visitors / funnel.steps[0].visitors) * 100
+            : 0,
+        };
+        setFunnels([localFunnel, ...funnels]);
+        setShowBuilder(false);
+      }
     }
+  };
+
+  const handleEditFunnel = (funnel: ConversionFunnel) => {
+    setEditingFunnelId(funnel.id);
+    setShowBuilder(true);
   };
 
   const handleDeleteFunnel = async (funnelId: string, funnelName: string) => {
