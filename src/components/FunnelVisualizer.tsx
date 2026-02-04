@@ -84,18 +84,18 @@ function StepNode({ data }: { data: StepData }) {
         style={{ left: -8 }}
       />
 
-      <div className="bg-[#0a0a0a] border-2 border-[#7c5cff] rounded-xl overflow-hidden shadow-lg hover:border-[#00d4aa] transition-all cursor-pointer" style={{ width: 280 }}>
+      <div className="bg-white border-2 border-[#7c5cff] rounded-xl overflow-hidden shadow-lg hover:border-[#00d4aa] transition-all cursor-pointer" style={{ width: 280 }}>
         {/* Header */}
         <div className="p-3 pb-2">
           <h3 className="text-[13px] font-semibold text-[#fafafa] mb-1.5 truncate">
             {data.label}
           </h3>
             <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1 text-[11px] text-[#888888]">
+            <div className="flex items-center gap-1 text-[11px] text-[#666666]">
               <Users className="w-3 h-3 text-[#7c5cff]" />
               <span>{(data.visitors ?? 0).toLocaleString()}</span>
             </div>
-            <div className="flex items-center gap-1 text-[11px] text-[#888888]">
+            <div className="flex items-center gap-1 text-[11px] text-[#666666]">
               <Percent className="w-3 h-3 text-[#00d4aa]" />
               <span>{Number.isFinite(data.conversionRate) ? data.conversionRate.toFixed(1) : '0'}%</span>
             </div>
@@ -110,7 +110,7 @@ function StepNode({ data }: { data: StepData }) {
 
         {/* Page Preview - frame scuro per evitare effetto bianco piatto */}
         <div className="relative overflow-hidden" style={{ height: 160 }}>
-          <div className="absolute inset-0 bg-[#0f0f0f] border-t border-[#2a2a2a]" />
+          <div className="absolute inset-0 bg-[#f8f9fa] border-t border-[#d0d0d0]" />
           {hasPreview ? (
             <>
               <div className="absolute inset-2 rounded-md overflow-hidden border border-[#333] bg-[#1a1a1a]">
@@ -140,7 +140,7 @@ function StepNode({ data }: { data: StepData }) {
         </div>
 
         {/* Action Buttons */}
-        <div className="p-2 flex gap-2 border-t border-[#2a2a2a]">
+        <div className="p-2 flex gap-2 border-t border-[#d0d0d0]">
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); e.preventDefault(); onDataAnalysisClick?.(stepIndex); }}
@@ -186,9 +186,9 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
   // VALIDAZIONE: Verifica che ci siano step
   if (!steps || steps.length === 0) {
     return (
-      <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8 text-center">
+      <div className="bg-white border border-white/10 rounded-2xl p-8 text-center">
         <p className="text-[#ff6b6b] text-[16px]">⚠️ Error: No steps found in funnel</p>
-        <p className="text-[#888888] text-[13px] mt-2">Check that the funnel was created correctly</p>
+        <p className="text-[#666666] text-[13px] mt-2">Check that the funnel was created correctly</p>
       </div>
     );
   }
@@ -346,12 +346,12 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
   return (
     <StepCardContext.Provider value={stepCardContextValue}>
     <div className="relative">
-      <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
+      <div className="bg-white border border-white/10 rounded-2xl overflow-hidden">
         <div className="px-6 py-4 border-b border-white/10">
           <h2 className="text-[18px] font-semibold text-[#fafafa]">
             Funnel Flow: {name}
           </h2>
-          <p className="text-[13px] text-[#888888] mt-1">
+          <p className="text-[13px] text-[#666666] mt-1">
             Click on any step to view detailed metrics
           </p>
         </div>
@@ -379,26 +379,26 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
             proOptions={{ hideAttribution: true }}
           >
             <Background color="#333" gap={16} />
-            <Controls className="bg-[#0a0a0a] border border-white/10 rounded-lg" />
+            <Controls className="bg-white border border-white/10 rounded-lg" />
           </ReactFlow>
         </div>
       </div>
 
       {/* Details Panel */}
       {selectedNode && (
-        <div className="absolute top-4 right-4 bg-[#0a0a0a] border border-[#7c5cff] rounded-xl p-6 w-96 shadow-2xl z-50">
+        <div className="absolute top-4 right-4 bg-white border border-[#7c5cff] rounded-xl p-6 w-96 shadow-2xl z-50">
           <div className="flex items-start justify-between mb-4">
             <div>
               <h3 className="text-[16px] font-semibold text-[#fafafa] mb-1">
                 Step Details
               </h3>
-              <p className="text-[14px] text-[#888888]">
+              <p className="text-[14px] text-[#666666]">
                 {selectedNode.data.label}
               </p>
             </div>
             <button
               onClick={closeDetails}
-              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5 text-[#888888] hover:text-[#fafafa] transition-colors"
+              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5 text-[#666666] hover:text-[#fafafa] transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -408,7 +408,7 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
             <div className="bg-[#7c5cff]/10 border border-[#7c5cff]/20 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Users className="w-4 h-4 text-[#7c5cff]" />
-                <span className="text-[12px] text-[#888888]">Total Visitors</span>
+                <span className="text-[12px] text-[#666666]">Total Visitors</span>
               </div>
               <p className="text-[24px] font-bold text-[#fafafa]">
                 {(selectedNode.data.visitors ?? 0).toLocaleString()}
@@ -418,7 +418,7 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
             <div className="bg-[#00d4aa]/10 border border-[#00d4aa]/20 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Percent className="w-4 h-4 text-[#00d4aa]" />
-                <span className="text-[12px] text-[#888888]">Conversion Rate</span>
+                <span className="text-[12px] text-[#666666]">Conversion Rate</span>
               </div>
               <p className="text-[24px] font-bold text-[#fafafa]">
                 {Number.isFinite(selectedNode.data.conversionRate) ? selectedNode.data.conversionRate.toFixed(1) : '0'}%
@@ -429,22 +429,22 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
               <div className="bg-[#ff6b6b]/10 border border-[#ff6b6b]/20 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <TrendingDown className="w-4 h-4 text-[#ff6b6b]" />
-                  <span className="text-[12px] text-[#888888]">Drop-off Rate</span>
+                  <span className="text-[12px] text-[#666666]">Drop-off Rate</span>
                 </div>
                 <p className="text-[24px] font-bold text-[#fafafa]">
                   {Number.isFinite(selectedNode.data.dropoff) ? selectedNode.data.dropoff.toFixed(1) : '0'}%
                 </p>
-                <p className="text-[11px] text-[#888888] mt-2">
+                <p className="text-[11px] text-[#666666] mt-2">
                   {Math.round((selectedNode.data.visitors ?? 0) * ((selectedNode.data.dropoff ?? 0) / 100)).toLocaleString()} visitors left at this stage
                 </p>
               </div>
             )}
 
             {selectedNode.data.url && (
-              <div className="bg-[#2a2a2a] border border-[#2a2a2a] rounded-lg p-3">
+              <div className="bg-[#2a2a2a] border border-[#d0d0d0] rounded-lg p-3">
                 <div className="flex items-center gap-2 mb-2">
                   <ExternalLink className="w-4 h-4 text-[#7c5cff]" />
-                  <span className="text-[12px] text-[#888888]">URL</span>
+                  <span className="text-[12px] text-[#666666]">URL</span>
                 </div>
                 <a
                   href={selectedNode.data.url}

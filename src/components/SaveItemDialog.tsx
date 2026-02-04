@@ -69,12 +69,12 @@ export default function SaveItemDialog({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl max-w-lg w-full p-8">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white border border-[#1a1a1a] rounded-2xl max-w-lg w-full p-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-[20px] font-semibold text-[#fafafa]">
+            <h2 className="text-[20px] font-semibold text-[#1a1a1a]">
               Save {type === 'funnel' ? 'Funnel' : 'Landing Page'}
             </h2>
             <p className="text-[13px] text-[#888888] mt-1">
@@ -83,7 +83,7 @@ export default function SaveItemDialog({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#1a1a1a] transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#f1f3f5] transition-colors"
           >
             <X className="w-5 h-5 text-[#888888]" />
           </button>
@@ -101,7 +101,7 @@ export default function SaveItemDialog({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={`My ${type === 'funnel' ? 'Checkout Funnel' : 'Landing Page'}`}
-              className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#fafafa] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+              className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
             />
           </div>
 
@@ -115,7 +115,7 @@ export default function SaveItemDialog({
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://example.com"
-              className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#fafafa] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+              className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
             />
           </div>
 
@@ -141,7 +141,7 @@ export default function SaveItemDialog({
                   value={newCategoryName}
                   onChange={(e) => setNewCategoryName(e.target.value)}
                   placeholder="Category name"
-                  className="w-full px-3 py-2 bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[14px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                  className="w-full px-3 py-2 bg-white border border-[#2a2a2a] rounded-lg text-[#1a1a1a] text-[14px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
                 />
                 <div className="flex items-center gap-3">
                   <label className="text-[12px] text-[#888888]">Color:</label>

@@ -57,7 +57,7 @@ export default function SavedAnalysisPage() {
 
   if (!item || !item.analysis) {
     return (
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-white">
         <Header title="Analysis Not Found" breadcrumb={["Archivio", "Analysis"]} />
         <div className="p-10 max-w-[1600px] mx-auto">
           <div className="text-center py-20">
@@ -83,7 +83,7 @@ export default function SavedAnalysisPage() {
   const isFunnel = itemType === 'funnel';
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       <Header 
         title={isFunnel ? "Funnel Analysis" : "Landing Page Analysis"} 
         breadcrumb={["Archivio", item.name]} 
@@ -100,7 +100,7 @@ export default function SavedAnalysisPage() {
             <span className="text-[14px]">Back to Archive</span>
           </button>
 
-          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6 mb-6">
+          <div className="bg-[#0a0a0a] border border-[#e0e0e0] rounded-2xl p-6 mb-6">
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
                 <h1 className="text-[28px] font-bold text-[#fafafa] mb-3">{item.name}</h1>
@@ -141,14 +141,14 @@ export default function SavedAnalysisPage() {
 
             {/* Summary */}
             {analysis.summary && (
-              <div className="pt-4 border-t border-[#1a1a1a]">
+              <div className="pt-4 border-t border-[#e0e0e0]">
                 <p className="text-[14px] text-[#fafafa] leading-relaxed">{analysis.summary}</p>
               </div>
             )}
 
             {/* Expected Impact */}
             {analysis.expectedImpact && (
-              <div className="mt-4 pt-4 border-t border-[#1a1a1a]">
+              <div className="mt-4 pt-4 border-t border-[#e0e0e0]">
                 <div className="flex items-center gap-2 mb-3">
                   <Target className="w-5 h-5 text-[#00d4aa]" />
                   <h3 className="text-[16px] font-semibold text-[#fafafa]">Expected Impact</h3>
@@ -178,7 +178,7 @@ export default function SavedAnalysisPage() {
             <CROComparisonTable rows={analysis.comparisonTable} />
           </div>
         ) : (
-          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-12 text-center">
+          <div className="bg-[#0a0a0a] border border-[#e0e0e0] rounded-2xl p-12 text-center">
             <FileText className="w-16 h-16 text-[#666666] mx-auto mb-4" />
             <p className="text-[16px] text-[#888888] mb-2">No analysis data available</p>
             <p className="text-[14px] text-[#666666]">

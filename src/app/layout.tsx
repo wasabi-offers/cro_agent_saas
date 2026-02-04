@@ -35,7 +35,7 @@ export default function RootLayout({
         )}
       </head>
       <body>
-        <div className="min-h-screen bg-black">
+        <div className="min-h-screen bg-white">
           <Sidebar />
           <main className="pl-[280px]">{children}</main>
           <AIChatAssistant />

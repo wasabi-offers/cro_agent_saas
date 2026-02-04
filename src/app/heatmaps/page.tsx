@@ -67,7 +67,7 @@ export default function HeatmapsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-white">
         <Header title="Heatmaps" breadcrumb={["Dashboard", "Heatmaps"]} />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
@@ -81,7 +81,7 @@ export default function HeatmapsPage() {
 
   if (error || !dashboardData) {
     return (
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-white">
         <Header title="Heatmaps" breadcrumb={["Dashboard", "Heatmaps"]} />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4 p-6 bg-[#0a0a0a] border border-[#ff6b6b]/30 rounded-2xl">
@@ -114,14 +114,14 @@ export default function HeatmapsPage() {
   const excessiveScrolls = filteredIssues.filter(i => i.metric_name === 'ExcessiveScrollCount');
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       <Header title="Heatmaps" breadcrumb={["Dashboard", "Heatmaps"]} />
 
       <div className="p-10">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-[24px] font-bold text-[#fafafa] mb-2">Click & Interaction Data</h1>
+            <h1 className="text-[24px] font-bold text-[#1a1a1a] mb-2">Click & Interaction Data</h1>
             <p className="text-[14px] text-[#666666]">
               User interaction patterns from Microsoft Clarity
             </p>
@@ -142,7 +142,7 @@ export default function HeatmapsPage() {
               <Info className="w-6 h-6 text-[#7c5cff]" />
             </div>
             <div>
-              <h3 className="text-[16px] font-semibold text-[#fafafa] mb-2">
+              <h3 className="text-[16px] font-semibold text-[#1a1a1a] mb-2">
                 Clarity Click Insights
               </h3>
               <p className="text-[14px] text-[#888888] mb-3">
@@ -178,7 +178,7 @@ export default function HeatmapsPage() {
               className={`px-4 py-2 rounded-lg text-[13px] font-medium transition-all capitalize ${
                 selectedDevice === device
                   ? 'bg-[#7c5cff] text-white'
-                  : 'bg-[#111111] text-[#888888] hover:bg-[#1a1a1a] hover:text-[#fafafa]'
+                  : 'bg-[#111111] text-[#888888] hover:bg-[#1a1a1a] hover:text-[#1a1a1a]'
               }`}
             >
               {device === 'all' ? 'All Devices' : device}
@@ -195,7 +195,7 @@ export default function HeatmapsPage() {
               </div>
               <span className="text-[13px] text-[#888888]">Dead Clicks</span>
             </div>
-            <p className="text-[32px] font-bold text-[#fafafa]">
+            <p className="text-[32px] font-bold text-[#1a1a1a]">
               {summary.totalDeadClicks.toLocaleString()}
             </p>
             <p className="text-[12px] text-[#666666] mt-1">
@@ -210,7 +210,7 @@ export default function HeatmapsPage() {
               </div>
               <span className="text-[13px] text-[#888888]">Rage Clicks</span>
             </div>
-            <p className="text-[32px] font-bold text-[#fafafa]">
+            <p className="text-[32px] font-bold text-[#1a1a1a]">
               {summary.totalRageClicks.toLocaleString()}
             </p>
             <p className="text-[12px] text-[#666666] mt-1">
@@ -225,7 +225,7 @@ export default function HeatmapsPage() {
               </div>
               <span className="text-[13px] text-[#888888]">Quickbacks</span>
             </div>
-            <p className="text-[32px] font-bold text-[#fafafa]">
+            <p className="text-[32px] font-bold text-[#1a1a1a]">
               {summary.totalQuickbacks.toLocaleString()}
             </p>
             <p className="text-[12px] text-[#666666] mt-1">
@@ -240,7 +240,7 @@ export default function HeatmapsPage() {
               </div>
               <span className="text-[13px] text-[#888888]">Scroll Depth</span>
             </div>
-            <p className="text-[32px] font-bold text-[#fafafa]">
+            <p className="text-[32px] font-bold text-[#1a1a1a]">
               {summary.avgScrollDepth.toFixed(0)}%
             </p>
             <p className="text-[12px] text-[#666666] mt-1">
@@ -252,14 +252,14 @@ export default function HeatmapsPage() {
         {/* Issues by Device */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
           {/* Dead Clicks */}
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
-            <div className="px-6 py-5 border-b border-white/10 flex items-center justify-between">
+          <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl overflow-hidden">
+            <div className="px-6 py-5 border-b border-[#d0d0d0] flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-[#ff6b6b]/20 rounded-lg flex items-center justify-center">
                   <MousePointerClick className="w-5 h-5 text-[#ff6b6b]" />
                 </div>
                 <div>
-                  <h2 className="text-[16px] font-semibold text-[#fafafa]">Dead Clicks</h2>
+                  <h2 className="text-[16px] font-semibold text-[#1a1a1a]">Dead Clicks</h2>
                   <p className="text-[12px] text-[#666666]">By device</p>
                 </div>
               </div>
@@ -271,10 +271,10 @@ export default function HeatmapsPage() {
                     <div className="w-8 h-8 bg-[#ff6b6b]/20 rounded-lg flex items-center justify-center">
                       {getDeviceIcon(issue.device)}
                     </div>
-                    <span className="text-[14px] font-medium text-[#fafafa]">{issue.device}</span>
+                    <span className="text-[14px] font-medium text-[#1a1a1a]">{issue.device}</span>
                   </div>
                   <div className="text-right">
-                    <p className="text-[16px] font-bold text-[#fafafa]">
+                    <p className="text-[16px] font-bold text-[#1a1a1a]">
                       {issue.sub_total.toLocaleString()}
                     </p>
                     <p className="text-[11px] text-[#ff6b6b]">
@@ -289,14 +289,14 @@ export default function HeatmapsPage() {
           </div>
 
           {/* Rage Clicks */}
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
-            <div className="px-6 py-5 border-b border-white/10 flex items-center justify-between">
+          <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl overflow-hidden">
+            <div className="px-6 py-5 border-b border-[#d0d0d0] flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center">
                   <Zap className="w-5 h-5 text-[#f59e0b]" />
                 </div>
                 <div>
-                  <h2 className="text-[16px] font-semibold text-[#fafafa]">Rage Clicks</h2>
+                  <h2 className="text-[16px] font-semibold text-[#1a1a1a]">Rage Clicks</h2>
                   <p className="text-[12px] text-[#666666]">User frustration</p>
                 </div>
               </div>
@@ -308,10 +308,10 @@ export default function HeatmapsPage() {
                     <div className="w-8 h-8 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center">
                       {getDeviceIcon(issue.device)}
                     </div>
-                    <span className="text-[14px] font-medium text-[#fafafa]">{issue.device}</span>
+                    <span className="text-[14px] font-medium text-[#1a1a1a]">{issue.device}</span>
                   </div>
                   <div className="text-right">
-                    <p className="text-[16px] font-bold text-[#fafafa]">
+                    <p className="text-[16px] font-bold text-[#1a1a1a]">
                       {issue.sub_total.toLocaleString()}
                     </p>
                     <p className="text-[11px] text-[#f59e0b]">
@@ -334,7 +334,7 @@ export default function HeatmapsPage() {
                 <AlertTriangle className="w-6 h-6 text-[#ff6b6b]" />
               </div>
               <div className="flex-1">
-                <h3 className="text-[16px] font-semibold text-[#fafafa] mb-2">
+                <h3 className="text-[16px] font-semibold text-[#1a1a1a] mb-2">
                   ⚠️ Script Errors Detected
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -342,7 +342,7 @@ export default function HeatmapsPage() {
                     <div key={idx} className="bg-[#0a0a0a]/50 rounded-lg p-3">
                       <div className="flex items-center gap-2 mb-1">
                         {getDeviceIcon(err.device)}
-                        <span className="text-[13px] font-medium text-[#fafafa]">{err.device}</span>
+                        <span className="text-[13px] font-medium text-[#1a1a1a]">{err.device}</span>
                       </div>
                       <p className="text-[18px] font-bold text-[#ff6b6b]">
                         {err.sub_total.toLocaleString()} errors
@@ -365,8 +365,8 @@ export default function HeatmapsPage() {
         )}
 
         {/* Traffic Distribution */}
-        <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6">
-          <h2 className="text-[18px] font-semibold text-[#fafafa] mb-6">Traffic by Device</h2>
+        <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6">
+          <h2 className="text-[18px] font-semibold text-[#1a1a1a] mb-6">Traffic by Device</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {trafficByDevice.map((device) => {
               const percentage = (device.total_session_count / summary.totalSessions) * 100;
@@ -383,20 +383,20 @@ export default function HeatmapsPage() {
                       <div style={{ color }}>{getDeviceIcon(device.device)}</div>
                     </div>
                     <div>
-                      <h3 className="text-[16px] font-semibold text-[#fafafa]">{device.device}</h3>
+                      <h3 className="text-[16px] font-semibold text-[#1a1a1a]">{device.device}</h3>
                       <p className="text-[12px] text-[#666666]">{percentage.toFixed(1)}% of traffic</p>
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-3">
                     <div className="text-center p-3 bg-[#0a0a0a] rounded-lg">
-                      <p className="text-[18px] font-bold text-[#fafafa]">
+                      <p className="text-[18px] font-bold text-[#1a1a1a]">
                         {device.total_session_count.toLocaleString()}
                       </p>
                       <p className="text-[11px] text-[#888888]">Sessions</p>
                     </div>
                     <div className="text-center p-3 bg-[#0a0a0a] rounded-lg">
-                      <p className="text-[18px] font-bold text-[#fafafa]">
+                      <p className="text-[18px] font-bold text-[#1a1a1a]">
                         {device.distinct_user_count.toLocaleString()}
                       </p>
                       <p className="text-[11px] text-[#888888]">Users</p>

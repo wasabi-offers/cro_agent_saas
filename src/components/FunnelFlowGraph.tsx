@@ -263,13 +263,13 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
                   : node.isEntry
                   ? 'border-[#7c5cff]/50 hover:shadow-[#7c5cff]/10'
                   : 'border-[#2a2a2a] hover:border-[#7c5cff]/30'
-              } bg-[#111111]`}>
+              } bg-[#f8f9fa]`}>
 
-                <div className="relative z-10 flex flex-col h-full bg-[#111111]">
+                <div className="relative z-10 flex flex-col h-full bg-[#f8f9fa]">
                   {/* Header: name + badges + visitors */}
                   <div className="p-3 pb-2 flex items-start justify-between gap-2 border-b border-[#2a2a2a] flex-shrink-0">
                     <div className="flex-1 min-w-0">
-                      <p className="text-[13px] font-semibold text-[#fafafa] truncate">{node.step.name}</p>
+                      <p className="text-[13px] font-semibold text-[#1a1a1a] truncate">{node.step.name}</p>
                       <div className="flex items-center gap-1 mt-1 flex-wrap">
                         {node.isEntry && (
                           <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-[#7c5cff]/20 border border-[#7c5cff]/30 text-[8px] font-medium text-[#7c5cff]">
@@ -294,7 +294,7 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
                       </div>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <p className={`text-[16px] font-bold leading-tight ${node.isExit ? 'text-[#00d4aa]' : 'text-[#fafafa]'}`}>
+                      <p className={`text-[16px] font-bold leading-tight ${node.isExit ? 'text-[#00d4aa]' : 'text-[#1a1a1a]'}`}>
                         {(node.step.visitors ?? 0).toLocaleString()}
                       </p>
                       <p className="text-[9px] text-[#666666]">visitors</p>
@@ -302,7 +302,7 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
                   </div>
 
                   {/* Footer: dropoff + connections */}
-                  <div className="p-2.5 border-t border-[#2a2a2a] flex items-center justify-between gap-2 flex-shrink-0 bg-[#111111]">
+                  <div className="p-2.5 border-t border-[#2a2a2a] flex items-center justify-between gap-2 flex-shrink-0 bg-[#f8f9fa]">
                     <div className="text-[9px] text-[#555555] truncate">
                       {node.sourceNames.length > 0 && (
                         <span>← {node.sourceNames.length > 1 ? `${node.sourceNames.length} sources` : node.sourceNames[0]}</span>
@@ -330,14 +330,14 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
 
       {/* Expanded card modal - all data */}
       {selectedNode && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4" onClick={() => setSelectedNode(null)}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4" onClick={() => setSelectedNode(null)}>
           <div
             className="bg-[#0a0a0a] border-2 border-[#7c5cff] rounded-2xl p-6 w-full max-w-lg shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h3 className="text-[18px] font-semibold text-[#fafafa] mb-1">
+                <h3 className="text-[18px] font-semibold text-[#1a1a1a] mb-1">
                   {selectedNode.step.name}
                 </h3>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
@@ -365,7 +365,7 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
               </div>
               <button
                 onClick={() => setSelectedNode(null)}
-                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5 text-[#888888] hover:text-[#fafafa] transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#f1f3f5] text-[#888888] hover:text-[#1a1a1a] transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -377,7 +377,7 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
                   <Users className="w-4 h-4 text-[#7c5cff]" />
                   <span className="text-[12px] text-[#888888]">Visitors</span>
                 </div>
-                <p className="text-[24px] font-bold text-[#fafafa]">
+                <p className="text-[24px] font-bold text-[#1a1a1a]">
                   {selectedNode.step.visitors.toLocaleString()}
                 </p>
               </div>
@@ -387,7 +387,7 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
                   <Percent className="w-4 h-4 text-[#00d4aa]" />
                   <span className="text-[12px] text-[#888888]">Conversion Rate</span>
                 </div>
-                <p className="text-[24px] font-bold text-[#fafafa]">
+                <p className="text-[24px] font-bold text-[#1a1a1a]">
                   {(() => {
                     if (selectedNode.step.conversionRate != null && Number.isFinite(selectedNode.step.conversionRate)) {
                       return selectedNode.step.conversionRate.toFixed(1);
@@ -412,7 +412,7 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
                     <TrendingDown className="w-4 h-4 text-[#ff6b6b]" />
                     <span className="text-[12px] text-[#888888]">Drop-off</span>
                   </div>
-                  <p className="text-[24px] font-bold text-[#fafafa]">
+                  <p className="text-[24px] font-bold text-[#1a1a1a]">
                     {selectedNode.step.dropoff}%
                   </p>
                   <p className="text-[11px] text-[#888888] mt-2">

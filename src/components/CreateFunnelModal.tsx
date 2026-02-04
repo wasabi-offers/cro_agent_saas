@@ -68,28 +68,28 @@ export default function CreateFunnelModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-      <div className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-auto">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+      <div className="bg-white border border-[#d0d0d0] rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-auto shadow-2xl">
         {/* Header */}
-        <div className="sticky top-0 bg-[#0a0a0a] border-b border-[#2a2a2a] p-6 flex items-center justify-between">
+        <div className="sticky top-0 bg-white border-b border-[#d0d0d0] p-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-xl flex items-center justify-center">
               <Target className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="text-[20px] font-semibold text-[#fafafa]">
+              <h2 className="text-[20px] font-semibold text-[#1a1a1a]">
                 Create New Funnel
               </h2>
-              <p className="text-[13px] text-[#888888]">
+              <p className="text-[13px] text-[#666666]">
                 Set up a new conversion funnel to track
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-[#111111] rounded-lg transition-all"
+            className="p-2 hover:bg-[#f1f3f5] rounded-lg transition-all"
           >
-            <X className="w-5 h-5 text-[#888888]" />
+            <X className="w-5 h-5 text-[#666666]" />
           </button>
         </div>
 
@@ -97,7 +97,7 @@ export default function CreateFunnelModal({
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Funnel Name */}
           <div>
-            <label className="block text-[13px] font-medium text-[#fafafa] mb-2">
+            <label className="block text-[13px] font-medium text-[#1a1a1a] mb-2">
               Funnel Name *
             </label>
             <input
@@ -106,13 +106,13 @@ export default function CreateFunnelModal({
               onChange={(e) => setFunnelName(e.target.value)}
               placeholder="e.g., E-commerce Checkout, Lead Generation"
               required
-              className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#fafafa] text-[14px] focus:outline-none focus:border-[#7c5cff] transition-all placeholder:text-[#666666]"
+              className="w-full px-4 py-3 bg-[#111111] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[14px] focus:outline-none focus:border-[#7c5cff] transition-all placeholder:text-[#666666]"
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-[13px] font-medium text-[#fafafa] mb-2">
+            <label className="block text-[13px] font-medium text-[#1a1a1a] mb-2">
               Description
             </label>
             <textarea
@@ -120,14 +120,14 @@ export default function CreateFunnelModal({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe what this funnel tracks..."
               rows={3}
-              className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#fafafa] text-[14px] focus:outline-none focus:border-[#7c5cff] transition-all placeholder:text-[#666666] resize-none"
+              className="w-full px-4 py-3 bg-[#111111] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[14px] focus:outline-none focus:border-[#7c5cff] transition-all placeholder:text-[#666666] resize-none"
             />
           </div>
 
           {/* Funnel Steps */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <label className="block text-[13px] font-medium text-[#fafafa]">
+              <label className="block text-[13px] font-medium text-[#1a1a1a]">
                 Funnel Steps *
               </label>
               <span className="text-[11px] text-[#666666]">
@@ -139,7 +139,7 @@ export default function CreateFunnelModal({
               {steps.map((step, index) => (
                 <div
                   key={index}
-                  className="flex items-start gap-3 p-4 bg-[#111111] border border-[#2a2a2a] rounded-xl"
+                  className="flex items-start gap-3 p-4 bg-[#111111] border border-[#d0d0d0] rounded-xl"
                 >
                   {/* Step Number */}
                   <div className="flex-shrink-0 w-8 h-8 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
@@ -157,7 +157,7 @@ export default function CreateFunnelModal({
                         onChange={(e) => updateStep(index, "name", e.target.value)}
                         placeholder="Step name"
                         required
-                        className="w-full px-3 py-2 bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[13px] focus:outline-none focus:border-[#7c5cff] transition-all placeholder:text-[#666666]"
+                        className="w-full px-3 py-2 bg-white border border-[#d0d0d0] rounded-lg text-[#1a1a1a] text-[13px] focus:outline-none focus:border-[#7c5cff] transition-all placeholder:text-[#666666]"
                       />
                     </div>
                     <div>
@@ -167,7 +167,7 @@ export default function CreateFunnelModal({
                         onChange={(e) => updateStep(index, "page", e.target.value)}
                         placeholder="/page-url"
                         required
-                        className="w-full px-3 py-2 bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[13px] focus:outline-none focus:border-[#7c5cff] transition-all placeholder:text-[#666666]"
+                        className="w-full px-3 py-2 bg-white border border-[#d0d0d0] rounded-lg text-[#1a1a1a] text-[13px] focus:outline-none focus:border-[#7c5cff] transition-all placeholder:text-[#666666]"
                       />
                     </div>
                   </div>
@@ -190,7 +190,7 @@ export default function CreateFunnelModal({
             <button
               type="button"
               onClick={addStep}
-              className="w-full mt-3 px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#888888] text-[13px] font-medium hover:bg-[#1a1a1a] hover:text-[#fafafa] hover:border-[#7c5cff]/50 transition-all flex items-center justify-center gap-2"
+              className="w-full mt-3 px-4 py-3 bg-[#111111] border border-[#d0d0d0] rounded-xl text-[#888888] text-[13px] font-medium hover:bg-[#1a1a1a] hover:text-[#1a1a1a] hover:border-[#7c5cff]/50 transition-all flex items-center justify-center gap-2"
             >
               <Plus className="w-4 h-4" />
               Add Step
@@ -202,7 +202,7 @@ export default function CreateFunnelModal({
             <div className="flex items-start gap-3">
               <TrendingUp className="w-5 h-5 text-[#7c5cff] flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-[13px] text-[#fafafa] font-medium mb-1">
+                <p className="text-[13px] text-[#1a1a1a] font-medium mb-1">
                   How it works
                 </p>
                 <p className="text-[12px] text-[#888888] leading-relaxed">
@@ -217,7 +217,7 @@ export default function CreateFunnelModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-3 bg-[#111111] border border-[#2a2a2a] text-[#fafafa] rounded-xl text-[14px] font-medium hover:bg-[#1a1a1a] transition-all"
+              className="flex-1 px-4 py-3 bg-[#111111] border border-[#d0d0d0] text-[#1a1a1a] rounded-xl text-[14px] font-medium hover:bg-[#1a1a1a] transition-all"
             >
               Cancel
             </button>

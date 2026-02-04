@@ -169,7 +169,7 @@ export default function FunnelsListPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-white">
         <Header title="Funnels" breadcrumb={["Dashboard", "Funnels"]} />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
@@ -182,21 +182,21 @@ export default function FunnelsListPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       <Header title="Conversion Funnels" breadcrumb={["Dashboard", "Funnels"]} />
 
       <div className="p-10 max-w-[1600px] mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-[28px] font-bold text-[#fafafa] mb-2">Conversion Funnels</h1>
+            <h1 className="text-[28px] font-bold text-[#1a1a1a] mb-2">Conversion Funnels</h1>
             <p className="text-[15px] text-[#888888]">
               Analyze user journeys and optimize conversion paths
             </p>
           </div>
           <div className="flex items-center gap-3">
             {lastUpdate && (
-              <div className="flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] border border-white/10 rounded-xl">
+              <div className="flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl">
                 <div className="w-2 h-2 rounded-full bg-[#00d4aa] animate-pulse" />
                 <span className="text-[13px] text-[#888888]">
                   Updated {lastUpdate.toLocaleTimeString()}
@@ -206,7 +206,7 @@ export default function FunnelsListPage() {
             <button
               onClick={loadData}
               disabled={isLoading}
-              className="flex items-center gap-2 px-5 py-3 bg-[#0a0a0a] border border-white/10 text-[#fafafa] text-[14px] font-medium rounded-xl hover:border-[#7c5cff]/50 transition-all disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-3 bg-[#0a0a0a] border border-[#d0d0d0] text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-[#7c5cff]/50 transition-all disabled:opacity-50"
               title="Refresh live data"
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
@@ -231,50 +231,50 @@ export default function FunnelsListPage() {
 
         {/* Summary Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6">
+          <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
                 <Target className="w-5 h-5 text-[#7c5cff]" />
               </div>
               <span className="text-[13px] text-[#888888]">Total Funnels</span>
             </div>
-            <p className="text-[28px] font-bold text-[#fafafa]">
+            <p className="text-[28px] font-bold text-[#1a1a1a]">
               {funnels.length}
             </p>
           </div>
 
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6">
+          <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
                 <Users className="w-5 h-5 text-[#00d4aa]" />
               </div>
               <span className="text-[13px] text-[#888888]">Total Visitors</span>
             </div>
-            <p className="text-[28px] font-bold text-[#fafafa]">
+            <p className="text-[28px] font-bold text-[#1a1a1a]">
               {totalVisitors.toLocaleString()}
             </p>
           </div>
 
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6">
+          <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center">
                 <TrendingUp className="w-5 h-5 text-[#f59e0b]" />
               </div>
               <span className="text-[13px] text-[#888888]">Total Conversions</span>
             </div>
-            <p className="text-[28px] font-bold text-[#fafafa]">
+            <p className="text-[28px] font-bold text-[#1a1a1a]">
               {totalConversions.toLocaleString()}
             </p>
           </div>
 
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6">
+          <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
                 <Target className="w-5 h-5 text-[#7c5cff]" />
               </div>
               <span className="text-[13px] text-[#888888]">Avg Conversion</span>
             </div>
-            <p className="text-[28px] font-bold text-[#fafafa]">
+            <p className="text-[28px] font-bold text-[#1a1a1a]">
               {avgConversionRate.toFixed(1)}%
             </p>
           </div>
@@ -297,14 +297,14 @@ export default function FunnelsListPage() {
               placeholder="Search funnels..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-[#fafafa] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+              className="w-full pl-12 pr-4 py-3 bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
             />
           </div>
           <div className="relative">
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="appearance-none pl-4 pr-10 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-[#fafafa] text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all cursor-pointer"
+              className="appearance-none pl-4 pr-10 py-3 bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all cursor-pointer"
             >
               <option value="conversion">Sort by Conversion Rate</option>
               <option value="visitors">Sort by Visitors</option>
@@ -336,12 +336,12 @@ export default function FunnelsListPage() {
                 <Link
                   key={funnel.id}
                   href={`/funnels/${funnel.id}`}
-                  className="group bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 hover:border-[#7c5cff]/50 hover:shadow-lg hover:shadow-[#7c5cff]/10 transition-all cursor-pointer"
+                  className="group bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6 hover:border-[#7c5cff]/50 hover:shadow-lg hover:shadow-[#7c5cff]/10 transition-all cursor-pointer"
                 >
                   {/* Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <h3 className="text-[18px] font-semibold text-[#fafafa] mb-1 group-hover:text-[#7c5cff] transition-colors">
+                      <h3 className="text-[18px] font-semibold text-[#1a1a1a] mb-1 group-hover:text-[#7c5cff] transition-colors">
                         {funnel.name}
                       </h3>
                       <p className="text-[13px] text-[#666666]">
@@ -376,7 +376,7 @@ export default function FunnelsListPage() {
                   <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/5">
                     <div>
                       <p className="text-[11px] text-[#666666] uppercase mb-1">Visitors</p>
-                      <p className="text-[16px] font-bold text-[#fafafa]">
+                      <p className="text-[16px] font-bold text-[#1a1a1a]">
                         {(funnel.totalVisitors ?? firstStep?.visitors ?? 0).toLocaleString()}
                       </p>
                     </div>

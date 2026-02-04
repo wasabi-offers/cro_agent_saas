@@ -116,7 +116,7 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-white">
         <Header title="Dashboard" breadcrumb={["Dashboard"]} />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
@@ -130,7 +130,7 @@ export default function Home() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-white">
         <Header title="Dashboard" breadcrumb={["Dashboard"]} />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4 p-6 bg-[#0a0a0a] border border-[#ff6b6b]/30 rounded-2xl">
@@ -155,17 +155,17 @@ export default function Home() {
   const { summary, trafficByDevice, uxIssues, engagementByDevice } = dashboardData;
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       <Header title="CRO Dashboard" breadcrumb={["Dashboard"]} />
 
       <div className="p-10">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="text-[24px] font-bold text-[#fafafa] mb-1">
+            <h2 className="text-[24px] font-bold text-[#1a1a1a] mb-1">
               CRO Dashboard
             </h2>
-            <p className="text-[14px] text-[#888888]">
+            <p className="text-[14px] text-[#666666]">
               Real-time tracking data from your funnels
             </p>
           </div>
@@ -191,7 +191,7 @@ export default function Home() {
                 <Brain className="w-7 h-7 text-white" />
               </div>
               <div>
-                <h3 className="text-[18px] font-semibold text-[#fafafa]">
+                <h3 className="text-[18px] font-semibold text-[#1a1a1a]">
                   CRO Expert AI
                 </h3>
                 <p className="text-[14px] text-[#888888]">
@@ -244,7 +244,7 @@ export default function Home() {
             <p className="text-[#888888] text-[13px] font-medium uppercase tracking-wide mb-1">
               Total Sessions
             </p>
-            <p className="text-[#fafafa] text-[32px] font-bold leading-tight">
+            <p className="text-[#1a1a1a] text-[32px] font-bold leading-tight">
               {summary.totalSessions.toLocaleString()}
             </p>
             <p className="text-[#666666] text-[12px] mt-1">
@@ -262,7 +262,7 @@ export default function Home() {
             <p className="text-[#888888] text-[13px] font-medium uppercase tracking-wide mb-1">
               Pages/Session
             </p>
-            <p className="text-[#fafafa] text-[32px] font-bold leading-tight">
+            <p className="text-[#1a1a1a] text-[32px] font-bold leading-tight">
               {summary.avgPagesPerSession.toFixed(2)}
             </p>
             <p className="text-[#666666] text-[12px] mt-1">
@@ -280,7 +280,7 @@ export default function Home() {
             <p className="text-[#888888] text-[13px] font-medium uppercase tracking-wide mb-1">
               Active Time
             </p>
-            <p className="text-[#fafafa] text-[32px] font-bold leading-tight">
+            <p className="text-[#1a1a1a] text-[32px] font-bold leading-tight">
               {formatDuration(summary.avgActiveTime)}
             </p>
             <p className="text-[#666666] text-[12px] mt-1">
@@ -302,7 +302,7 @@ export default function Home() {
             <p className="text-[#888888] text-[13px] font-medium uppercase tracking-wide mb-1">
               UX Issues
             </p>
-            <p className="text-[#fafafa] text-[32px] font-bold leading-tight">
+            <p className="text-[#1a1a1a] text-[32px] font-bold leading-tight">
               {(summary.totalDeadClicks + summary.totalRageClicks + summary.totalQuickbacks).toLocaleString()}
             </p>
             <p className="text-[#666666] text-[12px] mt-1">
@@ -325,7 +325,7 @@ export default function Home() {
                   </span>
                 )}
                 <div>
-                  <h2 className="text-[18px] font-semibold text-[#fafafa]">
+                  <h2 className="text-[18px] font-semibold text-[#1a1a1a]">
                     CRO Expert Analysis
                   </h2>
                   <p className="text-[13px] text-[#666666] mt-0.5">
@@ -335,7 +335,7 @@ export default function Home() {
               </div>
               <button
                 onClick={() => setAiAnalysis(null)}
-                className="text-[#666666] hover:text-[#fafafa] transition-colors"
+                className="text-[#666666] hover:text-[#1a1a1a] transition-colors"
               >
                 ✕
               </button>
@@ -360,7 +360,7 @@ export default function Home() {
                   <AlertTriangle className="w-5 h-5 text-[#ff6b6b]" />
                 </div>
                 <div>
-                  <h2 className="text-[18px] font-semibold text-[#fafafa]">
+                  <h2 className="text-[18px] font-semibold text-[#1a1a1a]">
                     Detected UX Issues
                   </h2>
                   <p className="text-[13px] text-[#666666] mt-0.5">
@@ -383,21 +383,21 @@ export default function Home() {
               <div className="grid grid-cols-3 gap-4 mb-6">
                 <div className="bg-[#111111] border border-[#ff6b6b]/20 rounded-xl p-4 text-center">
                   <MousePointerClick className="w-6 h-6 text-[#ff6b6b] mx-auto mb-2" />
-                  <p className="text-[24px] font-bold text-[#fafafa]">
+                  <p className="text-[24px] font-bold text-[#1a1a1a]">
                     {summary.totalDeadClicks.toLocaleString()}
                   </p>
                   <p className="text-[12px] text-[#888888]">Dead Clicks</p>
                 </div>
                 <div className="bg-[#111111] border border-[#f59e0b]/20 rounded-xl p-4 text-center">
                   <Zap className="w-6 h-6 text-[#f59e0b] mx-auto mb-2" />
-                  <p className="text-[24px] font-bold text-[#fafafa]">
+                  <p className="text-[24px] font-bold text-[#1a1a1a]">
                     {summary.totalRageClicks.toLocaleString()}
                   </p>
                   <p className="text-[12px] text-[#888888]">Rage Clicks</p>
                 </div>
                 <div className="bg-[#111111] border border-[#7c5cff]/20 rounded-xl p-4 text-center">
                   <ArrowRight className="w-6 h-6 text-[#7c5cff] mx-auto mb-2 rotate-180" />
-                  <p className="text-[24px] font-bold text-[#fafafa]">
+                  <p className="text-[24px] font-bold text-[#1a1a1a]">
                     {summary.totalQuickbacks.toLocaleString()}
                   </p>
                   <p className="text-[12px] text-[#888888]">Quickbacks</p>
@@ -415,7 +415,7 @@ export default function Home() {
                     className="flex items-center justify-between p-3 bg-[#111111] rounded-lg"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-[12px] font-medium text-[#fafafa] w-16">
+                      <span className="text-[12px] font-medium text-[#1a1a1a] w-16">
                         {issue.device}
                       </span>
                       <span className="text-[12px] text-[#888888]">
@@ -423,7 +423,7 @@ export default function Home() {
                       </span>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className="text-[14px] font-bold text-[#fafafa]">
+                      <span className="text-[14px] font-bold text-[#1a1a1a]">
                         {issue.sub_total.toLocaleString()}
                       </span>
                       <span className="text-[12px] text-[#ff6b6b]">
@@ -443,7 +443,7 @@ export default function Home() {
                 <Activity className="w-5 h-5 text-[#7c5cff]" />
               </div>
               <div>
-                <h2 className="text-[18px] font-semibold text-[#fafafa]">
+                <h2 className="text-[18px] font-semibold text-[#1a1a1a]">
                   Traffic by Device
                 </h2>
                 <p className="text-[13px] text-[#666666]">Live tracking data</p>
@@ -459,7 +459,7 @@ export default function Home() {
                 return (
                   <div key={device.device} className="p-4 bg-[#111111] rounded-xl">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[14px] font-medium text-[#fafafa]">
+                      <span className="text-[14px] font-medium text-[#1a1a1a]">
                         {device.device}
                       </span>
                       <span className="text-[12px] text-[#666666]">
@@ -478,25 +478,25 @@ export default function Home() {
                     <div className="grid grid-cols-2 gap-2 text-[11px]">
                       <div>
                         <p className="text-[#666666]">Sessions</p>
-                        <p className="text-[#fafafa] font-medium">
+                        <p className="text-[#1a1a1a] font-medium">
                           {device.total_session_count.toLocaleString()}
                         </p>
                       </div>
                       <div>
                         <p className="text-[#666666]">Users</p>
-                        <p className="text-[#fafafa] font-medium">
+                        <p className="text-[#1a1a1a] font-medium">
                           {device.distinct_user_count.toLocaleString()}
                         </p>
                       </div>
                       <div>
                         <p className="text-[#666666]">Pages/Sess</p>
-                        <p className="text-[#fafafa] font-medium">
+                        <p className="text-[#1a1a1a] font-medium">
                           {device.pages_per_session.toFixed(2)}
                         </p>
                       </div>
                       <div>
                         <p className="text-[#666666]">Bot</p>
-                        <p className="text-[#fafafa] font-medium">
+                        <p className="text-[#1a1a1a] font-medium">
                           {device.total_bot_session_count.toLocaleString()}
                         </p>
                       </div>
@@ -516,7 +516,7 @@ export default function Home() {
               className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6"
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-[16px] font-semibold text-[#fafafa]">
+                <h3 className="text-[16px] font-semibold text-[#1a1a1a]">
                   {device.device}
                 </h3>
                 <span className="px-2.5 py-1 bg-[#7c5cff]/20 text-[#a78bff] rounded-full text-[11px] font-medium">
@@ -525,7 +525,7 @@ export default function Home() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center p-4 bg-[#111111] rounded-xl">
-                  <p className="text-[24px] font-bold text-[#fafafa]">
+                  <p className="text-[24px] font-bold text-[#1a1a1a]">
                     {formatDuration(device.total_time)}
                   </p>
                   <p className="text-[12px] text-[#888888]">Total Time</p>
@@ -562,7 +562,7 @@ export default function Home() {
               <FlaskConical className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="text-[18px] font-semibold text-[#fafafa]">
+              <h2 className="text-[18px] font-semibold text-[#1a1a1a]">
                 Quick Actions
               </h2>
               <p className="text-[13px] text-[#666666]">
@@ -578,7 +578,7 @@ export default function Home() {
               className="p-4 bg-[#111111] border border-white/10 rounded-xl hover:border-[#7c5cff]/50 transition-all text-left group"
             >
               <FlaskConical className="w-6 h-6 text-[#7c5cff] mb-3" />
-              <h3 className="text-[14px] font-medium text-[#fafafa] mb-1">
+              <h3 className="text-[14px] font-medium text-[#1a1a1a] mb-1">
                 Generate A/B Tests
               </h3>
               <p className="text-[12px] text-[#888888]">
@@ -592,7 +592,7 @@ export default function Home() {
               className="p-4 bg-[#111111] border border-white/10 rounded-xl hover:border-[#ff6b6b]/50 transition-all text-left group"
             >
               <AlertTriangle className="w-6 h-6 text-[#ff6b6b] mb-3" />
-              <h3 className="text-[14px] font-medium text-[#fafafa] mb-1">
+              <h3 className="text-[14px] font-medium text-[#1a1a1a] mb-1">
                 Analyze UX Issues
               </h3>
               <p className="text-[12px] text-[#888888]">
@@ -605,7 +605,7 @@ export default function Home() {
               className="p-4 bg-[#111111] border border-white/10 rounded-xl hover:border-[#00d4aa]/50 transition-all text-left group"
             >
               <Brain className="w-6 h-6 text-[#00d4aa] mb-3" />
-              <h3 className="text-[14px] font-medium text-[#fafafa] mb-1">
+              <h3 className="text-[14px] font-medium text-[#1a1a1a] mb-1">
                 Chat with CRO Expert
               </h3>
               <p className="text-[12px] text-[#888888]">

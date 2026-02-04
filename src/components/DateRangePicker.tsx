@@ -49,13 +49,13 @@ export default function DateRangePicker({ value, onChange, className = "" }: Dat
     <div className={`relative ${className}`}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2.5 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#fafafa] text-[14px] hover:border-[#7c5cff] transition-all"
+        className="flex items-center gap-2 px-4 py-2.5 bg-[#f8f9fa] border border-[#2a2a2a] rounded-xl text-[#1a1a1a] text-[14px] hover:border-[#7c5cff] transition-all"
       >
         <Calendar className="w-4 h-4 text-[#7c5cff]" />
         <span>
           {formatDate(value.start)} - {formatDate(value.end)}
         </span>
-        <ChevronDown className={`w-4 h-4 text-[#888888] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-4 h-4 text-[#666666] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
@@ -67,9 +67,9 @@ export default function DateRangePicker({ value, onChange, className = "" }: Dat
           />
 
           {/* Dropdown */}
-          <div className="absolute right-0 top-full mt-2 w-[400px] bg-[#0a0a0a] border border-[#2a2a2a] rounded-xl shadow-2xl z-50 overflow-hidden">
+          <div className="absolute right-0 top-full mt-2 w-[400px] bg-white border border-[#2a2a2a] rounded-xl shadow-2xl z-50 overflow-hidden">
             <div className="p-4">
-              <h3 className="text-[14px] font-semibold text-[#fafafa] mb-3">Select Date Range</h3>
+              <h3 className="text-[14px] font-semibold text-[#1a1a1a] mb-3">Select Date Range</h3>
 
               {/* Presets */}
               <div className="grid grid-cols-2 gap-2 mb-4">
@@ -77,7 +77,7 @@ export default function DateRangePicker({ value, onChange, className = "" }: Dat
                   <button
                     key={preset.label}
                     onClick={() => handlePreset(preset.days)}
-                    className="px-4 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[13px] text-[#888888] hover:border-[#7c5cff] hover:text-[#fafafa] transition-all"
+                    className="px-4 py-2 bg-[#f8f9fa] border border-[#2a2a2a] rounded-lg text-[13px] text-[#666666] hover:border-[#7c5cff] hover:text-[#1a1a1a] transition-all"
                   >
                     {preset.label}
                   </button>
@@ -87,21 +87,21 @@ export default function DateRangePicker({ value, onChange, className = "" }: Dat
               {/* Custom Range */}
               <div className="space-y-3 mb-4">
                 <div>
-                  <label className="block text-[12px] text-[#888888] mb-1.5">Start Date</label>
+                  <label className="block text-[12px] text-[#666666] mb-1.5">Start Date</label>
                   <input
                     type="date"
                     value={tempRange.start}
                     onChange={(e) => setTempRange({ ...tempRange, start: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[13px] focus:outline-none focus:border-[#7c5cff]"
+                    className="w-full px-3 py-2 bg-[#f8f9fa] border border-[#2a2a2a] rounded-lg text-[#1a1a1a] text-[13px] focus:outline-none focus:border-[#7c5cff]"
                   />
                 </div>
                 <div>
-                  <label className="block text-[12px] text-[#888888] mb-1.5">End Date</label>
+                  <label className="block text-[12px] text-[#666666] mb-1.5">End Date</label>
                   <input
                     type="date"
                     value={tempRange.end}
                     onChange={(e) => setTempRange({ ...tempRange, end: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[13px] focus:outline-none focus:border-[#7c5cff]"
+                    className="w-full px-3 py-2 bg-[#f8f9fa] border border-[#2a2a2a] rounded-lg text-[#1a1a1a] text-[13px] focus:outline-none focus:border-[#7c5cff]"
                   />
                 </div>
               </div>
@@ -110,7 +110,7 @@ export default function DateRangePicker({ value, onChange, className = "" }: Dat
               <div className="flex gap-2">
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="flex-1 px-4 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[13px] text-[#888888] hover:text-[#fafafa] transition-all"
+                  className="flex-1 px-4 py-2 bg-[#f8f9fa] border border-[#2a2a2a] rounded-lg text-[13px] text-[#666666] hover:text-[#1a1a1a] transition-all"
                 >
                   Cancel
                 </button>

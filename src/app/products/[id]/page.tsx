@@ -258,7 +258,7 @@ export default function ProductFunnelsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-white">
         <Header title="Product Funnels" breadcrumb={["Dashboard", "Products", "Loading..."]} />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
@@ -272,7 +272,7 @@ export default function ProductFunnelsPage() {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-white">
         <Header title="Product Not Found" breadcrumb={["Dashboard", "Products"]} />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
@@ -285,7 +285,7 @@ export default function ProductFunnelsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       <Header title={product.name} breadcrumb={["Dashboard", "Products", product.name]} />
 
       <div className="p-10 max-w-[1600px] mx-auto">
@@ -293,9 +293,9 @@ export default function ProductFunnelsPage() {
         <div className="flex items-center gap-4 mb-8">
           <Link
             href="/products"
-            className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#0a0a0a] border border-white/10 hover:border-[#7c5cff]/50 transition-all"
+            className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-[#d0d0d0] hover:border-[#7c5cff]/50 transition-all"
           >
-            <ArrowLeft className="w-5 h-5 text-[#fafafa]" />
+            <ArrowLeft className="w-5 h-5 text-[#1a1a1a]" />
           </Link>
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
@@ -305,7 +305,7 @@ export default function ProductFunnelsPage() {
               >
                 <Folder className="w-5 h-5" style={{ color: product.color }} />
               </div>
-              <h1 className="text-[28px] font-bold text-[#fafafa]">{product.name}</h1>
+              <h1 className="text-[28px] font-bold text-[#1a1a1a]">{product.name}</h1>
             </div>
             {product.description && (
               <p className="text-[15px] text-[#888888]">{product.description}</p>
@@ -313,7 +313,7 @@ export default function ProductFunnelsPage() {
           </div>
           <div className="flex items-center gap-3">
             {lastUpdate && (
-              <div className="flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] border border-white/10 rounded-xl">
+              <div className="flex items-center gap-2 px-4 py-2 bg-white border border-[#d0d0d0] rounded-xl">
                 <div className="w-2 h-2 rounded-full bg-[#00d4aa] animate-pulse" />
                 <span className="text-[13px] text-[#888888]">
                   Updated {lastUpdate.toLocaleTimeString()}
@@ -323,14 +323,14 @@ export default function ProductFunnelsPage() {
             <button
               onClick={() => loadData()}
               disabled={isLoading}
-              className="flex items-center gap-2 px-5 py-3 bg-[#0a0a0a] border border-white/10 text-[#fafafa] text-[14px] font-medium rounded-xl hover:border-[#7c5cff]/50 transition-all disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-3 bg-white border border-[#d0d0d0] text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-[#7c5cff]/50 transition-all disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
               Refresh
             </button>
             <button
               onClick={() => setShowImporter(true)}
-              className="flex items-center gap-2 px-5 py-3 bg-[#0a0a0a] border border-[#7c5cff]/50 text-[#7c5cff] text-[14px] font-medium rounded-xl hover:bg-[#7c5cff]/10 transition-all"
+              className="flex items-center gap-2 px-5 py-3 bg-white border border-[#7c5cff]/50 text-[#7c5cff] text-[14px] font-medium rounded-xl hover:bg-[#7c5cff]/10 transition-all"
             >
               <Upload className="w-4 h-4" />
               Import Flows
@@ -346,14 +346,14 @@ export default function ProductFunnelsPage() {
         </div>
 
         {/* Macro Analysis Section - Only Active Funnels */}
-        <div className="bg-gradient-to-br from-[#0a0a0a] to-[#111111] border border-white/10 rounded-2xl p-6 mb-8">
+        <div className="bg-gradient-to-br from-[#0a0a0a] to-[#111111] border border-[#d0d0d0] rounded-2xl p-6 mb-8">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
                 <BarChart3 className="w-5 h-5 text-[#7c5cff]" />
               </div>
               <div>
-                <h2 className="text-[18px] font-semibold text-[#fafafa]">Macro Analysis of Active Funnels</h2>
+                <h2 className="text-[18px] font-semibold text-[#1a1a1a]">Macro Analysis of Active Funnels</h2>
                 <p className="text-[13px] text-[#666666]">
                   {activeFunnels.length} active funnels out of {funnels.length} total
                 </p>
@@ -373,7 +373,7 @@ export default function ProductFunnelsPage() {
                 <Target className="w-4 h-4 text-[#7c5cff]" />
                 <span className="text-[11px] text-[#666666] uppercase">Active Funnels</span>
               </div>
-              <p className="text-[24px] font-bold text-[#fafafa]">{activeFunnels.length}</p>
+              <p className="text-[24px] font-bold text-[#1a1a1a]">{activeFunnels.length}</p>
             </div>
 
             <div className="bg-[#000000]/50 border border-white/5 rounded-xl p-4">
@@ -381,7 +381,7 @@ export default function ProductFunnelsPage() {
                 <Users className="w-4 h-4 text-[#00d4aa]" />
                 <span className="text-[11px] text-[#666666] uppercase">Visitatori</span>
               </div>
-              <p className="text-[24px] font-bold text-[#fafafa]">{totalVisitors.toLocaleString()}</p>
+              <p className="text-[24px] font-bold text-[#1a1a1a]">{totalVisitors.toLocaleString()}</p>
             </div>
 
             <div className="bg-[#000000]/50 border border-white/5 rounded-xl p-4">
@@ -419,7 +419,7 @@ export default function ProductFunnelsPage() {
                   </div>
                   <div className="flex-1">
                     <p className="text-[11px] text-[#666666] uppercase mb-1">Best Performance</p>
-                    <p className="text-[15px] font-semibold text-[#fafafa]">{bestFunnel.name}</p>
+                    <p className="text-[15px] font-semibold text-[#1a1a1a]">{bestFunnel.name}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-[20px] font-bold text-[#00d4aa]">{bestFunnel.conversionRate.toFixed(1)}%</p>
@@ -433,7 +433,7 @@ export default function ProductFunnelsPage() {
                   </div>
                   <div className="flex-1">
                     <p className="text-[11px] text-[#666666] uppercase mb-1">Needs Improvement</p>
-                    <p className="text-[15px] font-semibold text-[#fafafa]">{worstFunnel.name}</p>
+                    <p className="text-[15px] font-semibold text-[#1a1a1a]">{worstFunnel.name}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-[20px] font-bold text-[#ff6b6b]">{worstFunnel.conversionRate.toFixed(1)}%</p>
@@ -461,14 +461,14 @@ export default function ProductFunnelsPage() {
                   placeholder="Search funnels..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-[#fafafa] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                  className="w-full pl-12 pr-4 py-3 bg-white border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
                 />
               </div>
               <div className="relative">
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as any)}
-                  className="appearance-none pl-4 pr-10 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-[#fafafa] text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all cursor-pointer"
+                  className="appearance-none pl-4 pr-10 py-3 bg-white border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all cursor-pointer"
                 >
                   <option value="conversion">Sort by Conversion Rate</option>
                   <option value="visitors">Sort by Visitors</option>
@@ -502,9 +502,9 @@ export default function ProductFunnelsPage() {
                   return (
                     <div
                       key={funnel.id}
-                      className={`group bg-[#0a0a0a] border rounded-2xl p-6 transition-all ${
+                      className={`group bg-white border rounded-2xl p-6 transition-all ${
                         isActive
-                          ? "border-white/10 hover:border-[#7c5cff]/50 hover:shadow-lg hover:shadow-[#7c5cff]/10"
+                          ? "border-[#d0d0d0] hover:border-[#7c5cff]/50 hover:shadow-lg hover:shadow-[#7c5cff]/10"
                           : "border-white/5 opacity-60"
                       }`}
                     >
@@ -514,7 +514,7 @@ export default function ProductFunnelsPage() {
                           <div className="flex items-center gap-2 mb-1">
                             <Link
                               href={`/funnels/${funnel.id}`}
-                              className="text-[18px] font-semibold text-[#fafafa] hover:text-[#7c5cff] transition-colors"
+                              className="text-[18px] font-semibold text-[#1a1a1a] hover:text-[#7c5cff] transition-colors"
                             >
                               {funnel.name}
                             </Link>
@@ -608,7 +608,7 @@ export default function ProductFunnelsPage() {
                       <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/5">
                         <div>
                           <p className="text-[11px] text-[#666666] uppercase mb-1">Visitors</p>
-                          <p className="text-[16px] font-bold text-[#fafafa]">
+                          <p className="text-[16px] font-bold text-[#1a1a1a]">
                             {(funnel.totalVisitors ?? firstStep?.visitors ?? 0).toLocaleString()}
                           </p>
                         </div>

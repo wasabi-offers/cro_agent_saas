@@ -76,14 +76,14 @@ export default function StepDataAnalysisModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl">
         <div className="p-6 border-b border-[#2a2a2a] flex items-center justify-between">
           <div className="flex items-center gap-3">
             <BarChart3 className="w-6 h-6 text-[#7c5cff]" />
-            <h2 className="text-[18px] font-semibold text-[#fafafa]">Data Analysis - {stepName}</h2>
+            <h2 className="text-[18px] font-semibold text-[#1a1a1a]">Data Analysis - {stepName}</h2>
           </div>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#2a2a2a] text-[#888888]">
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#f1f3f5] text-[#888888]">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -96,45 +96,45 @@ export default function StepDataAnalysisModal({
           ) : (
             <>
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-[#111111] rounded-xl p-4">
+                <div className="bg-[#f8f9fa] rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-1">
                     <Users className="w-4 h-4 text-[#7c5cff]" />
                     <span className="text-[11px] text-[#888888]">Visitors</span>
                   </div>
-                  <p className="text-[20px] font-bold text-[#fafafa]">{(stats?.visitors ?? stepVisitors).toLocaleString()}</p>
+                  <p className="text-[20px] font-bold text-[#1a1a1a]">{(stats?.visitors ?? stepVisitors).toLocaleString()}</p>
                 </div>
-                <div className="bg-[#111111] rounded-xl p-4">
+                <div className="bg-[#f8f9fa] rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-1">
                     <TrendingDown className="w-4 h-4 text-[#ff6b6b]" />
                     <span className="text-[11px] text-[#888888]">Drop-off</span>
                   </div>
-                  <p className="text-[20px] font-bold text-[#fafafa]">{stepDropoff.toFixed(1)}%</p>
+                  <p className="text-[20px] font-bold text-[#1a1a1a]">{stepDropoff.toFixed(1)}%</p>
                 </div>
-                <div className="bg-[#111111] rounded-xl p-4">
+                <div className="bg-[#f8f9fa] rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-1">
                     <MousePointerClick className="w-4 h-4 text-[#00d4aa]" />
                     <span className="text-[11px] text-[#888888]">CTR</span>
                   </div>
-                  <p className="text-[20px] font-bold text-[#fafafa]">{(stats?.ctr ?? 0).toFixed(1)}%</p>
+                  <p className="text-[20px] font-bold text-[#1a1a1a]">{(stats?.ctr ?? 0).toFixed(1)}%</p>
                 </div>
-                <div className="bg-[#111111] rounded-xl p-4">
+                <div className="bg-[#f8f9fa] rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-1">
                     <MousePointerClick className="w-4 h-4 text-[#f59e0b]" />
                     <span className="text-[11px] text-[#888888]">Hits (clicks)</span>
                   </div>
-                  <p className="text-[20px] font-bold text-[#fafafa]">{(stats?.clicks ?? 0).toLocaleString()}</p>
+                  <p className="text-[20px] font-bold text-[#1a1a1a]">{(stats?.clicks ?? 0).toLocaleString()}</p>
                 </div>
-                <div className="bg-[#111111] rounded-xl p-4 col-span-2">
+                <div className="bg-[#f8f9fa] rounded-xl p-4 col-span-2">
                   <div className="flex items-center gap-2 mb-1">
                     <Send className="w-4 h-4 text-[#7c5cff]" />
                     <span className="text-[11px] text-[#888888]">Form Submits</span>
                   </div>
-                  <p className="text-[20px] font-bold text-[#fafafa]">{(stats?.submits ?? 0).toLocaleString()}</p>
+                  <p className="text-[20px] font-bold text-[#1a1a1a]">{(stats?.submits ?? 0).toLocaleString()}</p>
                 </div>
               </div>
 
-              <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-4">
-                <h4 className="text-[13px] font-semibold text-[#fafafa] mb-2">Brief Analysis</h4>
+              <div className="bg-[#f8f9fa] border border-[#2a2a2a] rounded-xl p-4">
+                <h4 className="text-[13px] font-semibold text-[#1a1a1a] mb-2">Brief Analysis</h4>
                 <p className="text-[13px] text-[#888888] leading-relaxed">{analysis || "Loading..."}</p>
               </div>
             </>

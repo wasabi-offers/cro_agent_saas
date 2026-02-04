@@ -633,7 +633,7 @@ export default function FunnelDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-white">
         <Header title="Funnel Detail" breadcrumb={["Dashboard", "Funnels", "Loading..."]} />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
@@ -647,7 +647,7 @@ export default function FunnelDetailPage() {
 
   if (!funnel) {
     return (
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-white">
         <Header title="Funnel Not Found" breadcrumb={["Dashboard", "Funnels", "Error"]} />
         <div className="p-10 text-center">
           <AlertCircle className="w-16 h-16 text-[#ff6b6b] mx-auto mb-4" />
@@ -675,7 +675,7 @@ export default function FunnelDetailPage() {
     : lastStep;
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       <Header title={funnel.name} breadcrumb={["Dashboard", "Funnels", funnel.name]} />
 
       <div className="p-10 max-w-7xl mx-auto">
@@ -683,7 +683,7 @@ export default function FunnelDetailPage() {
         <div className="flex items-center justify-between mb-8">
           <Link
             href={funnel?.product_id ? `/products/${funnel.product_id}` : "/products"}
-            className="flex items-center gap-2 text-[14px] text-[#888888] hover:text-[#7c5cff] transition-colors"
+            className="flex items-center gap-2 text-[14px] text-[#666666] hover:text-[#7c5cff] transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back
@@ -693,19 +693,19 @@ export default function FunnelDetailPage() {
             <DateRangePicker value={dateRange} onChange={setDateRange} />
             <div className="h-10 w-px bg-[#2a2a2a]" />
             <div className="text-right">
-              <p className="text-[12px] text-[#888888]">Conversion Rate</p>
+              <p className="text-[12px] text-[#666666]">Conversion Rate</p>
               <p className="text-[24px] font-bold text-[#00d4aa]">
                 {funnel.conversionRate.toFixed(1)}%
               </p>
             </div>
             <div className="text-right">
-              <p className="text-[12px] text-[#888888]">Total Visitors</p>
+              <p className="text-[12px] text-[#666666]">Total Visitors</p>
               <p className="text-[24px] font-bold text-[#fafafa]">
                 {(funnel.totalVisitors ?? firstStep?.visitors ?? 0).toLocaleString()}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-[12px] text-[#888888]">Conversions</p>
+              <p className="text-[12px] text-[#666666]">Conversions</p>
               <p className="text-[24px] font-bold text-[#00d4aa]">
                 {(goalStep?.visitors ?? 0).toLocaleString()}
               </p>
@@ -758,7 +758,7 @@ export default function FunnelDetailPage() {
             className={`px-6 py-3 text-[14px] font-medium transition-all relative ${
               activeTab === "overview"
                 ? "text-[#fafafa]"
-                : "text-[#666666] hover:text-[#888888]"
+                : "text-[#666666] hover:text-[#666666]"
             }`}
           >
             Overview
@@ -771,7 +771,7 @@ export default function FunnelDetailPage() {
             className={`px-6 py-3 text-[14px] font-medium transition-all relative flex items-center gap-2 ${
               activeTab === "analysis"
                 ? "text-[#fafafa]"
-                : "text-[#666666] hover:text-[#888888]"
+                : "text-[#666666] hover:text-[#666666]"
             }`}
           >
             <Sparkles className="w-4 h-4" />
@@ -785,7 +785,7 @@ export default function FunnelDetailPage() {
             className={`px-6 py-3 text-[14px] font-medium transition-all relative flex items-center gap-2 ${
               activeTab === "heatmap"
                 ? "text-[#fafafa]"
-                : "text-[#666666] hover:text-[#888888]"
+                : "text-[#666666] hover:text-[#666666]"
             }`}
           >
             <MousePointerClick className="w-4 h-4" />
@@ -799,7 +799,7 @@ export default function FunnelDetailPage() {
             className={`px-6 py-3 text-[14px] font-medium transition-all relative flex items-center gap-2 ${
               activeTab === "abtests"
                 ? "text-[#fafafa]"
-                : "text-[#666666] hover:text-[#888888]"
+                : "text-[#666666] hover:text-[#666666]"
             }`}
           >
             <FlaskConical className="w-4 h-4" />
@@ -813,7 +813,7 @@ export default function FunnelDetailPage() {
             className={`px-6 py-3 text-[14px] font-medium transition-all relative flex items-center gap-2 ${
               activeTab === "setup"
                 ? "text-[#fafafa]"
-                : "text-[#666666] hover:text-[#888888]"
+                : "text-[#666666] hover:text-[#666666]"
             }`}
           >
             <Code className="w-4 h-4" />
@@ -866,7 +866,7 @@ export default function FunnelDetailPage() {
 
               {/* Analysis Mode Selector */}
               <div className="mb-6">
-                <label className="block text-[14px] text-[#888888] mb-3">
+                <label className="block text-[14px] text-[#666666] mb-3">
                   Analysis Scope
                 </label>
                 <div className="flex gap-4">
@@ -875,7 +875,7 @@ export default function FunnelDetailPage() {
                     className={`flex-1 px-6 py-4 rounded-xl text-[14px] font-medium transition-all ${
                       analysisMode === "funnel"
                         ? "bg-[#7c5cff] text-white"
-                        : "bg-[#111111] text-[#888888] border border-[#2a2a2a] hover:border-[#7c5cff]/50"
+                        : "bg-[#f8f9fa] text-[#666666] border border-[#d0d0d0] hover:border-[#7c5cff]/50"
                     }`}
                   >
                     <div className="flex items-center justify-center gap-2">
@@ -888,7 +888,7 @@ export default function FunnelDetailPage() {
                     className={`flex-1 px-6 py-4 rounded-xl text-[14px] font-medium transition-all ${
                       analysisMode === "page"
                         ? "bg-[#7c5cff] text-white"
-                        : "bg-[#111111] text-[#888888] border border-[#2a2a2a] hover:border-[#7c5cff]/50"
+                        : "bg-[#f8f9fa] text-[#666666] border border-[#d0d0d0] hover:border-[#7c5cff]/50"
                     }`}
                   >
                     <div className="flex items-center justify-center gap-2">
@@ -902,13 +902,13 @@ export default function FunnelDetailPage() {
               {/* Page Selector (if page mode) */}
               {analysisMode === "page" && (
                 <div className="mb-6">
-                  <label className="block text-[14px] text-[#888888] mb-3">
+                  <label className="block text-[14px] text-[#666666] mb-3">
                     Select Page to Analyze
                   </label>
                   <select
                     value={selectedPage}
                     onChange={(e) => setSelectedPage(Number(e.target.value))}
-                    className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#fafafa] text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all"
+                    className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#d0d0d0] rounded-xl text-[#fafafa] text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all"
                   >
                     {funnel.steps.map((step, idx) => (
                       <option key={idx} value={idx}>
@@ -921,7 +921,7 @@ export default function FunnelDetailPage() {
 
               {/* Analysis Filters */}
               <div className="mb-6">
-                <label className="block text-[14px] text-[#888888] mb-3">
+                <label className="block text-[14px] text-[#666666] mb-3">
                   Analysis Type
                 </label>
                 <div className="flex flex-wrap gap-3">
@@ -941,7 +941,7 @@ export default function FunnelDetailPage() {
                         className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-medium transition-all ${
                           isSelected
                             ? "bg-[#7c5cff] text-white"
-                            : "bg-[#111111] text-[#888888] border border-[#2a2a2a] hover:border-[#7c5cff]/50"
+                            : "bg-[#f8f9fa] text-[#666666] border border-[#d0d0d0] hover:border-[#7c5cff]/50"
                         }`}
                       >
                         <Icon className="w-4 h-4" />
@@ -1018,13 +1018,13 @@ export default function FunnelDetailPage() {
                     <h2 className="text-[20px] font-semibold text-[#fafafa]">
                       Analysis Results
                       {analysisMode === "page" && (
-                        <span className="text-[16px] text-[#888888] ml-2">
+                        <span className="text-[16px] text-[#666666] ml-2">
                           - {funnel.steps[selectedPage].name}
                         </span>
                       )}
                     </h2>
                     {analysisSource && (
-                      <span className="text-[11px] px-2 py-1 rounded bg-[#2a2a2a] text-[#888888]">
+                      <span className="text-[11px] px-2 py-1 rounded bg-[#2a2a2a] text-[#666666]">
                         Source: {analysisSource}
                       </span>
                     )}
@@ -1037,7 +1037,7 @@ export default function FunnelDetailPage() {
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${
                         viewMode === "visual"
                           ? "bg-[#7c5cff] text-white"
-                          : "text-[#888888] hover:text-[#fafafa]"
+                          : "text-[#666666] hover:text-[#fafafa]"
                       }`}
                     >
                       <Eye className="w-4 h-4" />
@@ -1048,7 +1048,7 @@ export default function FunnelDetailPage() {
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${
                         viewMode === "list"
                           ? "bg-[#7c5cff] text-white"
-                          : "text-[#888888] hover:text-[#fafafa]"
+                          : "text-[#666666] hover:text-[#fafafa]"
                       }`}
                     >
                       <List className="w-4 h-4" />
@@ -1079,14 +1079,14 @@ export default function FunnelDetailPage() {
                     >
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-[#111111] rounded-xl flex items-center justify-center">
+                          <div className="w-10 h-10 bg-[#f8f9fa] rounded-xl flex items-center justify-center">
                             <Icon className="w-5 h-5 text-[#7c5cff]" />
                           </div>
                           <h3 className="text-[18px] font-semibold text-[#fafafa]">
                             {result.category}
                           </h3>
                           {analysisSource && (
-                            <span className="text-[10px] px-2 py-0.5 rounded bg-[#2a2a2a] text-[#888888]">
+                            <span className="text-[10px] px-2 py-0.5 rounded bg-[#2a2a2a] text-[#666666]">
                               Source: {analysisSource}
                             </span>
                           )}
@@ -1126,7 +1126,7 @@ export default function FunnelDetailPage() {
                           {result.proposals.map((proposal: any, idx: number) => (
                             <div
                               key={idx}
-                              className="bg-[#111111] border border-[#00d4aa]/20 rounded-xl p-5"
+                              className="bg-[#f8f9fa] border border-[#00d4aa]/20 rounded-xl p-5"
                             >
                               <div className="flex items-start justify-between mb-3">
                                 <h5 className="text-[15px] font-semibold text-[#fafafa]">{proposal.element}</h5>
@@ -1137,12 +1137,12 @@ export default function FunnelDetailPage() {
 
                               <div className="space-y-3">
                                 <div>
-                                  <p className="text-[12px] text-[#888888] mb-1">Current:</p>
+                                  <p className="text-[12px] text-[#666666] mb-1">Current:</p>
                                   <p className="text-[14px] text-[#fafafa] bg-[#0a0a0a] p-3 rounded-lg">{proposal.current}</p>
                                 </div>
 
                                 <div>
-                                  <p className="text-[12px] text-[#888888] mb-1">Proposed:</p>
+                                  <p className="text-[12px] text-[#666666] mb-1">Proposed:</p>
                                   <div className="text-[14px] text-[#00d4aa] bg-[#0a0a0a] p-3 rounded-lg whitespace-pre-line">
                                     {proposal.proposed}
                                   </div>
@@ -1194,13 +1194,13 @@ export default function FunnelDetailPage() {
 
               {/* Page Selector */}
               <div className="mb-6">
-                <label className="block text-[14px] text-[#888888] mb-3">
+                <label className="block text-[14px] text-[#666666] mb-3">
                   Select Funnel Step
                 </label>
                 <select
                   value={selectedHeatmapPage}
                   onChange={(e) => setSelectedHeatmapPage(Number(e.target.value))}
-                  className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#fafafa] text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all"
+                  className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#d0d0d0] rounded-xl text-[#fafafa] text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all"
                 >
                   {funnel.steps.map((step, idx) => (
                     <option key={idx} value={idx}>
@@ -1212,7 +1212,7 @@ export default function FunnelDetailPage() {
 
               {/* Heatmap Type Selector */}
               <div className="mb-6">
-                <label className="block text-[14px] text-[#888888] mb-3">
+                <label className="block text-[14px] text-[#666666] mb-3">
                   Heatmap Type
                 </label>
                 <div className="flex gap-4">
@@ -1221,7 +1221,7 @@ export default function FunnelDetailPage() {
                     className={`flex-1 px-6 py-4 rounded-xl text-[14px] font-medium transition-all ${
                       heatmapType === "click"
                         ? "bg-[#7c5cff] text-white"
-                        : "bg-[#111111] text-[#888888] border border-[#2a2a2a] hover:border-[#7c5cff]/50"
+                        : "bg-[#f8f9fa] text-[#666666] border border-[#d0d0d0] hover:border-[#7c5cff]/50"
                     }`}
                   >
                     <div className="flex items-center justify-center gap-2">
@@ -1234,7 +1234,7 @@ export default function FunnelDetailPage() {
                     className={`flex-1 px-6 py-4 rounded-xl text-[14px] font-medium transition-all ${
                       heatmapType === "scroll"
                         ? "bg-[#7c5cff] text-white"
-                        : "bg-[#111111] text-[#888888] border border-[#2a2a2a] hover:border-[#7c5cff]/50"
+                        : "bg-[#f8f9fa] text-[#666666] border border-[#d0d0d0] hover:border-[#7c5cff]/50"
                     }`}
                   >
                     <div className="flex items-center justify-center gap-2">
@@ -1247,7 +1247,7 @@ export default function FunnelDetailPage() {
                     className={`flex-1 px-6 py-4 rounded-xl text-[14px] font-medium transition-all ${
                       heatmapType === "move"
                         ? "bg-[#7c5cff] text-white"
-                        : "bg-[#111111] text-[#888888] border border-[#2a2a2a] hover:border-[#7c5cff]/50"
+                        : "bg-[#f8f9fa] text-[#666666] border border-[#d0d0d0] hover:border-[#7c5cff]/50"
                     }`}
                   >
                     <div className="flex items-center justify-center gap-2">
@@ -1283,7 +1283,7 @@ export default function FunnelDetailPage() {
                       <h2 className="text-[20px] font-semibold text-[#fafafa]">
                         A/B Test Proposals
                       </h2>
-                      <p className="text-[14px] text-[#888888] mt-1">
+                      <p className="text-[14px] text-[#666666] mt-1">
                         {savedProposals.length} proposal{savedProposals.length > 1 ? 's' : ''} tracked
                       </p>
                     </div>
@@ -1298,7 +1298,7 @@ export default function FunnelDetailPage() {
                         className={`px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${
                           proposalFilter === filter
                             ? 'bg-[#7c5cff] text-white'
-                            : 'bg-[#111111] text-[#666666] hover:text-[#888888]'
+                            : 'bg-[#f8f9fa] text-[#666666] hover:text-[#666666]'
                         }`}
                       >
                         {filter.charAt(0).toUpperCase() + filter.slice(1)}
@@ -1323,7 +1323,7 @@ export default function FunnelDetailPage() {
                       return (
                         <div
                           key={proposal.id}
-                          className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-6 hover:border-[#7c5cff]/30 transition-all"
+                          className="bg-[#f8f9fa] border border-[#d0d0d0] rounded-xl p-6 hover:border-[#7c5cff]/30 transition-all"
                         >
                           <div className="flex items-start justify-between mb-4">
                             <div className="flex-1">
@@ -1338,7 +1338,7 @@ export default function FunnelDetailPage() {
                                   {proposal.status}
                                 </span>
                               </div>
-                              <p className="text-[13px] text-[#888888] mb-3">
+                              <p className="text-[13px] text-[#666666] mb-3">
                                 {proposal.reasoning}
                               </p>
                               <div className="grid grid-cols-2 gap-4">
@@ -1414,7 +1414,7 @@ export default function FunnelDetailPage() {
                   <h2 className="text-[20px] font-semibold text-[#fafafa]">
                     AI-Powered A/B Test Suggestions
                   </h2>
-                  <p className="text-[14px] text-[#888888] mt-1">
+                  <p className="text-[14px] text-[#666666] mt-1">
                     Expert CRO analysis with data-driven recommendations
                   </p>
                 </div>
@@ -1422,13 +1422,13 @@ export default function FunnelDetailPage() {
 
               {/* Page Selector */}
               <div className="mb-6">
-                <label className="block text-[14px] text-[#888888] mb-3">
+                <label className="block text-[14px] text-[#666666] mb-3">
                   Select Funnel Step to Optimize
                 </label>
                 <select
                   value={selectedABPage}
                   onChange={(e) => setSelectedABPage(Number(e.target.value))}
-                  className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#fafafa] text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all"
+                  className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#d0d0d0] rounded-xl text-[#fafafa] text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all"
                 >
                   {funnel.steps.map((step, idx) => (
                     <option key={idx} value={idx}>
@@ -1442,7 +1442,7 @@ export default function FunnelDetailPage() {
               <div className="mb-6 bg-gradient-to-r from-[#7c5cff]/10 to-[#00d4aa]/10 border border-[#7c5cff]/20 rounded-xl p-4">
                 <div className="flex items-start gap-3">
                   <Lightbulb className="w-5 h-5 text-[#7c5cff] flex-shrink-0 mt-0.5" />
-                  <div className="text-[13px] text-[#888888]">
+                  <div className="text-[13px] text-[#666666]">
                     <p className="font-medium text-[#fafafa] mb-1">Expert CRO AI Analysis</p>
                     <p>Our AI analyzes conversion data, heatmaps, user behavior, and applies proven CRO techniques including: Cialdini's persuasion principles, behavioral psychology, F-pattern eye tracking, Fitts's Law, color psychology, and tested copywriting frameworks (AIDA, PAS, FAB).</p>
                   </div>
@@ -1523,23 +1523,23 @@ export default function FunnelDetailPage() {
                           <h3 className="text-[20px] font-semibold text-[#fafafa] mb-2">
                             Test #{test.id}: {test.element}
                           </h3>
-                          <p className="text-[15px] text-[#888888] leading-relaxed">
+                          <p className="text-[15px] text-[#666666] leading-relaxed">
                             {test.hypothesis}
                           </p>
                         </div>
                         <div className="text-right ml-6">
-                          <p className="text-[12px] text-[#888888] mb-1">Expected Impact</p>
+                          <p className="text-[12px] text-[#666666] mb-1">Expected Impact</p>
                           <p className="text-[20px] font-bold text-[#00d4aa]">{test.expectedImpact}</p>
                         </div>
                       </div>
 
                       {/* Variants Comparison */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-4">
-                          <p className="text-[12px] text-[#888888] mb-2 uppercase font-bold">Control (Current)</p>
+                        <div className="bg-[#f8f9fa] border border-[#d0d0d0] rounded-xl p-4">
+                          <p className="text-[12px] text-[#666666] mb-2 uppercase font-bold">Control (Current)</p>
                           <p className="text-[14px] text-[#fafafa]">{test.variant.current}</p>
                         </div>
-                        <div className="bg-[#111111] border border-[#00d4aa]/30 rounded-xl p-4">
+                        <div className="bg-[#f8f9fa] border border-[#00d4aa]/30 rounded-xl p-4">
                           <p className="text-[12px] text-[#00d4aa] mb-2 uppercase font-bold">Variant (Proposed)</p>
                           <p className="text-[14px] text-[#fafafa]">{test.variant.proposed}</p>
                         </div>
@@ -1550,9 +1550,9 @@ export default function FunnelDetailPage() {
                         <div className="mb-6">
                           <div className="flex items-center justify-between mb-3">
                             <h4 className="text-[14px] font-semibold text-[#fafafa]">📸 Element Screenshot</h4>
-                            <p className="text-[12px] text-[#888888]">{test.screenDescription || 'Target element'}</p>
+                            <p className="text-[12px] text-[#666666]">{test.screenDescription || 'Target element'}</p>
                           </div>
-                          <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl overflow-hidden">
+                          <div className="bg-[#f8f9fa] border border-[#d0d0d0] rounded-xl overflow-hidden">
                             <div className="relative">
                               <img
                                 src={`/api/screenshot?url=${encodeURIComponent(funnel.steps[selectedABPage].url)}&selector=${encodeURIComponent(test.screenSelector)}`}
@@ -1567,7 +1567,7 @@ export default function FunnelDetailPage() {
                                     parent.innerHTML = `
                                       <div class="p-8 text-center bg-gradient-to-br from-[#0a0a0a] to-[#111111]">
                                         <div class="text-[40px] mb-3">🖼️</div>
-                                        <p class="text-[14px] text-[#888888] mb-4">Could not capture screenshot</p>
+                                        <p class="text-[14px] text-[#666666] mb-4">Could not capture screenshot</p>
                                         <a href="${funnel.steps[selectedABPage].url}" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white rounded-xl text-[14px] font-medium hover:shadow-lg transition-all">
                                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                           View on Page
@@ -1579,7 +1579,7 @@ export default function FunnelDetailPage() {
                                 }}
                               />
                             </div>
-                            <div className="p-3 bg-[#0a0a0a] border-t border-[#2a2a2a] text-[12px] text-[#888888]">
+                            <div className="p-3 bg-[#0a0a0a] border-t border-[#d0d0d0] text-[12px] text-[#666666]">
                               <span className="text-[#00d4aa]">●</span> Target: <code className="text-[#7c5cff]">{test.screenSelector}</code>
                             </div>
                           </div>
@@ -1587,22 +1587,22 @@ export default function FunnelDetailPage() {
                       )}
 
                       {/* Detailed Reasoning */}
-                      <div className="bg-[#111111] rounded-xl p-6 mb-6">
+                      <div className="bg-[#f8f9fa] rounded-xl p-6 mb-6">
                         <div className="flex items-center gap-2 mb-4">
                           <Lightbulb className="w-5 h-5 text-[#7c5cff]" />
                           <h4 className="text-[16px] font-semibold text-[#fafafa]">Expert Analysis & Reasoning</h4>
                         </div>
-                        <div className="text-[14px] text-[#888888] leading-relaxed whitespace-pre-line">
+                        <div className="text-[14px] text-[#666666] leading-relaxed whitespace-pre-line">
                           {test.reasoning}
                         </div>
                       </div>
 
                       {/* Test Details */}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-[#111111] rounded-xl p-4">
+                        <div className="bg-[#f8f9fa] rounded-xl p-4">
                           <div className="flex items-center gap-2 mb-2">
                             <Target className="w-4 h-4 text-[#7c5cff]" />
-                            <span className="text-[12px] text-[#888888]">Key Metrics</span>
+                            <span className="text-[12px] text-[#666666]">Key Metrics</span>
                           </div>
                           <div className="space-y-1">
                             {test.metrics.map((metric: string, idx: number) => (
@@ -1610,17 +1610,17 @@ export default function FunnelDetailPage() {
                             ))}
                           </div>
                         </div>
-                        <div className="bg-[#111111] rounded-xl p-4">
+                        <div className="bg-[#f8f9fa] rounded-xl p-4">
                           <div className="flex items-center gap-2 mb-2">
                             <AlertCircle className="w-4 h-4 text-[#00d4aa]" />
-                            <span className="text-[12px] text-[#888888]">Test Duration</span>
+                            <span className="text-[12px] text-[#666666]">Test Duration</span>
                           </div>
                           <p className="text-[14px] text-[#fafafa] font-medium">{test.testDuration}</p>
                         </div>
-                        <div className="bg-[#111111] rounded-xl p-4">
+                        <div className="bg-[#f8f9fa] rounded-xl p-4">
                           <div className="flex items-center gap-2 mb-2">
                             <Zap className="w-4 h-4 text-[#f59e0b]" />
-                            <span className="text-[12px] text-[#888888]">Implementation</span>
+                            <span className="text-[12px] text-[#666666]">Implementation</span>
                           </div>
                           <button className="text-[14px] text-[#7c5cff] hover:text-[#00d4aa] font-medium transition-colors">
                             Create Test →
@@ -1646,7 +1646,7 @@ export default function FunnelDetailPage() {
                 </div>
                 <div>
                   <h3 className="text-[16px] font-semibold text-[#fafafa]">Conversion Goal</h3>
-                  <p className="text-[12px] text-[#888888]">Choose which step counts as &quot;Converted&quot;</p>
+                  <p className="text-[12px] text-[#666666]">Choose which step counts as &quot;Converted&quot;</p>
                 </div>
               </div>
               <select
@@ -1667,7 +1667,7 @@ export default function FunnelDetailPage() {
                     console.error("Failed to update goal:", err);
                   }
                 }}
-                className="w-full max-w-md px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#fafafa] text-[14px] focus:outline-none focus:border-[#7c5cff]"
+                className="w-full max-w-md px-4 py-3 bg-[#f8f9fa] border border-[#d0d0d0] rounded-xl text-[#fafafa] text-[14px] focus:outline-none focus:border-[#7c5cff]"
               >
                 <option value="">Last step (default)</option>
                 {funnel.steps.map((step) => (

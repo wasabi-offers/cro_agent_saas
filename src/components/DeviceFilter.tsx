@@ -28,7 +28,7 @@ export default function DeviceFilter({ value, onChange, className = "" }: Device
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-medium transition-all ${
               isActive
                 ? "bg-[#7c5cff] text-white shadow-lg shadow-[#7c5cff]/20"
-                : "bg-[#111111] text-[#888888] border border-[#2a2a2a] hover:border-[#7c5cff]/50 hover:text-[#fafafa]"
+                : "bg-[#f8f9fa] text-[#888888] border border-[#d0d0d0] hover:border-[#7c5cff]/50 hover:text-[#1a1a1a]"
             }`}
           >
             <Icon className="w-4 h-4" />

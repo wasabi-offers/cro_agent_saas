@@ -74,7 +74,7 @@ export default function AnalyticsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-white">
         <Header title="Analytics" breadcrumb={["Dashboard", "Analytics"]} />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
@@ -88,10 +88,10 @@ export default function AnalyticsPage() {
 
   if (error || !dashboardData) {
     return (
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-white">
         <Header title="Analytics" breadcrumb={["Dashboard", "Analytics"]} />
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="flex flex-col items-center gap-4 p-6 bg-[#0a0a0a] border border-[#ff6b6b]/30 rounded-2xl">
+          <div className="flex flex-col items-center gap-4 p-6 bg-white border border-[#ff6b6b]/30 rounded-2xl">
             <AlertCircle className="w-10 h-10 text-[#ff6b6b]" />
             <p className="text-[#ff6b6b] text-[14px]">{error || 'No data available'}</p>
             <button
@@ -109,14 +109,14 @@ export default function AnalyticsPage() {
   const { summary, trafficByDevice, uxIssues, engagementByDevice } = dashboardData;
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       <Header title="Analytics" breadcrumb={["Dashboard", "Analytics"]} />
 
       <div className="p-10">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-[24px] font-bold text-[#fafafa] mb-2">Analytics Overview</h1>
+            <h1 className="text-[24px] font-bold text-[#1a1a1a] mb-2">Analytics Overview</h1>
             <p className="text-[14px] text-[#666666]">
               Real-time data from Microsoft Clarity
             </p>
@@ -141,14 +141,14 @@ export default function AnalyticsPage() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-5">
+          <div className="bg-white border border-[#d0d0d0] rounded-2xl p-5">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
                 <Users className="w-5 h-5 text-[#7c5cff]" />
               </div>
               <span className="text-[13px] text-[#888888]">Total Sessions</span>
             </div>
-            <p className="text-[28px] font-bold text-[#fafafa]">
+            <p className="text-[28px] font-bold text-[#1a1a1a]">
               {summary.totalSessions.toLocaleString()}
             </p>
             <p className="text-[12px] text-[#666666] mt-1">
@@ -156,14 +156,14 @@ export default function AnalyticsPage() {
             </p>
           </div>
 
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-5">
+          <div className="bg-white border border-[#d0d0d0] rounded-2xl p-5">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
                 <Eye className="w-5 h-5 text-[#00d4aa]" />
               </div>
               <span className="text-[13px] text-[#888888]">Pages/Session</span>
             </div>
-            <p className="text-[28px] font-bold text-[#fafafa]">
+            <p className="text-[28px] font-bold text-[#1a1a1a]">
               {summary.avgPagesPerSession.toFixed(2)}
             </p>
             <p className="text-[12px] text-[#666666] mt-1">
@@ -171,14 +171,14 @@ export default function AnalyticsPage() {
             </p>
           </div>
 
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-5">
+          <div className="bg-white border border-[#d0d0d0] rounded-2xl p-5">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center">
                 <Clock className="w-5 h-5 text-[#f59e0b]" />
               </div>
               <span className="text-[13px] text-[#888888]">Active Time</span>
             </div>
-            <p className="text-[28px] font-bold text-[#fafafa]">
+            <p className="text-[28px] font-bold text-[#1a1a1a]">
               {formatDuration(summary.avgActiveTime)}
             </p>
             <p className="text-[12px] text-[#666666] mt-1">
@@ -186,14 +186,14 @@ export default function AnalyticsPage() {
             </p>
           </div>
 
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-5">
+          <div className="bg-white border border-[#d0d0d0] rounded-2xl p-5">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-[#ff6b6b]/20 rounded-lg flex items-center justify-center">
                 <AlertTriangle className="w-5 h-5 text-[#ff6b6b]" />
               </div>
               <span className="text-[13px] text-[#888888]">UX Issues</span>
             </div>
-            <p className="text-[28px] font-bold text-[#fafafa]">
+            <p className="text-[28px] font-bold text-[#1a1a1a]">
               {(summary.totalDeadClicks + summary.totalRageClicks + summary.totalQuickbacks).toLocaleString()}
             </p>
             <p className="text-[12px] text-[#666666] mt-1">
@@ -205,9 +205,9 @@ export default function AnalyticsPage() {
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
           {/* Traffic by Device */}
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
-            <div className="px-6 py-5 border-b border-white/10">
-              <h2 className="text-[18px] font-semibold text-[#fafafa]">Traffic by Device</h2>
+          <div className="bg-white border border-[#d0d0d0] rounded-2xl overflow-hidden">
+            <div className="px-6 py-5 border-b border-[#d0d0d0]">
+              <h2 className="text-[18px] font-semibold text-[#1a1a1a]">Traffic by Device</h2>
               <p className="text-[13px] text-[#666666] mt-1">Sessions and users breakdown</p>
             </div>
             <div className="p-6 space-y-4">
@@ -227,12 +227,12 @@ export default function AnalyticsPage() {
                           <div style={{ color }}>{getDeviceIcon(device.device)}</div>
                         </div>
                         <div>
-                          <p className="text-[14px] font-medium text-[#fafafa]">{device.device}</p>
+                          <p className="text-[14px] font-medium text-[#1a1a1a]">{device.device}</p>
                           <p className="text-[12px] text-[#666666]">{percentage.toFixed(1)}% of traffic</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-[16px] font-bold text-[#fafafa]">
+                        <p className="text-[16px] font-bold text-[#1a1a1a]">
                           {device.total_session_count.toLocaleString()}
                         </p>
                         <p className="text-[11px] text-[#666666]">sessions</p>
@@ -247,13 +247,13 @@ export default function AnalyticsPage() {
                     <div className="grid grid-cols-3 gap-4 mt-3 text-center">
                       <div>
                         <p className="text-[12px] text-[#888888]">Users</p>
-                        <p className="text-[13px] font-medium text-[#fafafa]">
+                        <p className="text-[13px] font-medium text-[#1a1a1a]">
                           {device.distinct_user_count.toLocaleString()}
                         </p>
                       </div>
                       <div>
                         <p className="text-[12px] text-[#888888]">Pages/Sess</p>
-                        <p className="text-[13px] font-medium text-[#fafafa]">
+                        <p className="text-[13px] font-medium text-[#1a1a1a]">
                           {device.pages_per_session.toFixed(2)}
                         </p>
                       </div>
@@ -271,9 +271,9 @@ export default function AnalyticsPage() {
           </div>
 
           {/* UX Issues by Device */}
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
-            <div className="px-6 py-5 border-b border-white/10">
-              <h2 className="text-[18px] font-semibold text-[#fafafa]">UX Issues by Device</h2>
+          <div className="bg-white border border-[#d0d0d0] rounded-2xl overflow-hidden">
+            <div className="px-6 py-5 border-b border-[#d0d0d0]">
+              <h2 className="text-[18px] font-semibold text-[#1a1a1a]">UX Issues by Device</h2>
               <p className="text-[13px] text-[#666666] mt-1">Click issues and user frustration</p>
             </div>
             <div className="divide-y divide-white/5">
@@ -300,14 +300,14 @@ export default function AnalyticsPage() {
                           )}
                         </div>
                         <div>
-                          <p className="text-[14px] text-[#fafafa] font-medium">
+                          <p className="text-[14px] text-[#1a1a1a] font-medium">
                             {issue.metric_name.replace('Count', '')}
                           </p>
                           <p className="text-[12px] text-[#666666]">{issue.device}</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-[14px] font-bold text-[#fafafa]">
+                        <p className="text-[14px] font-bold text-[#1a1a1a]">
                           {issue.sub_total.toLocaleString()}
                         </p>
                         <p 
@@ -326,9 +326,9 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Engagement by Device */}
-        <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
-          <div className="px-6 py-5 border-b border-white/10">
-            <h2 className="text-[18px] font-semibold text-[#fafafa]">Engagement by Device</h2>
+        <div className="bg-white border border-[#d0d0d0] rounded-2xl overflow-hidden">
+          <div className="px-6 py-5 border-b border-[#d0d0d0]">
+            <h2 className="text-[18px] font-semibold text-[#1a1a1a]">Engagement by Device</h2>
             <p className="text-[13px] text-[#666666] mt-1">Time on site and engagement rates</p>
           </div>
           <div className="p-6">
@@ -345,17 +345,17 @@ export default function AnalyticsPage() {
                       <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
                         {getDeviceIcon(device.device)}
                       </div>
-                      <h3 className="text-[16px] font-semibold text-[#fafafa]">{device.device}</h3>
+                      <h3 className="text-[16px] font-semibold text-[#1a1a1a]">{device.device}</h3>
                     </div>
                     
                     <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div className="text-center p-3 bg-[#0a0a0a] rounded-lg">
-                        <p className="text-[20px] font-bold text-[#fafafa]">
+                      <div className="text-center p-3 bg-white rounded-lg">
+                        <p className="text-[20px] font-bold text-[#1a1a1a]">
                           {formatDuration(device.total_time)}
                         </p>
                         <p className="text-[11px] text-[#888888]">Total Time</p>
                       </div>
-                      <div className="text-center p-3 bg-[#0a0a0a] rounded-lg">
+                      <div className="text-center p-3 bg-white rounded-lg">
                         <p className="text-[20px] font-bold text-[#00d4aa]">
                           {formatDuration(device.active_time)}
                         </p>
@@ -388,7 +388,7 @@ export default function AnalyticsPage() {
         <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-gradient-to-br from-[#ff6b6b]/20 to-[#ff6b6b]/5 border border-[#ff6b6b]/30 rounded-2xl p-6 text-center">
             <MousePointerClick className="w-8 h-8 text-[#ff6b6b] mx-auto mb-3" />
-            <p className="text-[32px] font-bold text-[#fafafa]">
+            <p className="text-[32px] font-bold text-[#1a1a1a]">
               {summary.totalDeadClicks.toLocaleString()}
             </p>
             <p className="text-[14px] text-[#888888]">Dead Clicks</p>
@@ -399,7 +399,7 @@ export default function AnalyticsPage() {
 
           <div className="bg-gradient-to-br from-[#f59e0b]/20 to-[#f59e0b]/5 border border-[#f59e0b]/30 rounded-2xl p-6 text-center">
             <Zap className="w-8 h-8 text-[#f59e0b] mx-auto mb-3" />
-            <p className="text-[32px] font-bold text-[#fafafa]">
+            <p className="text-[32px] font-bold text-[#1a1a1a]">
               {summary.totalRageClicks.toLocaleString()}
             </p>
             <p className="text-[14px] text-[#888888]">Rage Clicks</p>
@@ -410,7 +410,7 @@ export default function AnalyticsPage() {
 
           <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6 text-center">
             <TrendingUp className="w-8 h-8 text-[#7c5cff] mx-auto mb-3 rotate-180" />
-            <p className="text-[32px] font-bold text-[#fafafa]">
+            <p className="text-[32px] font-bold text-[#1a1a1a]">
               {summary.totalQuickbacks.toLocaleString()}
             </p>
             <p className="text-[14px] text-[#888888]">Quickbacks</p>

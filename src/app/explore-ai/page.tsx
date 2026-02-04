@@ -231,7 +231,7 @@ export default function ExploreAIPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       <Header title="Explore AI" breadcrumb={["Explore AI"]} />
 
       <div className="flex-1 flex">
@@ -249,7 +249,7 @@ export default function ExploreAIPage() {
                   <h1 className="text-[28px] font-bold text-[#fafafa] mb-3">
                     Explore AI
                   </h1>
-                  <p className="text-[16px] text-[#888888] max-w-lg mx-auto">
+                  <p className="text-[16px] text-[#666666] max-w-lg mx-auto">
                     Query your CRO data using natural language. 
                     Ask questions, get insights and actionable recommendations.
                   </p>
@@ -273,7 +273,7 @@ export default function ExploreAIPage() {
                       <h3 className="text-[15px] font-semibold text-[#fafafa] mb-1">
                         {action.label}
                       </h3>
-                      <p className="text-[13px] text-[#888888]">
+                      <p className="text-[13px] text-[#666666]">
                         {action.description}
                       </p>
                     </button>
@@ -308,7 +308,7 @@ export default function ExploreAIPage() {
                     <div className="w-12 h-12 bg-[#7c5cff]/20 rounded-xl flex items-center justify-center mx-auto mb-3">
                       <MousePointerClick className="w-6 h-6 text-[#7c5cff]" />
                     </div>
-                    <p className="text-[13px] text-[#888888]">
+                    <p className="text-[13px] text-[#666666]">
                       Real-time UX analysis
                     </p>
                   </div>
@@ -316,7 +316,7 @@ export default function ExploreAIPage() {
                     <div className="w-12 h-12 bg-[#00d4aa]/20 rounded-xl flex items-center justify-center mx-auto mb-3">
                       <TrendingUp className="w-6 h-6 text-[#00d4aa]" />
                     </div>
-                    <p className="text-[13px] text-[#888888]">
+                    <p className="text-[13px] text-[#666666]">
                       Data-driven suggestions
                     </p>
                   </div>
@@ -324,7 +324,7 @@ export default function ExploreAIPage() {
                     <div className="w-12 h-12 bg-[#f59e0b]/20 rounded-xl flex items-center justify-center mx-auto mb-3">
                       <Zap className="w-6 h-6 text-[#f59e0b]" />
                     </div>
-                    <p className="text-[13px] text-[#888888]">
+                    <p className="text-[13px] text-[#666666]">
                       Conversational responses
                     </p>
                   </div>
@@ -378,7 +378,7 @@ export default function ExploreAIPage() {
                     </div>
                     {message.role === "user" && (
                       <div className="w-10 h-10 bg-[#333333] rounded-xl flex items-center justify-center flex-shrink-0">
-                        <User className="w-5 h-5 text-[#888888]" />
+                        <User className="w-5 h-5 text-[#666666]" />
                       </div>
                     )}
                   </div>
@@ -392,7 +392,7 @@ export default function ExploreAIPage() {
                     <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-5">
                       <div className="flex items-center gap-3">
                         <Loader2 className="w-5 h-5 text-[#7c5cff] animate-spin" />
-                        <span className="text-[14px] text-[#888888]">
+                        <span className="text-[14px] text-[#666666]">
                           Analyzing CRO data...
                         </span>
                       </div>
@@ -406,7 +406,7 @@ export default function ExploreAIPage() {
           </div>
 
           {/* Input Area */}
-          <div className="border-t border-white/10 p-6 bg-black">
+          <div className="border-t border-white/10 p-6 bg-white">
             <div className="max-w-4xl mx-auto">
               <div className="flex gap-3">
                 {messages.length > 0 && (
@@ -451,7 +451,7 @@ export default function ExploreAIPage() {
                       key={action.id}
                       onClick={() => sendMessage(action.query)}
                       disabled={isLoading}
-                      className="px-3 py-1.5 bg-[#111111] border border-white/10 rounded-lg text-[12px] text-[#888888] hover:text-[#fafafa] hover:border-white/20 transition-all disabled:opacity-50 flex items-center gap-1.5"
+                      className="px-3 py-1.5 bg-[#111111] border border-white/10 rounded-lg text-[12px] text-[#666666] hover:text-[#fafafa] hover:border-white/20 transition-all disabled:opacity-50 flex items-center gap-1.5"
                     >
                       <div style={{ color: action.color }}>
                         {action.icon}
@@ -485,7 +485,7 @@ export default function ExploreAIPage() {
                     Ask a question
                   </p>
                 </div>
-                <p className="text-[12px] text-[#888888] ml-8">
+                <p className="text-[12px] text-[#666666] ml-8">
                   Write in natural language what you want to know about your data
                 </p>
               </div>
@@ -499,7 +499,7 @@ export default function ExploreAIPage() {
                     AI analyzes
                   </p>
                 </div>
-                <p className="text-[12px] text-[#888888] ml-8">
+                <p className="text-[12px] text-[#666666] ml-8">
                   Claude queries the Clarity database with intelligent queries
                 </p>
               </div>
@@ -513,7 +513,7 @@ export default function ExploreAIPage() {
                     Get insights
                   </p>
                 </div>
-                <p className="text-[12px] text-[#888888] ml-8">
+                <p className="text-[12px] text-[#666666] ml-8">
                   Receive detailed analysis and actionable recommendations
                 </p>
               </div>
@@ -521,7 +521,7 @@ export default function ExploreAIPage() {
 
             {/* Tools Available */}
             <div className="mb-6">
-              <h4 className="text-[13px] font-medium text-[#888888] mb-3 uppercase tracking-wide">
+              <h4 className="text-[13px] font-medium text-[#666666] mb-3 uppercase tracking-wide">
                 Available Data
               </h4>
               <div className="space-y-2">
@@ -556,7 +556,7 @@ export default function ExploreAIPage() {
                   Powered by Claude AI
                 </p>
               </div>
-              <p className="text-[11px] text-[#888888]">
+              <p className="text-[11px] text-[#666666]">
                 Agentic Loop with Tool Use for intelligent queries on Supabase database
               </p>
             </div>

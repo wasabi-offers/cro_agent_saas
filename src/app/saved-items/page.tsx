@@ -63,14 +63,14 @@ export default function SavedItemsPage() {
   const getCategoryById = (id: string) => categories.find(c => c.id === id);
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       <Header title="Saved Items" breadcrumb={["Dashboard", "Saved Items"]} />
 
       <div className="p-10 max-w-[1600px] mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-[28px] font-bold text-[#fafafa] mb-2">Saved Items</h1>
+            <h1 className="text-[28px] font-bold text-[#1a1a1a] mb-2">Saved Items</h1>
             <p className="text-[15px] text-[#888888]">
               Your saved funnels and landing pages with CRO analysis
             </p>
@@ -90,7 +90,7 @@ export default function SavedItemsPage() {
             onClick={() => setActiveTab('funnels')}
             className={`px-6 py-3 text-[14px] font-medium transition-all relative flex items-center gap-2 ${
               activeTab === 'funnels'
-                ? 'text-[#fafafa]'
+                ? 'text-[#1a1a1a]'
                 : 'text-[#666666] hover:text-[#888888]'
             }`}
           >
@@ -104,7 +104,7 @@ export default function SavedItemsPage() {
             onClick={() => setActiveTab('pages')}
             className={`px-6 py-3 text-[14px] font-medium transition-all relative flex items-center gap-2 ${
               activeTab === 'pages'
-                ? 'text-[#fafafa]'
+                ? 'text-[#1a1a1a]'
                 : 'text-[#666666] hover:text-[#888888]'
             }`}
           >
@@ -125,7 +125,7 @@ export default function SavedItemsPage() {
               placeholder="Search items..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-[#fafafa] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+              className="w-full pl-12 pr-4 py-3 bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
             />
           </div>
           <div className="flex items-center gap-2">
@@ -133,7 +133,7 @@ export default function SavedItemsPage() {
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-[#fafafa] text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all cursor-pointer"
+              className="px-4 py-3 bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all cursor-pointer"
             >
               <option value="all">All Categories</option>
               {categories.map(cat => (
@@ -160,11 +160,11 @@ export default function SavedItemsPage() {
                 return (
                   <div
                     key={funnel.id}
-                    className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 hover:border-[#7c5cff]/50 transition-all"
+                    className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6 hover:border-[#7c5cff]/50 transition-all"
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
-                        <h3 className="text-[18px] font-semibold text-[#fafafa] mb-2">
+                        <h3 className="text-[18px] font-semibold text-[#1a1a1a] mb-2">
                           {funnel.name}
                         </h3>
                         {category && (
@@ -236,11 +236,11 @@ export default function SavedItemsPage() {
                 return (
                   <div
                     key={page.id}
-                    className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 hover:border-[#7c5cff]/50 transition-all"
+                    className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6 hover:border-[#7c5cff]/50 transition-all"
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
-                        <h3 className="text-[18px] font-semibold text-[#fafafa] mb-2">
+                        <h3 className="text-[18px] font-semibold text-[#1a1a1a] mb-2">
                           {page.name}
                         </h3>
                         {category && (

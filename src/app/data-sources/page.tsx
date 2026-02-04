@@ -281,7 +281,7 @@ export default function DataSourcesPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-white">
         <Header title="Data Sources" breadcrumb={["Dashboard", "Data Sources"]} />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
@@ -295,10 +295,10 @@ export default function DataSourcesPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-white">
         <Header title="Data Sources" breadcrumb={["Dashboard", "Data Sources"]} />
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="flex flex-col items-center gap-4 p-6 bg-[#0a0a0a] border border-[#ff6b6b]/30 rounded-2xl">
+          <div className="flex flex-col items-center gap-4 p-6 bg-white border border-[#ff6b6b]/30 rounded-2xl">
             <AlertCircle className="w-10 h-10 text-[#ff6b6b]" />
             <p className="text-[#ff6b6b] text-[14px]">{error}</p>
             <button
@@ -316,7 +316,7 @@ export default function DataSourcesPage() {
   const connectedSources = dataSources.filter((ds) => ds.status === 'connected').length;
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       <Header title="Data Sources" breadcrumb={["Dashboard", "Data Sources"]} />
 
       <div className="p-10">
@@ -339,7 +339,7 @@ export default function DataSourcesPage() {
 
         {/* Status Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-xl p-5">
+          <div className="bg-white border border-[#d0d0d0] rounded-xl p-5">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-[#00d4aa]/20 rounded-xl flex items-center justify-center">
                 <CheckCircle className="w-6 h-6 text-[#00d4aa]" />
@@ -350,7 +350,7 @@ export default function DataSourcesPage() {
               </div>
             </div>
           </div>
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-xl p-5">
+          <div className="bg-white border border-[#d0d0d0] rounded-xl p-5">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-[#7c5cff]/20 rounded-xl flex items-center justify-center">
                 <Database className="w-6 h-6 text-[#7c5cff]" />
@@ -363,7 +363,7 @@ export default function DataSourcesPage() {
               </div>
             </div>
           </div>
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-xl p-5">
+          <div className="bg-white border border-[#d0d0d0] rounded-xl p-5">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-[#f59e0b]/20 rounded-xl flex items-center justify-center">
                 <Clock className="w-6 h-6 text-[#f59e0b]" />
@@ -381,7 +381,7 @@ export default function DataSourcesPage() {
           {dataSources.map((source) => (
             <div
               key={source.id}
-              className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-all"
+              className="bg-white border border-[#d0d0d0] rounded-2xl p-6 hover:border-white/20 transition-all"
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-5">
@@ -482,7 +482,7 @@ export default function DataSourcesPage() {
             ].map((integration) => (
               <div
                 key={integration.name}
-                className="bg-[#0a0a0a] border border-dashed border-white/20 rounded-xl p-5 hover:border-[#7c5cff]/50 transition-all cursor-pointer group"
+                className="bg-white border border-dashed border-white/20 rounded-xl p-5 hover:border-[#7c5cff]/50 transition-all cursor-pointer group"
               >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-[#111111] rounded-xl flex items-center justify-center text-[24px]">
@@ -527,8 +527,8 @@ export default function DataSourcesPage() {
 
         {/* Connection Modal */}
         {showConnectModal && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-6">
-            <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8 max-w-2xl w-full">
+          <div className="fixed inset-0 bg-white/80 flex items-center justify-center z-50 p-6">
+            <div className="bg-white border border-[#d0d0d0] rounded-2xl p-8 max-w-2xl w-full">
               <div className="flex items-start justify-between mb-6">
                 <div>
                   <h2 className="text-[20px] font-semibold text-[#fafafa] mb-2">
@@ -548,7 +548,7 @@ export default function DataSourcesPage() {
 
               {showConnectModal === 'clarity' && (
                 <div className="space-y-5">
-                  <div className="bg-[#111111] border border-white/10 rounded-xl p-5">
+                  <div className="bg-[#111111] border border-[#d0d0d0] rounded-xl p-5">
                     <div className="flex items-start gap-3 mb-4">
                       <AlertCircle className="w-5 h-5 text-[#7c5cff] flex-shrink-0 mt-0.5" />
                       <div>
@@ -570,7 +570,7 @@ export default function DataSourcesPage() {
                           value={tempApiKey}
                           onChange={(e) => setTempApiKey(e.target.value)}
                           placeholder="Paste your API key here..."
-                          className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-lg text-[#fafafa] text-[14px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all font-mono"
+                          className="w-full px-4 py-3 bg-white border border-[#d0d0d0] rounded-lg text-[#fafafa] text-[14px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all font-mono"
                           autoFocus
                         />
                       </label>
@@ -594,7 +594,7 @@ export default function DataSourcesPage() {
               )}
 
               {(showConnectModal === 'crazy_egg' || showConnectModal === 'google_analytics') && (
-                <div className="bg-[#111111] border border-white/10 rounded-xl p-6 text-center">
+                <div className="bg-[#111111] border border-[#d0d0d0] rounded-xl p-6 text-center">
                   <p className="text-[14px] text-[#888888] mb-4">
                     Integration for {dataSources.find(s => s.id === showConnectModal)?.name} is coming soon!
                   </p>

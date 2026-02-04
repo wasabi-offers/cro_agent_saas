@@ -85,7 +85,7 @@ export default function SettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-white">
         <Header title="Settings" breadcrumb={["Dashboard", "Settings"]} />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
@@ -98,26 +98,26 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       <Header title="Settings" breadcrumb={["Dashboard", "Settings"]} />
 
       <div className="p-10 max-w-[1200px] mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-[28px] font-bold text-[#fafafa] mb-2">Settings</h1>
+          <h1 className="text-[28px] font-bold text-[#1a1a1a] mb-2">Settings</h1>
           <p className="text-[15px] text-[#888888]">
             Configure API keys and integrations
           </p>
         </div>
 
         {/* Data Sources Section */}
-        <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8 mb-6">
+        <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-8 mb-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-xl flex items-center justify-center">
               <Key className="w-5 h-5 text-[#7c5cff]" />
             </div>
             <div>
-              <h2 className="text-[20px] font-semibold text-[#fafafa]">Data Sources</h2>
+              <h2 className="text-[20px] font-semibold text-[#1a1a1a]">Data Sources</h2>
               <p className="text-[14px] text-[#888888] mt-1">
                 Configure external API integrations
               </p>
@@ -127,7 +127,7 @@ export default function SettingsPage() {
           {/* Screenshot API Keys */}
           <div className="space-y-4">
             <div>
-              <label className="block text-[14px] font-medium text-[#fafafa] mb-2">
+              <label className="block text-[14px] font-medium text-[#1a1a1a] mb-2">
                 Screenshot API - Access Key
               </label>
               <p className="text-[13px] text-[#888888] mb-3">
@@ -147,12 +147,12 @@ export default function SettingsPage() {
                 value={settings.screenshot_api_access_key}
                 onChange={(e) => setSettings({ ...settings, screenshot_api_access_key: e.target.value })}
                 placeholder="2E6KAaX6dDYr (example)"
-                className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#fafafa] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all font-mono"
+                className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all font-mono"
               />
             </div>
 
             <div>
-              <label className="block text-[14px] font-medium text-[#fafafa] mb-2">
+              <label className="block text-[14px] font-medium text-[#1a1a1a] mb-2">
                 Screenshot API - Secret Key
               </label>
               <input
@@ -160,7 +160,7 @@ export default function SettingsPage() {
                 value={settings.screenshot_api_secret_key}
                 onChange={(e) => setSettings({ ...settings, screenshot_api_secret_key: e.target.value })}
                 placeholder="Nnc5BoaQXEB8 (example)"
-                className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#fafafa] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all font-mono"
+                className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all font-mono"
               />
             </div>
 
@@ -169,7 +169,7 @@ export default function SettingsPage() {
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-[#7c5cff] flex-shrink-0 mt-0.5" />
                 <div className="text-[13px] text-[#888888]">
-                  <p className="font-medium text-[#fafafa] mb-1">How to get your API token:</p>
+                  <p className="font-medium text-[#1a1a1a] mb-1">How to get your API token:</p>
                   <ol className="list-decimal list-inside space-y-1">
                     <li>Go to <a href="https://screenshotapi.net/" target="_blank" rel="noopener noreferrer" className="text-[#7c5cff] hover:underline">screenshotapi.net</a></li>
                     <li>Sign up for free (100 screenshots/month)</li>

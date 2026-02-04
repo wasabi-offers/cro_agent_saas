@@ -16,7 +16,7 @@ export default function Header({
   onAction,
 }: HeaderProps) {
   return (
-    <header className="flex items-center justify-between px-10 py-5 border-b border-[#1a1a1a]">
+    <header className="flex items-center justify-between px-10 py-5 border-b border-[#e0e0e0] bg-white">
       {/* Breadcrumb */}
       <div className="flex items-center gap-3 text-[15px]">
         {breadcrumb.map((item, index) => (
@@ -24,14 +24,14 @@ export default function Header({
             <span
               className={
                 index === breadcrumb.length - 1
-                  ? "text-[#fafafa] font-medium"
-                  : "text-[#555555] hover:text-[#888888] cursor-pointer transition-colors"
+                  ? "text-[#1a1a1a] font-medium"
+                  : "text-[#666666] hover:text-[#1a1a1a] cursor-pointer transition-colors"
               }
             >
               {item}
             </span>
             {index < breadcrumb.length - 1 && (
-              <ChevronRight className="w-4 h-4 text-[#444444]" />
+              <ChevronRight className="w-4 h-4 text-[#999999]" />
             )}
           </div>
         ))}

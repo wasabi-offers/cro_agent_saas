@@ -164,7 +164,7 @@ export default function ProductsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-white">
         <Header title="Products" breadcrumb={["Dashboard", "Products"]} />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
@@ -177,21 +177,21 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       <Header title="Products" breadcrumb={["Dashboard", "Products"]} />
 
       <div className="p-10 max-w-[1600px] mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-[28px] font-bold text-[#fafafa] mb-2">Products</h1>
+            <h1 className="text-[28px] font-bold text-[#1a1a1a] mb-2">Products</h1>
             <p className="text-[15px] text-[#888888]">
               Organize your funnels by product or project
             </p>
           </div>
           <div className="flex items-center gap-3">
             {lastUpdate && (
-              <div className="flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] border border-white/10 rounded-xl">
+              <div className="flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl">
                 <div className="w-2 h-2 rounded-full bg-[#00d4aa] animate-pulse" />
                 <span className="text-[13px] text-[#888888]">
                   Updated {lastUpdate.toLocaleTimeString()}
@@ -200,7 +200,7 @@ export default function ProductsPage() {
             )}
             <button
               onClick={loadProducts}
-              className="flex items-center gap-2 px-5 py-3 bg-[#0a0a0a] border border-white/10 text-[#fafafa] text-[14px] font-medium rounded-xl hover:border-[#7c5cff]/50 transition-all"
+              className="flex items-center gap-2 px-5 py-3 bg-[#0a0a0a] border border-[#d0d0d0] text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-[#7c5cff]/50 transition-all"
             >
               <RefreshCw className="w-4 h-4" />
               Refresh
@@ -217,38 +217,38 @@ export default function ProductsPage() {
 
         {/* Summary Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6">
+          <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
                 <Folder className="w-5 h-5 text-[#7c5cff]" />
               </div>
               <span className="text-[13px] text-[#888888]">Total Products</span>
             </div>
-            <p className="text-[28px] font-bold text-[#fafafa]">
+            <p className="text-[28px] font-bold text-[#1a1a1a]">
               {products.length}
             </p>
           </div>
 
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6">
+          <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
                 <Target className="w-5 h-5 text-[#00d4aa]" />
               </div>
               <span className="text-[13px] text-[#888888]">Total Funnels</span>
             </div>
-            <p className="text-[28px] font-bold text-[#fafafa]">
+            <p className="text-[28px] font-bold text-[#1a1a1a]">
               {totalFunnels}
             </p>
           </div>
 
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6">
+          <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center">
                 <Target className="w-5 h-5 text-[#f59e0b]" />
               </div>
               <span className="text-[13px] text-[#888888]">Avg Funnels/Product</span>
             </div>
-            <p className="text-[28px] font-bold text-[#fafafa]">
+            <p className="text-[28px] font-bold text-[#1a1a1a]">
               {products.length > 0 ? (totalFunnels / products.length).toFixed(1) : '0'}
             </p>
           </div>
@@ -263,7 +263,7 @@ export default function ProductsPage() {
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl text-[#fafafa] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+              className="w-full pl-12 pr-4 py-3 bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
             />
           </div>
         </div>
@@ -283,7 +283,7 @@ export default function ProductsPage() {
               <Link
                 key={product.id}
                 href={`/products/${product.id}`}
-                className="group bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 hover:border-[#7c5cff]/50 hover:shadow-lg hover:shadow-[#7c5cff]/10 transition-all cursor-pointer"
+                className="group bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6 hover:border-[#7c5cff]/50 hover:shadow-lg hover:shadow-[#7c5cff]/10 transition-all cursor-pointer"
               >
                 {/* Icon */}
                 <div className="flex items-start justify-between mb-4">
@@ -320,7 +320,7 @@ export default function ProductsPage() {
                 </div>
 
                 {/* Name */}
-                <h3 className="text-[18px] font-semibold text-[#fafafa] mb-2 group-hover:text-[#7c5cff] transition-colors">
+                <h3 className="text-[18px] font-semibold text-[#1a1a1a] mb-2 group-hover:text-[#7c5cff] transition-colors">
                   {product.name}
                 </h3>
 
@@ -335,7 +335,7 @@ export default function ProductsPage() {
                 <div className="pt-4 border-t border-white/5">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] text-[#666666] uppercase">Funnels</span>
-                    <span className="text-[16px] font-bold text-[#fafafa]">
+                    <span className="text-[16px] font-bold text-[#1a1a1a]">
                       {product.funnelCount}
                     </span>
                   </div>
@@ -348,9 +348,9 @@ export default function ProductsPage() {
 
       {/* Create Product Dialog */}
       {showCreateDialog && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8 max-w-md w-full">
-            <h2 className="text-[22px] font-bold text-[#fafafa] mb-6">Create New Product</h2>
+        <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-8 max-w-md w-full">
+            <h2 className="text-[22px] font-bold text-[#1a1a1a] mb-6">Create New Product</h2>
 
             <form onSubmit={handleCreateProduct} className="space-y-4">
               <div>
@@ -361,7 +361,7 @@ export default function ProductsPage() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="E-commerce, SaaS, Mobile App..."
-                  className="w-full px-4 py-3 bg-[#111111] border border-white/10 rounded-xl text-[#fafafa] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                  className="w-full px-4 py-3 bg-[#111111] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
                 />
               </div>
 
@@ -372,7 +372,7 @@ export default function ProductsPage() {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Brief description of this product..."
                   rows={3}
-                  className="w-full px-4 py-3 bg-[#111111] border border-white/10 rounded-xl text-[#fafafa] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
+                  className="w-full px-4 py-3 bg-[#111111] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
                 />
               </div>
 
@@ -383,14 +383,14 @@ export default function ProductsPage() {
                     type="color"
                     value={formData.color}
                     onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                    className="w-12 h-12 rounded-lg cursor-pointer bg-[#111111] border border-white/10"
+                    className="w-12 h-12 rounded-lg cursor-pointer bg-[#111111] border border-[#d0d0d0]"
                   />
                   <input
                     type="text"
                     value={formData.color}
                     onChange={(e) => setFormData({ ...formData, color: e.target.value })}
                     placeholder="#7c5cff"
-                    className="flex-1 px-4 py-3 bg-[#111111] border border-white/10 rounded-xl text-[#fafafa] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                    className="flex-1 px-4 py-3 bg-[#111111] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
                   />
                 </div>
               </div>
@@ -402,7 +402,7 @@ export default function ProductsPage() {
                     setShowCreateDialog(false);
                     setFormData({ name: "", description: "", color: "#7c5cff", icon: "Folder" });
                   }}
-                  className="flex-1 px-5 py-3 bg-[#111111] border border-white/10 text-[#fafafa] text-[14px] font-medium rounded-xl hover:border-white/20 transition-all"
+                  className="flex-1 px-5 py-3 bg-[#111111] border border-[#d0d0d0] text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-white/20 transition-all"
                 >
                   Cancel
                 </button>
@@ -420,9 +420,9 @@ export default function ProductsPage() {
 
       {/* Edit Product Dialog */}
       {showEditDialog && editingProduct && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8 max-w-md w-full">
-            <h2 className="text-[22px] font-bold text-[#fafafa] mb-6">Edit Product</h2>
+        <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-8 max-w-md w-full">
+            <h2 className="text-[22px] font-bold text-[#1a1a1a] mb-6">Edit Product</h2>
 
             <form onSubmit={handleUpdateProduct} className="space-y-4">
               <div>
@@ -433,7 +433,7 @@ export default function ProductsPage() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="E-commerce, SaaS, Mobile App..."
-                  className="w-full px-4 py-3 bg-[#111111] border border-white/10 rounded-xl text-[#fafafa] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                  className="w-full px-4 py-3 bg-[#111111] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
                 />
               </div>
 
@@ -444,7 +444,7 @@ export default function ProductsPage() {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Brief description of this product..."
                   rows={3}
-                  className="w-full px-4 py-3 bg-[#111111] border border-white/10 rounded-xl text-[#fafafa] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
+                  className="w-full px-4 py-3 bg-[#111111] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
                 />
               </div>
 
@@ -455,14 +455,14 @@ export default function ProductsPage() {
                     type="color"
                     value={formData.color}
                     onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                    className="w-12 h-12 rounded-lg cursor-pointer bg-[#111111] border border-white/10"
+                    className="w-12 h-12 rounded-lg cursor-pointer bg-[#111111] border border-[#d0d0d0]"
                   />
                   <input
                     type="text"
                     value={formData.color}
                     onChange={(e) => setFormData({ ...formData, color: e.target.value })}
                     placeholder="#7c5cff"
-                    className="flex-1 px-4 py-3 bg-[#111111] border border-white/10 rounded-xl text-[#fafafa] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                    className="flex-1 px-4 py-3 bg-[#111111] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
                   />
                 </div>
               </div>
@@ -475,7 +475,7 @@ export default function ProductsPage() {
                     setEditingProduct(null);
                     setFormData({ name: "", description: "", color: "#7c5cff", icon: "Folder" });
                   }}
-                  className="flex-1 px-5 py-3 bg-[#111111] border border-white/10 text-[#fafafa] text-[14px] font-medium rounded-xl hover:border-white/20 transition-all"
+                  className="flex-1 px-5 py-3 bg-[#111111] border border-[#d0d0d0] text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-white/20 transition-all"
                 >
                   Cancel
                 </button>
