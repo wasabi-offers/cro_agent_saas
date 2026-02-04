@@ -86,8 +86,8 @@ export default function ProductsPage() {
         }
       }
     } catch (error) {
-      console.error('Error creating product:', error);
-      alert('❌ Error creating product');
+      console.error('Error creating project:', error);
+      alert('❌ Error creating project');
     }
   };
 
@@ -105,7 +105,7 @@ export default function ProductsPage() {
 
       if (response.ok && data.success) {
         setProducts(products.filter(p => p.id !== projectId));
-        alert('✅ Product deleted successfully!');
+        alert('✅ Project deleted successfully!');
       } else {
         alert(`❌ ${data.error || 'Error deleting project'}`);
       }
@@ -146,11 +146,11 @@ export default function ProductsPage() {
           setShowEditDialog(false);
           setEditingProduct(null);
           setFormData({ name: "", description: "", color: "#7c5cff", icon: "Folder" });
-          alert('✅ Product updated successfully!');
+          alert('✅ Project updated successfully!');
         }
       }
     } catch (error) {
-      console.error('Error updating product:', error);
+      console.error('Error updating project:', error);
       alert('❌ Error updating project');
     }
   };
