@@ -69,14 +69,14 @@ export default function RAGInsightsPanel({
   };
 
   return (
-    <div className="bg-white border border-[#d0d0d0] rounded-xl overflow-hidden">
+    <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-xl overflow-hidden">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full px-4 py-3 flex items-center justify-between gap-2 hover:bg-[#f1f3f5] transition-colors"
+        className="w-full px-4 py-3 flex items-center justify-between gap-2 hover:bg-white/60 transition-colors"
       >
         <div className="flex items-center gap-2">
           <Brain className="w-4 h-4 text-[#7c5cff]" />
-          <span className="text-[13px] font-semibold text-[#fafafa]">
+          <span className="text-[13px] font-semibold text-[#1a1a1a]">
             {title}
           </span>
         </div>
@@ -88,7 +88,7 @@ export default function RAGInsightsPanel({
       </button>
 
       {isExpanded && (
-        <div className="px-4 pb-4 pt-0 border-t border-[#d0d0d0]">
+        <div className="px-4 pb-4 pt-0 border-t border-[#7c5cff]/20">
           <div className="flex gap-2 mt-3">
             <input
               type="text"
@@ -96,7 +96,7 @@ export default function RAGInsightsPanel({
               onChange={(e) => setQuestion(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleQuery()}
               placeholder={placeholder}
-              className="flex-1 px-3 py-2 bg-[#111111] border border-[#d0d0d0] rounded-lg text-[13px] text-[#fafafa] placeholder:text-[#555555] focus:outline-none focus:border-[#7c5cff]"
+              className="flex-1 px-3 py-2 bg-white/80 border border-[#7c5cff]/30 rounded-lg text-[13px] text-[#1a1a1a] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff]"
             />
             <button
               onClick={handleQuery}
@@ -118,17 +118,17 @@ export default function RAGInsightsPanel({
 
           {answer && (
             <div
-              className="mt-3 p-3 bg-[#111111] border border-[#d0d0d0] rounded-lg overflow-y-auto"
+              className="mt-3 p-3 bg-white/60 border border-[#7c5cff]/20 rounded-lg overflow-y-auto"
               style={{ maxHeight }}
             >
-              <p className="text-[13px] text-[#fafafa] whitespace-pre-wrap leading-relaxed">
+              <p className="text-[13px] text-[#1a1a1a] whitespace-pre-wrap leading-relaxed">
                 {answer}
               </p>
               <p className="text-[11px] text-[#666666] mt-2">Source: RAG</p>
               {sources.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-[#d0d0d0]">
+                <div className="mt-3 pt-3 border-t border-[#7c5cff]/20">
                   <p className="text-[11px] text-[#666666] mb-1">Sources:</p>
-                  <ul className="text-[11px] text-[#888888] space-y-0.5">
+                  <ul className="text-[11px] text-[#666666] space-y-0.5">
                     {sources.slice(0, 3).map((s, i) => (
                       <li key={i} className="truncate">
                         {s.file}
