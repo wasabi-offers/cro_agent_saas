@@ -367,7 +367,7 @@ export default function FunnelOverview({
           Basato sui dati di abbandono del funnel. Ogni compito include una mini analisi con consigli e idee da fare. Controlla la scheda Heatmap per i pattern di clic e la visibilità delle CTA.
         </p>
         {filteredUrgentTasks.length === 0 ? (
-          <p className="text-[13px] text-[#888888] py-4">
+          <p className="text-[13px] text-[#666666] py-4">
             {urgentTasks.length === 0
               ? "No urgent tasks – all steps have low or no drop-off."
               : "No tasks match the current filters."}
@@ -384,7 +384,7 @@ export default function FunnelOverview({
                       ? "bg-[#f59e0b]/10 border-[#f59e0b]/30"
                       : task.urgency === "medium"
                         ? "bg-[#f59e0b]/5 border-[#f59e0b]/20"
-                        : "bg-[#2a2a2a]/50 border-[#333333]"
+                        : "bg-white/60 border-[#7c5cff]/20"
                 }`}
               >
                 <div className="flex-1 min-w-0">
@@ -402,7 +402,7 @@ export default function FunnelOverview({
                           Mini analisi – Consigli e idee da fare:
                         </p>
                       </div>
-                      <ul className="space-y-2 text-[13px] text-[#e0e0e0]">
+                      <ul className="space-y-2 text-[13px] text-[#666666]">
                         {task.interventions.map((item, j) => (
                           <li key={j} className="flex items-start gap-2">
                             <span className="text-[#00d4aa] flex-shrink-0 mt-0.5">✓</span>
