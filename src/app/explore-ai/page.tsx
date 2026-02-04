@@ -262,7 +262,7 @@ export default function ExploreAIPage() {
                       key={action.id}
                       onClick={() => sendMessage(action.query)}
                       disabled={isLoading}
-                      className="p-5 bg-[#0a0a0a] border border-white/10 rounded-2xl hover:border-white/20 transition-all text-left group disabled:opacity-50"
+                      className="p-5 bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl hover:border-[#7c5cff]/50 transition-all text-left group disabled:opacity-50"
                     >
                       <div
                         className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110"
@@ -294,7 +294,7 @@ export default function ExploreAIPage() {
                         key={idx}
                         onClick={() => sendMessage(question)}
                         disabled={isLoading}
-                        className="p-3 bg-[#111111] border border-white/5 rounded-xl hover:border-[#7c5cff]/50 hover:bg-[#151515] transition-all text-left text-[13px] text-[#d4d4d4] disabled:opacity-50"
+                        className="p-3 bg-white/60 border border-[#f59e0b]/30 rounded-xl hover:border-[#7c5cff]/50 hover:bg-white/80 transition-all text-left text-[13px] text-[#1a1a1a] disabled:opacity-50"
                       >
                         {question}
                       </button>
@@ -389,7 +389,7 @@ export default function ExploreAIPage() {
                     <div className="w-10 h-10 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-xl flex items-center justify-center flex-shrink-0">
                       <Brain className="w-5 h-5 text-white" />
                     </div>
-                    <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-5">
+                    <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-5">
                       <div className="flex items-center gap-3">
                         <Loader2 className="w-5 h-5 text-[#7c5cff] animate-spin" />
                         <span className="text-[14px] text-[#666666]">
@@ -451,7 +451,7 @@ export default function ExploreAIPage() {
                       key={action.id}
                       onClick={() => sendMessage(action.query)}
                       disabled={isLoading}
-                      className="px-3 py-1.5 bg-[#111111] border border-white/10 rounded-lg text-[12px] text-[#666666] hover:text-[#fafafa] hover:border-white/20 transition-all disabled:opacity-50 flex items-center gap-1.5"
+                      className="px-3 py-1.5 bg-white/60 border border-[#7c5cff]/30 rounded-lg text-[12px] text-[#666666] hover:text-[#1a1a1a] hover:border-[#7c5cff]/50 transition-all disabled:opacity-50 flex items-center gap-1.5"
                     >
                       <div style={{ color: action.color }}>
                         {action.icon}
@@ -476,7 +476,7 @@ export default function ExploreAIPage() {
             </div>
 
             <div className="space-y-4 mb-8">
-              <div className="p-4 bg-[#111111] border border-white/5 rounded-xl">
+              <div className="p-4 bg-white/60 border border-[#7c5cff]/20 rounded-xl">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-6 h-6 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center text-[12px] font-bold text-[#7c5cff]">
                     1
@@ -490,7 +490,7 @@ export default function ExploreAIPage() {
                 </p>
               </div>
 
-              <div className="p-4 bg-[#111111] border border-white/5 rounded-xl">
+              <div className="p-4 bg-white/60 border border-[#7c5cff]/20 rounded-xl">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-6 h-6 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center text-[12px] font-bold text-[#00d4aa]">
                     2
@@ -504,7 +504,7 @@ export default function ExploreAIPage() {
                 </p>
               </div>
 
-              <div className="p-4 bg-[#111111] border border-white/5 rounded-xl">
+              <div className="p-4 bg-white/60 border border-[#7c5cff]/20 rounded-xl">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-6 h-6 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center text-[12px] font-bold text-[#f59e0b]">
                     3
