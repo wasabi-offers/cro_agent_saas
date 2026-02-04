@@ -283,7 +283,17 @@ export default function ProductsPage() {
               <Link
                 key={project.id}
                 href={`/products/${project.id}`}
-                className="group bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6 hover:border-[#7c5cff]/50 hover:shadow-lg hover:shadow-[#7c5cff]/10 transition-all cursor-pointer"
+                className="group rounded-2xl p-6 hover:shadow-lg transition-all cursor-pointer"
+                style={{
+                  background: `linear-gradient(to bottom right, ${project.color}20, ${project.color}05)`,
+                  border: `1px solid ${project.color}30`
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = `${project.color}50`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = `${project.color}30`;
+                }}
               >
                 {/* Icon */}
                 <div className="flex items-start justify-between mb-4">
@@ -300,7 +310,7 @@ export default function ProductsPage() {
                         e.stopPropagation();
                         handleOpenEdit(project);
                       }}
-                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#7c5cff]/10 text-[#666666] hover:text-[#7c5cff] transition-colors"
+                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/60 text-[#1a1a1a] hover:text-[#7c5cff] transition-colors"
                       title="Edit project"
                     >
                       <Edit2 className="w-4 h-4" />
@@ -311,7 +321,7 @@ export default function ProductsPage() {
                         e.stopPropagation();
                         handleDeleteProduct(project.id, project.name);
                       }}
-                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#ff6b6b]/10 text-white/70 hover:text-[#ff6b6b] transition-colors"
+                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/60 text-[#1a1a1a] hover:text-[#ff6b6b] transition-colors"
                       title="Delete project"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -320,7 +330,7 @@ export default function ProductsPage() {
                 </div>
 
                 {/* Name */}
-                <h3 className="text-[18px] font-semibold text-[#1a1a1a] mb-2 group-hover:text-[#7c5cff] transition-colors">
+                <h3 className="text-[18px] font-semibold text-[#1a1a1a] mb-2 group-hover:opacity-80 transition-colors">
                   {project.name}
                 </h3>
 
@@ -332,9 +342,9 @@ export default function ProductsPage() {
                 )}
 
                 {/* Stats */}
-                <div className="pt-4 border-t border-[#7c5cff]/20">
+                <div className="pt-4 border-t" style={{ borderColor: `${project.color}20` }}>
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] text-[#666666] uppercase font-semibold">Funnels</span>
+                    <span className="text-[11px] text-[#1a1a1a] uppercase font-bold">Funnels</span>
                     <span className="text-[16px] font-bold text-[#1a1a1a]">
                       {project.funnelCount}
                     </span>
