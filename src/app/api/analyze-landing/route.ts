@@ -335,18 +335,14 @@ ${pageContent}
 Analyze the ACTUAL content above and generate the JSON response following the system instructions.`;
 
       // Build content array - include image if screenshot is provided
-      const userContent: any[] = [
-        {
-          type: "text",
-          text: userPrompt,
-        }
-      ];
+      const userContent: Array<{ type: "text"; text: string } | { type: "image"; source: { type: "base64"; media_type: string; data: string } }> = [];
 
       if (hasScreenshot && screenshot) {
         // Extract base64 data (remove data:image/...;base64, prefix)
         const base64Data = screenshot.includes(',') ? screenshot.split(',')[1] : screenshot;
         const mimeType = screenshot.match(/data:image\/(\w+);base64/)?.[1] || 'png';
         
+        // Add image first, then text
         userContent.push({
           type: "image",
           source: {
@@ -356,6 +352,12 @@ Analyze the ACTUAL content above and generate the JSON response following the sy
           },
         });
       }
+
+      // Add text prompt
+      userContent.push({
+        type: "text",
+        text: userPrompt,
+      });
 
       const message = await client.messages.create({
         model: "claude-sonnet-4-20250514", // Upgraded to Sonnet 4 for better accuracy

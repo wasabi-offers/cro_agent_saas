@@ -53,7 +53,10 @@ const iconMap: Record<string, any> = {
 };
 
 export default function LandingAnalysisPage() {
+  const [inputMode, setInputMode] = useState<"url" | "screenshot">("url");
   const [url, setUrl] = useState("");
+  const [screenshot, setScreenshot] = useState<string | null>(null);
+  const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
   const [selectedFilters, setSelectedFilters] = useState<string[]>(["all"]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [results, setResults] = useState<AnalysisResult[]>([]);
@@ -72,6 +75,7 @@ export default function LandingAnalysisPage() {
 
   // Load saved analysis from sessionStorage on mount
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     const savedAnalysis = sessionStorage.getItem('landingAnalysis');
     if (savedAnalysis) {
       try {
@@ -90,6 +94,7 @@ export default function LandingAnalysisPage() {
 
   // Save analysis to sessionStorage whenever it changes
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     if ((url || screenshot) && (results.length > 0 || croTableRows.length > 0)) {
       const dataToSave = {
         inputMode,
@@ -133,7 +138,9 @@ export default function LandingAnalysisPage() {
     setCroTableRows([]);
     setViewMode("visual");
     setError("");
-    sessionStorage.removeItem('landingAnalysis');
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('landingAnalysis');
+    }
   };
 
   const handleScreenshotChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -165,12 +172,13 @@ export default function LandingAnalysisPage() {
   };
 
   const handleAnalyze = async () => {
-    if (inputMode === "url" && !url) {
+    const currentInputMode = inputMode || "url";
+    if (currentInputMode === "url" && !url) {
       setError("Please enter a valid URL");
       return;
     }
 
-    if (inputMode === "screenshot" && !screenshot) {
+    if (currentInputMode === "screenshot" && !screenshot) {
       setError("Please upload a screenshot");
       return;
     }
@@ -188,7 +196,7 @@ export default function LandingAnalysisPage() {
           : selectedFilters,
       };
 
-      if (inputMode === "url") {
+      if ((inputMode || "url") === "url") {
         analysisBody.url = url;
       } else {
         analysisBody.screenshot = screenshot;
@@ -202,7 +210,7 @@ export default function LandingAnalysisPage() {
           body: JSON.stringify(analysisBody),
         }),
         // CRO table generation only works with URL for now
-        inputMode === "url" ? fetch("/api/generate-cro-table", {
+        (inputMode || "url") === "url" ? fetch("/api/generate-cro-table", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -432,7 +440,7 @@ export default function LandingAnalysisPage() {
                   setScreenshotFile(null);
                 }}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-medium transition-all ${
-                  inputMode === "url"
+                  (inputMode || "url") === "url"
                     ? "bg-[#7c5cff] text-white"
                     : "bg-[#111111] text-[#888888] border border-[#2a2a2a] hover:border-[#7c5cff]/50"
                 }`}
@@ -458,7 +466,7 @@ export default function LandingAnalysisPage() {
           </div>
 
           {/* URL Input */}
-          {inputMode === "url" && (
+          {(inputMode || "url") === "url" && (
             <div className="mb-6">
               <label className="block text-[14px] text-[#888888] mb-2">
                 Landing Page URL
