@@ -27,6 +27,8 @@ import {
   Save,
   Flame,
   X,
+  Image as ImageIcon,
+  Link as LinkIcon,
 } from "lucide-react";
 import { CROTableRow, SavedLandingPage, landingPageStorage } from "@/lib/saved-items";
 
@@ -74,7 +76,9 @@ export default function LandingAnalysisPage() {
     if (savedAnalysis) {
       try {
         const data = JSON.parse(savedAnalysis);
+        setInputMode(data.inputMode || "url");
         setUrl(data.url || "");
+        setScreenshot(data.screenshot || null);
         setResults(data.results || []);
         setCroTableRows(data.croTableRows || []);
         setViewMode(data.viewMode || "visual");
@@ -86,16 +90,18 @@ export default function LandingAnalysisPage() {
 
   // Save analysis to sessionStorage whenever it changes
   useEffect(() => {
-    if (url && (results.length > 0 || croTableRows.length > 0)) {
+    if ((url || screenshot) && (results.length > 0 || croTableRows.length > 0)) {
       const dataToSave = {
+        inputMode,
         url,
+        screenshot,
         results,
         croTableRows,
         viewMode,
       };
       sessionStorage.setItem('landingAnalysis', JSON.stringify(dataToSave));
     }
-  }, [url, results, croTableRows, viewMode]);
+  }, [inputMode, url, screenshot, results, croTableRows, viewMode]);
 
   const filters = [
     { id: "all", label: "Complete Analysis", icon: Sparkles },
@@ -121,6 +127,8 @@ export default function LandingAnalysisPage() {
 
   const handleClearAnalysis = () => {
     setUrl("");
+    setScreenshot(null);
+    setScreenshotFile(null);
     setResults([]);
     setCroTableRows([]);
     setViewMode("visual");
@@ -128,9 +136,42 @@ export default function LandingAnalysisPage() {
     sessionStorage.removeItem('landingAnalysis');
   };
 
+  const handleScreenshotChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError("Please select a valid image file");
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      setError("Image size must be less than 10MB");
+      return;
+    }
+
+    setScreenshotFile(file);
+    setError("");
+
+    // Read file as base64
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      setScreenshot(base64String);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleAnalyze = async () => {
-    if (!url) {
+    if (inputMode === "url" && !url) {
       setError("Please enter a valid URL");
+      return;
+    }
+
+    if (inputMode === "screenshot" && !screenshot) {
+      setError("Please upload a screenshot");
       return;
     }
 
@@ -140,26 +181,35 @@ export default function LandingAnalysisPage() {
     setCroTableRows([]);
 
     try {
+      // Prepare request body
+      const analysisBody: any = {
+        filters: selectedFilters.includes("all")
+          ? ["cro", "copy", "colors", "experience"]
+          : selectedFilters,
+      };
+
+      if (inputMode === "url") {
+        analysisBody.url = url;
+      } else {
+        analysisBody.screenshot = screenshot;
+      }
+
       // Run both analysis in parallel
       const [analysisResponse, croTableResponse] = await Promise.all([
         fetch("/api/analyze-landing", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            url,
-            filters: selectedFilters.includes("all")
-              ? ["cro", "copy", "colors", "experience"]
-              : selectedFilters,
-          }),
+          body: JSON.stringify(analysisBody),
         }),
-        fetch("/api/generate-cro-table", {
+        // CRO table generation only works with URL for now
+        inputMode === "url" ? fetch("/api/generate-cro-table", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             url,
             type: 'landing',
           }),
-        }),
+        }) : Promise.resolve(new Response(JSON.stringify({ success: false, error: "CRO table generation requires URL" }), { status: 200 })),
       ]);
 
       if (!analysisResponse.ok) throw new Error("Analysis error");
@@ -369,19 +419,111 @@ export default function LandingAnalysisPage() {
             </h2>
           </div>
 
-          {/* URL Input */}
+          {/* Input Mode Toggle */}
           <div className="mb-6">
-            <label className="block text-[14px] text-[#888888] mb-2">
-              Landing Page URL
+            <label className="block text-[14px] text-[#888888] mb-3">
+              Analysis Source
             </label>
-            <input
-              type="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://example.com/landing-page"
-              className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#fafafa] text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all"
-            />
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setInputMode("url");
+                  setScreenshot(null);
+                  setScreenshotFile(null);
+                }}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-medium transition-all ${
+                  inputMode === "url"
+                    ? "bg-[#7c5cff] text-white"
+                    : "bg-[#111111] text-[#888888] border border-[#2a2a2a] hover:border-[#7c5cff]/50"
+                }`}
+              >
+                <LinkIcon className="w-4 h-4" />
+                From URL
+              </button>
+              <button
+                onClick={() => {
+                  setInputMode("screenshot");
+                  setUrl("");
+                }}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-medium transition-all ${
+                  inputMode === "screenshot"
+                    ? "bg-[#7c5cff] text-white"
+                    : "bg-[#111111] text-[#888888] border border-[#2a2a2a] hover:border-[#7c5cff]/50"
+                }`}
+              >
+                <ImageIcon className="w-4 h-4" />
+                From Screenshot
+              </button>
+            </div>
           </div>
+
+          {/* URL Input */}
+          {inputMode === "url" && (
+            <div className="mb-6">
+              <label className="block text-[14px] text-[#888888] mb-2">
+                Landing Page URL
+              </label>
+              <input
+                type="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="https://example.com/landing-page"
+                className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#fafafa] text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all"
+              />
+            </div>
+          )}
+
+          {/* Screenshot Input */}
+          {inputMode === "screenshot" && (
+            <div className="mb-6">
+              <label className="block text-[14px] text-[#888888] mb-2">
+                Upload Screenshot
+              </label>
+              <div className="space-y-4">
+                <div className="relative">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleScreenshotChange}
+                    className="hidden"
+                    id="screenshot-upload"
+                  />
+                  <label
+                    htmlFor="screenshot-upload"
+                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-[#2a2a2a] rounded-xl bg-[#111111] hover:border-[#7c5cff] cursor-pointer transition-all"
+                  >
+                    <ImageIcon className="w-8 h-8 text-[#666666] mb-2" />
+                    <span className="text-[14px] text-[#888888]">
+                      Click to upload or drag and drop
+                    </span>
+                    <span className="text-[12px] text-[#666666] mt-1">
+                      PNG, JPG, WEBP up to 10MB
+                    </span>
+                  </label>
+                </div>
+                {screenshot && (
+                  <div className="relative rounded-xl overflow-hidden border border-[#2a2a2a] bg-[#111111]">
+                    <img
+                      src={screenshot}
+                      alt="Screenshot preview"
+                      className="w-full h-auto max-h-96 object-contain"
+                    />
+                    <button
+                      onClick={() => {
+                        setScreenshot(null);
+                        setScreenshotFile(null);
+                        const input = document.getElementById('screenshot-upload') as HTMLInputElement;
+                        if (input) input.value = '';
+                      }}
+                      className="absolute top-2 right-2 w-8 h-8 bg-[#ff6b6b] hover:bg-[#ff5252] rounded-lg flex items-center justify-center transition-colors"
+                    >
+                      <X className="w-4 h-4 text-white" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Filters */}
           <div className="mb-6">

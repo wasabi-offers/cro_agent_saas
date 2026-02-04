@@ -15,7 +15,8 @@ export const fetchCache = 'force-no-store';
 
 // This API analyzes landing pages for CRO improvements
 interface AnalysisRequest {
-  url: string;
+  url?: string;
+  screenshot?: string; // base64 encoded image
   filters: string[];
 }
 
@@ -49,21 +50,31 @@ const CATEGORY_LABELS = {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { url, filters } = body as AnalysisRequest;
+    const { url, screenshot, filters } = body as AnalysisRequest;
 
-    if (!url) {
+    if (!url && !screenshot) {
       return NextResponse.json(
-        { success: false, error: "URL is required" },
+        { success: false, error: "Either URL or screenshot is required" },
         { status: 400 }
       );
     }
 
-    // Validate URL format
-    try {
-      new URL(url);
-    } catch {
+    // Validate URL format if URL is provided
+    if (url) {
+      try {
+        new URL(url);
+      } catch {
+        return NextResponse.json(
+          { success: false, error: "Invalid URL format" },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Validate screenshot format if screenshot is provided
+    if (screenshot && !screenshot.startsWith('data:image/')) {
       return NextResponse.json(
-        { success: false, error: "Invalid URL format" },
+        { success: false, error: "Invalid screenshot format. Must be base64 data URL." },
         { status: 400 }
       );
     }
@@ -153,50 +164,59 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log("🌐 Fetching page content from:", url);
     let pageContent = "";
-    try {
-      const pageResponse = await fetch(url, {
-        headers: {
-          "User-Agent": "Mozilla/5.0 (compatible; CROAgent/1.0; +https://croagent.com/bot)",
-        },
-      });
+    let hasScreenshot = false;
 
-      if (!pageResponse.ok) {
-        console.error(`❌ Failed to fetch page: ${pageResponse.status} ${pageResponse.statusText}`);
+    if (screenshot) {
+      // Using screenshot instead of URL
+      hasScreenshot = true;
+      console.log("📸 Analyzing from screenshot");
+    } else if (url) {
+      // Fetch page content from URL
+      console.log("🌐 Fetching page content from:", url);
+      try {
+        const pageResponse = await fetch(url, {
+          headers: {
+            "User-Agent": "Mozilla/5.0 (compatible; CROAgent/1.0; +https://croagent.com/bot)",
+          },
+        });
+
+        if (!pageResponse.ok) {
+          console.error(`❌ Failed to fetch page: ${pageResponse.status} ${pageResponse.statusText}`);
+          return NextResponse.json(
+            {
+              success: false,
+              error: `Failed to fetch page: ${pageResponse.status} ${pageResponse.statusText}`,
+            },
+            { status: 500 }
+          );
+        }
+
+        pageContent = await pageResponse.text();
+        console.log(`✅ Fetched ${pageContent.length} characters`);
+        // Limit content to first 100000 chars (increased for better analysis)
+        pageContent = pageContent.substring(0, 100000);
+        console.log(`📝 Using first ${pageContent.length} characters for analysis`);
+      } catch (fetchError) {
+        console.error("❌ Error fetching page:", fetchError);
         return NextResponse.json(
           {
             success: false,
-            error: `Failed to fetch page: ${pageResponse.status} ${pageResponse.statusText}`,
+            error: fetchError instanceof Error ? fetchError.message : "Failed to fetch page",
           },
           { status: 500 }
         );
       }
 
-      pageContent = await pageResponse.text();
-      console.log(`✅ Fetched ${pageContent.length} characters`);
-      // Limit content to first 100000 chars (increased for better analysis)
-      pageContent = pageContent.substring(0, 100000);
-      console.log(`📝 Using first ${pageContent.length} characters for analysis`);
-    } catch (fetchError) {
-      console.error("❌ Error fetching page:", fetchError);
-      return NextResponse.json(
-        {
-          success: false,
-          error: fetchError instanceof Error ? fetchError.message : "Failed to fetch page",
-        },
-        { status: 500 }
-      );
-    }
-
-    if (!pageContent) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Failed to fetch page content",
-        },
-        { status: 500 }
-      );
+      if (!pageContent) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Failed to fetch page content",
+          },
+          { status: 500 }
+        );
+      }
     }
 
     console.log("🤖 Calling Claude API for landing page analysis...");
@@ -298,7 +318,13 @@ RULES:
 • Include percentages, psychology principles, case studies
 • Add confidence (0-100) and effort (low/medium/high) to each proposal`;
 
-      const userPrompt = `Analyze this landing page and provide detailed CRO recommendations.
+      const userPrompt = hasScreenshot
+        ? `Analyze this landing page screenshot and provide detailed CRO recommendations.
+
+Analysis types requested: ${filtersList}
+
+Analyze the screenshot image and generate the JSON response following the system instructions.`
+        : `Analyze this landing page and provide detailed CRO recommendations.
 
 URL: ${url}
 Analysis types requested: ${filtersList}
@@ -307,6 +333,29 @@ Page HTML (first 100k chars):
 ${pageContent}
 
 Analyze the ACTUAL content above and generate the JSON response following the system instructions.`;
+
+      // Build content array - include image if screenshot is provided
+      const userContent: any[] = [
+        {
+          type: "text",
+          text: userPrompt,
+        }
+      ];
+
+      if (hasScreenshot && screenshot) {
+        // Extract base64 data (remove data:image/...;base64, prefix)
+        const base64Data = screenshot.includes(',') ? screenshot.split(',')[1] : screenshot;
+        const mimeType = screenshot.match(/data:image\/(\w+);base64/)?.[1] || 'png';
+        
+        userContent.push({
+          type: "image",
+          source: {
+            type: "base64",
+            media_type: `image/${mimeType}`,
+            data: base64Data,
+          },
+        });
+      }
 
       const message = await client.messages.create({
         model: "claude-sonnet-4-20250514", // Upgraded to Sonnet 4 for better accuracy
@@ -323,12 +372,7 @@ Analyze the ACTUAL content above and generate the JSON response following the sy
         messages: [
           {
             role: "user",
-            content: [
-              {
-                type: "text",
-                text: userPrompt,
-              }
-            ]
+            content: userContent,
           },
         ],
       });
