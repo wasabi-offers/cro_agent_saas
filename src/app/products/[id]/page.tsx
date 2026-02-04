@@ -23,6 +23,7 @@ import {
   Activity,
   TrendingDown,
   Upload,
+  Edit2,
 } from "lucide-react";
 import FunnelBuilder from "@/components/FunnelBuilder";
 import FunnelFlowImporter from "@/components/FunnelFlowImporter";
