@@ -78,7 +78,9 @@ export default function FunnelDetailPage() {
   const [funnel, setFunnel] = useState<ConversionFunnel | null>(null);
   const [updateTrigger, setUpdateTrigger] = useState(0); // Force re-render trigger
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"overview" | "analysis" | "heatmap" | "abtests" | "setup">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "flussi" | "analysis" | "heatmap" | "abtests" | "setup">("overview");
+  const [editingStepIndex, setEditingStepIndex] = useState<number | null>(null);
+  const [editingStepUrl, setEditingStepUrl] = useState<string>("");
   const [showEditBuilder, setShowEditBuilder] = useState(false);
 
   // Analysis state
@@ -763,6 +765,20 @@ export default function FunnelDetailPage() {
           >
             Overview
             {activeTab === "overview" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]" />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("flussi")}
+            className={`px-6 py-3 text-[14px] font-medium transition-all relative flex items-center gap-2 ${
+              activeTab === "flussi"
+                ? "text-[#1a1a1a]"
+                : "text-[#666666] hover:text-[#666666]"
+            }`}
+          >
+            <List className="w-4 h-4" />
+            Flussi
+            {activeTab === "flussi" && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]" />
             )}
           </button>
