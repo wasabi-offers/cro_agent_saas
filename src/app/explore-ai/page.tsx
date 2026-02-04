@@ -246,7 +246,7 @@ export default function ExploreAIPage() {
                   <div className="w-20 h-20 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-purple-500/20">
                     <Brain className="w-10 h-10 text-white" />
                   </div>
-                  <h1 className="text-[28px] font-bold text-[#fafafa] mb-3">
+                  <h1 className="text-[28px] font-bold text-[#1a1a1a] mb-3">
                     Explore AI
                   </h1>
                   <p className="text-[16px] text-[#666666] max-w-lg mx-auto">
@@ -281,10 +281,10 @@ export default function ExploreAIPage() {
                 </div>
 
                 {/* Suggested Questions */}
-                <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6">
+                <div className="bg-gradient-to-br from-[#f59e0b]/20 to-[#f59e0b]/5 border border-[#f59e0b]/30 rounded-2xl p-6">
                   <div className="flex items-center gap-2 mb-4">
                     <Lightbulb className="w-5 h-5 text-[#f59e0b]" />
-                    <h3 className="text-[15px] font-medium text-[#fafafa]">
+                    <h3 className="text-[15px] font-medium text-[#1a1a1a]">
                       Suggested Questions
                     </h3>
                   </div>
@@ -294,7 +294,7 @@ export default function ExploreAIPage() {
                         key={idx}
                         onClick={() => sendMessage(question)}
                         disabled={isLoading}
-                        className="p-3 bg-white/60 border border-[#f59e0b]/30 rounded-xl hover:border-[#7c5cff]/50 hover:bg-white/80 transition-all text-left text-[13px] text-[#1a1a1a] disabled:opacity-50"
+                        className="p-3 bg-white/80 border border-[#f59e0b]/40 rounded-xl hover:border-[#7c5cff]/50 hover:bg-white transition-all text-left text-[13px] text-[#1a1a1a] font-medium disabled:opacity-50 shadow-sm"
                       >
                         {question}
                       </button>
@@ -348,7 +348,7 @@ export default function ExploreAIPage() {
                       className={`max-w-[85%] rounded-2xl p-5 ${
                         message.role === "user"
                           ? "bg-[#7c5cff] text-white"
-                          : "bg-[#0a0a0a] border border-white/10 text-white"
+                          : "bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 text-[#1a1a1a]"
                       }`}
                     >
                       {message.role === "assistant" ? (
@@ -425,7 +425,7 @@ export default function ExploreAIPage() {
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="Ask something about your CRO data..."
-                    className="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-4 py-3 text-[14px] text-[#fafafa] placeholder-[#666666] focus:outline-none focus:border-[#7c5cff]/50 resize-none"
+                    className="w-full bg-white/80 border border-[#7c5cff]/30 rounded-xl px-4 py-3 text-[14px] text-[#1a1a1a] placeholder-[#666666] focus:outline-none focus:border-[#7c5cff]/50 resize-none shadow-sm"
                     rows={1}
                     disabled={isLoading}
                   />
@@ -466,11 +466,11 @@ export default function ExploreAIPage() {
         </div>
 
         {/* Sidebar - Info */}
-        <div className="w-80 border-l border-white/10 bg-[#0a0a0a] p-6 hidden lg:block overflow-y-auto">
+        <div className="w-80 border-l border-[#7c5cff]/20 bg-gradient-to-br from-[#7c5cff]/10 to-[#7c5cff]/5 p-6 hidden lg:block overflow-y-auto">
           <div className="sticky top-0">
             <div className="flex items-center gap-2 mb-6">
               <Sparkles className="w-5 h-5 text-[#7c5cff]" />
-              <h3 className="text-[15px] font-semibold text-[#fafafa]">
+              <h3 className="text-[15px] font-semibold text-[#1a1a1a]">
                 How It Works
               </h3>
             </div>
@@ -481,7 +481,7 @@ export default function ExploreAIPage() {
                   <div className="w-6 h-6 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center text-[12px] font-bold text-[#7c5cff]">
                     1
                   </div>
-                  <p className="text-[13px] font-medium text-[#fafafa]">
+                  <p className="text-[13px] font-medium text-[#1a1a1a]">
                     Ask a question
                   </p>
                 </div>
@@ -495,7 +495,7 @@ export default function ExploreAIPage() {
                   <div className="w-6 h-6 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center text-[12px] font-bold text-[#00d4aa]">
                     2
                   </div>
-                  <p className="text-[13px] font-medium text-[#fafafa]">
+                  <p className="text-[13px] font-medium text-[#1a1a1a]">
                     AI analyzes
                   </p>
                 </div>
@@ -509,7 +509,7 @@ export default function ExploreAIPage() {
                   <div className="w-6 h-6 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center text-[12px] font-bold text-[#f59e0b]">
                     3
                   </div>
-                  <p className="text-[13px] font-medium text-[#fafafa]">
+                  <p className="text-[13px] font-medium text-[#1a1a1a]">
                     Get insights
                   </p>
                 </div>
