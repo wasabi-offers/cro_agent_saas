@@ -193,7 +193,7 @@ export default function ABTestsPage() {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
             <div className="w-10 h-10 border-2 border-[#7c5cff] border-t-transparent rounded-full animate-spin" />
-            <p className="text-[#666666] text-[14px]">Analyzing data for A/B test suggestions...</p>
+            <p className="text-[#1a1a1a] text-[14px]">Analyzing data for A/B test suggestions...</p>
           </div>
         </div>
       </div>
@@ -263,8 +263,8 @@ export default function ABTestsPage() {
           {proposals.length > 0 && (
             <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-xl p-4 flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <Target className="w-4 h-4 text-[#666666]" />
-                <span className="text-[13px] text-[#666666]">Funnel:</span>
+                <Target className="w-4 h-4 text-[#1a1a1a]" />
+                <span className="text-[13px] text-[#1a1a1a] font-semibold">Funnel:</span>
                 <select
                   value={selectedFunnel}
                   onChange={(e) => setSelectedFunnel(e.target.value)}
@@ -286,7 +286,7 @@ export default function ABTestsPage() {
                   className={`px-3 py-2 rounded-lg text-[13px] font-medium transition-all ${
                     sortBy === "date"
                       ? "bg-[#7c5cff] text-white"
-                      : "bg-white/60 text-[#666666] border border-[#7c5cff]/30"
+                      : "bg-white/60 text-[#1a1a1a] border border-[#7c5cff]/30"
                   }`}
                 >
                   Date
@@ -296,7 +296,7 @@ export default function ABTestsPage() {
                   className={`px-3 py-2 rounded-lg text-[13px] font-medium transition-all ${
                     sortBy === "status"
                       ? "bg-[#7c5cff] text-white"
-                      : "bg-white/60 text-[#666666] border border-[#7c5cff]/30"
+                      : "bg-white/60 text-[#1a1a1a] border border-[#7c5cff]/30"
                   }`}
                 >
                   Status
@@ -341,7 +341,7 @@ export default function ABTestsPage() {
                   <p className="text-[24px] font-bold text-[#1a1a1a]">
                     {abTestData.summary.pendingCount}
                   </p>
-                  <p className="text-[12px] text-[#666666]">Pending</p>
+                  <p className="text-[12px] text-[#1a1a1a] font-semibold">Pending</p>
                 </div>
               </div>
             </div>
@@ -367,7 +367,7 @@ export default function ABTestsPage() {
                   <p className="text-[24px] font-bold text-[#1a1a1a]">
                     {abTestData.summary.completedCount}
                   </p>
-                  <p className="text-[12px] text-[#666666]">Completed</p>
+                  <p className="text-[12px] text-[#1a1a1a] font-semibold">Completed</p>
                 </div>
               </div>
             </div>
@@ -429,7 +429,7 @@ export default function ABTestsPage() {
                               {getStatusIcon(proposal.status)}
                               {proposal.status.toUpperCase()}
                             </span>
-                            <span className="text-[12px] text-[#666666] flex items-center gap-1.5">
+                            <span className="text-[12px] text-[#1a1a1a] flex items-center gap-1.5">
                               {getCategoryIcon(proposal.category)}
                               {proposal.category}
                             </span>
@@ -448,7 +448,7 @@ export default function ABTestsPage() {
                               {proposal.expected_impact}
                             </span>
                             {proposal.funnels && (
-                              <span className="text-[12px] text-[#666666] flex items-center gap-1.5">
+                              <span className="text-[12px] text-[#1a1a1a] flex items-center gap-1.5">
                                 <Target className="w-3.5 h-3.5" />
                                 {proposal.funnels.name}
                               </span>
@@ -461,11 +461,11 @@ export default function ABTestsPage() {
 
                       <div className="mt-4 pt-4 border-t border-[#7c5cff]/20 grid grid-cols-2 gap-4">
                         <div>
-                          <p className="text-[11px] text-[#666666] uppercase mb-1">Current</p>
-                          <p className="text-[13px] text-[#666666]">{proposal.current_value}</p>
+                          <p className="text-[11px] text-[#1a1a1a] uppercase mb-1 font-bold">Current</p>
+                          <p className="text-[13px] text-[#1a1a1a]">{proposal.current_value}</p>
                         </div>
                         <div>
-                          <p className="text-[11px] text-[#666666] uppercase mb-1">Proposed</p>
+                          <p className="text-[11px] text-[#1a1a1a] uppercase mb-1 font-bold">Proposed</p>
                           <p className="text-[13px] text-[#00d4aa] font-medium">{proposal.proposed_value}</p>
                         </div>
                       </div>
@@ -491,7 +491,7 @@ export default function ABTestsPage() {
                   </div>
 
                   <div>
-                    <label className="text-[11px] text-[#666666] uppercase tracking-wide">Category</label>
+                    <label className="text-[11px] text-[#1a1a1a] uppercase tracking-wide font-bold">Category</label>
                     <div className="flex items-center gap-2 mt-2">
                       {getCategoryIcon(selectedTest.category)}
                       <span className="text-[13px] text-[#1a1a1a]">{selectedTest.category}</span>
@@ -509,8 +509,8 @@ export default function ABTestsPage() {
                   </div>
 
                   <div>
-                    <label className="text-[11px] text-[#666666] uppercase tracking-wide">Current Value</label>
-                    <p className="text-[14px] text-[#666666] mt-1 bg-white/60 p-3 rounded-lg border border-[#7c5cff]/20">{selectedTest.current_value}</p>
+                    <label className="text-[11px] text-[#1a1a1a] uppercase tracking-wide font-bold">Current Value</label>
+                    <p className="text-[14px] text-[#1a1a1a] mt-1 bg-white/60 p-3 rounded-lg border border-[#7c5cff]/20">{selectedTest.current_value}</p>
                   </div>
 
                   <div>
@@ -519,7 +519,7 @@ export default function ABTestsPage() {
                   </div>
 
                   <div>
-                    <label className="text-[11px] text-[#666666] uppercase tracking-wide">Expected Impact</label>
+                    <label className="text-[11px] text-[#1a1a1a] uppercase tracking-wide font-bold">Expected Impact</label>
                     <p className="text-[14px] text-[#00d4aa] font-medium mt-1 flex items-center gap-2">
                       <TrendingUp className="w-4 h-4" />
                       {selectedTest.expected_impact}
@@ -533,7 +533,7 @@ export default function ABTestsPage() {
 
                   {selectedTest.funnels && (
                     <div>
-                      <label className="text-[11px] text-[#666666] uppercase tracking-wide">Funnel</label>
+                      <label className="text-[11px] text-[#1a1a1a] uppercase tracking-wide font-bold">Funnel</label>
                       <div className="flex items-center gap-2 mt-2">
                         <Target className="w-4 h-4 text-[#7c5cff]" />
                         <span className="text-[13px] text-[#1a1a1a]">{selectedTest.funnels.name}</span>
@@ -568,7 +568,7 @@ export default function ABTestsPage() {
             ) : (
               <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6 text-center">
                 <FlaskConical className="w-12 h-12 text-[#7c5cff]/50 mx-auto mb-4" />
-                <p className="text-[14px] text-[#666666]">
+                <p className="text-[14px] text-[#1a1a1a]">
                   Select a proposal to view details
                 </p>
               </div>
