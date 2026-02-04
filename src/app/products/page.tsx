@@ -346,51 +346,51 @@ export default function ProductsPage() {
         )}
       </div>
 
-      {/* Create Product Dialog */}
+      {/* Create Project Dialog */}
       {showCreateDialog && (
         <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-8 max-w-md w-full">
-            <h2 className="text-[22px] font-bold text-white mb-6">Create New Product</h2>
+          <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-8 max-w-md w-full">
+            <h2 className="text-[22px] font-bold text-[#1a1a1a] mb-6">Create New Project</h2>
 
             <form onSubmit={handleCreateProduct} className="space-y-4">
               <div>
-                <label className="block text-[13px] text-[#888888] mb-2">Product Name *</label>
+                <label className="block text-[13px] text-[#1a1a1a] mb-2 font-semibold">Project Name *</label>
                 <input
                   type="text"
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="E-commerce, SaaS, Mobile App..."
-                  className="w-full px-4 py-3 bg-[#111111] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-[13px] text-white/70 mb-2">Description</label>
+                <label className="block text-[13px] text-[#1a1a1a] mb-2 font-semibold">Description</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Brief description of this project..."
                   rows={3}
-                  className="w-full px-4 py-3 bg-[#111111] border border-[#d0d0d0] rounded-xl text-white text-[15px] placeholder:text-white/50 focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
+                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
                 />
               </div>
 
               <div>
-                <label className="block text-[13px] text-[#888888] mb-2">Color</label>
+                <label className="block text-[13px] text-[#1a1a1a] mb-2 font-semibold">Color</label>
                 <div className="flex items-center gap-3">
                   <input
                     type="color"
                     value={formData.color}
                     onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                    className="w-12 h-12 rounded-lg cursor-pointer bg-[#111111] border border-[#d0d0d0]"
+                    className="w-12 h-12 rounded-lg cursor-pointer bg-white/80 border border-[#7c5cff]/30"
                   />
                   <input
                     type="text"
                     value={formData.color}
                     onChange={(e) => setFormData({ ...formData, color: e.target.value })}
                     placeholder="#7c5cff"
-                    className="flex-1 px-4 py-3 bg-[#111111] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                    className="flex-1 px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
                   />
                 </div>
               </div>
@@ -402,7 +402,7 @@ export default function ProductsPage() {
                     setShowCreateDialog(false);
                     setFormData({ name: "", description: "", color: "#7c5cff", icon: "Folder" });
                   }}
-                  className="flex-1 px-5 py-3 bg-[#111111] border border-[#d0d0d0] text-white text-[14px] font-medium rounded-xl hover:border-white/20 transition-all"
+                  className="flex-1 px-5 py-3 bg-white/80 border border-[#7c5cff]/30 text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-[#7c5cff]/50 transition-all"
                 >
                   Cancel
                 </button>
