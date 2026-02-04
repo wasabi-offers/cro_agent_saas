@@ -165,7 +165,7 @@ export default function ProductsPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white">
-        <Header title="Products" breadcrumb={["Dashboard", "Products"]} />
+        <Header title="Projects" breadcrumb={["Dashboard", "Projects"]} />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
             <div className="w-10 h-10 border-2 border-[#7c5cff] border-t-transparent rounded-full animate-spin" />
@@ -178,7 +178,7 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header title="Products" breadcrumb={["Dashboard", "Products"]} />
+      <Header title="Projects" breadcrumb={["Dashboard", "Projects"]} />
 
       <div className="p-10 max-w-[1600px] mx-auto">
         {/* Header */}
