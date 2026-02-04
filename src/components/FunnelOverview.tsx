@@ -190,36 +190,36 @@ export default function FunnelOverview({
     <div className="space-y-6">
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-[#2a2a2a] rounded-xl p-5">
+        <div className="bg-gradient-to-br from-[#00d4aa]/20 to-[#00d4aa]/5 border border-[#00d4aa]/30 rounded-xl p-5">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
               <TrendingUp className="w-5 h-5 text-[#00d4aa]" />
             </div>
-            <span className="text-[12px] text-[#888888]">Conversion Rate</span>
+            <span className="text-[12px] text-[#666666]">Conversion Rate</span>
           </div>
           <p className="text-[24px] font-bold text-[#00d4aa]">
             {Number.isFinite(conversionRate) ? conversionRate.toFixed(1) : "0"}%
           </p>
         </div>
 
-        <div className="bg-white border border-[#2a2a2a] rounded-xl p-5">
+        <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-xl p-5">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
               <Users className="w-5 h-5 text-[#7c5cff]" />
             </div>
-            <span className="text-[12px] text-[#888888]">Total Visitors</span>
+            <span className="text-[12px] text-[#666666]">Total Visitors</span>
           </div>
           <p className="text-[24px] font-bold text-[#1a1a1a]">
             {(totalVisitors ?? firstStep?.visitors ?? 0).toLocaleString()}
           </p>
         </div>
 
-        <div className="bg-white border border-[#2a2a2a] rounded-xl p-5">
+        <div className="bg-gradient-to-br from-[#00d4aa]/20 to-[#00d4aa]/5 border border-[#00d4aa]/30 rounded-xl p-5">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
               <Target className="w-5 h-5 text-[#00d4aa]" />
             </div>
-            <span className="text-[12px] text-[#888888]">Conversions</span>
+            <span className="text-[12px] text-[#666666]">Conversions</span>
           </div>
           <p className="text-[24px] font-bold text-[#00d4aa]">
             {(goalStep?.visitors ?? 0).toLocaleString()}
@@ -229,12 +229,12 @@ export default function FunnelOverview({
           )}
         </div>
 
-        <div className="bg-white border border-[#2a2a2a] rounded-xl p-5">
+        <div className="bg-gradient-to-br from-[#ff6b6b]/20 to-[#ff6b6b]/5 border border-[#ff6b6b]/30 rounded-xl p-5">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 bg-[#ff6b6b]/20 rounded-lg flex items-center justify-center">
               <AlertTriangle className="w-5 h-5 text-[#ff6b6b]" />
             </div>
-            <span className="text-[12px] text-[#888888]">Bottleneck</span>
+            <span className="text-[12px] text-[#666666]">Bottleneck</span>
           </div>
           <p className="text-[14px] font-bold text-[#1a1a1a] truncate" title={bottleneckStep?.name}>
             {bottleneckStep?.name || "-"}
@@ -248,7 +248,7 @@ export default function FunnelOverview({
       {/* RAG Summary + Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* RAG Summary */}
-        <div className="lg:col-span-2 bg-white border border-[#7c5cff]/30 rounded-2xl p-6">
+        <div className="lg:col-span-2 bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Brain className="w-5 h-5 text-[#7c5cff]" />
@@ -290,7 +290,7 @@ export default function FunnelOverview({
           <h3 className="text-[14px] font-semibold text-[#888888] mb-3">Quick Actions</h3>
           <button
             onClick={onNavigateToAnalysis}
-            className="w-full flex items-center justify-between p-4 bg-[#f8f9fa] hover:bg-[#f1f3f5] border border-[#2a2a2a] hover:border-[#7c5cff]/50 rounded-xl text-left transition-all group"
+            className="w-full flex items-center justify-between p-4 bg-white/60 hover:bg-white/80 border border-[#7c5cff]/30 hover:border-[#7c5cff]/50 rounded-xl text-left transition-all group"
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
@@ -302,7 +302,7 @@ export default function FunnelOverview({
           </button>
           <button
             onClick={onNavigateToHeatmap}
-            className="w-full flex items-center justify-between p-4 bg-[#f8f9fa] hover:bg-[#f1f3f5] border border-[#2a2a2a] hover:border-[#7c5cff]/50 rounded-xl text-left transition-all group"
+            className="w-full flex items-center justify-between p-4 bg-white/60 hover:bg-white/80 border border-[#7c5cff]/30 hover:border-[#7c5cff]/50 rounded-xl text-left transition-all group"
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
@@ -314,7 +314,7 @@ export default function FunnelOverview({
           </button>
           <button
             onClick={onNavigateToABTests}
-            className="w-full flex items-center justify-between p-4 bg-[#f8f9fa] hover:bg-[#f1f3f5] border border-[#2a2a2a] hover:border-[#7c5cff]/50 rounded-xl text-left transition-all group"
+            className="w-full flex items-center justify-between p-4 bg-white/60 hover:bg-white/80 border border-[#7c5cff]/30 hover:border-[#7c5cff]/50 rounded-xl text-left transition-all group"
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center">
@@ -328,7 +328,7 @@ export default function FunnelOverview({
       </div>
 
       {/* Urgent Tasks – analysis based on funnel data and heatmap */}
-      <div className="bg-white border border-[#ff6b6b]/30 rounded-2xl p-6">
+      <div className="bg-gradient-to-br from-[#ff6b6b]/20 to-[#ff6b6b]/5 border border-[#ff6b6b]/30 rounded-2xl p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
           <div className="flex items-center gap-2">
             <Zap className="w-5 h-5 text-[#ff6b6b]" />
@@ -340,7 +340,7 @@ export default function FunnelOverview({
               <select
                 value={urgentFilterStep}
                 onChange={(e) => setUrgentFilterStep(e.target.value)}
-                className="bg-[#f8f9fa] border border-[#2a2a2a] rounded-lg px-3 py-1.5 text-[12px] text-[#1a1a1a] focus:outline-none focus:border-[#7c5cff]"
+                className="bg-white/60 border border-[#ff6b6b]/30 rounded-lg px-3 py-1.5 text-[12px] text-[#1a1a1a] focus:outline-none focus:border-[#7c5cff]"
               >
                 <option value="all">All pages</option>
                 {steps.map((s) => (
