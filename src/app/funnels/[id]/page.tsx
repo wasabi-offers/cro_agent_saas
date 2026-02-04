@@ -79,7 +79,8 @@ export default function FunnelDetailPage() {
   const [funnel, setFunnel] = useState<ConversionFunnel | null>(null);
   const [updateTrigger, setUpdateTrigger] = useState(0); // Force re-render trigger
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"overview" | "flussi" | "analysis" | "heatmap" | "abtests" | "setup">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "analysis" | "heatmap" | "abtests" | "setup">("overview");
+  const [showFlussiEditor, setShowFlussiEditor] = useState(false);
   const [editingStepIndex, setEditingStepIndex] = useState<number | null>(null);
   const [editingStepUrl, setEditingStepUrl] = useState<string>("");
   const [showEditBuilder, setShowEditBuilder] = useState(false);
@@ -715,6 +716,13 @@ export default function FunnelDetailPage() {
             </div>
             <div className="h-10 w-px bg-[#2a2a2a]" />
             <button
+              onClick={() => setShowFlussiEditor(true)}
+              className="px-4 py-2.5 bg-gradient-to-br from-[#00d4aa] to-[#7c5cff] text-white rounded-xl text-[14px] font-medium hover:opacity-90 transition-all flex items-center gap-2"
+            >
+              <List className="w-4 h-4" />
+              Edit Steps
+            </button>
+            <button
               onClick={() => setShowEditBuilder(true)}
               className="px-4 py-2.5 bg-[#7c5cff] text-white rounded-xl text-[14px] font-medium hover:bg-[#6b4ee6] transition-all flex items-center gap-2"
             >
@@ -724,137 +732,25 @@ export default function FunnelDetailPage() {
           </div>
         </div>
 
-        {/* Edit Builder */}
-        {showEditBuilder && (
+        {/* Flussi Editor */}
+        {showFlussiEditor && (
           <div className="mb-8">
-            <FunnelBuilder
-              initialFunnel={{ name: funnel.name, steps: funnel.steps, connections: funnel.connections }}
-              onSave={handleEditFunnel}
-              onCancel={() => setShowEditBuilder(false)}
-            />
-          </div>
-        )}
-
-        {/* Funnel Visualizer */}
-        {!showEditBuilder && (
-          <div className="mb-8">
-            <FunnelVisualizer
-              key={`funnel-viz-${updateTrigger}`}
-              steps={funnel.steps}
-              name={funnel.name}
-              funnelId={funnelId}
-              connections={funnel.connections}
-              onAnalyzePage={(stepIndex) => {
-                setActiveTab("analysis");
-                setAnalysisMode("page");
-                setSelectedPage(stepIndex);
-              }}
-            />
-          </div>
-        )}
-
-        {/* Tabs */}
-        {!showEditBuilder && (
-        <div className="flex items-center gap-4 mb-8 border-b border-[#7c5cff]/30">
-          <button
-            onClick={() => setActiveTab("overview")}
-            className={`px-6 py-3 text-[14px] font-medium transition-all relative ${
-              activeTab === "overview"
-                ? "text-[#1a1a1a]"
-                : "text-[#666666] hover:text-[#666666]"
-            }`}
-          >
-            Overview
-            {activeTab === "overview" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]" />
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab("flussi")}
-            className={`px-6 py-3 text-[14px] font-medium transition-all relative flex items-center gap-2 ${
-              activeTab === "flussi"
-                ? "text-[#1a1a1a]"
-                : "text-[#666666] hover:text-[#666666]"
-            }`}
-          >
-            <List className="w-4 h-4" />
-            Flussi
-            {activeTab === "flussi" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]" />
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab("analysis")}
-            className={`px-6 py-3 text-[14px] font-medium transition-all relative flex items-center gap-2 ${
-              activeTab === "analysis"
-                ? "text-[#1a1a1a]"
-                : "text-[#666666] hover:text-[#666666]"
-            }`}
-          >
-            <Sparkles className="w-4 h-4" />
-            CRO Analysis
-            {activeTab === "analysis" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]" />
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab("heatmap")}
-            className={`px-6 py-3 text-[14px] font-medium transition-all relative flex items-center gap-2 ${
-              activeTab === "heatmap"
-                ? "text-[#1a1a1a]"
-                : "text-[#666666] hover:text-[#666666]"
-            }`}
-          >
-            <MousePointerClick className="w-4 h-4" />
-            Heatmap
-            {activeTab === "heatmap" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]" />
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab("abtests")}
-            className={`px-6 py-3 text-[14px] font-medium transition-all relative flex items-center gap-2 ${
-              activeTab === "abtests"
-                ? "text-[#1a1a1a]"
-                : "text-[#666666] hover:text-[#666666]"
-            }`}
-          >
-            <FlaskConical className="w-4 h-4" />
-            A/B Tests
-            {activeTab === "abtests" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]" />
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab("setup")}
-            className={`px-6 py-3 text-[14px] font-medium transition-all relative flex items-center gap-2 ${
-              activeTab === "setup"
-                ? "text-[#1a1a1a]"
-                : "text-[#666666] hover:text-[#666666]"
-            }`}
-          >
-            <Code className="w-4 h-4" />
-            Setup
-            {activeTab === "setup" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]" />
-            )}
-          </button>
-        </div>
-        )}
-
-        {/* Tab Content */}
-        {!showEditBuilder && (
-        <>
-        {activeTab === "flussi" && (
-          <div className="space-y-6">
             <div className="bg-gradient-to-br from-white to-[#f8f9fa] border border-[#7c5cff]/30 rounded-2xl p-6 shadow-sm">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
-                  <List className="w-5 h-5 text-[#7c5cff]" />
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
+                    <List className="w-5 h-5 text-[#7c5cff]" />
+                  </div>
+                  <h2 className="text-[20px] font-semibold text-[#1a1a1a]">
+                    Edit Steps
+                  </h2>
                 </div>
-                <h2 className="text-[20px] font-semibold text-[#1a1a1a]">
-                  Modifica Flussi
-                </h2>
+                <button
+                  onClick={() => setShowFlussiEditor(false)}
+                  className="px-4 py-2 bg-[#f8f9fa] border border-[#d0d0d0] text-[#666666] rounded-lg text-[13px] font-medium hover:bg-[#e9ecef] transition-all"
+                >
+                  Close
+                </button>
               </div>
 
               <div className="space-y-4">
@@ -997,6 +893,113 @@ export default function FunnelDetailPage() {
           </div>
         )}
 
+        {/* Edit Builder */}
+        {showEditBuilder && (
+          <div className="mb-8">
+            <FunnelBuilder
+              initialFunnel={{ name: funnel.name, steps: funnel.steps, connections: funnel.connections }}
+              onSave={handleEditFunnel}
+              onCancel={() => setShowEditBuilder(false)}
+            />
+          </div>
+        )}
+
+        {/* Funnel Visualizer */}
+        {!showEditBuilder && (
+          <div className="mb-8">
+            <FunnelVisualizer
+              key={`funnel-viz-${updateTrigger}`}
+              steps={funnel.steps}
+              name={funnel.name}
+              funnelId={funnelId}
+              connections={funnel.connections}
+              onAnalyzePage={(stepIndex) => {
+                setActiveTab("analysis");
+                setAnalysisMode("page");
+                setSelectedPage(stepIndex);
+              }}
+            />
+          </div>
+        )}
+
+        {/* Tabs */}
+        {!showEditBuilder && (
+        <div className="flex items-center gap-4 mb-8 border-b border-[#7c5cff]/30">
+          <button
+            onClick={() => setActiveTab("overview")}
+            className={`px-6 py-3 text-[14px] font-medium transition-all relative ${
+              activeTab === "overview"
+                ? "text-[#1a1a1a]"
+                : "text-[#666666] hover:text-[#666666]"
+            }`}
+          >
+            Overview
+            {activeTab === "overview" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]" />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("analysis")}
+            className={`px-6 py-3 text-[14px] font-medium transition-all relative flex items-center gap-2 ${
+              activeTab === "analysis"
+                ? "text-[#1a1a1a]"
+                : "text-[#666666] hover:text-[#666666]"
+            }`}
+          >
+            <Sparkles className="w-4 h-4" />
+            CRO Analysis
+            {activeTab === "analysis" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]" />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("heatmap")}
+            className={`px-6 py-3 text-[14px] font-medium transition-all relative flex items-center gap-2 ${
+              activeTab === "heatmap"
+                ? "text-[#1a1a1a]"
+                : "text-[#666666] hover:text-[#666666]"
+            }`}
+          >
+            <MousePointerClick className="w-4 h-4" />
+            Heatmap
+            {activeTab === "heatmap" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]" />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("abtests")}
+            className={`px-6 py-3 text-[14px] font-medium transition-all relative flex items-center gap-2 ${
+              activeTab === "abtests"
+                ? "text-[#1a1a1a]"
+                : "text-[#666666] hover:text-[#666666]"
+            }`}
+          >
+            <FlaskConical className="w-4 h-4" />
+            A/B Tests
+            {activeTab === "abtests" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]" />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("setup")}
+            className={`px-6 py-3 text-[14px] font-medium transition-all relative flex items-center gap-2 ${
+              activeTab === "setup"
+                ? "text-[#1a1a1a]"
+                : "text-[#666666] hover:text-[#666666]"
+            }`}
+          >
+            <Code className="w-4 h-4" />
+            Setup
+            {activeTab === "setup" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]" />
+            )}
+          </button>
+        </div>
+        )}
+
+        {/* Tab Content */}
+        {!showEditBuilder && !showFlussiEditor && (
+        <>
         {activeTab === "overview" && (
           <FunnelOverview
             funnelName={funnel.name}
