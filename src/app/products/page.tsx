@@ -110,8 +110,8 @@ export default function ProductsPage() {
         alert(`❌ ${data.error || 'Error deleting project'}`);
       }
     } catch (error) {
-      console.error('Error deleting product:', error);
-      alert('❌ Error deleting product');
+      console.error('Error deleting project:', error);
+      alert('❌ Error deleting project');
     }
   };
 
