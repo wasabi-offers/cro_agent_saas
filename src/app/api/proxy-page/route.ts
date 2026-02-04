@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     };
 
     // Fetch the page - timeout 30s per Replit/SPA che possono essere lente
-    const isReplitOrSPA = /replit\.com|replit\.dev|repl\.co|concealedqualify\.com/i.test(targetUrl.hostname);
+    const isReplitOrSPA = /replit\.com|replit\.dev|repl\.co|concealedqualify\.com|thesignalmind\.com/i.test(targetUrl.hostname);
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), isReplitOrSPA ? 30000 : 15000);
     let response: Response;
@@ -64,7 +64,8 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Se 404 su route SPA (es. /approval) → prova root (/) che spesso restituisce l'app shell
+    // Se 404 su route SPA (es. /approval, /reveal) → prova root (/) che spesso restituisce l'app shell
+    // Per thesignalmind.com, prova anche senza il path se contiene /reveal o altre route SPA
     let injectedPath: string | null = null;
     if (!response.ok && response.status === 404 && targetUrl.pathname !== '/' && targetUrl.pathname !== '') {
       injectedPath = targetUrl.pathname + targetUrl.search + targetUrl.hash;
