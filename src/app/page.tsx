@@ -353,8 +353,8 @@ export default function Home() {
         {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
           {/* UX Issues Breakdown */}
-          <div className="lg:col-span-2 bg-white border border-[#e0e0e0] rounded-2xl overflow-hidden shadow-sm">
-            <div className="px-6 py-5 border-b border-[#e0e0e0] flex items-center justify-between">
+          <div className="lg:col-span-2 bg-gradient-to-br from-[#ff6b6b]/20 to-[#ff6b6b]/5 border border-[#ff6b6b]/30 rounded-2xl overflow-hidden shadow-sm">
+            <div className="px-6 py-5 border-b border-[#ff6b6b]/20 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-[#ff6b6b]/20 rounded-xl flex items-center justify-center">
                   <AlertTriangle className="w-5 h-5 text-[#ff6b6b]" />
@@ -381,21 +381,21 @@ export default function Home() {
             <div className="p-6">
               {/* Issue Summary Cards */}
               <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="bg-[#f8f9fa] border border-[#ff6b6b]/30 rounded-xl p-4 text-center">
+                <div className="bg-white/60 border border-[#ff6b6b]/40 rounded-xl p-4 text-center">
                   <MousePointerClick className="w-6 h-6 text-[#ff6b6b] mx-auto mb-2" />
                   <p className="text-[24px] font-bold text-[#1a1a1a]">
                     {summary.totalDeadClicks.toLocaleString()}
                   </p>
                   <p className="text-[12px] text-[#666666]">Dead Clicks</p>
                 </div>
-                <div className="bg-[#f8f9fa] border border-[#f59e0b]/30 rounded-xl p-4 text-center">
+                <div className="bg-white/60 border border-[#f59e0b]/40 rounded-xl p-4 text-center">
                   <Zap className="w-6 h-6 text-[#f59e0b] mx-auto mb-2" />
                   <p className="text-[24px] font-bold text-[#1a1a1a]">
                     {summary.totalRageClicks.toLocaleString()}
                   </p>
                   <p className="text-[12px] text-[#666666]">Rage Clicks</p>
                 </div>
-                <div className="bg-[#f8f9fa] border border-[#7c5cff]/30 rounded-xl p-4 text-center">
+                <div className="bg-white/60 border border-[#7c5cff]/40 rounded-xl p-4 text-center">
                   <ArrowRight className="w-6 h-6 text-[#7c5cff] mx-auto mb-2 rotate-180" />
                   <p className="text-[24px] font-bold text-[#1a1a1a]">
                     {summary.totalQuickbacks.toLocaleString()}
@@ -412,7 +412,7 @@ export default function Home() {
                 {uxIssues.slice(0, 6).map((issue, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center justify-between p-3 bg-[#f8f9fa] rounded-lg border border-[#e0e0e0]"
+                    className="flex items-center justify-between p-3 bg-white/60 rounded-lg border border-[#ff6b6b]/20"
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-[12px] font-medium text-[#1a1a1a] w-16">
@@ -437,7 +437,7 @@ export default function Home() {
           </div>
 
           {/* Device Distribution */}
-          <div className="bg-white border border-[#e0e0e0] rounded-2xl p-6 shadow-sm">
+          <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-xl flex items-center justify-center">
                 <Activity className="w-5 h-5 text-[#7c5cff]" />
@@ -457,7 +457,7 @@ export default function Home() {
                              device.device === 'Desktop' ? '#00d4aa' : '#f59e0b';
                 
                 return (
-                  <div key={device.device} className="p-4 bg-[#f8f9fa] rounded-xl border border-[#e0e0e0]">
+                  <div key={device.device} className="p-4 bg-white/60 rounded-xl border border-[#7c5cff]/20">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[14px] font-medium text-[#1a1a1a]">
                         {device.device}
@@ -466,7 +466,7 @@ export default function Home() {
                         {percentage.toFixed(1)}%
                       </span>
                     </div>
-                    <div className="h-2 bg-[#e0e0e0] rounded-full overflow-hidden mb-3">
+                    <div className="h-2 bg-white/50 rounded-full overflow-hidden mb-3">
                       <div
                         className="h-full rounded-full transition-all"
                         style={{ 
@@ -513,24 +513,24 @@ export default function Home() {
           {engagementByDevice.map((device) => (
             <div
               key={device.device}
-              className="bg-white border border-[#e0e0e0] rounded-2xl p-6 shadow-sm"
+              className="bg-gradient-to-br from-[#00d4aa]/20 to-[#00d4aa]/5 border border-[#00d4aa]/30 rounded-2xl p-6 shadow-sm"
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-[16px] font-semibold text-[#1a1a1a]">
                   {device.device}
                 </h3>
-                <span className="px-2.5 py-1 bg-[#7c5cff]/20 text-[#7c5cff] rounded-full text-[11px] font-medium">
+                <span className="px-2.5 py-1 bg-[#00d4aa]/20 text-[#00d4aa] rounded-full text-[11px] font-medium">
                   Engagement
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-4 bg-[#f8f9fa] rounded-xl border border-[#e0e0e0]">
+                <div className="text-center p-4 bg-white/60 rounded-xl border border-[#00d4aa]/20">
                   <p className="text-[24px] font-bold text-[#1a1a1a]">
                     {formatDuration(device.total_time)}
                   </p>
                   <p className="text-[12px] text-[#666666]">Total Time</p>
                 </div>
-                <div className="text-center p-4 bg-[#f8f9fa] rounded-xl border border-[#e0e0e0]">
+                <div className="text-center p-4 bg-white/60 rounded-xl border border-[#00d4aa]/20">
                   <p className="text-[24px] font-bold text-[#00d4aa]">
                     {formatDuration(device.active_time)}
                   </p>
@@ -544,7 +544,7 @@ export default function Home() {
                     {((device.active_time / device.total_time) * 100).toFixed(0)}%
                   </span>
                 </div>
-                <div className="h-2 bg-[#e0e0e0] rounded-full overflow-hidden">
+                <div className="h-2 bg-white/50 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] rounded-full"
                     style={{ width: `${(device.active_time / device.total_time) * 100}%` }}
@@ -556,7 +556,7 @@ export default function Home() {
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white border border-[#e0e0e0] rounded-2xl p-6 shadow-sm">
+        <div className="bg-gradient-to-br from-[#f59e0b]/20 to-[#f59e0b]/5 border border-[#f59e0b]/30 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-xl flex items-center justify-center">
               <FlaskConical className="w-5 h-5 text-white" />
@@ -575,7 +575,7 @@ export default function Home() {
             <button
               onClick={() => requestAIAnalysis('ab-tests')}
               disabled={isAnalyzing}
-              className="p-4 bg-[#f8f9fa] border border-[#e0e0e0] rounded-xl hover:border-[#7c5cff]/50 transition-all text-left group"
+              className="p-4 bg-white/60 border border-[#7c5cff]/30 rounded-xl hover:border-[#7c5cff]/50 transition-all text-left group"
             >
               <FlaskConical className="w-6 h-6 text-[#7c5cff] mb-3" />
               <h3 className="text-[14px] font-medium text-[#1a1a1a] mb-1">
@@ -589,7 +589,7 @@ export default function Home() {
             <button
               onClick={() => requestAIAnalysis('ux-issues')}
               disabled={isAnalyzing}
-              className="p-4 bg-[#f8f9fa] border border-[#e0e0e0] rounded-xl hover:border-[#ff6b6b]/50 transition-all text-left group"
+              className="p-4 bg-white/60 border border-[#ff6b6b]/30 rounded-xl hover:border-[#ff6b6b]/50 transition-all text-left group"
             >
               <AlertTriangle className="w-6 h-6 text-[#ff6b6b] mb-3" />
               <h3 className="text-[14px] font-medium text-[#1a1a1a] mb-1">
@@ -602,7 +602,7 @@ export default function Home() {
 
             <Link
               href="/explore-ai"
-              className="p-4 bg-[#f8f9fa] border border-[#e0e0e0] rounded-xl hover:border-[#00d4aa]/50 transition-all text-left group"
+              className="p-4 bg-white/60 border border-[#00d4aa]/30 rounded-xl hover:border-[#00d4aa]/50 transition-all text-left group"
             >
               <Brain className="w-6 h-6 text-[#00d4aa] mb-3" />
               <h3 className="text-[14px] font-medium text-[#1a1a1a] mb-1">
