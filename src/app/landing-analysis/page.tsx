@@ -743,29 +743,31 @@ export default function LandingAnalysisPage() {
               return (
                 <div
                   key={index}
-                  className="bg-white border border-[#e0e0e0] rounded-2xl p-6"
+                  className="bg-white border border-[#d0d0d0] rounded-2xl p-8 hover:border-[#7c5cff]/50 hover:shadow-lg transition-all"
                 >
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-white/60 rounded-xl flex items-center justify-center">
-                        <Icon className="w-5 h-5 text-[#7c5cff]" />
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 bg-gradient-to-br from-[#7c5cff]/20 to-[#00d4aa]/20 rounded-xl flex items-center justify-center">
+                        <Icon className="w-7 h-7 text-[#7c5cff]" />
                       </div>
-                      <h3 className="text-[18px] font-semibold text-[#1a1a1a]">
-                        {result.category}
-                      </h3>
-                      {analysisSource && (
-                        <span className="text-[10px] px-2 py-0.5 rounded bg-[#e0e0e0] text-[#666666]">
-                          Source: {analysisSource}
-                        </span>
-                      )}
+                      <div>
+                        <h3 className="text-[22px] font-bold text-[#1a1a1a] mb-1">
+                          {result.category}
+                        </h3>
+                        {analysisSource && (
+                          <span className="text-[13px] px-3 py-1 rounded-lg bg-[#f8f9fa] border border-[#d0d0d0] text-[#666666]">
+                            Source: {analysisSource}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <div
-                      className={`px-4 py-2 rounded-xl border ${getScoreBgColor(
+                      className={`px-6 py-3 rounded-xl border ${getScoreBgColor(
                         result.score
                       )}`}
                     >
                       <span
-                        className={`text-[16px] font-bold ${getScoreColor(
+                        className={`text-[20px] font-bold ${getScoreColor(
                           result.score
                         )}`}
                       >
@@ -774,8 +776,8 @@ export default function LandingAnalysisPage() {
                     </div>
                   </div>
 
-                  <div className="space-y-3 mb-6">
-                    <h4 className="text-[14px] font-semibold text-[#1a1a1a] mb-3">Analysis</h4>
+                  <div className="space-y-4 mb-8">
+                    <h4 className="text-[16px] font-bold text-[#1a1a1a] mb-4">Analysis</h4>
                     {result.insights.map((insight, idx) => (
                       <CROInsightCard
                         key={idx}
@@ -788,27 +790,27 @@ export default function LandingAnalysisPage() {
 
                   {/* Proposals */}
                   {result.proposals && result.proposals.length > 0 && (
-                    <div className="space-y-3">
-                      <h4 className="text-[14px] font-semibold text-[#00d4aa] mb-3">Concrete Proposals</h4>
+                    <div className="space-y-4">
+                      <h4 className="text-[16px] font-bold text-[#00d4aa] mb-4">Concrete Proposals</h4>
                       {result.proposals.map((proposal: any, idx: number) => (
                         <div
                           key={idx}
-                          className="bg-white/60 border border-[#00d4aa]/20 rounded-xl p-5"
+                          className="bg-gradient-to-br from-[#00d4aa]/10 to-[#00d4aa]/5 border border-[#00d4aa]/30 rounded-xl p-6"
                         >
-                          <div className="flex items-start justify-between mb-3">
-                            <h5 className="text-[15px] font-semibold text-[#1a1a1a]">{proposal.element}</h5>
-                            <span className="text-[12px] font-bold text-[#00d4aa] bg-[#00d4aa]/10 px-3 py-1 rounded-full">
+                          <div className="flex items-start justify-between mb-4">
+                            <h5 className="text-[17px] font-bold text-[#1a1a1a]">{proposal.element}</h5>
+                            <span className="text-[14px] font-bold text-[#00d4aa] bg-[#00d4aa]/20 px-4 py-2 rounded-lg">
                               {proposal.impact}
                             </span>
                           </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                              <p className="text-[12px] text-[#666666] mb-1">Current</p>
-                              <p className="text-[14px] text-[#1a1a1a] bg-white p-3 rounded-lg">{proposal.current}</p>
+                              <p className="text-[13px] text-[#666666] mb-2 font-semibold">Current</p>
+                              <p className="text-[15px] text-[#1a1a1a] bg-white p-4 rounded-lg border border-[#d0d0d0] leading-relaxed">{proposal.current}</p>
                             </div>
                             <div>
-                              <p className="text-[12px] text-[#666666] mb-1">Proposed</p>
-                              <div className="text-[14px] text-[#00d4aa] bg-white p-3 rounded-lg whitespace-pre-line">
+                              <p className="text-[13px] text-[#666666] mb-2 font-semibold">Proposed</p>
+                              <div className="text-[15px] text-[#1a1a1a] bg-white p-4 rounded-lg border border-[#00d4aa]/30 leading-relaxed whitespace-pre-line font-medium">
                                 {proposal.proposed}
                               </div>
                             </div>
