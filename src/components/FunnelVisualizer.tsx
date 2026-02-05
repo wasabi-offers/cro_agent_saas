@@ -389,7 +389,7 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
         <div className="absolute top-4 right-4 bg-white border border-[#7c5cff] rounded-xl p-6 w-96 shadow-2xl z-50">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h3 className="text-[16px] font-semibold text-[#fafafa] mb-1">
+              <h3 className="text-[16px] font-semibold text-[#1a1a1a] mb-1">
                 Step Details
               </h3>
               <p className="text-[14px] text-[#666666]">
@@ -410,7 +410,7 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
                 <Users className="w-4 h-4 text-[#7c5cff]" />
                 <span className="text-[12px] text-[#666666]">Total Visitors</span>
               </div>
-              <p className="text-[24px] font-bold text-[#fafafa]">
+              <p className="text-[24px] font-bold text-[#1a1a1a]">
                 {(selectedNode.data.visitors ?? 0).toLocaleString()}
               </p>
             </div>
@@ -420,7 +420,7 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
                 <Percent className="w-4 h-4 text-[#00d4aa]" />
                 <span className="text-[12px] text-[#666666]">Conversion Rate</span>
               </div>
-              <p className="text-[24px] font-bold text-[#fafafa]">
+              <p className="text-[24px] font-bold text-[#1a1a1a]">
                 {Number.isFinite(selectedNode.data.conversionRate) ? selectedNode.data.conversionRate.toFixed(1) : '0'}%
               </p>
             </div>
@@ -431,7 +431,7 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
                   <TrendingDown className="w-4 h-4 text-[#ff6b6b]" />
                   <span className="text-[12px] text-[#666666]">Drop-off Rate</span>
                 </div>
-                <p className="text-[24px] font-bold text-[#fafafa]">
+                <p className="text-[24px] font-bold text-[#1a1a1a]">
                   {Number.isFinite(selectedNode.data.dropoff) ? selectedNode.data.dropoff.toFixed(1) : '0'}%
                 </p>
                 <p className="text-[11px] text-[#666666] mt-2">
