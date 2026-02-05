@@ -87,7 +87,7 @@ function StepNode({ data }: { data: StepData }) {
       <div className="bg-white border-2 border-[#7c5cff] rounded-xl overflow-hidden shadow-lg hover:border-[#00d4aa] transition-all cursor-pointer" style={{ width: 280 }}>
         {/* Header */}
         <div className="p-3 pb-2">
-          <h3 className="text-[13px] font-semibold text-[#fafafa] mb-1.5 truncate">
+          <h3 className="text-[13px] font-semibold text-[#1a1a1a] mb-1.5 truncate">
             {data.label}
           </h3>
             <div className="flex items-center gap-3">
@@ -347,8 +347,8 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
     <StepCardContext.Provider value={stepCardContextValue}>
     <div className="relative">
       <div className="bg-white border border-white/10 rounded-2xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-white/10">
-          <h2 className="text-[18px] font-semibold text-[#fafafa]">
+        <div className="px-6 py-4 border-b border-[#d0d0d0]">
+          <h2 className="text-[18px] font-semibold text-[#1a1a1a]">
             Funnel Flow: {name}
           </h2>
           <p className="text-[13px] text-[#666666] mt-1">
@@ -398,7 +398,7 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
             </div>
             <button
               onClick={closeDetails}
-              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5 text-[#666666] hover:text-[#fafafa] transition-colors"
+              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#f8f9fa] text-[#666666] hover:text-[#1a1a1a] transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -480,7 +480,7 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
             )}
           </div>
 
-          <div className="mt-4 pt-4 border-t border-white/10 space-y-3">
+          <div className="mt-4 pt-4 border-t border-[#d0d0d0] space-y-3">
             {onAnalyzePage && selectedNode.data.url && (
               <button
                 onClick={() => {
