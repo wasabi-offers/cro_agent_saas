@@ -185,7 +185,14 @@ var d2=Object.getOwnPropertyDescriptor(HTMLLinkElement.prototype,'href');if(d2&&
     // Per SPA con 404: iniettare history.replaceState come PRIMO script nel <head>
     // PRIMA di tutti gli script dell'app - così il router legge il path corretto
     const pathScript = injectedPath ? `<script>(function(){try{history.replaceState(null,'','${injectedPath.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}');}catch(e){}})();</script>` : '';
-    const allScripts = `${pathScript}<script>window.__CRO_PROXY_ORIGIN__="${targetUrl.origin}";window.__CRO_PROXY_API__="${appOrigin}/api/proxy-fetch";window.__CRO_VIDEO_API__="${appOrigin}/api/video";window.__CRO_APP_ORIGIN__="${appOrigin}";</script>${blockInjectScript}${corsProxyScript}${redirectBlockerScript}${muteScript}`;
+    // Script che rileva l'altezza reale della pagina e la manda al parent via postMessage
+    const heightReporterScript = `<script>
+(function(){function reportHeight(){var h=Math.max(document.body?document.body.scrollHeight:0,document.documentElement?document.documentElement.scrollHeight:0);if(h>50&&window.parent!==window){window.parent.postMessage({type:'cro-page-height',height:h},'*');}}
+if(document.readyState==='complete'||document.readyState==='interactive'){setTimeout(reportHeight,100);}else{document.addEventListener('DOMContentLoaded',function(){setTimeout(reportHeight,100);});}
+window.addEventListener('load',function(){reportHeight();setTimeout(reportHeight,500);setTimeout(reportHeight,1500);setTimeout(reportHeight,3000);setTimeout(reportHeight,6000);});
+new MutationObserver(function(){reportHeight();}).observe(document.documentElement,{childList:true,subtree:true});
+})();</script>`;
+    const allScripts = `${pathScript}<script>window.__CRO_PROXY_ORIGIN__="${targetUrl.origin}";window.__CRO_PROXY_API__="${appOrigin}/api/proxy-fetch";window.__CRO_VIDEO_API__="${appOrigin}/api/video";window.__CRO_APP_ORIGIN__="${appOrigin}";</script>${blockInjectScript}${corsProxyScript}${redirectBlockerScript}${heightReporterScript}${muteScript}`;
     
     // Inietta TUTTI gli script (incluso pathScript) come prima cosa nel <head>
     html = html.replace(/<head([^>]*)>/i, `$&${allScripts}`);

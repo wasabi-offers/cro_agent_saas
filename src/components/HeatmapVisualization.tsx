@@ -46,49 +46,26 @@ export default function HeatmapVisualization({
 
   // Larghezza del viewport in base al device
   const viewportWidth = device === "mobile" ? 375 : undefined;
-  const heightRef = useRef(0);
+  const lastHeight = useRef(0);
 
-  // Al caricamento dell'iframe, rileva l'altezza reale della pagina
+  // Riceve l'altezza reale dalla pagina dentro l'iframe via postMessage
   useEffect(() => {
-    const iframe = iframeRef.current;
-    if (!iframe) return;
-    heightRef.current = 0;
     setContentHeight(0);
+    lastHeight.current = 0;
 
-    const detect = () => {
-      try {
-        const doc = iframe.contentDocument || iframe.contentWindow?.document;
-        if (doc && doc.body) {
-          const h = Math.max(
-            doc.body.scrollHeight || 0,
-            doc.documentElement?.scrollHeight || 0,
-          );
-          if (h > 100 && h !== heightRef.current) {
-            heightRef.current = h;
-            setContentHeight(h);
-          }
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data && e.data.type === "cro-page-height" && typeof e.data.height === "number") {
+        const h = e.data.height;
+        // Aggiorna solo se cambia significativamente (>50px) per evitare flickering
+        if (h > 100 && Math.abs(h - lastHeight.current) > 50) {
+          lastHeight.current = h;
+          setContentHeight(h);
         }
-      } catch {
-        // CORS fallback
       }
     };
 
-    const handleLoad = () => {
-      detect();
-    };
-
-    iframe.addEventListener("load", handleLoad);
-    // Retry per SPA che renderizzano dopo il load
-    const t1 = setTimeout(detect, 2000);
-    const t2 = setTimeout(detect, 4000);
-    const t3 = setTimeout(detect, 7000);
-
-    return () => {
-      iframe.removeEventListener("load", handleLoad);
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-    };
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
   }, [pageUrl, device]);
 
   // Crea/ricrea heatmap.js quando il container cambia dimensione
