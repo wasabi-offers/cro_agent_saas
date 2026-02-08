@@ -48,30 +48,18 @@ export async function GET(request: NextRequest) {
       clearTimeout(timeoutId);
     }
 
-    // Replit/concealedqualify: 404 può essere cold start - retry una volta dopo 3s
-    if (!response.ok && response.status === 404 && isReplitOrSPA) {
-      await new Promise((r) => setTimeout(r, 3000));
-      const retryController = new AbortController();
-      const retryTimeout = setTimeout(() => retryController.abort(), 30000);
-      try {
-        const retryRes = await fetch(targetUrl.toString(), {
-          signal: retryController.signal,
-          headers: browserHeaders,
-        });
-        clearTimeout(retryTimeout);
-        if (retryRes.ok) response = retryRes;
-      } catch {
-        clearTimeout(retryTimeout);
-      }
+    // Per SPA: la risposta 404 contiene comunque l'app shell completa
+    // Usiamo quel body HTML ma iniettiamo il path corretto PRIMA degli script del router
+    let injectedPath: string | null = null;
+    if (!response.ok && response.status === 404 && isReplitOrSPA && targetUrl.pathname !== '/' && targetUrl.pathname !== '') {
+      // Il body della 404 contiene l'app SPA - usiamolo e forziamo il path corretto
+      injectedPath = targetUrl.pathname + targetUrl.search + targetUrl.hash;
+      // Trattiamo questa risposta come OK (il body ha il contenuto utile)
     }
 
-    // Se 404 su route SPA → carica root (app shell) e inietta il path originale PRIMA degli script
-    // Il path injection deve avvenire prima che il router SPA legga window.location
-    let injectedPath: string | null = null;
-    if (!response.ok && response.status === 404 && targetUrl.pathname !== '/' && targetUrl.pathname !== '') {
+    // Per siti non-SPA con 404, prova parent paths e root
+    if (!response.ok && response.status === 404 && !isReplitOrSPA && targetUrl.pathname !== '/' && targetUrl.pathname !== '') {
       const originalPath = targetUrl.pathname + targetUrl.search + targetUrl.hash;
-      
-      // Genera lista di URL da provare: parent paths + root
       const pathsToTry: string[] = [];
       const pathParts = targetUrl.pathname.split('/').filter(Boolean);
       for (let i = pathParts.length - 1; i >= 0; i--) {
@@ -84,7 +72,7 @@ export async function GET(request: NextRequest) {
         const tryUrl = targetUrl.origin + tryPath;
         try {
           const tryController = new AbortController();
-          const tryTimeout = setTimeout(() => tryController.abort(), isReplitOrSPA ? 20000 : 10000);
+          const tryTimeout = setTimeout(() => tryController.abort(), 10000);
           const tryResponse = await fetch(tryUrl, {
             signal: tryController.signal,
             headers: { ...browserHeaders, Referer: tryUrl },
@@ -104,8 +92,8 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Se ancora fallisce → redirect iframe all'URL diretto (come browser)
-    if (!response.ok) {
+    // Se ancora fallisce (non SPA, non 404 con body utile) → fallback redirect
+    if (!response.ok && !injectedPath) {
       const directUrl = targetUrl.toString().replace(/"/g, '&quot;');
       const fallbackHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer"><meta http-equiv="refresh" content="0;url=${directUrl}"></head><body>Redirecting...</body></html>`;
       return new NextResponse(fallbackHtml, {
@@ -194,21 +182,13 @@ setTimeout(ma,500);setTimeout(ma,1500);})();</script>`;
 var d=Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype,'src');if(d&&d.set){var _set=d.set;Object.defineProperty(HTMLScriptElement.prototype,'src',{set:function(v){if(v&&bad.test(v))return;_set.call(this,v);},get:d.get,configurable:true});}
 var d2=Object.getOwnPropertyDescriptor(HTMLLinkElement.prototype,'href');if(d2&&d2.set){var _set2=d2.set;Object.defineProperty(HTMLLinkElement.prototype,'href',{set:function(v){if(v&&bad.test(v))return;_set2.call(this,v);},get:d2.get,configurable:true});}
 })();</script>` : '';
-    // Se abbiamo caricato root per route SPA, imposta path PRIMA di qualsiasi altro script
-    // Usa history.replaceState sincrono nel <head> prima che il router SPA legga window.location
+    // Per SPA con 404: iniettare history.replaceState come PRIMO script nel <head>
+    // PRIMA di tutti gli script dell'app - così il router legge il path corretto
     const pathScript = injectedPath ? `<script>(function(){try{history.replaceState(null,'','${injectedPath.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}');}catch(e){}})();</script>` : '';
-    const allScripts = `<script>window.__CRO_PROXY_ORIGIN__="${targetUrl.origin}";window.__CRO_PROXY_API__="${appOrigin}/api/proxy-fetch";window.__CRO_VIDEO_API__="${appOrigin}/api/video";window.__CRO_APP_ORIGIN__="${appOrigin}";</script>${blockInjectScript}${corsProxyScript}${redirectBlockerScript}${muteScript}`;
+    const allScripts = `${pathScript}<script>window.__CRO_PROXY_ORIGIN__="${targetUrl.origin}";window.__CRO_PROXY_API__="${appOrigin}/api/proxy-fetch";window.__CRO_VIDEO_API__="${appOrigin}/api/video";window.__CRO_APP_ORIGIN__="${appOrigin}";</script>${blockInjectScript}${corsProxyScript}${redirectBlockerScript}${muteScript}`;
     
-    // PathScript DEVE essere il primo script in assoluto - prima di tutto il resto
-    // Poi gli altri script di proxy seguono
-    if (injectedPath) {
-      // Inietta pathScript come primissima cosa dopo <html> o all'inizio del documento
-      // E poi allScripts nel <head>
-      html = html.replace(/(<html[^>]*>)/i, `$1${pathScript}`);
-      html = html.replace(/<head([^>]*)>/i, `$&${allScripts}`);
-    } else {
-      html = html.replace(/<head([^>]*)>/i, `$&${allScripts}`);
-    }
+    // Inietta TUTTI gli script (incluso pathScript) come prima cosa nel <head>
+    html = html.replace(/<head([^>]*)>/i, `$&${allScripts}`);
 
     // Videos: SEMPRE muted (no audio) - anteprime devono partire senza audio
     html = html.replace(/<video([^>]*)>/gi, (match, attrs) => {
