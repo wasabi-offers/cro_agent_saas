@@ -185,9 +185,8 @@ var d2=Object.getOwnPropertyDescriptor(HTMLLinkElement.prototype,'href');if(d2&&
     // Per SPA con 404: iniettare history.replaceState come PRIMO script nel <head>
     // PRIMA di tutti gli script dell'app - così il router legge il path corretto
     const pathScript = injectedPath ? `<script>(function(){try{history.replaceState(null,'','${injectedPath.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}');}catch(e){}})();</script>` : '';
-    // CSS che forza il contenuto a usare l'altezza naturale (no 100vh stretching)
-    // + script che rileva e manda l'altezza reale al parent
-    const heightFixCSS = `<style id="cro-height-fix">html,body,#__next,#root,#app,[data-reactroot],main,.page,.wrapper,.container,.content{height:auto!important;min-height:auto!important;}*{min-height:unset!important;}</style>`;
+    // CSS leggero: non rompe il layout, solo evita overflow hidden che nasconde contenuto
+    const heightFixCSS = `<style id="cro-height-fix">html,body{overflow:visible!important;}</style>`;
     const heightReporterScript = `<script>
 (function(){if(window.parent===window)return;
 function report(){var h=Math.max(document.body?document.body.scrollHeight:0,document.documentElement?document.documentElement.scrollHeight:0);

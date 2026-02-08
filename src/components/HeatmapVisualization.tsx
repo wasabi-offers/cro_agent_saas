@@ -44,29 +44,33 @@ export default function HeatmapVisualization({
   const [isDemoData, setIsDemoData] = useState(false);
   const [device, setDevice] = useState<"mobile" | "desktop">("mobile");
 
-  // Larghezza del viewport in base al device
+  // Dimensioni viewport reali per device
   const viewportWidth = device === "mobile" ? 375 : undefined;
+  const viewportHeight = device === "mobile" ? 812 : 900; // iPhone X / Desktop
   const lastHeight = useRef(0);
 
   // Riceve l'altezza reale dalla pagina dentro l'iframe via postMessage
+  // Se la pagina è 100vh (una schermata), usa l'altezza viewport
+  // Se la pagina è più lunga, usa scrollHeight
   useEffect(() => {
-    setContentHeight(0);
-    lastHeight.current = 0;
+    setContentHeight(viewportHeight);
+    lastHeight.current = viewportHeight;
 
     const handleMessage = (e: MessageEvent) => {
       if (e.data && e.data.type === "cro-page-height" && typeof e.data.height === "number") {
         const h = e.data.height;
-        // Aggiorna solo se cambia significativamente (>50px) per evitare flickering
-        if (h > 100 && Math.abs(h - lastHeight.current) > 50) {
-          lastHeight.current = h;
-          setContentHeight(h);
+        // Usa il max tra altezza riportata e viewport
+        const finalH = Math.max(h, viewportHeight);
+        if (finalH > 100 && Math.abs(finalH - lastHeight.current) > 50) {
+          lastHeight.current = finalH;
+          setContentHeight(finalH);
         }
       }
     };
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [pageUrl, device]);
+  }, [pageUrl, device, viewportHeight]);
 
   // Crea/ricrea heatmap.js quando il container cambia dimensione
   useEffect(() => {
@@ -224,7 +228,7 @@ export default function HeatmapVisualization({
               minHeight: "200px",
             }}
           >
-            {/* Iframe - renderizza la pagina alla dimensione reale */}
+            {/* Iframe - altezza = viewport device reale, poi si adatta se la pagina è più lunga */}
             {pageUrl && (
               <iframe
                 ref={iframeRef}
@@ -234,7 +238,7 @@ export default function HeatmapVisualization({
                 style={{
                   pointerEvents: "none",
                   width: viewportWidth ? `${viewportWidth}px` : "100%",
-                  height: contentHeight > 0 ? `${contentHeight}px` : "5000px",
+                  height: `${contentHeight}px`,
                   border: "none",
                   zIndex: 0,
                   opacity: showPage ? 1 : 0,
