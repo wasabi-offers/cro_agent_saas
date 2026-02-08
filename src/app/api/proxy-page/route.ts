@@ -34,7 +34,8 @@ export async function GET(request: NextRequest) {
     };
 
     // Fetch the page - timeout 30s per Replit/SPA che possono essere lente
-    const isReplitOrSPA = /replit\.com|replit\.dev|repl\.co|concealedqualify\.com|thesignalmind\.com/i.test(targetUrl.hostname);
+    // Include rplt.thesignalmind.com e altri domini SPA noti
+    const isReplitOrSPA = /replit\.com|replit\.dev|repl\.co|concealedqualify\.com|thesignalmind\.com|rplt\./i.test(targetUrl.hostname);
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), isReplitOrSPA ? 30000 : 15000);
     let response: Response;
@@ -64,28 +65,48 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Se 404 su route SPA (es. /approval, /reveal) → prova root (/) che spesso restituisce l'app shell
-    // Per thesignalmind.com, prova anche senza il path se contiene /reveal o altre route SPA
+    // Se 404 su route SPA (es. /approval, /reveal, /quiz1/bridge-2) → prova parent path e poi root
+    // Molte SPA hanno router annidati: /quiz1/bridge-2 → prova /quiz1/ → poi /
     let injectedPath: string | null = null;
     if (!response.ok && response.status === 404 && targetUrl.pathname !== '/' && targetUrl.pathname !== '') {
       injectedPath = targetUrl.pathname + targetUrl.search + targetUrl.hash;
-      const rootUrl = targetUrl.origin + '/';
-      try {
-        const rootController = new AbortController();
-        const rootTimeout = setTimeout(() => rootController.abort(), isReplitOrSPA ? 30000 : 15000);
-        const rootResponse = await fetch(rootUrl, {
-          signal: rootController.signal,
-          headers: { ...browserHeaders, Referer: rootUrl },
-        });
-        clearTimeout(rootTimeout);
-        if (rootResponse.ok) {
-          response = rootResponse;
-          targetUrl.pathname = '/';
-          targetUrl.search = '';
-          targetUrl.hash = '';
+      
+      // Genera lista di URL da provare: parent paths + root
+      const pathsToTry: string[] = [];
+      const pathParts = targetUrl.pathname.split('/').filter(Boolean);
+      
+      // Aggiungi parent paths (es. /quiz1/bridge-2 → ["/quiz1/", "/"])
+      for (let i = pathParts.length - 1; i >= 0; i--) {
+        const parentPath = '/' + pathParts.slice(0, i).join('/') + (i > 0 ? '/' : '');
+        if (!pathsToTry.includes(parentPath)) {
+          pathsToTry.push(parentPath);
         }
-      } catch {
-        injectedPath = null;
+      }
+      if (!pathsToTry.includes('/')) {
+        pathsToTry.push('/');
+      }
+      
+      // Prova ogni path fino a trovare uno che funziona
+      for (const tryPath of pathsToTry) {
+        const tryUrl = targetUrl.origin + tryPath;
+        try {
+          const tryController = new AbortController();
+          const tryTimeout = setTimeout(() => tryController.abort(), isReplitOrSPA ? 20000 : 10000);
+          const tryResponse = await fetch(tryUrl, {
+            signal: tryController.signal,
+            headers: { ...browserHeaders, Referer: tryUrl },
+          });
+          clearTimeout(tryTimeout);
+          if (tryResponse.ok) {
+            response = tryResponse;
+            targetUrl.pathname = tryPath;
+            targetUrl.search = '';
+            targetUrl.hash = '';
+            break;
+          }
+        } catch {
+          // Continua con il prossimo path
+        }
       }
     }
 
