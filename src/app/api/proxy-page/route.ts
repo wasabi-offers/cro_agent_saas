@@ -48,13 +48,17 @@ export async function GET(request: NextRequest) {
       clearTimeout(timeoutId);
     }
 
-    // Per SPA: la risposta 404 contiene comunque l'app shell completa
-    // Usiamo quel body HTML ma iniettiamo il path corretto PRIMA degli script del router
+    // SEMPRE iniettare il path originale quando scripts sono abilitati
+    // L'iframe ha pathname="/api/proxy-page" ma il router SPA ha bisogno del path reale
+    // history.replaceState viene iniettato PRIMA degli script della SPA
     let injectedPath: string | null = null;
-    if (!response.ok && response.status === 404 && isReplitOrSPA && targetUrl.pathname !== '/' && targetUrl.pathname !== '') {
-      // Il body della 404 contiene l'app SPA - usiamolo e forziamo il path corretto
+    if (allowScripts && targetUrl.pathname !== '/') {
       injectedPath = targetUrl.pathname + targetUrl.search + targetUrl.hash;
-      // Trattiamo questa risposta come OK (il body ha il contenuto utile)
+    }
+
+    // Per SPA: la risposta 404 contiene comunque l'app shell completa - usiamola
+    if (!response.ok && response.status === 404 && isReplitOrSPA) {
+      // Trattiamo questa risposta come utilizzabile (il body ha il contenuto)
     }
 
     // Per siti non-SPA con 404, prova parent paths e root
