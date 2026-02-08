@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { MousePointerClick, AlertCircle, Monitor, Smartphone } from "lucide-react";
 
-// Import heatmap.js
 // @ts-ignore
 import h337 from "heatmap.js";
 
@@ -33,8 +32,6 @@ export default function HeatmapVisualization({
   funnelId,
   stepName,
   heatmapType,
-  width = 1200,
-  height = 800,
 }: HeatmapVisualizationProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -43,56 +40,65 @@ export default function HeatmapVisualization({
   const [heatmapData, setHeatmapData] = useState<Record<string, HeatmapData> | null>(null);
   const [stats, setStats] = useState<any>(null);
   const [showPage, setShowPage] = useState(true);
-  const [contentHeight, setContentHeight] = useState(800);
-  const [iframeLoaded, setIframeLoaded] = useState(false);
+  const [contentHeight, setContentHeight] = useState(0);
   const [isDemoData, setIsDemoData] = useState(false);
   const [device, setDevice] = useState<"mobile" | "desktop">("mobile");
 
-  // Rileva altezza reale del contenuto della pagina nell'iframe
-  // Il blocco heatmap si adatta alla pagina, NON il contrario
+  // Larghezza del viewport in base al device
+  const viewportWidth = device === "mobile" ? 375 : undefined;
+
+  // Rileva altezza reale della pagina dall'iframe
+  const detectHeight = useCallback(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    try {
+      const doc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (doc && doc.body) {
+        const h = Math.max(
+          doc.body.scrollHeight || 0,
+          doc.documentElement?.scrollHeight || 0,
+        );
+        if (h > 100 && h !== contentHeight) {
+          setContentHeight(h);
+        }
+      }
+    } catch {
+      // CORS - non possiamo leggere, usiamo un fallback
+    }
+  }, [contentHeight]);
+
+  // Al caricamento dell'iframe, rileva l'altezza più volte (SPA renderizzano in ritardo)
   useEffect(() => {
     const iframe = iframeRef.current;
     if (!iframe) return;
-    setIframeLoaded(false);
-
-    const detectHeight = () => {
-      try {
-        const doc = iframe.contentDocument || iframe.contentWindow?.document;
-        if (doc && doc.body) {
-          const h = Math.max(
-            doc.body.scrollHeight || 0,
-            doc.documentElement?.scrollHeight || 0,
-            500
-          );
-          if (h > 100) {
-            setContentHeight(h);
-            setIframeLoaded(true);
-          }
-        }
-      } catch {
-        // CORS fallback - usa altezza ragionevole
-        setIframeLoaded(true);
-      }
-    };
+    setContentHeight(0);
 
     const handleLoad = () => {
-      // Prova subito
       detectHeight();
-      // Riprova dopo per pagine SPA che renderizzano in ritardo
-      setTimeout(detectHeight, 1000);
-      setTimeout(detectHeight, 2500);
-      setTimeout(detectHeight, 5000);
+      const t1 = setTimeout(detectHeight, 500);
+      const t2 = setTimeout(detectHeight, 1500);
+      const t3 = setTimeout(detectHeight, 3000);
+      const t4 = setTimeout(detectHeight, 6000);
+      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
     };
 
-    iframe.addEventListener('load', handleLoad);
-    return () => iframe.removeEventListener('load', handleLoad);
-  }, [pageUrl, device]);
+    iframe.addEventListener("load", handleLoad);
+    return () => iframe.removeEventListener("load", handleLoad);
+  }, [pageUrl, device, detectHeight]);
 
-  // Initialize heatmap.js
+  // Crea/ricrea heatmap.js quando il container cambia dimensione
   useEffect(() => {
-    if (!containerRef.current || heatmapInstanceRef.current) return;
+    if (!containerRef.current || contentHeight <= 0) return;
 
-    const heatmapInstance = h337.create({
+    // Distruggi l'istanza precedente
+    if (heatmapInstanceRef.current) {
+      // Rimuovi il canvas vecchio
+      const oldCanvas = containerRef.current.querySelector("canvas");
+      if (oldCanvas) oldCanvas.remove();
+      heatmapInstanceRef.current = null;
+    }
+
+    const instance = h337.create({
       container: containerRef.current,
       radius: 40,
       maxOpacity: 0.6,
@@ -107,16 +113,10 @@ export default function HeatmapVisualization({
       },
     });
 
-    heatmapInstanceRef.current = heatmapInstance;
+    heatmapInstanceRef.current = instance;
+  }, [contentHeight]);
 
-    return () => {
-      if (heatmapInstanceRef.current) {
-        heatmapInstanceRef.current = null;
-      }
-    };
-  }, []);
-
-  // Load heatmap data
+  // Carica dati heatmap
   useEffect(() => {
     async function loadHeatmapData() {
       setIsLoading(true);
@@ -125,14 +125,9 @@ export default function HeatmapVisualization({
         const response = await fetch(url);
         if (response.ok) {
           const data = await response.json();
-          setHeatmapData({
-            click: data.click,
-            scroll: data.scroll,
-            movement: data.movement,
-          });
+          setHeatmapData({ click: data.click, scroll: data.scroll, movement: data.movement });
           setStats(data.stats);
-          // Check if data is demo
-          setIsDemoData(data.source === 'demo');
+          setIsDemoData(data.source === "demo");
         } else {
           setHeatmapData(null);
           setIsDemoData(false);
@@ -144,71 +139,51 @@ export default function HeatmapVisualization({
         setIsLoading(false);
       }
     }
-
     loadHeatmapData();
   }, [funnelId, stepName, device]);
 
-  // Update heatmap visualization with coordinate scaling
-  // I click originali sono registrati con le coordinate del viewport dell'utente
-  // Dobbiamo scalarli per combaciare con la dimensione attuale del container
+  // Disegna i punti heatmap - scalati correttamente
   useEffect(() => {
-    if (!heatmapInstanceRef.current || !heatmapData || !containerRef.current) return;
+    if (!heatmapInstanceRef.current || !heatmapData || !containerRef.current || contentHeight <= 0) return;
 
     const data = heatmapData[heatmapType];
-
     if (!data || !data.points || data.points.length === 0) {
-      heatmapInstanceRef.current.setData({
-        max: 1,
-        data: [],
-      });
+      heatmapInstanceRef.current.setData({ max: 1, data: [] });
       return;
     }
 
-    // Dimensioni attuali del container (deve corrispondere all'iframe)
     const containerWidth = containerRef.current.offsetWidth;
     const containerHeight = containerRef.current.offsetHeight;
 
-    // Viewport di riferimento per i click originali
-    // Mobile: 375px, Desktop: 1440px (valori standard)
-    const originalViewportWidth = device === "mobile" ? 375 : 1440;
+    // Viewport originale dei click: mobile 375, desktop 1440
+    const originalWidth = device === "mobile" ? 375 : 1440;
+    const scaleX = containerWidth / originalWidth;
 
-    // Scala X: rapporto tra container attuale e viewport originale dei click
-    const scaleX = containerWidth / originalViewportWidth;
-    // Scala Y: i click Y sono relativi alla pagina, il container ha la stessa altezza
-    const scaleY = 1; // altezza 1:1 - il container si adatta alla pagina
-
-    // Scala tutti i punti
     const scaledPoints = data.points
-      .map(point => ({
-        x: Math.round(point.x * scaleX),
-        y: Math.round(point.y), // Y non va scalato, il container ha la stessa altezza della pagina
-        value: point.value,
+      .map((p) => ({
+        x: Math.round(p.x * scaleX),
+        y: Math.round(p.y),
+        value: p.value,
       }))
-      .filter(p => p.x >= 0 && p.x <= containerWidth && p.y >= 0 && p.y <= containerHeight);
+      .filter((p) => p.x >= 0 && p.x <= containerWidth && p.y >= 0 && p.y <= containerHeight);
 
-    heatmapInstanceRef.current.setData({
-      max: data.max || 1,
-      data: scaledPoints,
-    });
+    heatmapInstanceRef.current.setData({ max: data.max || 1, data: scaledPoints });
   }, [heatmapType, heatmapData, contentHeight, device]);
 
   const hasData = heatmapData && heatmapData[heatmapType]?.points?.length > 0;
 
-  // Viewport width: mobile = 375px, desktop = larghezza reale della pagina (nessun limite)
-  const viewportWidth = device === "mobile" ? 375 : null;
-
   return (
-    <div className="bg-white border border-[#1a1a1a] rounded-2xl overflow-hidden">
+    <div className="bg-white border border-[#d0d0d0] rounded-2xl overflow-hidden">
       {/* Demo Data Warning */}
       {isDemoData && (
         <div className="bg-gradient-to-r from-[#f59e0b] to-[#ef4444] p-4 flex items-center gap-3">
           <AlertCircle className="w-6 h-6 text-white flex-shrink-0" />
           <div className="flex-1">
             <p className="text-[14px] font-semibold text-white">
-              ⚠️ THESE ARE DEMO DATA - NOT REAL DATA!
+              THESE ARE DEMO DATA - NOT REAL DATA!
             </p>
             <p className="text-[12px] text-white/90 mt-1">
-              Install the tracking script from the "Setup" tab to see real data.
+              Install the tracking script from the &quot;Setup&quot; tab to see real data.
             </p>
           </div>
         </div>
@@ -221,10 +196,10 @@ export default function HeatmapVisualization({
         </h3>
         <div className="flex items-center gap-2">
           <span className="text-[12px] text-[#666666]">Device:</span>
-          {[
+          {([
             { id: "mobile" as const, label: "Mobile", icon: Smartphone },
             { id: "desktop" as const, label: "Desktop", icon: Monitor },
-          ].map((d) => {
+          ]).map((d) => {
             const Icon = d.icon;
             const isActive = device === d.id;
             return (
@@ -247,29 +222,27 @@ export default function HeatmapVisualization({
           onClick={() => setShowPage(!showPage)}
           className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all ${
             showPage
-              ? 'bg-[#7c5cff] text-white'
-              : 'bg-[#f8f9fa] text-[#666666] hover:text-[#888888]'
+              ? "bg-[#7c5cff] text-white"
+              : "bg-[#f8f9fa] text-[#666666] hover:text-[#888888]"
           }`}
         >
-          {showPage ? 'Hide' : 'Show'} Page
+          {showPage ? "Hide" : "Show"} Page
         </button>
       </div>
 
-      {/* Heatmap Container - il blocco si adatta alla pagina */}
+      {/* Heatmap - blocco adattivo alla pagina, niente scroll */}
       <div className="p-6">
-        <div
-          className="relative bg-[#f8f9fa] rounded-xl border border-[#d0d0d0] overflow-y-auto"
-          style={{ width: "100%", maxHeight: "85vh" }}
-        >
-          {/* Wrapper centrato - la dimensione è dettata dalla pagina */}
+        <div className="relative bg-[#f8f9fa] rounded-xl border border-[#d0d0d0]">
+          {/* Wrapper - dimensione uguale alla pagina reale */}
           <div
             className="relative mx-auto"
             style={{
               width: viewportWidth ? `${viewportWidth}px` : "100%",
-              minHeight: `${contentHeight}px`,
+              height: contentHeight > 0 ? `${contentHeight}px` : "auto",
+              minHeight: "200px",
             }}
           >
-            {/* Iframe nascosto grande per catturare tutta la pagina */}
+            {/* Iframe - renderizza la pagina alla dimensione reale */}
             {pageUrl && (
               <iframe
                 ref={iframeRef}
@@ -279,7 +252,7 @@ export default function HeatmapVisualization({
                 style={{
                   pointerEvents: "none",
                   width: viewportWidth ? `${viewportWidth}px` : "100%",
-                  height: `${contentHeight}px`,
+                  height: contentHeight > 0 ? `${contentHeight}px` : "5000px",
                   border: "none",
                   zIndex: 0,
                   opacity: showPage ? 1 : 0,
@@ -289,19 +262,21 @@ export default function HeatmapVisualization({
               />
             )}
 
-            {/* Heatmap Overlay - stessa dimensione dell'iframe/pagina */}
-            <div
-              ref={containerRef}
-              className="absolute top-0 left-0 bg-transparent"
-              style={{
-                pointerEvents: "none",
-                width: viewportWidth ? `${viewportWidth}px` : "100%",
-                height: `${contentHeight}px`,
-                zIndex: 10,
-              }}
-            />
+            {/* Heatmap overlay - stessa identica dimensione della pagina */}
+            {contentHeight > 0 && (
+              <div
+                ref={containerRef}
+                className="absolute top-0 left-0"
+                style={{
+                  pointerEvents: "none",
+                  width: viewportWidth ? `${viewportWidth}px` : "100%",
+                  height: `${contentHeight}px`,
+                  zIndex: 10,
+                }}
+              />
+            )}
 
-            {/* No Data Overlay */}
+            {/* No Data */}
             {!isLoading && !hasData && (
               <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center z-20 bg-[#f8f9fa]/95">
                 <div className="text-center">
@@ -310,7 +285,7 @@ export default function HeatmapVisualization({
                     NESSUN DATO REALE DISPONIBILE
                   </p>
                   <p className="text-[14px] text-[#888888]">
-                    Install the tracking script from the "Setup" tab for: {stepName}
+                    Install the tracking script from the &quot;Setup&quot; tab for: {stepName}
                   </p>
                 </div>
               </div>
