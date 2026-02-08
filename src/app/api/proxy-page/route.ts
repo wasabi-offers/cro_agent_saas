@@ -65,17 +65,35 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Se 404 su route SPA (es. /approval, /reveal, /quiz1/bridge-2) → prova parent path e poi root
-    // Molte SPA hanno router annidati: /quiz1/bridge-2 → prova /quiz1/ → poi /
+    // Se 404 su route SPA (es. /approval, /reveal, /quiz1/bridge-2)
+    // Per SPA: redirect diretto con no-referrer, lascia che il browser carichi la pagina nativamente
+    // Questo permette al JavaScript della SPA di gestire il routing correttamente
     let injectedPath: string | null = null;
+    if (!response.ok && response.status === 404 && isReplitOrSPA) {
+      // Per SPA note, usa redirect diretto - il loro JS gestirà il routing
+      const directUrl = targetUrl.toString().replace(/"/g, '&quot;');
+      const spaRedirectHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer"><style>body{margin:0;display:flex;align-items:center;justify-content:center;height:100vh;font-family:system-ui;background:#f8f9fa;}</style></head><body><script>
+// Redirect to actual URL - SPA will handle routing
+window.location.replace("${directUrl}");
+</script><noscript><meta http-equiv="refresh" content="0;url=${directUrl}"></noscript></body></html>`;
+      return new NextResponse(spaRedirectHtml, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+          'X-Frame-Options': 'ALLOWALL',
+          'Content-Security-Policy': "frame-ancestors 'self' *",
+          'Cache-Control': 'no-store',
+        },
+      });
+    }
+
+    // Per altri siti 404 (non SPA), prova parent paths e root
     if (!response.ok && response.status === 404 && targetUrl.pathname !== '/' && targetUrl.pathname !== '') {
       injectedPath = targetUrl.pathname + targetUrl.search + targetUrl.hash;
       
-      // Genera lista di URL da provare: parent paths + root
       const pathsToTry: string[] = [];
       const pathParts = targetUrl.pathname.split('/').filter(Boolean);
       
-      // Aggiungi parent paths (es. /quiz1/bridge-2 → ["/quiz1/", "/"])
       for (let i = pathParts.length - 1; i >= 0; i--) {
         const parentPath = '/' + pathParts.slice(0, i).join('/') + (i > 0 ? '/' : '');
         if (!pathsToTry.includes(parentPath)) {
@@ -86,12 +104,11 @@ export async function GET(request: NextRequest) {
         pathsToTry.push('/');
       }
       
-      // Prova ogni path fino a trovare uno che funziona
       for (const tryPath of pathsToTry) {
         const tryUrl = targetUrl.origin + tryPath;
         try {
           const tryController = new AbortController();
-          const tryTimeout = setTimeout(() => tryController.abort(), isReplitOrSPA ? 20000 : 10000);
+          const tryTimeout = setTimeout(() => tryController.abort(), 10000);
           const tryResponse = await fetch(tryUrl, {
             signal: tryController.signal,
             headers: { ...browserHeaders, Referer: tryUrl },
@@ -111,7 +128,6 @@ export async function GET(request: NextRequest) {
     }
 
     // Se ancora fallisce → redirect iframe all'URL diretto (come browser)
-    // no-referrer: evita che quiz1/concealedqualify blocchi per Referer esterno (anti-embedding)
     if (!response.ok) {
       const directUrl = targetUrl.toString().replace(/"/g, '&quot;');
       const fallbackHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer"><meta http-equiv="refresh" content="0;url=${directUrl}"></head><body>Redirecting...</body></html>`;
