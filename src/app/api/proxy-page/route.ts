@@ -161,16 +161,12 @@ var X=window.XMLHttpRequest;window.XMLHttpRequest=function(){var x=new X();var _
 var _sb=navigator.sendBeacon;if(_sb){navigator.sendBeacon=function(u,d){var p=proxy(u);if(p){var opts={method:'POST',body:d,keepalive:true};_f(p,opts).catch(function(){});return true;}return _sb.call(navigator,u,d);};}
 if(V){try{var vd=Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype,'src');if(vd&&vd.set){var _vs=vd.set;Object.defineProperty(HTMLMediaElement.prototype,'src',{set:function(v){var p=proxyVideo(v);_vs.call(this,p||v);},get:vd.get,configurable:true});}}catch(e){}try{var sd=Object.getOwnPropertyDescriptor(HTMLSourceElement.prototype,'src');if(sd&&sd.set){var _ss=sd.set;Object.defineProperty(HTMLSourceElement.prototype,'src',{set:function(v){var pv=(this.type&&this.type.indexOf('video')>=0)||/\\.m3u8|\\.ts|\\.mp4/i.test(v);var p=pv?proxyVideo(v):proxy(v);_ss.call(this,p||v);},get:sd.get,configurable:true});}}catch(e){}}
 })();</script>` : '';
-    // Blocca redirect e history manipulation in anteprima - evita SecurityError replaceState e checkout che sparisce
+    // Blocca redirect (location.replace/assign) in anteprima per evitare che pagine navigano via
+    // MA non bloccare history.pushState/replaceState - servono ai router SPA per funzionare!
     const redirectBlockerScript = allowScripts ? `<script>
 (function(){if(window.parent===window)return;
 window.location.replace=function(){};
 window.location.assign=function(){};
-try{
-var _rs=history.replaceState;_ps=history.pushState;
-history.replaceState=function(s,t,u){try{_rs.call(history,s,t,window.location.href);}catch(e){}};
-history.pushState=function(s,t,u){try{_ps.call(history,s,t,window.location.href);}catch(e){}};
-}catch(e){}
 })();</script>` : '';
     const muteScript = `<script>(function(){function m(e){if(e&&!e.muted){e.muted=true;e.volume=0;}}
 function ma(){document.querySelectorAll('video,audio').forEach(m);}ma();
