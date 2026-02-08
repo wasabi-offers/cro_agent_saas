@@ -65,50 +65,26 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Se 404 su route SPA (es. /approval, /reveal, /quiz1/bridge-2)
-    // Per SPA: redirect diretto con no-referrer, lascia che il browser carichi la pagina nativamente
-    // Questo permette al JavaScript della SPA di gestire il routing correttamente
+    // Se 404 su route SPA → carica root (app shell) e inietta il path originale PRIMA degli script
+    // Il path injection deve avvenire prima che il router SPA legga window.location
     let injectedPath: string | null = null;
-    if (!response.ok && response.status === 404 && isReplitOrSPA) {
-      // Per SPA note, usa redirect diretto - il loro JS gestirà il routing
-      const directUrl = targetUrl.toString().replace(/"/g, '&quot;');
-      const spaRedirectHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer"><style>body{margin:0;display:flex;align-items:center;justify-content:center;height:100vh;font-family:system-ui;background:#f8f9fa;}</style></head><body><script>
-// Redirect to actual URL - SPA will handle routing
-window.location.replace("${directUrl}");
-</script><noscript><meta http-equiv="refresh" content="0;url=${directUrl}"></noscript></body></html>`;
-      return new NextResponse(spaRedirectHtml, {
-        status: 200,
-        headers: {
-          'Content-Type': 'text/html; charset=utf-8',
-          'X-Frame-Options': 'ALLOWALL',
-          'Content-Security-Policy': "frame-ancestors 'self' *",
-          'Cache-Control': 'no-store',
-        },
-      });
-    }
-
-    // Per altri siti 404 (non SPA), prova parent paths e root
     if (!response.ok && response.status === 404 && targetUrl.pathname !== '/' && targetUrl.pathname !== '') {
-      injectedPath = targetUrl.pathname + targetUrl.search + targetUrl.hash;
+      const originalPath = targetUrl.pathname + targetUrl.search + targetUrl.hash;
       
+      // Genera lista di URL da provare: parent paths + root
       const pathsToTry: string[] = [];
       const pathParts = targetUrl.pathname.split('/').filter(Boolean);
-      
       for (let i = pathParts.length - 1; i >= 0; i--) {
         const parentPath = '/' + pathParts.slice(0, i).join('/') + (i > 0 ? '/' : '');
-        if (!pathsToTry.includes(parentPath)) {
-          pathsToTry.push(parentPath);
-        }
+        if (!pathsToTry.includes(parentPath)) pathsToTry.push(parentPath);
       }
-      if (!pathsToTry.includes('/')) {
-        pathsToTry.push('/');
-      }
+      if (!pathsToTry.includes('/')) pathsToTry.push('/');
       
       for (const tryPath of pathsToTry) {
         const tryUrl = targetUrl.origin + tryPath;
         try {
           const tryController = new AbortController();
-          const tryTimeout = setTimeout(() => tryController.abort(), 10000);
+          const tryTimeout = setTimeout(() => tryController.abort(), isReplitOrSPA ? 20000 : 10000);
           const tryResponse = await fetch(tryUrl, {
             signal: tryController.signal,
             headers: { ...browserHeaders, Referer: tryUrl },
@@ -116,6 +92,7 @@ window.location.replace("${directUrl}");
           clearTimeout(tryTimeout);
           if (tryResponse.ok) {
             response = tryResponse;
+            injectedPath = originalPath;
             targetUrl.pathname = tryPath;
             targetUrl.search = '';
             targetUrl.hash = '';
@@ -217,10 +194,21 @@ setTimeout(ma,500);setTimeout(ma,1500);})();</script>`;
 var d=Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype,'src');if(d&&d.set){var _set=d.set;Object.defineProperty(HTMLScriptElement.prototype,'src',{set:function(v){if(v&&bad.test(v))return;_set.call(this,v);},get:d.get,configurable:true});}
 var d2=Object.getOwnPropertyDescriptor(HTMLLinkElement.prototype,'href');if(d2&&d2.set){var _set2=d2.set;Object.defineProperty(HTMLLinkElement.prototype,'href',{set:function(v){if(v&&bad.test(v))return;_set2.call(this,v);},get:d2.get,configurable:true});}
 })();</script>` : '';
-    // Se abbiamo caricato root per route SPA, imposta path prima che il router monti
-    const pathScript = injectedPath ? `<script>window.__CRO_INJECTED_PATH__="${injectedPath.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}";(function(){var p=window.__CRO_INJECTED_PATH__;if(p)try{history.replaceState(null,'',p);}catch(e){}})();</script>` : '';
-    const allScripts = `<script>window.__CRO_PROXY_ORIGIN__="${targetUrl.origin}";window.__CRO_PROXY_API__="${appOrigin}/api/proxy-fetch";window.__CRO_VIDEO_API__="${appOrigin}/api/video";window.__CRO_APP_ORIGIN__="${appOrigin}";</script>${pathScript}${blockInjectScript}${corsProxyScript}${redirectBlockerScript}${muteScript}`;
-    html = html.replace(/<head([^>]*)>/i, `$&${allScripts}`);
+    // Se abbiamo caricato root per route SPA, imposta path PRIMA di qualsiasi altro script
+    // Usa history.replaceState sincrono nel <head> prima che il router SPA legga window.location
+    const pathScript = injectedPath ? `<script>(function(){try{history.replaceState(null,'','${injectedPath.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}');}catch(e){}})();</script>` : '';
+    const allScripts = `<script>window.__CRO_PROXY_ORIGIN__="${targetUrl.origin}";window.__CRO_PROXY_API__="${appOrigin}/api/proxy-fetch";window.__CRO_VIDEO_API__="${appOrigin}/api/video";window.__CRO_APP_ORIGIN__="${appOrigin}";</script>${blockInjectScript}${corsProxyScript}${redirectBlockerScript}${muteScript}`;
+    
+    // PathScript DEVE essere il primo script in assoluto - prima di tutto il resto
+    // Poi gli altri script di proxy seguono
+    if (injectedPath) {
+      // Inietta pathScript come primissima cosa dopo <html> o all'inizio del documento
+      // E poi allScripts nel <head>
+      html = html.replace(/(<html[^>]*>)/i, `$1${pathScript}`);
+      html = html.replace(/<head([^>]*)>/i, `$&${allScripts}`);
+    } else {
+      html = html.replace(/<head([^>]*)>/i, `$&${allScripts}`);
+    }
 
     // Videos: SEMPRE muted (no audio) - anteprime devono partire senza audio
     html = html.replace(/<video([^>]*)>/gi, (match, attrs) => {
