@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MousePointerClick, AlertCircle, Monitor, Smartphone, Tablet, LayoutGrid } from "lucide-react";
+import { MousePointerClick, AlertCircle, Monitor, Smartphone } from "lucide-react";
 
 // Import heatmap.js
 // @ts-ignore
@@ -45,9 +45,9 @@ export default function HeatmapVisualization({
   const [showPage, setShowPage] = useState(true);
   const [contentHeight, setContentHeight] = useState(2000);
   const [isDemoData, setIsDemoData] = useState(false);
-  const [device, setDevice] = useState<"all" | "mobile" | "desktop" | "tablet">("all");
+  const [device, setDevice] = useState<"mobile" | "desktop">("mobile");
 
-  // Detect iframe content height
+  // Detect iframe content size - la pagina detta le dimensioni, il blocco si adatta
   useEffect(() => {
     const iframe = iframeRef.current;
     if (!iframe) return;
@@ -56,24 +56,29 @@ export default function HeatmapVisualization({
       try {
         const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document;
         if (iframeDocument) {
-          const height = Math.max(
+          const h = Math.max(
             iframeDocument.body.scrollHeight,
             iframeDocument.documentElement.scrollHeight,
-            3000 // minimum height
+            800
           );
-          console.log('📏 Detected iframe content height:', height);
-          setContentHeight(height);
+          setContentHeight(h);
         }
       } catch (error) {
-        // CORS error - can't access iframe content
-        console.log('⚠️ Cannot detect iframe height (CORS), using default 3000px');
-        setContentHeight(3000);
+        // CORS - usa altezza basata su device
+        setContentHeight(device === "mobile" ? 4000 : 3000);
       }
     };
 
     iframe.addEventListener('load', handleLoad);
-    return () => iframe.removeEventListener('load', handleLoad);
-  }, [pageUrl]);
+    // Retry after delay for SPA pages that render asynchronously
+    const retryTimer = setTimeout(() => {
+      handleLoad();
+    }, 3000);
+    return () => {
+      iframe.removeEventListener('load', handleLoad);
+      clearTimeout(retryTimer);
+    };
+  }, [pageUrl, device]);
 
   // Initialize heatmap.js
   useEffect(() => {
@@ -136,6 +141,8 @@ export default function HeatmapVisualization({
   }, [funnelId, stepName, device]);
 
   // Update heatmap visualization with coordinate scaling
+  // I click originali sono registrati con le coordinate del viewport dell'utente
+  // Dobbiamo scalarli per combaciare con la dimensione attuale del container
   useEffect(() => {
     if (!heatmapInstanceRef.current || !heatmapData || !containerRef.current) return;
 
@@ -149,46 +156,38 @@ export default function HeatmapVisualization({
       return;
     }
 
-    // Get actual container dimensions (matches iframe/page preview)
+    // Dimensioni attuali del container (deve corrispondere all'iframe)
     const containerWidth = containerRef.current.offsetWidth;
     const containerHeight = containerRef.current.offsetHeight;
 
-    // Adaptive scaling: use data bounds so points from different viewports (mobile/desktop) fit correctly
-    const maxX = Math.max(...data.points.map(p => p.x), 1);
-    const maxY = Math.max(...data.points.map(p => p.y), 1);
-    const refWidth = Math.max(maxX * 1.1, containerWidth);
-    const refHeight = Math.max(maxY * 1.1, contentHeight, containerHeight);
+    // Viewport di riferimento per i click originali
+    // Mobile: 375px, Desktop: 1440px (valori standard)
+    const originalViewportWidth = device === "mobile" ? 375 : 1440;
 
-    const scaleX = containerWidth / refWidth;
-    const scaleY = containerHeight / refHeight;
+    // Scala X: rapporto tra container attuale e viewport originale dei click
+    const scaleX = containerWidth / originalViewportWidth;
+    // Scala Y: i click Y sono relativi alla pagina, il container ha la stessa altezza
+    const scaleY = 1; // altezza 1:1 - il container si adatta alla pagina
 
-    console.log('📐 Heatmap scaling:', {
-      containerWidth,
-      containerHeight,
-      refWidth: Math.round(refWidth),
-      refHeight: Math.round(refHeight),
-      scaleX: scaleX.toFixed(3),
-      scaleY: scaleY.toFixed(3),
-      originalPoints: data.points.length,
-    });
-
-    // Scale all points
-    const scaledPoints = data.points.map(point => ({
-      x: Math.round(point.x * scaleX),
-      y: Math.round(point.y * scaleY),
-      value: point.value,
-    }));
+    // Scala tutti i punti
+    const scaledPoints = data.points
+      .map(point => ({
+        x: Math.round(point.x * scaleX),
+        y: Math.round(point.y), // Y non va scalato, il container ha la stessa altezza della pagina
+        value: point.value,
+      }))
+      .filter(p => p.x >= 0 && p.x <= containerWidth && p.y >= 0 && p.y <= containerHeight);
 
     heatmapInstanceRef.current.setData({
       max: data.max || 1,
       data: scaledPoints,
     });
-  }, [heatmapType, heatmapData, contentHeight]);
+  }, [heatmapType, heatmapData, contentHeight, device]);
 
   const hasData = heatmapData && heatmapData[heatmapType]?.points?.length > 0;
 
-  // Viewport width for page preview simulation (mobile/tablet/desktop)
-  const viewportWidth = device === "mobile" ? 375 : device === "tablet" ? 768 : null;
+  // Viewport width: mobile = 375px, desktop = larghezza reale della pagina (nessun limite)
+  const viewportWidth = device === "mobile" ? 375 : null;
 
   return (
     <div className="bg-white border border-[#1a1a1a] rounded-2xl overflow-hidden">
@@ -215,10 +214,8 @@ export default function HeatmapVisualization({
         <div className="flex items-center gap-2">
           <span className="text-[12px] text-[#666666]">Device:</span>
           {[
-            { id: "all" as const, label: "All", icon: LayoutGrid },
-            { id: "desktop" as const, label: "Desktop", icon: Monitor },
             { id: "mobile" as const, label: "Mobile", icon: Smartphone },
-            { id: "tablet" as const, label: "Tablet", icon: Tablet },
+            { id: "desktop" as const, label: "Desktop", icon: Monitor },
           ].map((d) => {
             const Icon = d.icon;
             const isActive = device === d.id;
@@ -250,22 +247,21 @@ export default function HeatmapVisualization({
         </button>
       </div>
 
-      {/* Heatmap Container - viewport simulation for mobile/tablet */}
+      {/* Heatmap Container - la pagina detta le dimensioni, il blocco si adatta */}
       <div className="p-6">
         <div
-          className={`relative bg-[#f8f9fa] rounded-xl border border-[#d0d0d0] ${viewportWidth ? "flex justify-center" : ""}`}
-          style={{ width: "100%" }}
+          className="relative bg-[#f8f9fa] rounded-xl border border-[#d0d0d0] overflow-auto"
+          style={{ width: "100%", maxHeight: "80vh" }}
         >
-          {/* Full page wrapper - iframe sotto, heatmap sopra per sovrapposizione */}
+          {/* Wrapper - larghezza fissa per mobile, 100% per desktop */}
           <div
-            className="relative overflow-hidden"
+            className="relative mx-auto"
             style={{
               width: viewportWidth ? `${viewportWidth}px` : "100%",
               height: `${contentHeight}px`,
-              maxWidth: "100%",
             }}
           >
-            {/* Page Iframe - simula viewport mobile/tablet quando selezionato */}
+            {/* Page Iframe - stessa dimensione del wrapper */}
             {pageUrl && (
               <iframe
                 ref={iframeRef}
@@ -285,7 +281,7 @@ export default function HeatmapVisualization({
               />
             )}
 
-            {/* Heatmap Overlay - SEMPRE sopra l'iframe, z-index alto per vedere i click sulla pagina */}
+            {/* Heatmap Overlay - stessa dimensione esatta dell'iframe */}
             <div
               ref={containerRef}
               className="absolute top-0 left-0 bg-transparent"
