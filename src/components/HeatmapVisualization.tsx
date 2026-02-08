@@ -46,23 +46,24 @@ export default function HeatmapVisualization({
 
   // Dimensioni viewport reali per device
   const viewportWidth = device === "mobile" ? 375 : undefined;
-  const viewportHeight = device === "mobile" ? 812 : 900; // iPhone X / Desktop
-  const lastHeight = useRef(0);
+  const viewportHeight = device === "mobile" ? 812 : 900;
+  const heightLocked = useRef(false);
 
-  // Riceve l'altezza reale dalla pagina dentro l'iframe via postMessage
-  // Se la pagina è 100vh (una schermata), usa l'altezza viewport
-  // Se la pagina è più lunga, usa scrollHeight
+  // Altezza: usa il viewport come default.
+  // Accetta UN solo report dal postMessage, poi blocca per sempre.
+  // Questo evita il loop iframe↔pagina che causa l'oscillazione.
   useEffect(() => {
+    heightLocked.current = false;
     setContentHeight(viewportHeight);
-    lastHeight.current = viewportHeight;
 
     const handleMessage = (e: MessageEvent) => {
+      if (heightLocked.current) return; // già bloccato, ignora
       if (e.data && e.data.type === "cro-page-height" && typeof e.data.height === "number") {
         const h = e.data.height;
-        // Usa il max tra altezza riportata e viewport
-        const finalH = Math.max(h, viewportHeight);
-        if (finalH > 100 && Math.abs(finalH - lastHeight.current) > 50) {
-          lastHeight.current = finalH;
+        if (h > 100) {
+          heightLocked.current = true; // BLOCCA - non accettare più cambi
+          // Se il contenuto è più lungo del viewport, espandi; altrimenti tieni viewport
+          const finalH = Math.max(h, viewportHeight);
           setContentHeight(finalH);
         }
       }
