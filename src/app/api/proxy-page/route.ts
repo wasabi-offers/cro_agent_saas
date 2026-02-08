@@ -169,13 +169,16 @@ export async function GET(request: NextRequest) {
     // Inject scripts - proxy ALL cross-origin fetch/XHR/sendBeacon (not just main page origin)
     // Fixes CORS: cb/cdn-cgi/rum, trk.concealedqualify, db.*, etc. - pages call multiple domains
     // Preserves authorization headers for Supabase API calls
+    // Also intercepts video/audio src for HLS streams
     const corsProxyScript = allowScripts ? `<script>
-(function(){var A=window.__CRO_PROXY_API__;var O=window.__CRO_APP_ORIGIN__;if(!A||!O)return;
+(function(){var A=window.__CRO_PROXY_API__;var O=window.__CRO_APP_ORIGIN__;var V=window.__CRO_VIDEO_API__;if(!A||!O)return;
 function proxy(u){if(!u||typeof u!=='string')return null;if(u.indexOf(O)===0)return null;if(u.indexOf('http://')===0||u.indexOf('https://')===0)return A+'?url='+encodeURIComponent(u);return null;}
+function proxyVideo(u){if(!u||typeof u!=='string')return null;if(u.indexOf(O)===0)return null;if(u.indexOf('http://')===0||u.indexOf('https://')===0)return V+'?url='+encodeURIComponent(u);return null;}
 function extractAuthHeaders(h){var apikey=null,auth=null;if(!h)return{apikey:null,auth:null};if(h instanceof Headers){apikey=h.get('apikey');auth=h.get('Authorization');}else if(typeof h==='object'){apikey=h.apikey||h['apikey'];auth=h.Authorization||h['Authorization'];}return{apikey:apikey,auth:auth};}
 var _f=window.fetch;window.fetch=function(u,o){var url=typeof u==='string'?u:(u&&u.url);var p=proxy(url);if(p&&o&&o.headers){var h=o.headers;var ah=extractAuthHeaders(h);var nh=h instanceof Headers?new Headers(h):(typeof h==='object'?Object.assign({},h):new Headers());if(ah.apikey){if(nh instanceof Headers)nh.set('x-proxy-apikey',ah.apikey);else nh['x-proxy-apikey']=ah.apikey;}if(ah.auth){if(nh instanceof Headers)nh.set('x-proxy-authorization',ah.auth);else nh['x-proxy-authorization']=ah.auth;}o.headers=nh;}if(p)return _f(p,o);return _f.apply(this,arguments);};
 var X=window.XMLHttpRequest;window.XMLHttpRequest=function(){var x=new X();var _open=x.open;var _setRequestHeader=x.setRequestHeader;var apikey=null,auth=null;x.open=function(m,u){var p=proxy(u);_open.call(x,m,p||u);};x.setRequestHeader=function(n,v){if(n==='apikey'){apikey=v;_setRequestHeader.call(x,'x-proxy-apikey',v);}else if(n==='Authorization'){auth=v;_setRequestHeader.call(x,'x-proxy-authorization',v);}else _setRequestHeader.call(x,n,v);};return x;};
 var _sb=navigator.sendBeacon;if(_sb){navigator.sendBeacon=function(u,d){var p=proxy(u);if(p){var opts={method:'POST',body:d,keepalive:true};_f(p,opts).catch(function(){});return true;}return _sb.call(navigator,u,d);};}
+if(V){try{var vd=Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype,'src');if(vd&&vd.set){var _vs=vd.set;Object.defineProperty(HTMLMediaElement.prototype,'src',{set:function(v){var p=proxyVideo(v);_vs.call(this,p||v);},get:vd.get,configurable:true});}}catch(e){}try{var sd=Object.getOwnPropertyDescriptor(HTMLSourceElement.prototype,'src');if(sd&&sd.set){var _ss=sd.set;Object.defineProperty(HTMLSourceElement.prototype,'src',{set:function(v){var pv=(this.type&&this.type.indexOf('video')>=0)||/\\.m3u8|\\.ts|\\.mp4/i.test(v);var p=pv?proxyVideo(v):proxy(v);_ss.call(this,p||v);},get:sd.get,configurable:true});}}catch(e){}}
 })();</script>` : '';
     // Blocca redirect e history manipulation in anteprima - evita SecurityError replaceState e checkout che sparisce
     const redirectBlockerScript = allowScripts ? `<script>
@@ -200,7 +203,7 @@ var d2=Object.getOwnPropertyDescriptor(HTMLLinkElement.prototype,'href');if(d2&&
 })();</script>` : '';
     // Se abbiamo caricato root per route SPA, imposta path prima che il router monti
     const pathScript = injectedPath ? `<script>window.__CRO_INJECTED_PATH__="${injectedPath.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}";(function(){var p=window.__CRO_INJECTED_PATH__;if(p)try{history.replaceState(null,'',p);}catch(e){}})();</script>` : '';
-    const allScripts = `<script>window.__CRO_PROXY_ORIGIN__="${targetUrl.origin}";window.__CRO_PROXY_API__="${appOrigin}/api/proxy-fetch";window.__CRO_APP_ORIGIN__="${appOrigin}";</script>${pathScript}${blockInjectScript}${corsProxyScript}${redirectBlockerScript}${muteScript}`;
+    const allScripts = `<script>window.__CRO_PROXY_ORIGIN__="${targetUrl.origin}";window.__CRO_PROXY_API__="${appOrigin}/api/proxy-fetch";window.__CRO_VIDEO_API__="${appOrigin}/api/video";window.__CRO_APP_ORIGIN__="${appOrigin}";</script>${pathScript}${blockInjectScript}${corsProxyScript}${redirectBlockerScript}${muteScript}`;
     html = html.replace(/<head([^>]*)>/i, `$&${allScripts}`);
 
     // Videos: SEMPRE muted (no audio) - anteprime devono partire senza audio
