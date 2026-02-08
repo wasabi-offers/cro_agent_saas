@@ -186,11 +186,21 @@ var d2=Object.getOwnPropertyDescriptor(HTMLLinkElement.prototype,'href');if(d2&&
     // PRIMA di tutti gli script dell'app - così il router legge il path corretto
     const pathScript = injectedPath ? `<script>(function(){try{history.replaceState(null,'','${injectedPath.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}');}catch(e){}})();</script>` : '';
     // Script che rileva l'altezza reale della pagina e la manda al parent via postMessage
+    // Rileva altezza REALE del contenuto: neutralizza min-height:100vh, misura, ripristina
     const heightReporterScript = `<script>
-(function(){function reportHeight(){var h=Math.max(document.body?document.body.scrollHeight:0,document.documentElement?document.documentElement.scrollHeight:0);if(h>50&&window.parent!==window){window.parent.postMessage({type:'cro-page-height',height:h},'*');}}
-if(document.readyState==='complete'||document.readyState==='interactive'){setTimeout(reportHeight,100);}else{document.addEventListener('DOMContentLoaded',function(){setTimeout(reportHeight,100);});}
-window.addEventListener('load',function(){reportHeight();setTimeout(reportHeight,500);setTimeout(reportHeight,1500);setTimeout(reportHeight,3000);setTimeout(reportHeight,6000);});
-new MutationObserver(function(){reportHeight();}).observe(document.documentElement,{childList:true,subtree:true});
+(function(){if(window.parent===window)return;
+function measureReal(){
+var els=document.querySelectorAll('*');var saved=[];
+for(var i=0;i<els.length;i++){var s=getComputedStyle(els[i]);
+if(s.minHeight&&(s.minHeight.indexOf('vh')>-1||s.minHeight==='100%')){saved.push({el:els[i],v:els[i].style.minHeight});els[i].style.minHeight='auto';}}
+document.documentElement.style.height='auto';document.body.style.height='auto';
+document.documentElement.style.minHeight='auto';document.body.style.minHeight='auto';
+var h=Math.max(document.body.scrollHeight||0,document.documentElement.scrollHeight||0);
+for(var j=0;j<saved.length;j++){saved[j].el.style.minHeight=saved[j].v;}
+return h;}
+function report(){var h=measureReal();if(h>50){window.parent.postMessage({type:'cro-page-height',height:h},'*');}}
+window.addEventListener('load',function(){setTimeout(report,200);setTimeout(report,1000);setTimeout(report,3000);setTimeout(report,6000);});
+if(document.readyState==='complete'||document.readyState==='interactive'){setTimeout(report,200);}
 })();</script>`;
     const allScripts = `${pathScript}<script>window.__CRO_PROXY_ORIGIN__="${targetUrl.origin}";window.__CRO_PROXY_API__="${appOrigin}/api/proxy-fetch";window.__CRO_VIDEO_API__="${appOrigin}/api/video";window.__CRO_APP_ORIGIN__="${appOrigin}";</script>${blockInjectScript}${corsProxyScript}${redirectBlockerScript}${heightReporterScript}${muteScript}`;
     
