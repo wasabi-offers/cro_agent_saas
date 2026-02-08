@@ -216,6 +216,11 @@ var d2=Object.getOwnPropertyDescriptor(HTMLLinkElement.prototype,'href');if(d2&&
       return `${appOrigin}/api/proxy-asset?url=${encodeURIComponent(absoluteUrl)}`;
     };
 
+    // Helper to proxy video URLs through the video API (handles HLS .m3u8 manifests properly)
+    const proxyVideoUrl = (absoluteUrl: string): string => {
+      return `${appOrigin}/api/video?url=${encodeURIComponent(absoluteUrl)}`;
+    };
+
     // Resolve then proxy
     const resolveAndProxy = (ref: string): string => {
       const abs = toAbsolute(ref);
@@ -258,8 +263,14 @@ var d2=Object.getOwnPropertyDescriptor(HTMLLinkElement.prototype,'href');if(d2&&
       return `<source${before}srcset="${resolved}"`;
     });
 
-    // Rewrite src in <video> tags (direct video src)
+    // Rewrite src in <video> tags (direct video src) - use video proxy for HLS
     html = html.replace(/<video([^>]*?)src=["']([^"']+)["']/gi, (match, before, src) => {
+      const absSrc = toAbsolute(src);
+      if (absSrc.startsWith('data:')) return match;
+      // HLS streams need video proxy to rewrite manifest URLs
+      if (/\.m3u8/i.test(src)) {
+        return `<video${before}src="${proxyVideoUrl(absSrc)}"`;
+      }
       return `<video${before}src="${resolveAndProxy(src)}"`;
     });
 
@@ -283,8 +294,14 @@ var d2=Object.getOwnPropertyDescriptor(HTMLLinkElement.prototype,'href');if(d2&&
       return `<video${before}poster="${resolveAndProxy(poster)}"`;
     });
 
-    // Rewrite source src in <source> tags
+    // Rewrite source src in <source> tags - use video proxy for HLS
     html = html.replace(/<source([^>]*?)src=["']([^"']+)["']/gi, (match, before, src) => {
+      const absSrc = toAbsolute(src);
+      if (absSrc.startsWith('data:')) return match;
+      // HLS streams need video proxy to rewrite manifest URLs
+      if (/\.m3u8/i.test(src) || /video/i.test(before)) {
+        return `<source${before}src="${proxyVideoUrl(absSrc)}"`;
+      }
       return `<source${before}src="${resolveAndProxy(src)}"`;
     });
 
