@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MousePointerClick, AlertCircle, Monitor, Smartphone } from "lucide-react";
 
 // @ts-ignore
@@ -46,45 +46,50 @@ export default function HeatmapVisualization({
 
   // Larghezza del viewport in base al device
   const viewportWidth = device === "mobile" ? 375 : undefined;
+  const heightRef = useRef(0);
 
-  // Rileva altezza reale della pagina dall'iframe
-  const detectHeight = useCallback(() => {
-    const iframe = iframeRef.current;
-    if (!iframe) return;
-    try {
-      const doc = iframe.contentDocument || iframe.contentWindow?.document;
-      if (doc && doc.body) {
-        const h = Math.max(
-          doc.body.scrollHeight || 0,
-          doc.documentElement?.scrollHeight || 0,
-        );
-        if (h > 100 && h !== contentHeight) {
-          setContentHeight(h);
-        }
-      }
-    } catch {
-      // CORS - non possiamo leggere, usiamo un fallback
-    }
-  }, [contentHeight]);
-
-  // Al caricamento dell'iframe, rileva l'altezza più volte (SPA renderizzano in ritardo)
+  // Al caricamento dell'iframe, rileva l'altezza reale della pagina
   useEffect(() => {
     const iframe = iframeRef.current;
     if (!iframe) return;
+    heightRef.current = 0;
     setContentHeight(0);
 
+    const detect = () => {
+      try {
+        const doc = iframe.contentDocument || iframe.contentWindow?.document;
+        if (doc && doc.body) {
+          const h = Math.max(
+            doc.body.scrollHeight || 0,
+            doc.documentElement?.scrollHeight || 0,
+          );
+          if (h > 100 && h !== heightRef.current) {
+            heightRef.current = h;
+            setContentHeight(h);
+          }
+        }
+      } catch {
+        // CORS fallback
+      }
+    };
+
     const handleLoad = () => {
-      detectHeight();
-      const t1 = setTimeout(detectHeight, 500);
-      const t2 = setTimeout(detectHeight, 1500);
-      const t3 = setTimeout(detectHeight, 3000);
-      const t4 = setTimeout(detectHeight, 6000);
-      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
+      detect();
     };
 
     iframe.addEventListener("load", handleLoad);
-    return () => iframe.removeEventListener("load", handleLoad);
-  }, [pageUrl, device, detectHeight]);
+    // Retry per SPA che renderizzano dopo il load
+    const t1 = setTimeout(detect, 2000);
+    const t2 = setTimeout(detect, 4000);
+    const t3 = setTimeout(detect, 7000);
+
+    return () => {
+      iframe.removeEventListener("load", handleLoad);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [pageUrl, device]);
 
   // Crea/ricrea heatmap.js quando il container cambia dimensione
   useEffect(() => {
