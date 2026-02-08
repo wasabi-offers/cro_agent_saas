@@ -269,7 +269,7 @@ export default function HeatmapVisualization({
             {pageUrl && (
               <iframe
                 ref={iframeRef}
-                src={pageUrl}
+                src={`/api/proxy-page?url=${encodeURIComponent(pageUrl)}&scripts=1`}
                 referrerPolicy="no-referrer"
                 className="absolute top-0 left-0 block"
                 style={{
