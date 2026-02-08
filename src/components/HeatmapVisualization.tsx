@@ -43,41 +43,49 @@ export default function HeatmapVisualization({
   const [heatmapData, setHeatmapData] = useState<Record<string, HeatmapData> | null>(null);
   const [stats, setStats] = useState<any>(null);
   const [showPage, setShowPage] = useState(true);
-  const [contentHeight, setContentHeight] = useState(2000);
+  const [contentHeight, setContentHeight] = useState(800);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
   const [isDemoData, setIsDemoData] = useState(false);
   const [device, setDevice] = useState<"mobile" | "desktop">("mobile");
 
-  // Detect iframe content size - la pagina detta le dimensioni, il blocco si adatta
+  // Rileva altezza reale del contenuto della pagina nell'iframe
+  // Il blocco heatmap si adatta alla pagina, NON il contrario
   useEffect(() => {
     const iframe = iframeRef.current;
     if (!iframe) return;
+    setIframeLoaded(false);
 
-    const handleLoad = () => {
+    const detectHeight = () => {
       try {
-        const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document;
-        if (iframeDocument) {
+        const doc = iframe.contentDocument || iframe.contentWindow?.document;
+        if (doc && doc.body) {
           const h = Math.max(
-            iframeDocument.body.scrollHeight,
-            iframeDocument.documentElement.scrollHeight,
-            800
+            doc.body.scrollHeight || 0,
+            doc.documentElement?.scrollHeight || 0,
+            500
           );
-          setContentHeight(h);
+          if (h > 100) {
+            setContentHeight(h);
+            setIframeLoaded(true);
+          }
         }
-      } catch (error) {
-        // CORS - usa altezza basata su device
-        setContentHeight(device === "mobile" ? 4000 : 3000);
+      } catch {
+        // CORS fallback - usa altezza ragionevole
+        setIframeLoaded(true);
       }
     };
 
-    iframe.addEventListener('load', handleLoad);
-    // Retry after delay for SPA pages that render asynchronously
-    const retryTimer = setTimeout(() => {
-      handleLoad();
-    }, 3000);
-    return () => {
-      iframe.removeEventListener('load', handleLoad);
-      clearTimeout(retryTimer);
+    const handleLoad = () => {
+      // Prova subito
+      detectHeight();
+      // Riprova dopo per pagine SPA che renderizzano in ritardo
+      setTimeout(detectHeight, 1000);
+      setTimeout(detectHeight, 2500);
+      setTimeout(detectHeight, 5000);
     };
+
+    iframe.addEventListener('load', handleLoad);
+    return () => iframe.removeEventListener('load', handleLoad);
   }, [pageUrl, device]);
 
   // Initialize heatmap.js
@@ -247,21 +255,21 @@ export default function HeatmapVisualization({
         </button>
       </div>
 
-      {/* Heatmap Container - la pagina detta le dimensioni, il blocco si adatta */}
+      {/* Heatmap Container - il blocco si adatta alla pagina */}
       <div className="p-6">
         <div
-          className="relative bg-[#f8f9fa] rounded-xl border border-[#d0d0d0] overflow-auto"
-          style={{ width: "100%", maxHeight: "80vh" }}
+          className="relative bg-[#f8f9fa] rounded-xl border border-[#d0d0d0] overflow-y-auto"
+          style={{ width: "100%", maxHeight: "85vh" }}
         >
-          {/* Wrapper - larghezza fissa per mobile, 100% per desktop */}
+          {/* Wrapper centrato - la dimensione è dettata dalla pagina */}
           <div
             className="relative mx-auto"
             style={{
               width: viewportWidth ? `${viewportWidth}px` : "100%",
-              height: `${contentHeight}px`,
+              minHeight: `${contentHeight}px`,
             }}
           >
-            {/* Page Iframe - stessa dimensione del wrapper */}
+            {/* Iframe nascosto grande per catturare tutta la pagina */}
             {pageUrl && (
               <iframe
                 ref={iframeRef}
@@ -281,7 +289,7 @@ export default function HeatmapVisualization({
               />
             )}
 
-            {/* Heatmap Overlay - stessa dimensione esatta dell'iframe */}
+            {/* Heatmap Overlay - stessa dimensione dell'iframe/pagina */}
             <div
               ref={containerRef}
               className="absolute top-0 left-0 bg-transparent"
