@@ -14,11 +14,13 @@ import {
   Brain,
   Folder,
   Archive,
+  Target,
 } from "lucide-react";
 
 const menuItems = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "Explore AI", href: "/explore-ai", icon: Brain },
+  { name: "Attribution", href: "/attribution", icon: Target },
   { name: "Analytics", href: "/analytics", icon: BarChart3 },
   { name: "A/B Tests", href: "/ab-tests", icon: FlaskConical },
   { name: "Heatmaps", href: "/heatmaps", icon: MousePointerClick },
