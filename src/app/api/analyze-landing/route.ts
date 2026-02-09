@@ -227,15 +227,15 @@ export async function POST(request: Request) {
 
       const filtersList = filters.join(", ");
 
-      // RAG: recupera best practices CRO per arricchire il contesto
+      // RAG: fetch CRO best practices to enrich context
       let ragContext = "";
       const ragResult = await queryRAG({
-        question: `Best practices CRO per analisi landing page: ${filtersList}. CTA, copywriting, colori, UX, conversion rate optimization.`,
+        question: `CRO best practices for landing page analysis: ${filtersList}. CTA, copywriting, colors, UX, conversion rate optimization.`,
         user_id: "landing_analysis",
         top_k: 8,
       });
-      if (ragResult?.answer) {
-        ragContext = `\n\n## Best practices dal knowledge base CRO:\n${ragResult.answer}\n`;
+      if (ragResult && !("error" in ragResult) && ragResult.answer) {
+        ragContext = `\n\n## CRO knowledge base best practices:\n${ragResult.answer}\n`;
       }
 
       // System prompt with prompt caching for cost optimization

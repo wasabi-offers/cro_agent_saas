@@ -1,15 +1,15 @@
 /**
- * Client condiviso per il RAG CRO (Railway API)
+ * Shared client for RAG CRO (Railway API)
  * Docs: https://rag-system-cro-production.up.railway.app/docs
  * POST /query → { question, top_k?, system_prompt? }
  * Response: { answer, sources: [{ chunk_index, source, relevance_score, doc_id, preview }], chunks_used }
  */
 
 const DEFAULT_RAG_API_URL = "https://rag-system-cro-production.up.railway.app";
-const RAG_TIMEOUT_MS = 60_000; // Query possono richiedere 5–30s; 60s come da guida
+const RAG_TIMEOUT_MS = 60_000; // Queries may take 5–30s; 60s as per guide
 
 const DEFAULT_SYSTEM_PROMPT =
-  "Sei un esperto CRO (Conversion Rate Optimization). Rispondi in modo chiaro, pratico e basato su dati. Fornisci raccomandazioni actionable e best practice verificabili.";
+  "You are a CRO (Conversion Rate Optimization) expert. Respond in clear, practical, data-driven English. Provide actionable recommendations and verifiable best practices.";
 
 export interface RAGSource {
   chunk_index: number;
@@ -23,7 +23,7 @@ export interface RAGQueryParams {
   question: string;
   top_k?: number;
   system_prompt?: string;
-  /** Ignorato dalla API; mantenuto per compatibilità */
+  /** Ignored by the API; kept for compatibility */
   user_id?: string;
   similarity_threshold?: number;
   filter_file?: string;
@@ -34,11 +34,14 @@ export interface RAGResponse {
   answer: string;
   sources?: RAGSource[];
   chunks_used?: number;
-  /** Campi aggiuntivi se l’API li restituisce */
+  /** Additional fields if returned by the API */
   model?: string;
   input_tokens?: number;
   output_tokens?: number;
 }
+
+/** Result: success response or error message (API, timeout, network) */
+export type RAGResult = RAGResponse | { error: string };
 
 export function isRAGConfigured(): boolean {
   const url = process.env.RAG_API_URL ?? DEFAULT_RAG_API_URL;
@@ -50,7 +53,7 @@ function getRAGBaseUrl(): string {
   return url?.trim() ? url.replace(/\/$/, "") : DEFAULT_RAG_API_URL;
 }
 
-export async function queryRAG(params: RAGQueryParams): Promise<RAGResponse | null> {
+export async function queryRAG(params: RAGQueryParams): Promise<RAGResult | null> {
   const baseUrl = getRAGBaseUrl();
   const question = params.question?.trim();
   if (!question) return null;
@@ -76,17 +79,19 @@ export async function queryRAG(params: RAGQueryParams): Promise<RAGResponse | nu
     try {
       data = text ? JSON.parse(text) : {};
     } catch {
-      return null;
+      return { error: "Invalid RAG response" };
     }
 
     if (!response.ok) {
-      const detail = typeof data?.detail === "string" ? data.detail : "RAG request failed";
+      const detail = typeof data?.detail === "string" ? data.detail : `RAG error ${response.status}`;
       console.error("[RAG] Error", response.status, detail);
-      return null;
+      return { error: detail };
     }
 
     const answer = data?.answer;
-    if (answer == null || answer === "") return null;
+    if (answer == null || answer === "") {
+      return { error: "RAG returned no text (empty answer)" };
+    }
 
     const sources = Array.isArray(data.sources) ? data.sources : undefined;
 
@@ -100,7 +105,11 @@ export async function queryRAG(params: RAGQueryParams): Promise<RAGResponse | nu
     };
   } catch (err) {
     clearTimeout(timeoutId);
+    const message = err instanceof Error ? err.message : "Network error";
     if (err instanceof Error) console.error("[RAG]", err.message);
-    return null;
+    if (err instanceof Error && err.name === "AbortError") {
+      return { error: "Timeout: RAG service did not respond within 60s" };
+    }
+    return { error: message };
   }
 }

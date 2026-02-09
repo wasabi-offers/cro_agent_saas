@@ -4,13 +4,13 @@ import { useState } from "react";
 import { Brain, Loader2, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
 
 interface RAGInsightsPanelProps {
-  /** Domanda predefinita basata sul contesto (es. funnel, heatmap) */
+  /** Default question based on context (e.g. funnel, heatmap) */
   defaultQuestion?: string;
-  /** Placeholder per l'input */
+  /** Input placeholder */
   placeholder?: string;
-  /** Titolo del pannello */
+  /** Panel title */
   title?: string;
-  /** Altezza massima (default: 300px) */
+  /** Max height (default: 300px) */
   maxHeight?: string;
 }
 

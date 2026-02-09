@@ -20,7 +20,13 @@ export async function POST(request: NextRequest) {
 
     if (!result) {
       return NextResponse.json(
-        { error: 'RAG non ha restituito risposta' },
+        { error: 'Missing question or RAG unavailable' },
+        { status: 502 }
+      );
+    }
+    if ('error' in result) {
+      return NextResponse.json(
+        { error: result.error },
         { status: 502 }
       );
     }

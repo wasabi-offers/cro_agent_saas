@@ -27,10 +27,10 @@ When analyzing data, you should:
 5. Consider both mobile and desktop experiences
 6. Focus on revenue-generating optimizations
 
-Format your responses in Italian (the user's language) with clear sections:
-- 🚨 Problemi Critici
-- 💡 Raccomandazioni Prioritarie
-- 🧪 A/B Test Suggeriti
+Format your responses in English with clear sections:
+- 🚨 Critical Issues
+- 💡 Priority Recommendations
+- 🧪 Suggested A/B Tests
 - 📊 Detailed Analysis
 
 Be direct, practical, and focus on ROI-driven recommendations.`;
@@ -85,7 +85,7 @@ Focus on:
           user_id: "cro_analysis",
           top_k: 12,
         });
-        if (ragResult?.answer) {
+        if (ragResult && !("error" in ragResult) && ragResult.answer) {
           return NextResponse.json({
             success: true,
             analysis: ragResult.answer,

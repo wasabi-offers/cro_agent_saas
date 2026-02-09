@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { queryRAG, isRAGConfigured } from "@/lib/rag-client";
 
 /**
- * API route per chiamare il sistema RAG CRO (Railway)
+ * API route to call the RAG CRO system (Railway)
  * POST /api/rag-cro
  * Body: { question, top_k?, system_prompt? }
  */
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
 
     if (!question || typeof question !== "string") {
       return NextResponse.json(
-        { error: "Parametro 'question' obbligatorio (string)" },
+        { error: "Parameter 'question' is required (string)" },
         { status: 400 }
       );
     }
@@ -36,7 +36,13 @@ export async function POST(req: NextRequest) {
 
     if (!result) {
       return NextResponse.json(
-        { error: "RAG non ha restituito risposta" },
+        { error: "Missing question or RAG unavailable" },
+        { status: 502 }
+      );
+    }
+    if ("error" in result) {
+      return NextResponse.json(
+        { error: result.error },
         { status: 502 }
       );
     }

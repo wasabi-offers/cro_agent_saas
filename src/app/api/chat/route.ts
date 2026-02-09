@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
       user_id: "chat",
       top_k: 10,
     });
-    if (ragResult?.answer) {
+    if (ragResult && !("error" in ragResult) && ragResult.answer) {
       return NextResponse.json({ message: ragResult.answer, source: "rag-cro" });
     }
 
@@ -41,7 +41,7 @@ Always provide:
 3. Data-backed insights
 4. Expected impact estimates when possible
 
-Keep responses focused and practical. Use emojis sparingly but effectively.`;
+Keep responses focused and practical. Use emojis sparingly but effectively. Always respond in English.`;
 
     const response = await anthropic.messages.create({
       model: "claude-3-haiku-20240307",
