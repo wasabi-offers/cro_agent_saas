@@ -220,9 +220,11 @@ export default function LandingAnalysisPage() {
         }) : Promise.resolve(new Response(JSON.stringify({ success: false, error: "CRO table generation requires URL" }), { status: 200 })),
       ]);
 
-      if (!analysisResponse.ok) throw new Error("Analysis error");
-
       const analysisData = await analysisResponse.json();
+      if (!analysisResponse.ok) {
+        throw new Error(analysisData?.error || analysisData?.details || "Analysis error");
+      }
+
       setResults(analysisData.results);
       setAnalysisSource(analysisData.source || null);
       setViewMode("list"); // Show structured analysis results
@@ -244,7 +246,7 @@ export default function LandingAnalysisPage() {
         }
       }
     } catch (err) {
-      setError("An error occurred. Please try again later.");
+      setError(err instanceof Error ? err.message : "An error occurred. Please try again later.");
     } finally {
       setIsAnalyzing(false);
     }

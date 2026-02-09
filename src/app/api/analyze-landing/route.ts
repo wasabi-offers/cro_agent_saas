@@ -47,10 +47,22 @@ const CATEGORY_LABELS = {
   experience: "User Experience",
 };
 
+const DEFAULT_FILTERS = ["cro", "copy", "colors", "experience"] as const;
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { url, screenshot, filters } = body as AnalysisRequest;
+    const { url, screenshot, filters: rawFilters } = body as AnalysisRequest;
+
+    const filters = Array.isArray(rawFilters) && rawFilters.length > 0
+      ? rawFilters.filter((f) => ["cro", "copy", "colors", "experience"].includes(f))
+      : [...DEFAULT_FILTERS];
+    if (filters.length === 0) {
+      return NextResponse.json(
+        { success: false, error: "At least one valid filter is required (cro, copy, colors, experience)" },
+        { status: 400 }
+      );
+    }
 
     if (!url && !screenshot) {
       return NextResponse.json(
@@ -360,17 +372,10 @@ Analyze the ACTUAL content above and generate the JSON response following the sy
       });
 
       const message = await client.messages.create({
-        model: "claude-sonnet-4-20250514", // Upgraded to Sonnet 4 for better accuracy
-        max_tokens: 8000, // Increased for more detailed analysis
-        temperature: 0.3, // Lower for more consistent, focused output
-        top_p: 0.9, // Focused sampling
-        system: [
-          {
-            type: "text",
-            text: systemPrompt,
-            cache_control: { type: "ephemeral" } // Cache system prompt (saves 90% cost on repeated calls)
-          }
-        ],
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 8000,
+        temperature: 0.3,
+        system: systemPrompt,
         messages: [
           {
             role: "user",
