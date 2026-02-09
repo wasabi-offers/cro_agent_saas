@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
   try {
     if (!isRAGConfigured()) {
       return NextResponse.json(
-        { error: 'RAG CRO not configured. Set RUNPOD_ENDPOINT_ID and RUNPOD_API_KEY.' },
+        { error: 'RAG CRO not configured. Set RAG_API_URL in .env if needed.' },
         { status: 503 }
       );
     }
@@ -14,10 +14,8 @@ export async function POST(request: NextRequest) {
 
     const result = await queryRAG({
       question: body.question,
-      user_id: body.user_id || 'cro_system',
       top_k: body.top_k ?? 15,
-      similarity_threshold: body.similarity_threshold ?? 0.2,
-      use_context: body.use_context ?? true,
+      system_prompt: body.system_prompt,
     });
 
     if (!result) {

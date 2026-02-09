@@ -55,8 +55,8 @@ export default function RAGInsightsPanel({
       setAnswer(data.answer || "");
       if (data.sources?.length) {
         setSources(
-          data.sources.map((s: { file: string; preview?: string }) => ({
-            file: s.file,
+          data.sources.map((s: { file?: string; source?: string; preview?: string }) => ({
+            file: s.source ?? s.file ?? "",
             preview: s.preview || "",
           }))
         );

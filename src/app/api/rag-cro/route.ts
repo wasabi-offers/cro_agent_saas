@@ -2,16 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { queryRAG, isRAGConfigured } from "@/lib/rag-client";
 
 /**
- * API route per chiamare il sistema RAG CRO su RunPod
+ * API route per chiamare il sistema RAG CRO (Railway)
  * POST /api/rag-cro
- * Body: { question, user_id?, top_k?, similarity_threshold?, filter_file?, use_context? }
+ * Body: { question, top_k?, system_prompt? }
  */
 export async function POST(req: NextRequest) {
   if (!isRAGConfigured()) {
     return NextResponse.json(
       {
         error: "RAG CRO not configured",
-        details: "Set RUNPOD_ENDPOINT_ID and RUNPOD_API_KEY in .env",
+        details: "Set RAG_API_URL in .env (default: Railway RAG API)",
       },
       { status: 503 }
     );
@@ -19,14 +19,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const {
-      question,
-      user_id = "default",
-      top_k = 10,
-      similarity_threshold = 0.1,
-      filter_file,
-      use_context = true,
-    } = body;
+    const { question, top_k = 10, system_prompt } = body;
 
     if (!question || typeof question !== "string") {
       return NextResponse.json(
@@ -37,11 +30,8 @@ export async function POST(req: NextRequest) {
 
     const result = await queryRAG({
       question,
-      user_id,
       top_k,
-      similarity_threshold,
-      filter_file,
-      use_context,
+      system_prompt,
     });
 
     if (!result) {
