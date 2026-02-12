@@ -364,7 +364,7 @@ export default function FunnelOverview({
           </div>
         </div>
         <p className="text-[12px] text-[#666666] mb-4">
-          Basato sui dati di abbandono del funnel. Ogni compito include una mini analisi con consigli e idee da fare. Controlla la scheda Heatmap per i pattern di clic e la visibilità delle CTA.
+          Based on funnel drop-off data. Each task includes a mini analysis with tips and action items. Check the Heatmap tab for click patterns and CTA visibility.
         </p>
         {filteredUrgentTasks.length === 0 ? (
           <p className="text-[13px] text-[#666666] py-4">
@@ -399,7 +399,7 @@ export default function FunnelOverview({
                       <div className="flex items-center gap-2 mb-3">
                         <Lightbulb className="w-4 h-4 text-[#00d4aa]" />
                         <p className="text-[13px] font-semibold text-[#00d4aa]">
-                          Mini analisi – Consigli e idee da fare:
+                          Mini Analysis – Tips & Action Items:
                         </p>
                       </div>
                       <ul className="space-y-2 text-[13px] text-[#666666]">

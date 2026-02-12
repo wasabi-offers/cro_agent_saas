@@ -129,7 +129,7 @@ export default function FunnelDetailPage() {
   const [userPaths, setUserPaths] = useState<any>(null);
   const [isLoadingPaths, setIsLoadingPaths] = useState(false);
 
-  // Ref per scroll automatico al blocco Analisi
+  // Ref for auto-scroll to Analysis section
   const analysisSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -733,7 +733,7 @@ export default function FunnelDetailPage() {
           </div>
         </div>
 
-        {/* Flussi Editor */}
+        {/* Flows Editor */}
         {showFlussiEditor && (
           <div className="mb-8">
             <div className="bg-gradient-to-br from-white to-[#f8f9fa] border border-[#7c5cff]/30 rounded-2xl p-6 shadow-sm">
@@ -805,7 +805,7 @@ export default function FunnelDetailPage() {
                                     if (funnelData) {
                                       setFunnel(funnelData);
                                     }
-                                    alert('✅ URL aggiornato con successo!');
+                                    alert('✅ URL updated successfully!');
                                   }
                                 }}
                                 className="px-4 py-2 bg-[#7c5cff] text-white rounded-lg text-[13px] font-medium hover:bg-[#6b4ee6] transition-all"
@@ -819,7 +819,7 @@ export default function FunnelDetailPage() {
                                 }}
                                 className="px-4 py-2 bg-[#f8f9fa] border border-[#d0d0d0] text-[#666666] rounded-lg text-[13px] font-medium hover:bg-[#e9ecef] transition-all"
                               >
-                                Annulla
+                                Cancel
                               </button>
                             </div>
                           </div>
@@ -839,7 +839,7 @@ export default function FunnelDetailPage() {
                               </div>
                             ) : (
                               <p className="text-[14px] text-[#666666] italic mb-2">
-                                Nessun URL configurato
+                                No URL configured
                               </p>
                             )}
                             <div className="flex items-center gap-2">
@@ -850,12 +850,12 @@ export default function FunnelDetailPage() {
                                 }}
                                 className="px-4 py-2 bg-[#f8f9fa] border border-[#7c5cff]/30 text-[#7c5cff] rounded-lg text-[13px] font-medium hover:bg-[#7c5cff]/10 transition-all"
                               >
-                                {step.url ? "Modifica URL" : "Aggiungi URL"}
+                                {step.url ? "Edit URL" : "Add URL"}
                               </button>
                               {step.url && (
                                 <button
                                   onClick={async () => {
-                                    if (confirm(`Sei sicuro di voler eliminare l'URL per "${step.name}"?`)) {
+                                    if (confirm(`Are you sure you want to delete the URL for "${step.name}"?`)) {
                                       const updatedSteps = [...funnel.steps];
                                       updatedSteps[index] = {
                                         ...updatedSteps[index],
@@ -872,14 +872,14 @@ export default function FunnelDetailPage() {
                                         if (funnelData) {
                                           setFunnel(funnelData);
                                         }
-                                        alert('✅ URL eliminato con successo!');
+                                        alert('✅ URL deleted successfully!');
                                       }
                                     }
                                   }}
                                   className="px-4 py-2 bg-[#ff6b6b]/10 border border-[#ff6b6b]/30 text-[#ff6b6b] rounded-lg text-[13px] font-medium hover:bg-[#ff6b6b]/20 transition-all flex items-center gap-2"
                                 >
                                   <Trash2 className="w-4 h-4" />
-                                  Elimina
+                                  Delete
                                 </button>
                               )}
                             </div>

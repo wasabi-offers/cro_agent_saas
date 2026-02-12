@@ -118,20 +118,20 @@ export default function FunnelTrackingInstructions({
       {/* Instructions */}
       <div className="bg-[#111111] border border-white/5 rounded-xl p-4 mb-4">
         <h4 className="text-[14px] font-medium text-[#fafafa] mb-3">
-          📝 Istruzioni
+          📝 Instructions
         </h4>
         <ol className="space-y-2 text-[13px] text-[#888888]">
           <li className="flex items-start gap-2">
             <span className="text-[#7c5cff] font-bold">1.</span>
-            <span>Copia il codice sopra</span>
+            <span>Copy the code above</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-[#7c5cff] font-bold">2.</span>
-            <span>Incollalo nella tua pagina, subito prima del tag <code className="text-[#00d4aa]">&lt;/body&gt;</code></span>
+            <span>Paste it in your page, just before the <code className="text-[#00d4aa]">&lt;/body&gt;</code> tag</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-[#7c5cff] font-bold">3.</span>
-            <span>Pubblica la pagina e aspetta che gli utenti la visitino</span>
+            <span>Publish the page and wait for users to visit it</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-[#7c5cff] font-bold">4.</span>

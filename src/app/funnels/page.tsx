@@ -111,7 +111,7 @@ export default function FunnelsListPage() {
         await loadData(false);
         setShowBuilder(false);
         setEditingFunnelId(null);
-        alert('✅ Funnel aggiornato con successo!');
+        alert('✅ Funnel updated successfully!');
       } else {
         alert('❌ Errore durante l\'aggiornamento del funnel');
       }
@@ -146,7 +146,7 @@ export default function FunnelsListPage() {
   };
 
   const handleDeleteFunnel = async (funnelId: string, funnelName: string) => {
-    if (!confirm(`Sei sicuro di voler eliminare il funnel "${funnelName}"? Questa azione non può essere annullata.`)) {
+    if (!confirm(`Are you sure you want to delete the funnel "${funnelName}"? This action cannot be undone.`)) {
       return;
     }
 
@@ -239,7 +239,7 @@ export default function FunnelsListPage() {
               className="flex items-center gap-2 px-5 py-3 bg-[#0a0a0a] border border-[#7c5cff]/50 text-[#7c5cff] text-[14px] font-medium rounded-xl hover:bg-[#7c5cff]/10 transition-all"
             >
               <Upload className="w-4 h-4" />
-              Importa Flussi
+              Import Flows
             </button>
             <button
               onClick={() => setShowBuilder(true)}

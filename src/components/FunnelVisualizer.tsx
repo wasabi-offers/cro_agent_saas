@@ -40,7 +40,7 @@ interface FunnelVisualizerProps {
   name: string;
   funnelId?: string;
   connections?: FunnelConnection[];  // Optional connections from database
-  onAnalyzePage?: (stepIndex: number) => void;  // Callback when user clicks "Analisi pagina"
+  onAnalyzePage?: (stepIndex: number) => void;  // Callback when user clicks "Analyze page"
 }
 
 interface StepData {

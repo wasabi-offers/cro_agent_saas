@@ -315,14 +315,14 @@ export default function FunnelFlowImporter({ isOpen, onClose, onImport }: Funnel
     }
 
     if (allFlows.length === 0) {
-      setError('Inserisci almeno un flusso con URL validi');
+      setError('Enter at least one flow with valid URLs');
       return;
     }
 
     const { steps, connections } = buildFunnelStructure(allFlows);
 
     if (steps.length < 2) {
-      setError('Servono almeno 2 step per creare un funnel');
+      setError('At least 2 steps are needed to create a funnel');
       return;
     }
 
@@ -333,7 +333,7 @@ export default function FunnelFlowImporter({ isOpen, onClose, onImport }: Funnel
     if (!preview) return;
 
     if (!funnelName.trim()) {
-      setError('Inserisci un nome per il funnel');
+      setError('Enter a name for the funnel');
       return;
     }
 
@@ -375,10 +375,10 @@ export default function FunnelFlowImporter({ isOpen, onClose, onImport }: Funnel
             </div>
             <div>
               <h2 className="text-[20px] font-semibold text-[#fafafa]">
-                Importa Flussi Funnel
+                Import Funnel Flows
               </h2>
               <p className="text-[13px] text-[#888888]">
-                Incolla i tuoi flussi con URL e il funnel viene costruito automaticamente
+                Paste your flows with URLs and the funnel is built automatically
               </p>
             </div>
           </div>
@@ -394,13 +394,13 @@ export default function FunnelFlowImporter({ isOpen, onClose, onImport }: Funnel
           {/* Funnel Name */}
           <div>
             <label className="block text-[13px] font-medium text-[#fafafa] mb-2">
-              Nome Funnel *
+              Funnel Name *
             </label>
             <input
               type="text"
               value={funnelName}
               onChange={(e) => setFunnelName(e.target.value)}
-              placeholder="es: Concealed Carry Certification Funnel"
+              placeholder="e.g.: Concealed Carry Certification Funnel"
               className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#fafafa] text-[14px] focus:outline-none focus:border-[#7c5cff] transition-all placeholder:text-[#666666]"
             />
           </div>
@@ -409,7 +409,7 @@ export default function FunnelFlowImporter({ isOpen, onClose, onImport }: Funnel
           <div>
             <div className="flex items-center justify-between mb-3">
               <label className="block text-[13px] font-medium text-[#fafafa]">
-                Flussi *
+                Flows *
               </label>
               <button
                 type="button"
@@ -417,7 +417,7 @@ export default function FunnelFlowImporter({ isOpen, onClose, onImport }: Funnel
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-[#7c5cff]/20 border border-[#7c5cff]/30 rounded-lg text-[#7c5cff] text-[12px] font-medium hover:bg-[#7c5cff]/30 transition-all"
               >
                 <Plus className="w-3.5 h-3.5" />
-                Aggiungi Flusso
+                Add Flow
               </button>
             </div>
 
@@ -428,7 +428,7 @@ export default function FunnelFlowImporter({ isOpen, onClose, onImport }: Funnel
                     <div className="flex items-center gap-2">
                       <GitBranch className="w-4 h-4 text-[#7c5cff]" />
                       <span className="text-[13px] font-medium text-[#fafafa]">
-                        Flusso {index + 1}
+                        Flow {index + 1}
                       </span>
                     </div>
                     {flowTexts.length > 1 && (
@@ -443,7 +443,7 @@ export default function FunnelFlowImporter({ isOpen, onClose, onImport }: Funnel
                   <textarea
                     value={text}
                     onChange={(e) => updateFlowText(index, e.target.value)}
-                    placeholder={`Incolla il flusso qui, es:\n\nZip Page : https://example.com/validate.php\nQuestions Page : https://example.com/verify.php\nSuccess Page : https://example.com/success.php\nCheckout Page : https://orders.clickbank.net/...\n\nOppure solo gli URL:\nhttps://example.com/page1\nhttps://example.com/page2\nhttps://example.com/page3`}
+                    placeholder={`Paste your flow here, e.g.:\n\nZip Page : https://example.com/validate.php\nQuestions Page : https://example.com/verify.php\nSuccess Page : https://example.com/success.php\nCheckout Page : https://orders.clickbank.net/...\n\nOr just the URLs:\nhttps://example.com/page1\nhttps://example.com/page2\nhttps://example.com/page3`}
                     rows={8}
                     className="w-full px-4 py-3 bg-transparent text-[#fafafa] text-[13px] font-mono focus:outline-none placeholder:text-[#444444] resize-y"
                   />
@@ -458,13 +458,13 @@ export default function FunnelFlowImporter({ isOpen, onClose, onImport }: Funnel
               <GitBranch className="w-5 h-5 text-[#7c5cff] flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-[13px] text-[#fafafa] font-medium mb-1">
-                  Come funziona
+                  How it works
                 </p>
                 <ul className="text-[12px] text-[#888888] space-y-1 list-disc list-inside">
-                  <li>Ogni box rappresenta un flusso separato del tuo funnel</li>
-                  <li>Le pagine con lo stesso URL vengono unite automaticamente (shared steps)</li>
-                  <li>Le connessioni vengono create seguendo l'ordine delle pagine in ogni flusso</li>
-                  <li>Formato supportato: <code className="px-1 py-0.5 bg-[#0a0a0a] rounded text-[#00d4aa]">Nome Pagina : URL</code> oppure solo l'URL</li>
+                  <li>Each box represents a separate flow of your funnel</li>
+                  <li>Pages with the same URL are merged automatically (shared steps)</li>
+                  <li>Connections are created following the page order in each flow</li>
+                  <li>Supported format: <code className="px-1 py-0.5 bg-[#0a0a0a] rounded text-[#00d4aa]">Page Name : URL</code> or just the URL</li>
                 </ul>
               </div>
             </div>
@@ -485,7 +485,7 @@ export default function FunnelFlowImporter({ isOpen, onClose, onImport }: Funnel
               className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#111111] border border-[#7c5cff]/30 text-[#7c5cff] rounded-xl text-[14px] font-medium hover:bg-[#7c5cff]/10 transition-all"
             >
               <Eye className="w-4 h-4" />
-              Anteprima Funnel
+              Funnel Preview
             </button>
           )}
 
@@ -494,13 +494,13 @@ export default function FunnelFlowImporter({ isOpen, onClose, onImport }: Funnel
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-[16px] font-semibold text-[#fafafa]">
-                  Anteprima Funnel
+                  Funnel Preview
                 </h3>
                 <button
                   onClick={handleReset}
                   className="text-[12px] text-[#888888] hover:text-[#fafafa] transition-colors"
                 >
-                  Modifica flussi
+                  Edit flows
                 </button>
               </div>
 
@@ -508,22 +508,22 @@ export default function FunnelFlowImporter({ isOpen, onClose, onImport }: Funnel
               <div className="grid grid-cols-3 gap-4">
                 <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-4 text-center">
                   <p className="text-[24px] font-bold text-[#7c5cff]">{totalFlows}</p>
-                  <p className="text-[12px] text-[#888888]">Flussi</p>
+                  <p className="text-[12px] text-[#888888]">Flows</p>
                 </div>
                 <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-4 text-center">
                   <p className="text-[24px] font-bold text-[#00d4aa]">{totalSteps}</p>
-                  <p className="text-[12px] text-[#888888]">Step Unici</p>
+                  <p className="text-[12px] text-[#888888]">Unique Steps</p>
                 </div>
                 <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-4 text-center">
                   <p className="text-[24px] font-bold text-[#f59e0b]">{totalConnections}</p>
-                  <p className="text-[12px] text-[#888888]">Connessioni</p>
+                  <p className="text-[12px] text-[#888888]">Connections</p>
                 </div>
               </div>
 
               {/* Step List */}
               <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl overflow-hidden">
                 <div className="px-4 py-3 bg-[#0a0a0a] border-b border-[#2a2a2a]">
-                  <span className="text-[13px] font-medium text-[#fafafa]">Step del Funnel</span>
+                  <span className="text-[13px] font-medium text-[#fafafa]">Funnel Steps</span>
                 </div>
                 <div className="divide-y divide-[#2a2a2a]">
                   {preview.steps.map((step: any, index: number) => (
@@ -544,7 +544,7 @@ export default function FunnelFlowImporter({ isOpen, onClose, onImport }: Funnel
               {/* Connections */}
               <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl overflow-hidden">
                 <div className="px-4 py-3 bg-[#0a0a0a] border-b border-[#2a2a2a]">
-                  <span className="text-[13px] font-medium text-[#fafafa]">Connessioni</span>
+                  <span className="text-[13px] font-medium text-[#fafafa]">Connections</span>
                 </div>
                 <div className="divide-y divide-[#2a2a2a]">
                   {preview.connections.map((conn: any, index: number) => {
@@ -572,7 +572,7 @@ export default function FunnelFlowImporter({ isOpen, onClose, onImport }: Funnel
               onClick={onClose}
               className="flex-1 px-4 py-3 bg-[#111111] border border-[#2a2a2a] text-[#fafafa] rounded-xl text-[14px] font-medium hover:bg-[#1a1a1a] transition-all"
             >
-              Annulla
+              Cancel
             </button>
             <button
               onClick={handleImport}
@@ -580,7 +580,7 @@ export default function FunnelFlowImporter({ isOpen, onClose, onImport }: Funnel
               className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white px-4 py-3 rounded-xl text-[14px] font-medium hover:shadow-lg hover:shadow-purple-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Save className="w-4 h-4" />
-              Crea Funnel
+              Create Funnel
             </button>
           </div>
         </div>

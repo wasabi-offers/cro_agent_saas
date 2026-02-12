@@ -127,7 +127,7 @@ export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingS
 
             <div className="mt-3 p-3 bg-[#7c5cff]/10 border border-[#7c5cff]/20 rounded-lg">
               <p className="text-[12px] text-[#888888]">
-                💡 Incolla questo script prima del tag <code className="text-[#7c5cff]">&lt;/body&gt;</code> della pagina
+                💡 Paste this script before the <code className="text-[#7c5cff]">&lt;/body&gt;</code> tag of your page
               </p>
             </div>
           </div>
@@ -184,15 +184,15 @@ export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingS
           </div>
           <div className="flex items-start gap-2">
             <CheckCircle2 className="w-4 h-4 text-[#00d4aa] flex-shrink-0 mt-0.5" />
-            <span className="text-[13px] text-[#888888]">Rage clicks (frustrazione utente)</span>
+            <span className="text-[13px] text-[#888888]">Rage clicks (user frustration)</span>
           </div>
           <div className="flex items-start gap-2">
             <CheckCircle2 className="w-4 h-4 text-[#00d4aa] flex-shrink-0 mt-0.5" />
-            <span className="text-[13px] text-[#888888]">Dead clicks (elementi non cliccabili)</span>
+            <span className="text-[13px] text-[#888888]">Dead clicks (non-clickable elements)</span>
           </div>
           <div className="flex items-start gap-2">
             <CheckCircle2 className="w-4 h-4 text-[#00d4aa] flex-shrink-0 mt-0.5" />
-            <span className="text-[13px] text-[#888888]">Time on page e engagement</span>
+            <span className="text-[13px] text-[#888888]">Time on page and engagement</span>
           </div>
           <div className="flex items-start gap-2">
             <CheckCircle2 className="w-4 h-4 text-[#00d4aa] flex-shrink-0 mt-0.5" />

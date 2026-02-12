@@ -115,7 +115,7 @@ export default function ProductFunnelsPage() {
         await loadData(false);
         setShowBuilder(false);
         setEditingFunnelId(null);
-        alert('✅ Funnel aggiornato con successo!');
+        alert('✅ Funnel updated successfully!');
       } else {
         alert('❌ Errore durante l\'aggiornamento del funnel');
       }
@@ -164,7 +164,7 @@ export default function ProductFunnelsPage() {
 
     if (success) {
       setFunnels(funnels.filter(f => f.id !== funnelId));
-      alert('✅ Funnel eliminato con successo!');
+      alert('✅ Funnel deleted successfully!');
     } else {
       setFunnels(funnels.filter(f => f.id !== funnelId));
     }
@@ -601,7 +601,7 @@ export default function ProductFunnelsPage() {
                                 ? "bg-[#00d4aa]/10 text-[#00d4aa] hover:bg-[#00d4aa]/20"
                                 : "bg-[#666666]/10 text-[#666666] hover:bg-[#666666]/20"
                             }`}
-                            title={isActive ? "Disattiva funnel (escludi da analisi)" : "Attiva funnel (includi in analisi)"}
+                            title={isActive ? "Deactivate funnel (exclude from analysis)" : "Activate funnel (include in analysis)"}
                           >
                             <Power className="w-4 h-4" />
                           </button>

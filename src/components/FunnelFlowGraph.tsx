@@ -193,7 +193,7 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
           {svgConnections.map((conn, idx) => {
             const srcPos = getNodePos(conn.source);
             const tgtPos = getNodePos(conn.target);
-            // Inizia 4px dopo la card sorgente, termina 14px prima della card target - frecce visibili nello spazio tra le card
+            // Start 4px after source card, end 14px before target card - arrows visible in the space between cards
             const x1 = srcPos.x + NODE_WIDTH + 4;
             const y1 = srcPos.y + NODE_HEIGHT / 2;
             const x2 = tgtPos.x - 14;
@@ -240,7 +240,7 @@ export default function FunnelFlowGraph({ steps, connections, firstStep, getDrop
           })}
         </svg>
 
-        {/* Node cards - SOPRA le connessioni (z-index 1) */}
+        {/* Node cards - ABOVE connections (z-index 1) */}
         {layout.nodes.map((node) => {
           const pos = getNodePos(node);
 

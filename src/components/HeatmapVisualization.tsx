@@ -269,7 +269,7 @@ export default function HeatmapVisualization({
                 <div className="text-center">
                   <MousePointerClick className="w-16 h-16 text-[#7c5cff] mx-auto mb-4 opacity-50" />
                   <p className="text-[16px] text-[#1a1a1a] font-semibold mb-2">
-                    NESSUN DATO REALE DISPONIBILE
+                    NO REAL DATA AVAILABLE
                   </p>
                   <p className="text-[14px] text-[#888888]">
                     Install the tracking script from the &quot;Setup&quot; tab for: {stepName}

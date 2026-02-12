@@ -381,17 +381,17 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
     setError('');
 
     if (!funnelName.trim()) {
-      setError('❌ Inserisci un nome per il funnel');
+      setError('❌ Please enter a name for the funnel');
       return;
     }
 
     if (nodes.length < 2) {
-      setError('❌ Aggiungi almeno 2 step al tuo funnel');
+      setError('❌ Add at least 2 steps to your funnel');
       return;
     }
 
     if (edges.length === 0) {
-      setError('❌ Collega gli step: trascina dal cerchio verde (→) di uno step al cerchio viola (←) di un altro step');
+      setError('❌ Connect the steps: drag from the green circle (→) of one step to the purple circle (←) of another step');
       return;
     }
 
@@ -425,7 +425,7 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
     const visit = (nodeId: string): boolean => {
       if (visited.has(nodeId)) return true;
       if (visiting.has(nodeId)) {
-        setError('❌ Il funnel contiene un ciclo (loop). Rimuovi le connessioni circolari.');
+        setError('❌ The funnel contains a cycle (loop). Remove the circular connections.');
         return false;
       }
 
@@ -543,10 +543,10 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
               className="flex items-center gap-2 px-4 py-2.5 bg-[#7c5cff] text-white rounded-xl text-[14px] font-medium hover:bg-[#6b4ee6] transition-all"
             >
               <Plus className="w-4 h-4" />
-              Aggiungi Step
+              Add Step
             </button>
             <p className="text-[13px] text-[#666666]">
-              {nodes.length} step{nodes.length !== 1 ? 's' : ''} aggiunt{nodes.length !== 1 ? 'i' : 'o'}
+              {nodes.length} step{nodes.length !== 1 ? 's' : ''} added
             </p>
           </div>
 
@@ -563,7 +563,7 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
         <div className="bg-gradient-to-r from-[#7c5cff]/20 to-[#00d4aa]/20 border border-[#7c5cff]/30 rounded-2xl p-6">
           <div className="flex items-start justify-between mb-4">
             <h3 className="text-[18px] font-semibold text-[#fafafa]">
-              👋 Come costruire il tuo funnel
+              👋 How to build your funnel
             </h3>
             <button
               onClick={() => setShowTutorial(false)}
@@ -578,10 +578,10 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
                 1
               </div>
               <h4 className="text-[14px] font-semibold text-[#fafafa] mb-2">
-                Aggiungi Steps
+                Add Steps
               </h4>
               <p className="text-[13px] text-[#888888]">
-                Clicca "Aggiungi Step" per creare le card del tuo funnel (Landing Page, Checkout, Thank You, ecc.)
+                Click &quot;Add Step&quot; to create your funnel cards (Landing Page, Checkout, Thank You, etc.)
               </p>
             </div>
             <div className="bg-[#0a0a0a]/50 border border-white/10 rounded-xl p-4">
@@ -589,10 +589,10 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
                 2
               </div>
               <h4 className="text-[14px] font-semibold text-[#fafafa] mb-2">
-                Collega le Card
+                Connect Cards
               </h4>
               <p className="text-[13px] text-[#888888]">
-                Trascina dal <span className="text-[#00d4aa] font-semibold">cerchio verde (→)</span> di una card al <span className="text-[#7c5cff] font-semibold">cerchio viola (←)</span> della card successiva. <span className="text-[#fafafa] font-semibold">Puoi creare più percorsi e ramificazioni!</span>
+                Drag from the <span className="text-[#00d4aa] font-semibold">green circle (→)</span> of one card to the <span className="text-[#7c5cff] font-semibold">purple circle (←)</span> of the next card. <span className="text-[#fafafa] font-semibold">You can create multiple paths and branches!</span>
               </p>
             </div>
             <div className="bg-[#0a0a0a]/50 border border-white/10 rounded-xl p-4">
@@ -678,10 +678,10 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
                   <Plus className="w-8 h-8 text-[#7c5cff]" />
                 </div>
                 <h3 className="text-[18px] font-semibold text-[#fafafa] mb-2">
-                  Inizia aggiungendo il primo step
+                  Start by adding your first step
                 </h3>
                 <p className="text-[14px] text-[#888888]">
-                  Clicca "Aggiungi Step" sopra per creare la tua prima card
+                  Click &quot;Add Step&quot; above to create your first card
                 </p>
               </div>
             </div>
@@ -705,7 +705,7 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
                   🔍 Tracking Setup
                 </h3>
                 <p className="text-[13px] text-[#888888]">
-                  Script di tracking per {nodes.filter(node => node.data.url).length} landing page{nodes.filter(node => node.data.url).length !== 1 ? 's' : ''}
+                  Tracking scripts for {nodes.filter(node => node.data.url).length} landing page{nodes.filter(node => node.data.url).length !== 1 ? 's' : ''}
                 </p>
               </div>
             </div>
@@ -721,13 +721,13 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
               {/* Instructions */}
               <div className="bg-gradient-to-r from-[#7c5cff]/10 to-[#00d4aa]/10 border border-[#7c5cff]/30 rounded-xl p-4">
                 <h4 className="text-[14px] font-semibold text-[#fafafa] mb-2">
-                  📋 Come usare
+                  📋 How to use
                 </h4>
                 <ol className="text-[13px] text-[#888888] space-y-1.5 list-decimal list-inside">
-                  <li>Copia lo script per ogni landing page cliccando il pulsante "Copia"</li>
-                  <li>Incolla lo script nel <code className="px-1.5 py-0.5 bg-[#0a0a0a] rounded text-[#00d4aa]">&lt;head&gt;</code> della tua landing page HTML</li>
-                  <li>Lo script inizierà automaticamente a tracciare click, scroll e movimenti del mouse</li>
-                  <li>I dati saranno visibili nella Heatmap dopo che gli utenti visitano la pagina</li>
+                  <li>Copy the script for each landing page by clicking the &quot;Copy&quot; button</li>
+                  <li>Paste the script in the <code className="px-1.5 py-0.5 bg-[#0a0a0a] rounded text-[#00d4aa]">&lt;head&gt;</code> of your landing page HTML</li>
+                  <li>The script will automatically start tracking clicks, scrolls, and mouse movements</li>
+                  <li>Data will be visible in the Heatmap after users visit the page</li>
                 </ol>
               </div>
 
@@ -818,7 +818,7 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
           onClick={onCancel}
           className="px-6 py-3 bg-[#111111] border border-white/10 text-[#888888] rounded-xl text-[14px] font-medium hover:text-[#fafafa] hover:border-[#7c5cff]/50 transition-all"
         >
-          Annulla
+          Cancel
         </button>
         <button
           onClick={handleSave}
@@ -826,7 +826,7 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
           className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white rounded-xl text-[14px] font-medium hover:shadow-lg hover:shadow-purple-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Save className="w-4 h-4" />
-          {initialFunnel ? 'Salva Modifiche' : 'Crea Funnel'}
+          {initialFunnel ? 'Save Changes' : 'Create Funnel'}
         </button>
       </div>
     </div>
