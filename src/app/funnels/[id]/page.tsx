@@ -36,6 +36,7 @@ import {
   LogIn,
   LogOut,
   Trash2,
+  Table,
 } from "lucide-react";
 import CROComparisonTable from "@/components/CROComparisonTable";
 import CROExecutiveSummary from "@/components/CROExecutiveSummary";
@@ -97,7 +98,7 @@ export default function FunnelDetailPage() {
   const [isGeneratingCROTable, setIsGeneratingCROTable] = useState(false);
   const [croTableError, setCroTableError] = useState("");
   const [showSaveDialog, setShowSaveDialog] = useState(false);
-  const [viewMode, setViewMode] = useState<"visual" | "list">("list");
+  const [viewMode, setViewMode] = useState<"visual" | "list" | "cro-table">("list");
 
   // Heatmap state
   const [selectedHeatmapPage, setSelectedHeatmapPage] = useState<number>(0);
@@ -1203,7 +1204,7 @@ export default function FunnelDetailPage() {
                   </div>
 
                   {/* View Mode Toggle */}
-                  <div className="flex gap-3">
+                  <div className="flex items-center gap-2 bg-white border border-[#7c5cff]/30 rounded-xl p-1">
                     <button
                       onClick={() => setViewMode("visual")}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${
@@ -1225,6 +1226,18 @@ export default function FunnelDetailPage() {
                     >
                       <List className="w-4 h-4" />
                       List
+                    </button>
+                    <button
+                      onClick={() => setViewMode("cro-table")}
+                      disabled={croTableRows.length === 0}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${
+                        viewMode === "cro-table"
+                          ? "bg-[#7c5cff] text-white"
+                          : "text-[#666666] hover:text-[#1a1a1a]"
+                      } ${croTableRows.length === 0 ? "opacity-40 cursor-not-allowed" : ""}`}
+                    >
+                      <Table className="w-4 h-4" />
+                      CRO Table {croTableRows.length > 0 && `(${croTableRows.length})`}
                     </button>
                   </div>
                 </div>
@@ -1310,7 +1323,7 @@ export default function FunnelDetailPage() {
                               <div className="space-y-3">
                                 <div>
                                   <p className="text-[12px] text-[#666666] mb-1">Current:</p>
-                                  <p className="text-[14px] text-[#1a1a1a] bg-[#0a0a0a] p-3 rounded-lg">{proposal.current}</p>
+                                  <p className="text-[14px] text-white bg-[#0a0a0a] p-3 rounded-lg">{proposal.current}</p>
                                 </div>
 
                                 <div>
@@ -1328,23 +1341,33 @@ export default function FunnelDetailPage() {
                   );
                 })}
 
-                {/* CRO Comparison Table */}
-                {croTableRows.length > 0 && (
-                  <div className="mt-8">
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-[20px] font-semibold text-[#1a1a1a]">
-                        CRO Decision Table
-                      </h3>
-                      <button
-                        onClick={() => setShowSaveDialog(true)}
-                        className="flex items-center gap-2 px-4 py-2.5 bg-[#00d4aa] text-white rounded-xl text-[14px] font-medium hover:bg-[#00c499] transition-all"
-                      >
-                        <Zap className="w-4 h-4" />
-                        Save Funnel Analysis
-                      </button>
+                {/* CRO Table View */}
+                {viewMode === "cro-table" && (
+                  croTableRows.length > 0 ? (
+                    <div>
+                      <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-[20px] font-semibold text-[#1a1a1a]">
+                          CRO Decision Table
+                        </h3>
+                        <button
+                          onClick={() => setShowSaveDialog(true)}
+                          className="flex items-center gap-2 px-4 py-2.5 bg-[#00d4aa] text-white rounded-xl text-[14px] font-medium hover:bg-[#00c499] transition-all"
+                        >
+                          <Zap className="w-4 h-4" />
+                          Save Funnel Analysis
+                        </button>
+                      </div>
+                      <CROComparisonTable rows={croTableRows} />
                     </div>
-                    <CROComparisonTable rows={croTableRows} />
-                  </div>
+                  ) : (
+                    <div className="bg-white border border-[#e0e0e0] rounded-2xl p-12 text-center">
+                      <Table className="w-16 h-16 text-[#666666] mx-auto mb-4" />
+                      <p className="text-[16px] text-[#666666] mb-2">No CRO Decision Table available</p>
+                      <p className="text-[14px] text-[#666666]">
+                        Click &quot;Generate CRO Decision Table&quot; above to create it
+                      </p>
+                    </div>
+                  )
                 )}
               </div>
             )}
