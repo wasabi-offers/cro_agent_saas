@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { CROTableRow } from "@/lib/saved-items";
-import { TrendingUp, AlertCircle, Lightbulb, Target, Calendar, CheckCircle2, ChevronDown, ChevronUp, ExternalLink, Eye } from "lucide-react";
+import { TrendingUp, AlertCircle, Lightbulb, Target, Calendar, CheckCircle2, ChevronDown, ChevronUp, ExternalLink, Eye, Wrench } from "lucide-react";
 
 interface CROComparisonTableProps {
   rows: CROTableRow[];
@@ -208,13 +208,20 @@ export default function CROComparisonTable({ rows, onUpdateTest }: CROComparison
                       </div>
                     </div>
                     {row.practicalTest.details && row.practicalTest.details.length > 0 && (
-                      <div className="mt-4 pt-4 border-t border-[#d0d0d0]">
-                        <h6 className="text-[13px] font-bold text-[#1a1a1a] mb-3">Implementation Details</h6>
+                      <div className="mt-4 bg-[#fff3e0] border border-[#ffb74d] rounded-xl p-5 relative overflow-hidden">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Wrench className="w-4 h-4 text-[#e65100] animate-pulse" />
+                          <h6 className="text-[13px] font-bold text-[#1a1a1a] uppercase tracking-wide">Implementation Details</h6>
+                          <span className="ml-auto flex items-center gap-1.5 bg-[#ff9800] text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider animate-bounce">
+                            <span className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
+                            Action Required
+                          </span>
+                        </div>
                         <div className="space-y-2">
                           {row.practicalTest.details.map((detail, idx) => (
                             <div key={idx} className="flex items-start gap-3">
-                              <div className="w-1.5 h-1.5 bg-[#7c5cff] rounded-full mt-2 flex-shrink-0" />
-                              <span className="text-[15px] text-[#666666] leading-relaxed">{detail}</span>
+                              <div className="w-2 h-2 bg-[#e65100] rounded-full mt-2 flex-shrink-0" />
+                              <span className="text-[15px] text-[#1a1a1a] leading-relaxed font-medium">{detail}</span>
                             </div>
                           ))}
                         </div>
