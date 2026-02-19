@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { CROTableRow } from "@/lib/saved-items";
+import { trackCroUsage } from "@/lib/cro-usage";
 
 // Disable caching for CRO analysis with live funnel data
 export const dynamic = 'force-dynamic';
@@ -377,6 +378,10 @@ IMPORTANT INSTRUCTIONS:
               },
             }));
 
+            trackCroUsage("cro_table_generated", {
+              type: type || "landing",
+              rows_count: rows.length,
+            });
             return NextResponse.json({
               success: true,
               rows,

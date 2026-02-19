@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { queryRAG } from "@/lib/rag-client";
+import { trackCroUsage } from "@/lib/cro-usage";
 import {
   TrendingUp,
   Type,
@@ -430,11 +431,20 @@ Analyze the ACTUAL content above and generate the JSON response following the sy
 
           console.log(`✅ Generated ${results.length} analysis categories`);
 
+          const source = ragContext ? "RAG + Claude" : "Claude";
+          trackCroUsage("landing_analyzed", {
+            has_url: !!url,
+            has_screenshot: !!screenshot,
+            filters: filters.join(","),
+            source,
+            categories_count: results.length,
+          });
+
           return NextResponse.json({
             success: true,
             results,
             analyzedAt: new Date().toISOString(),
-            source: ragContext ? "RAG + Claude" : "Claude",
+            source,
           });
         } catch (parseError) {
           console.error("❌ Error parsing AI response:", parseError);

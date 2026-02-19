@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { trackCroUsage } from '@/lib/cro-usage';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -135,6 +136,7 @@ Return ONLY valid JSON in this exact format:
       ...test,
     }));
 
+    trackCroUsage("ab_tests_generated", { tests_count: testsWithIds.length });
     return NextResponse.json({ tests: testsWithIds });
   } catch (error: any) {
     console.error('A/B test generation error:', error);

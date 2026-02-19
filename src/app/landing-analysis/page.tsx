@@ -272,6 +272,18 @@ export default function LandingAnalysisPage() {
     };
 
     landingPageStorage.save(savedPage);
+    fetch("/api/usage", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        event_type: "landing_saved",
+        payload: {
+          name: data.name,
+          category_id: data.categoryId,
+          has_cro_table: croTableRows.length > 0,
+        },
+      }),
+    }).catch(() => {});
     alert('Landing page saved successfully!');
     setShowSaveDialog(false);
   };

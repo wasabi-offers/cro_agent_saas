@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { getDataForAIAnalysis, fetchCRODashboardData } from "@/lib/supabase-data";
 import { queryRAG } from "@/lib/rag-client";
+import { trackCroUsage } from "@/lib/cro-usage";
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -86,6 +87,7 @@ Focus on:
           top_k: 12,
         });
         if (ragResult && !("error" in ragResult) && ragResult.answer) {
+          trackCroUsage("cro_analysis", { analysis_type: "custom", source: "rag" });
           return NextResponse.json({
             success: true,
             analysis: ragResult.answer,
@@ -125,6 +127,10 @@ ${analyticsContext}`;
     const responseText =
       message.content[0].type === "text" ? message.content[0].text : "";
 
+    trackCroUsage("cro_analysis", {
+      analysis_type: analysisType || "custom",
+      source: "claude",
+    });
     return NextResponse.json({
       success: true,
       analysis: responseText,

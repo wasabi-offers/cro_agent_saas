@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { queryRAG } from "@/lib/rag-client";
+import { trackCroUsage } from "@/lib/cro-usage";
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -17,6 +18,7 @@ export async function POST(req: NextRequest) {
       top_k: 10,
     });
     if (ragResult && !("error" in ragResult) && ragResult.answer) {
+      trackCroUsage("chat_message", { source: "rag-cro" });
       return NextResponse.json({ message: ragResult.answer, source: "rag-cro" });
     }
 
@@ -59,6 +61,7 @@ Keep responses focused and practical. Use emojis sparingly but effectively. Alwa
     const assistantMessage =
       textContent && "text" in textContent ? textContent.text : "";
 
+    trackCroUsage("chat_message", { source: "claude" });
     return NextResponse.json({
       message: assistantMessage,
       usage: response.usage,
