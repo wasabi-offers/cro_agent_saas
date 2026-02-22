@@ -1,4 +1,10 @@
 {
+  "crons": [
+    {
+      "path": "/api/competitors/cron-analyze",
+      "schedule": "0 6 * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/cro-tracker.js",

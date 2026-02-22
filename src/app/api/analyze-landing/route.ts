@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
 import { queryRAG } from "@/lib/rag-client";
 import { trackCroUsage } from "@/lib/cro-usage";
+import { anthropic } from "@/lib/braintrust";
 import {
   TrendingUp,
   Type,
@@ -234,10 +234,6 @@ export async function POST(request: Request) {
 
     console.log("🤖 Calling Claude API for landing page analysis...");
     try {
-      const client = new Anthropic({
-        apiKey: process.env.ANTHROPIC_API_KEY,
-      });
-
       const filtersList = filters.join(", ");
 
       // RAG: fetch CRO best practices to enrich context
@@ -372,7 +368,7 @@ Analyze the ACTUAL content above and generate the JSON response following the sy
         text: userPrompt,
       });
 
-      const message = await client.messages.create({
+      const message = await anthropic.messages.create({
         model: "claude-sonnet-4-20250514",
         max_tokens: 8000,
         temperature: 0.3,

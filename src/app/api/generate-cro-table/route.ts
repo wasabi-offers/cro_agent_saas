@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
 import { CROTableRow } from "@/lib/saved-items";
 import { trackCroUsage } from "@/lib/cro-usage";
+import { anthropic } from "@/lib/braintrust";
 
 // Disable caching for CRO analysis with live funnel data
 export const dynamic = 'force-dynamic';
@@ -274,11 +274,7 @@ IMPORTANT INSTRUCTIONS:
     if (process.env.ANTHROPIC_API_KEY) {
       console.log("🤖 Calling Claude API for CRO analysis...");
       try {
-        const client = new Anthropic({
-          apiKey: process.env.ANTHROPIC_API_KEY,
-        });
-
-        const message = await client.messages.create({
+        const message = await anthropic.messages.create({
           model: "claude-sonnet-4-20250514", // Upgraded to Sonnet 4 for superior analysis
           max_tokens: 8000, // Increased for comprehensive CRO table
           temperature: 0.3, // Lower for consistent, data-driven output

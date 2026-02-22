@@ -1,0 +1,1457 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import Header from "@/components/Header";
+import {
+  Plus,
+  Search,
+  Trash2,
+  RefreshCw,
+  Globe,
+  Edit2,
+  ExternalLink,
+  Eye,
+  EyeOff,
+  X,
+  Tag,
+  FileText,
+  CheckCircle,
+  PauseCircle,
+  Archive,
+  Camera,
+  BarChart3,
+  Clock,
+  AlertTriangle,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  ChevronDown,
+  ChevronUp,
+  Zap,
+  ArrowLeftRight,
+  Loader2,
+  Shield,
+  Type,
+  Layout,
+  Palette,
+  MousePointer,
+  Navigation,
+  DollarSign,
+  Calendar,
+  Activity,
+  Layers,
+  MapPin,
+  Box,
+} from "lucide-react";
+
+interface Competitor {
+  id: string;
+  name: string;
+  website_url: string;
+  description?: string;
+  category?: string;
+  status: "active" | "paused" | "archived";
+  logo_url?: string;
+  notes?: string;
+  last_analyzed_at?: string;
+  last_cro_score?: number;
+  total_changes_detected?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+interface CROChangeItem {
+  description: string;
+  before?: string;
+  after?: string;
+  impact: "positive" | "negative" | "neutral";
+  importance: "low" | "medium" | "high" | "critical";
+}
+
+interface PageElement {
+  element_type: string;
+  position: string;
+  content: string;
+  styling: string;
+  cro_role: string;
+}
+
+interface PageSection {
+  section_name: string;
+  position: string;
+  elements: PageElement[];
+}
+
+interface CROAnalysis {
+  summary: string;
+  is_baseline: boolean;
+  changes_detected: boolean;
+  severity: "none" | "minor" | "moderate" | "major";
+  overall_impact: "positive" | "negative" | "neutral" | "mixed";
+  cro_score: number;
+  cro_score_previous?: number;
+  page_structure?: {
+    total_sections: number;
+    page_height_estimate: string;
+    sections: PageSection[];
+  };
+  categories: {
+    text_changes: CROChangeItem[];
+    layout_ux_changes: CROChangeItem[];
+    visual_ui_changes: CROChangeItem[];
+    cta_changes: CROChangeItem[];
+    navigation_changes: CROChangeItem[];
+    trust_signals: CROChangeItem[];
+    pricing_offers: CROChangeItem[];
+  };
+  key_observations: string[];
+  recommendations: string[];
+}
+
+interface Snapshot {
+  id: string;
+  competitor_id: string;
+  screenshot_base64?: string;
+  captured_at: string;
+  analysis_result: CROAnalysis;
+  changes_detected: boolean;
+  change_severity: string;
+  change_summary: string;
+  cro_score: number;
+  previous_snapshot_id?: string;
+}
+
+const statusConfig = {
+  active: {
+    label: "Active",
+    icon: CheckCircle,
+    color: "#00d4aa",
+    bg: "from-[#00d4aa]/20 to-[#00d4aa]/5",
+    border: "#00d4aa",
+  },
+  paused: {
+    label: "Paused",
+    icon: PauseCircle,
+    color: "#f59e0b",
+    bg: "from-[#f59e0b]/20 to-[#f59e0b]/5",
+    border: "#f59e0b",
+  },
+  archived: {
+    label: "Archived",
+    icon: Archive,
+    color: "#888888",
+    bg: "from-[#888888]/20 to-[#888888]/5",
+    border: "#888888",
+  },
+};
+
+const severityConfig: Record<string, { color: string; bg: string; label: string }> = {
+  none: { color: "#888888", bg: "bg-[#888888]/10", label: "No Changes" },
+  minor: { color: "#3b82f6", bg: "bg-[#3b82f6]/10", label: "Minor" },
+  moderate: { color: "#f59e0b", bg: "bg-[#f59e0b]/10", label: "Moderate" },
+  major: { color: "#ef4444", bg: "bg-[#ef4444]/10", label: "Major" },
+};
+
+const impactConfig: Record<string, { icon: typeof TrendingUp; color: string; label: string }> = {
+  positive: { icon: TrendingUp, color: "#00d4aa", label: "Positive" },
+  negative: { icon: TrendingDown, color: "#ef4444", label: "Negative" },
+  neutral: { icon: Minus, color: "#888888", label: "Neutral" },
+  mixed: { icon: Activity, color: "#f59e0b", label: "Mixed" },
+};
+
+const categoryOptions = [
+  "E-commerce", "SaaS", "Marketplace", "Media", "Finance",
+  "Health", "Education", "Travel", "Food & Beverage", "Other",
+];
+
+const categoryIcons: Record<string, typeof Type> = {
+  text_changes: Type,
+  layout_ux_changes: Layout,
+  visual_ui_changes: Palette,
+  cta_changes: MousePointer,
+  navigation_changes: Navigation,
+  trust_signals: Shield,
+  pricing_offers: DollarSign,
+};
+
+const categoryLabels: Record<string, string> = {
+  text_changes: "Text Changes",
+  layout_ux_changes: "Layout & UX",
+  visual_ui_changes: "Visual & UI",
+  cta_changes: "CTA Changes",
+  navigation_changes: "Navigation",
+  trust_signals: "Trust Signals",
+  pricing_offers: "Pricing & Offers",
+};
+
+export default function CompetitorMonitoringPage() {
+  const [competitors, setCompetitors] = useState<Competitor[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editingCompetitor, setEditingCompetitor] = useState<Competitor | null>(null);
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  const [activeTab, setActiveTab] = useState<"competitors" | "cro-analysis">("competitors");
+
+  const [analysisView, setAnalysisView] = useState<{
+    competitor: Competitor;
+    snapshots: Snapshot[];
+    loading: boolean;
+  } | null>(null);
+
+  const [analyzingId, setAnalyzingId] = useState<string | null>(null);
+  const [recentChanges, setRecentChanges] = useState<Snapshot[]>([]);
+  const [loadingChanges, setLoadingChanges] = useState(false);
+  const [expandedSnapshot, setExpandedSnapshot] = useState<string | null>(null);
+  const [runningCron, setRunningCron] = useState(false);
+
+  const [formData, setFormData] = useState({
+    name: "",
+    website_url: "",
+    description: "",
+    category: "",
+    notes: "",
+  });
+
+  const loadCompetitors = async () => {
+    try {
+      const response = await fetch("/api/competitors", {
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache" },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setCompetitors(data.competitors || []);
+          setLastUpdate(new Date());
+        }
+      }
+    } catch (error) {
+      console.error("Error loading competitors:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadRecentChanges = useCallback(async () => {
+    setLoadingChanges(true);
+    try {
+      const response = await fetch(
+        "/api/competitors/snapshots?limit=20&include_screenshot=false"
+      );
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setRecentChanges(data.snapshots || []);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading changes:", error);
+    } finally {
+      setLoadingChanges(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadCompetitors();
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === "cro-analysis") {
+      loadRecentChanges();
+    }
+  }, [activeTab, loadRecentChanges]);
+
+  const resetForm = () => {
+    setFormData({ name: "", website_url: "", description: "", category: "", notes: "" });
+  };
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch("/api/competitors", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setCompetitors([data.competitor, ...competitors]);
+          setShowCreateDialog(false);
+          resetForm();
+        }
+      }
+    } catch (error) {
+      console.error("Error creating competitor:", error);
+    }
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCompetitor) return;
+    try {
+      const response = await fetch("/api/competitors", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: editingCompetitor.id, ...formData }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setCompetitors(competitors.map((c) => (c.id === editingCompetitor.id ? data.competitor : c)));
+          setShowEditDialog(false);
+          setEditingCompetitor(null);
+          resetForm();
+        }
+      }
+    } catch (error) {
+      console.error("Error updating competitor:", error);
+    }
+  };
+
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
+    try {
+      const response = await fetch(`/api/competitors?id=${id}`, { method: "DELETE" });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setCompetitors(competitors.filter((c) => c.id !== id));
+      }
+    } catch (error) {
+      console.error("Error deleting competitor:", error);
+    }
+  };
+
+  const handleToggleStatus = async (competitor: Competitor) => {
+    const nextStatus = competitor.status === "active" ? "paused" : "active";
+    try {
+      const response = await fetch("/api/competitors", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: competitor.id, status: nextStatus }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setCompetitors(competitors.map((c) => (c.id === competitor.id ? data.competitor : c)));
+        }
+      }
+    } catch (error) {
+      console.error("Error toggling status:", error);
+    }
+  };
+
+  const handleOpenEdit = (competitor: Competitor) => {
+    setEditingCompetitor(competitor);
+    setFormData({
+      name: competitor.name,
+      website_url: competitor.website_url,
+      description: competitor.description || "",
+      category: competitor.category || "",
+      notes: competitor.notes || "",
+    });
+    setShowEditDialog(true);
+  };
+
+  const handleAnalyzeSingle = async (competitor: Competitor) => {
+    setAnalyzingId(competitor.id);
+    try {
+      const response = await fetch("/api/competitors/analyze-single", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ competitor_id: competitor.id }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        loadCompetitors();
+        if (activeTab === "cro-analysis") loadRecentChanges();
+      } else {
+        alert(`Analysis failed: ${data.error}`);
+      }
+    } catch (error) {
+      console.error("Error analyzing competitor:", error);
+      alert("Failed to analyze competitor");
+    } finally {
+      setAnalyzingId(null);
+    }
+  };
+
+  const handleRunCronManually = async () => {
+    if (!confirm("Run CRO analysis for ALL active competitors? This may take a few minutes.")) return;
+    setRunningCron(true);
+    try {
+      const response = await fetch("/api/competitors/cron-analyze");
+      const data = await response.json();
+      if (data.success) {
+        alert(data.message);
+        loadCompetitors();
+        if (activeTab === "cro-analysis") loadRecentChanges();
+      } else {
+        alert(`Cron failed: ${data.error}`);
+      }
+    } catch (error) {
+      console.error("Error running cron:", error);
+      alert("Failed to run analysis");
+    } finally {
+      setRunningCron(false);
+    }
+  };
+
+  const handleViewAnalysis = async (competitor: Competitor) => {
+    setAnalysisView({ competitor, snapshots: [], loading: true });
+    try {
+      const response = await fetch(
+        `/api/competitors/snapshots?competitor_id=${competitor.id}&limit=10`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setAnalysisView({ competitor, snapshots: data.snapshots || [], loading: false });
+        }
+      }
+    } catch (error) {
+      console.error("Error loading snapshots:", error);
+      setAnalysisView((prev) => prev ? { ...prev, loading: false } : null);
+    }
+  };
+
+  const filteredCompetitors = competitors.filter((c) => {
+    const matchesSearch =
+      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.website_url.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.category?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFilter = filterStatus === "all" || c.status === filterStatus;
+    return matchesSearch && matchesFilter;
+  });
+
+  const activeCount = competitors.filter((c) => c.status === "active").length;
+  const pausedCount = competitors.filter((c) => c.status === "paused").length;
+  const changesCount = recentChanges.filter((s) => s.changes_detected).length;
+
+  const getDomain = (url: string) => {
+    try {
+      return new URL(url.startsWith("http") ? url : `https://${url}`).hostname.replace("www.", "");
+    } catch {
+      return url;
+    }
+  };
+
+  const getFaviconUrl = (url: string) => {
+    const domain = getDomain(url);
+    return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+  };
+
+  const getCompetitorName = (competitorId: string) => {
+    return competitors.find((c) => c.id === competitorId)?.name || "Unknown";
+  };
+
+  const getCompetitorUrl = (competitorId: string) => {
+    return competitors.find((c) => c.id === competitorId)?.website_url || "";
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Header title="Competitor Monitoring" breadcrumb={["Dashboard", "Competitor Monitoring"]} />
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-10 h-10 border-2 border-[#7c5cff] border-t-transparent rounded-full animate-spin" />
+            <p className="text-[#666666] text-[14px]">Loading competitors...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-white">
+      <Header title="Competitor Monitoring" breadcrumb={["Dashboard", "Competitor Monitoring"]} />
+
+      <div className="p-10 max-w-[1600px] mx-auto">
+        {/* Page Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-[28px] font-bold text-[#1a1a1a] mb-2">Competitor Monitoring</h1>
+            <p className="text-[15px] text-[#888888]">Track competitors &amp; detect CRO changes with AI</p>
+          </div>
+          <div className="flex items-center gap-3">
+            {lastUpdate && (
+              <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-[#00d4aa]/20 to-[#00d4aa]/5 border border-[#00d4aa]/30 rounded-xl">
+                <div className="w-2 h-2 rounded-full bg-[#00d4aa] animate-pulse" />
+                <span className="text-[13px] text-[#1a1a1a] font-semibold">
+                  Updated {lastUpdate.toLocaleTimeString()}
+                </span>
+              </div>
+            )}
+            <button
+              onClick={handleRunCronManually}
+              disabled={runningCron}
+              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#f59e0b]/20 to-[#f59e0b]/5 border border-[#f59e0b]/30 text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-[#f59e0b]/50 transition-all disabled:opacity-50"
+            >
+              {runningCron ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+              {runningCron ? "Analyzing..." : "Run All Analysis"}
+            </button>
+            <button
+              onClick={loadCompetitors}
+              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-[#7c5cff]/50 transition-all"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Refresh
+            </button>
+            <button
+              onClick={() => setShowCreateDialog(true)}
+              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
+            >
+              <Plus className="w-4 h-4" />
+              Add Competitor
+            </button>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex items-center gap-1 mb-8 bg-gradient-to-br from-[#7c5cff]/10 to-[#7c5cff]/5 border border-[#7c5cff]/20 rounded-xl p-1">
+          <button
+            onClick={() => setActiveTab("competitors")}
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg text-[14px] font-medium transition-all ${
+              activeTab === "competitors"
+                ? "bg-white text-[#1a1a1a] shadow-sm"
+                : "text-[#666666] hover:text-[#1a1a1a]"
+            }`}
+          >
+            <Globe className="w-4 h-4" />
+            Competitors ({competitors.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("cro-analysis")}
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg text-[14px] font-medium transition-all ${
+              activeTab === "cro-analysis"
+                ? "bg-white text-[#1a1a1a] shadow-sm"
+                : "text-[#666666] hover:text-[#1a1a1a]"
+            }`}
+          >
+            <BarChart3 className="w-4 h-4" />
+            CRO Changes
+            {changesCount > 0 && (
+              <span className="ml-1 px-2 py-0.5 bg-[#ef4444] text-white text-[11px] font-bold rounded-full">
+                {changesCount}
+              </span>
+            )}
+          </button>
+        </div>
+
+        {/* Summary Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
+                <Globe className="w-5 h-5 text-[#7c5cff]" />
+              </div>
+              <span className="text-[13px] text-[#1a1a1a] font-bold">Total Competitors</span>
+            </div>
+            <p className="text-[28px] font-bold text-[#1a1a1a]">{competitors.length}</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-[#00d4aa]/20 to-[#00d4aa]/5 border border-[#00d4aa]/30 rounded-2xl p-6">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
+                <Eye className="w-5 h-5 text-[#00d4aa]" />
+              </div>
+              <span className="text-[13px] text-[#1a1a1a] font-bold">Actively Monitored</span>
+            </div>
+            <p className="text-[28px] font-bold text-[#1a1a1a]">{activeCount}</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-[#f59e0b]/20 to-[#f59e0b]/5 border border-[#f59e0b]/30 rounded-2xl p-6">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center">
+                <EyeOff className="w-5 h-5 text-[#f59e0b]" />
+              </div>
+              <span className="text-[13px] text-[#1a1a1a] font-bold">Paused</span>
+            </div>
+            <p className="text-[28px] font-bold text-[#1a1a1a]">{pausedCount}</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-[#ef4444]/20 to-[#ef4444]/5 border border-[#ef4444]/30 rounded-2xl p-6">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-[#ef4444]/20 rounded-lg flex items-center justify-center">
+                <AlertTriangle className="w-5 h-5 text-[#ef4444]" />
+              </div>
+              <span className="text-[13px] text-[#1a1a1a] font-bold">Recent Changes</span>
+            </div>
+            <p className="text-[28px] font-bold text-[#1a1a1a]">{changesCount}</p>
+          </div>
+        </div>
+
+        {/* TAB: Competitors List */}
+        {activeTab === "competitors" && (
+          <>
+            {/* Search & Filter */}
+            <div className="flex items-center gap-4 mb-8">
+              <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#666666]" />
+                <input
+                  type="text"
+                  placeholder="Search competitors by name, URL, or category..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                {["all", "active", "paused", "archived"].map((status) => (
+                  <button
+                    key={status}
+                    onClick={() => setFilterStatus(status)}
+                    className={`px-4 py-3 rounded-xl text-[13px] font-medium transition-all ${
+                      filterStatus === status
+                        ? "bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white"
+                        : "bg-gradient-to-br from-[#7c5cff]/10 to-[#7c5cff]/5 border border-[#7c5cff]/20 text-[#666666] hover:text-[#1a1a1a] hover:border-[#7c5cff]/40"
+                    }`}
+                  >
+                    {status === "all" ? "All" : status.charAt(0).toUpperCase() + status.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Competitors List */}
+            {filteredCompetitors.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20">
+                <Globe className="w-16 h-16 text-[#666666] mb-4" />
+                <p className="text-[16px] text-[#888888] mb-2">No competitors found</p>
+                <p className="text-[14px] text-[#666666]">
+                  {searchQuery || filterStatus !== "all"
+                    ? "Try adjusting your search or filters"
+                    : "Add your first competitor to start monitoring"}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredCompetitors.map((competitor) => {
+                  const sc = statusConfig[competitor.status];
+                  const StatusIcon = sc.icon;
+                  const isAnalyzing = analyzingId === competitor.id;
+
+                  return (
+                    <div
+                      key={competitor.id}
+                      className={`bg-gradient-to-br ${sc.bg} border rounded-2xl p-6 transition-all hover:shadow-md group`}
+                      style={{ borderColor: `${sc.border}30` }}
+                    >
+                      <div className="flex items-center gap-6">
+                        {/* Favicon */}
+                        <div className="w-14 h-14 rounded-xl bg-white flex items-center justify-center shadow-sm border border-[#e0e0e0] shrink-0 overflow-hidden">
+                          <img
+                            src={getFaviconUrl(competitor.website_url)}
+                            alt={competitor.name}
+                            className="w-8 h-8"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = "none";
+                              (e.target as HTMLImageElement).parentElement!.innerHTML =
+                                '<div class="w-8 h-8 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-lg flex items-center justify-center text-white font-bold text-[14px]">' +
+                                competitor.name.charAt(0).toUpperCase() +
+                                "</div>";
+                            }}
+                          />
+                        </div>
+
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-3 mb-1">
+                            <h3 className="text-[18px] font-semibold text-[#1a1a1a] truncate">
+                              {competitor.name}
+                            </h3>
+                            <div
+                              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold"
+                              style={{ backgroundColor: `${sc.color}20`, color: sc.color }}
+                            >
+                              <StatusIcon className="w-3 h-3" />
+                              {sc.label}
+                            </div>
+                            {competitor.category && (
+                              <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#7c5cff]/10 text-[#7c5cff] text-[11px] font-semibold">
+                                <Tag className="w-3 h-3" />
+                                {competitor.category}
+                              </div>
+                            )}
+                            {competitor.last_cro_score && (
+                              <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#00d4aa]/10 text-[#00d4aa] text-[11px] font-bold">
+                                <BarChart3 className="w-3 h-3" />
+                                CRO: {competitor.last_cro_score}/100
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <a
+                              href={competitor.website_url.startsWith("http") ? competitor.website_url : `https://${competitor.website_url}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[14px] text-[#7c5cff] hover:underline inline-flex items-center gap-1"
+                            >
+                              {getDomain(competitor.website_url)}
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                            {competitor.last_analyzed_at && (
+                              <span className="text-[12px] text-[#888888] flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                Last analyzed: {new Date(competitor.last_analyzed_at).toLocaleDateString()}
+                              </span>
+                            )}
+                          </div>
+                          {competitor.description && (
+                            <p className="text-[13px] text-[#666666] mt-1 line-clamp-1">{competitor.description}</p>
+                          )}
+                        </div>
+
+                        {/* Date */}
+                        <div className="text-right shrink-0 hidden lg:block">
+                          <p className="text-[11px] text-[#888888] uppercase font-bold mb-1">Added</p>
+                          <p className="text-[13px] text-[#1a1a1a] font-medium">
+                            {new Date(competitor.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            onClick={() => handleAnalyzeSingle(competitor)}
+                            disabled={isAnalyzing}
+                            className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/60 text-[#7c5cff] hover:text-[#7c5cff] transition-colors disabled:opacity-50"
+                            title="Run CRO Analysis Now"
+                          >
+                            {isAnalyzing ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Camera className="w-4 h-4" />
+                            )}
+                          </button>
+                          <button
+                            onClick={() => handleViewAnalysis(competitor)}
+                            className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/60 text-[#666666] hover:text-[#00d4aa] transition-colors"
+                            title="View Analysis History"
+                          >
+                            <BarChart3 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleToggleStatus(competitor)}
+                            className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/60 text-[#666666] hover:text-[#1a1a1a] transition-colors"
+                            title={competitor.status === "active" ? "Pause monitoring" : "Resume monitoring"}
+                          >
+                            {competitor.status === "active" ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                          <button
+                            onClick={() => handleOpenEdit(competitor)}
+                            className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/60 text-[#666666] hover:text-[#7c5cff] transition-colors"
+                            title="Edit competitor"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(competitor.id, competitor.name)}
+                            className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/60 text-[#666666] hover:text-[#ff6b6b] transition-colors"
+                            title="Delete competitor"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {competitor.notes && (
+                        <div className="mt-4 pt-4 border-t" style={{ borderColor: `${sc.border}15` }}>
+                          <div className="flex items-start gap-2">
+                            <FileText className="w-4 h-4 text-[#888888] mt-0.5 shrink-0" />
+                            <p className="text-[13px] text-[#666666]">{competitor.notes}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* TAB: CRO Analysis Dashboard */}
+        {activeTab === "cro-analysis" && (
+          <div>
+            {loadingChanges ? (
+              <div className="flex items-center justify-center py-20">
+                <div className="flex flex-col items-center gap-4">
+                  <Loader2 className="w-10 h-10 text-[#7c5cff] animate-spin" />
+                  <p className="text-[#666666] text-[14px]">Loading CRO analysis data...</p>
+                </div>
+              </div>
+            ) : recentChanges.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20">
+                <Camera className="w-16 h-16 text-[#666666] mb-4" />
+                <p className="text-[16px] text-[#888888] mb-2">No analysis data yet</p>
+                <p className="text-[14px] text-[#666666] mb-6">
+                  Run your first CRO analysis to start tracking competitor changes
+                </p>
+                <button
+                  onClick={handleRunCronManually}
+                  disabled={runningCron}
+                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all disabled:opacity-50"
+                >
+                  {runningCron ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+                  {runningCron ? "Running Analysis..." : "Run First Analysis"}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {recentChanges.map((snapshot) => {
+                  const analysis = snapshot.analysis_result;
+                  const severity = severityConfig[snapshot.change_severity] || severityConfig.none;
+                  const impact = analysis ? impactConfig[analysis.overall_impact] || impactConfig.neutral : impactConfig.neutral;
+                  const ImpactIcon = impact.icon;
+                  const isExpanded = expandedSnapshot === snapshot.id;
+                  const competitorUrl = getCompetitorUrl(snapshot.competitor_id);
+
+                  return (
+                    <div
+                      key={snapshot.id}
+                      className="bg-gradient-to-br from-white to-[#f8f8ff] border border-[#e0e0e0] rounded-2xl overflow-hidden transition-all hover:shadow-md"
+                    >
+                      {/* Snapshot Header */}
+                      <div
+                        className="p-6 cursor-pointer"
+                        onClick={() => setExpandedSnapshot(isExpanded ? null : snapshot.id)}
+                      >
+                        <div className="flex items-center gap-4">
+                          {/* Favicon */}
+                          <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center shadow-sm border border-[#e0e0e0] shrink-0 overflow-hidden">
+                            {competitorUrl ? (
+                              <img
+                                src={getFaviconUrl(competitorUrl)}
+                                alt=""
+                                className="w-6 h-6"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).style.display = "none";
+                                }}
+                              />
+                            ) : (
+                              <Globe className="w-5 h-5 text-[#888888]" />
+                            )}
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-3 mb-1">
+                              <h3 className="text-[16px] font-semibold text-[#1a1a1a]">
+                                {getCompetitorName(snapshot.competitor_id)}
+                              </h3>
+                              <div
+                                className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold ${severity.bg}`}
+                                style={{ color: severity.color }}
+                              >
+                                {snapshot.changes_detected ? (
+                                  <AlertTriangle className="w-3 h-3" />
+                                ) : (
+                                  <CheckCircle className="w-3 h-3" />
+                                )}
+                                {severity.label}
+                              </div>
+                              <div
+                                className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold"
+                                style={{ backgroundColor: `${impact.color}15`, color: impact.color }}
+                              >
+                                <ImpactIcon className="w-3 h-3" />
+                                {impact.label} Impact
+                              </div>
+                              {snapshot.cro_score && (
+                                <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#7c5cff]/10 text-[#7c5cff] text-[11px] font-bold">
+                                  CRO Score: {snapshot.cro_score}/100
+                                </div>
+                              )}
+                            </div>
+                            <p className="text-[13px] text-[#666666] line-clamp-1">
+                              {snapshot.change_summary || "No changes detected"}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-3 shrink-0">
+                            <div className="text-right">
+                              <div className="flex items-center gap-1 text-[12px] text-[#888888]">
+                                <Calendar className="w-3 h-3" />
+                                {new Date(snapshot.captured_at).toLocaleDateString()}
+                              </div>
+                              <p className="text-[11px] text-[#aaaaaa]">
+                                {new Date(snapshot.captured_at).toLocaleTimeString()}
+                              </p>
+                            </div>
+                            {isExpanded ? (
+                              <ChevronUp className="w-5 h-5 text-[#888888]" />
+                            ) : (
+                              <ChevronDown className="w-5 h-5 text-[#888888]" />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Expanded Analysis */}
+                      {isExpanded && analysis && (
+                        <div className="border-t border-[#e0e0e0] bg-gradient-to-br from-[#f8f8ff] to-white">
+                          {/* Summary Section */}
+                          <div className="p-6 border-b border-[#e0e0e0]/50">
+                            <h4 className="text-[15px] font-bold text-[#1a1a1a] mb-3 flex items-center gap-2">
+                              <BarChart3 className="w-4 h-4 text-[#7c5cff]" />
+                              {analysis.is_baseline ? "Baseline CRO Audit" : "CRO Change Analysis"}
+                            </h4>
+                            <p className="text-[14px] text-[#444444] leading-relaxed">{analysis.summary}</p>
+
+                            {analysis.cro_score_previous !== undefined && analysis.cro_score_previous !== null && (
+                              <div className="flex items-center gap-4 mt-4">
+                                <div className="flex items-center gap-2 px-4 py-2 bg-[#888888]/10 rounded-lg">
+                                  <span className="text-[12px] text-[#888888] font-medium">Before:</span>
+                                  <span className="text-[16px] font-bold text-[#888888]">{analysis.cro_score_previous}</span>
+                                </div>
+                                <ArrowLeftRight className="w-4 h-4 text-[#888888]" />
+                                <div className="flex items-center gap-2 px-4 py-2 bg-[#7c5cff]/10 rounded-lg">
+                                  <span className="text-[12px] text-[#7c5cff] font-medium">After:</span>
+                                  <span className="text-[16px] font-bold text-[#7c5cff]">{analysis.cro_score}</span>
+                                </div>
+                                <div
+                                  className="flex items-center gap-1 px-3 py-2 rounded-lg text-[13px] font-bold"
+                                  style={{
+                                    backgroundColor: analysis.cro_score > analysis.cro_score_previous ? "#00d4aa20" : analysis.cro_score < analysis.cro_score_previous ? "#ef444420" : "#88888820",
+                                    color: analysis.cro_score > analysis.cro_score_previous ? "#00d4aa" : analysis.cro_score < analysis.cro_score_previous ? "#ef4444" : "#888888",
+                                  }}
+                                >
+                                  {analysis.cro_score > analysis.cro_score_previous ? (
+                                    <><TrendingUp className="w-4 h-4" /> +{analysis.cro_score - analysis.cro_score_previous}</>
+                                  ) : analysis.cro_score < analysis.cro_score_previous ? (
+                                    <><TrendingDown className="w-4 h-4" /> {analysis.cro_score - analysis.cro_score_previous}</>
+                                  ) : (
+                                    <><Minus className="w-4 h-4" /> No change</>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Change Categories */}
+                          {analysis.categories && (
+                            <div className="p-6 border-b border-[#e0e0e0]/50">
+                              <h4 className="text-[15px] font-bold text-[#1a1a1a] mb-4">Detailed Changes</h4>
+                              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                {Object.entries(analysis.categories).map(([key, items]) => {
+                                  const typedItems = items as CROChangeItem[];
+                                  if (!typedItems || typedItems.length === 0) return null;
+                                  const Icon = categoryIcons[key] || FileText;
+                                  const label = categoryLabels[key] || key;
+
+                                  return (
+                                    <div
+                                      key={key}
+                                      className="bg-white border border-[#e0e0e0] rounded-xl p-4"
+                                    >
+                                      <div className="flex items-center gap-2 mb-3">
+                                        <Icon className="w-4 h-4 text-[#7c5cff]" />
+                                        <span className="text-[13px] font-bold text-[#1a1a1a]">{label}</span>
+                                        <span className="ml-auto text-[11px] px-2 py-0.5 rounded-full bg-[#7c5cff]/10 text-[#7c5cff] font-semibold">
+                                          {typedItems.length} {typedItems.length === 1 ? "change" : "changes"}
+                                        </span>
+                                      </div>
+                                      <div className="space-y-3">
+                                        {typedItems.map((item, idx) => {
+                                          const itemImpact = impactConfig[item.impact] || impactConfig.neutral;
+                                          return (
+                                            <div key={idx} className="text-[13px]">
+                                              <p className="text-[#444444] mb-1">{item.description}</p>
+                                              {(item.before || item.after) && (
+                                                <div className="flex items-start gap-2 mt-1">
+                                                  {item.before && (
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#ef4444]/10 text-[#ef4444] rounded text-[11px] line-through">
+                                                      {item.before}
+                                                    </span>
+                                                  )}
+                                                  {item.before && item.after && (
+                                                    <span className="text-[#888888] text-[11px] mt-0.5">&rarr;</span>
+                                                  )}
+                                                  {item.after && (
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#00d4aa]/10 text-[#00d4aa] rounded text-[11px]">
+                                                      {item.after}
+                                                    </span>
+                                                  )}
+                                                </div>
+                                              )}
+                                              <div className="flex items-center gap-2 mt-1">
+                                                <span
+                                                  className="text-[10px] px-1.5 py-0.5 rounded font-semibold"
+                                                  style={{ backgroundColor: `${itemImpact.color}15`, color: itemImpact.color }}
+                                                >
+                                                  {item.impact}
+                                                </span>
+                                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#f0f0f0] text-[#888888] font-semibold">
+                                                  {item.importance}
+                                                </span>
+                                              </div>
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Page Structure Map */}
+                          {analysis.page_structure && analysis.page_structure.sections && analysis.page_structure.sections.length > 0 && (
+                            <div className="p-6 border-b border-[#e0e0e0]/50">
+                              <h4 className="text-[15px] font-bold text-[#1a1a1a] mb-2 flex items-center gap-2">
+                                <Layers className="w-4 h-4 text-[#7c5cff]" />
+                                Full Page Element Map
+                              </h4>
+                              <p className="text-[12px] text-[#888888] mb-4">
+                                {analysis.page_structure.total_sections} sections mapped — Est. height: {analysis.page_structure.page_height_estimate}
+                              </p>
+
+                              <div className="space-y-3">
+                                {analysis.page_structure.sections.map((section, sIdx) => (
+                                  <div
+                                    key={sIdx}
+                                    className="border border-[#e0e0e0] rounded-xl overflow-hidden"
+                                  >
+                                    <div className="px-4 py-3 bg-gradient-to-r from-[#7c5cff]/5 to-transparent flex items-center justify-between">
+                                      <div className="flex items-center gap-2">
+                                        <Box className="w-4 h-4 text-[#7c5cff]" />
+                                        <span className="text-[13px] font-bold text-[#1a1a1a]">
+                                          {section.section_name}
+                                        </span>
+                                      </div>
+                                      <span className="text-[11px] text-[#888888] font-mono flex items-center gap-1">
+                                        <MapPin className="w-3 h-3" />
+                                        {section.position}
+                                      </span>
+                                    </div>
+                                    <div className="px-4 py-2">
+                                      <div className="divide-y divide-[#f0f0f0]">
+                                        {section.elements.map((el, elIdx) => (
+                                          <div key={elIdx} className="py-2 grid grid-cols-12 gap-2 text-[12px]">
+                                            <div className="col-span-2">
+                                              <span className="inline-block px-2 py-0.5 rounded bg-[#7c5cff]/10 text-[#7c5cff] font-semibold text-[10px]">
+                                                {el.element_type}
+                                              </span>
+                                            </div>
+                                            <div className="col-span-4 text-[#1a1a1a]">
+                                              {el.content}
+                                            </div>
+                                            <div className="col-span-3 text-[#888888]">
+                                              {el.styling}
+                                            </div>
+                                            <div className="col-span-3">
+                                              <span className="inline-block px-2 py-0.5 rounded bg-[#00d4aa]/10 text-[#00d4aa] font-semibold text-[10px]">
+                                                {el.cro_role}
+                                              </span>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Key Observations & Recommendations */}
+                          <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            {analysis.key_observations && analysis.key_observations.length > 0 && (
+                              <div>
+                                <h4 className="text-[14px] font-bold text-[#1a1a1a] mb-3 flex items-center gap-2">
+                                  <Eye className="w-4 h-4 text-[#f59e0b]" />
+                                  Key Observations
+                                </h4>
+                                <ul className="space-y-2">
+                                  {analysis.key_observations.map((obs, idx) => (
+                                    <li key={idx} className="flex items-start gap-2 text-[13px] text-[#444444]">
+                                      <div className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] mt-1.5 shrink-0" />
+                                      {obs}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+
+                            {analysis.recommendations && analysis.recommendations.length > 0 && (
+                              <div>
+                                <h4 className="text-[14px] font-bold text-[#1a1a1a] mb-3 flex items-center gap-2">
+                                  <Zap className="w-4 h-4 text-[#00d4aa]" />
+                                  Recommendations
+                                </h4>
+                                <ul className="space-y-2">
+                                  {analysis.recommendations.map((rec, idx) => (
+                                    <li key={idx} className="flex items-start gap-2 text-[13px] text-[#444444]">
+                                      <div className="w-1.5 h-1.5 rounded-full bg-[#00d4aa] mt-1.5 shrink-0" />
+                                      {rec}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Analysis Detail Modal */}
+      {analysisView && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-start justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-5xl w-full my-8 overflow-hidden shadow-2xl">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] p-6 z-10">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
+                    <img
+                      src={getFaviconUrl(analysisView.competitor.website_url)}
+                      alt=""
+                      className="w-7 h-7"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = "none";
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <h2 className="text-[20px] font-bold text-white">
+                      {analysisView.competitor.name}
+                    </h2>
+                    <p className="text-[13px] text-white/70">
+                      {getDomain(analysisView.competitor.website_url)} — Analysis History
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setAnalysisView(null)}
+                  className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/20 hover:bg-white/30 text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6">
+              {analysisView.loading ? (
+                <div className="flex items-center justify-center py-16">
+                  <div className="flex flex-col items-center gap-4">
+                    <Loader2 className="w-10 h-10 text-[#7c5cff] animate-spin" />
+                    <p className="text-[#666666] text-[14px]">Loading analysis history...</p>
+                  </div>
+                </div>
+              ) : analysisView.snapshots.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16">
+                  <Camera className="w-16 h-16 text-[#666666] mb-4" />
+                  <p className="text-[16px] text-[#888888] mb-2">No snapshots yet</p>
+                  <p className="text-[14px] text-[#666666] mb-6">
+                    Run the first CRO analysis for this competitor
+                  </p>
+                  <button
+                    onClick={() => {
+                      handleAnalyzeSingle(analysisView.competitor);
+                      setAnalysisView(null);
+                    }}
+                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
+                  >
+                    <Camera className="w-4 h-4" />
+                    Analyze Now
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {analysisView.snapshots.map((snapshot, idx) => {
+                    const analysis = snapshot.analysis_result;
+                    const nextSnapshot = analysisView.snapshots[idx + 1];
+                    const severity = severityConfig[snapshot.change_severity] || severityConfig.none;
+
+                    return (
+                      <div key={snapshot.id} className="border border-[#e0e0e0] rounded-xl overflow-hidden">
+                        {/* Snapshot Header */}
+                        <div className="p-4 bg-gradient-to-br from-[#f8f8ff] to-white flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <Calendar className="w-4 h-4 text-[#7c5cff]" />
+                            <span className="text-[14px] font-semibold text-[#1a1a1a]">
+                              {new Date(snapshot.captured_at).toLocaleDateString("en-US", {
+                                weekday: "long",
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })}
+                            </span>
+                            <span className="text-[12px] text-[#888888]">
+                              {new Date(snapshot.captured_at).toLocaleTimeString()}
+                            </span>
+                            <div
+                              className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${severity.bg}`}
+                              style={{ color: severity.color }}
+                            >
+                              {severity.label}
+                            </div>
+                            {snapshot.cro_score && (
+                              <span className="text-[12px] font-bold text-[#7c5cff]">
+                                Score: {snapshot.cro_score}/100
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Screenshot Comparison */}
+                        {(snapshot.screenshot_base64 || nextSnapshot?.screenshot_base64) && (
+                          <div className="p-4 border-t border-[#e0e0e0]/50">
+                            <h5 className="text-[13px] font-bold text-[#1a1a1a] mb-3 flex items-center gap-2">
+                              <ArrowLeftRight className="w-4 h-4 text-[#7c5cff]" />
+                              Screenshot Comparison
+                            </h5>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {nextSnapshot?.screenshot_base64 && (
+                                <div>
+                                  <p className="text-[11px] text-[#888888] font-bold uppercase mb-2">
+                                    Previous ({new Date(nextSnapshot.captured_at).toLocaleDateString()})
+                                  </p>
+                                  <div className="border border-[#e0e0e0] rounded-lg overflow-hidden">
+                                    <img
+                                      src={`data:image/jpeg;base64,${nextSnapshot.screenshot_base64}`}
+                                      alt="Previous"
+                                      className="w-full"
+                                    />
+                                  </div>
+                                </div>
+                              )}
+                              {snapshot.screenshot_base64 && (
+                                <div>
+                                  <p className="text-[11px] text-[#888888] font-bold uppercase mb-2">
+                                    Current ({new Date(snapshot.captured_at).toLocaleDateString()})
+                                  </p>
+                                  <div className="border border-[#7c5cff]/30 rounded-lg overflow-hidden ring-2 ring-[#7c5cff]/20">
+                                    <img
+                                      src={`data:image/jpeg;base64,${snapshot.screenshot_base64}`}
+                                      alt="Current"
+                                      className="w-full"
+                                    />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Analysis Summary */}
+                        {analysis && (
+                          <div className="p-4 border-t border-[#e0e0e0]/50">
+                            <p className="text-[13px] text-[#444444] leading-relaxed">
+                              {analysis.summary}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Dialog */}
+      {showCreateDialog && (
+        <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-8 max-w-lg w-full">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-[22px] font-bold text-[#1a1a1a]">Add Competitor</h2>
+              <button
+                onClick={() => { setShowCreateDialog(false); resetForm(); }}
+                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/60 text-[#666666] hover:text-[#1a1a1a] transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreate} className="space-y-4">
+              <div>
+                <label className="block text-[13px] text-[#1a1a1a] mb-2 font-semibold">Competitor Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="e.g. Amazon, Shopify, Zalando..."
+                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[13px] text-[#1a1a1a] mb-2 font-semibold">Website URL *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.website_url}
+                  onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
+                  placeholder="https://www.example.com"
+                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[13px] text-[#1a1a1a] mb-2 font-semibold">Category</label>
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all"
+                >
+                  <option value="">Select category...</option>
+                  {categoryOptions.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[13px] text-[#1a1a1a] mb-2 font-semibold">Description</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Brief description of this competitor..."
+                  rows={2}
+                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[13px] text-[#1a1a1a] mb-2 font-semibold">Notes</label>
+                <textarea
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  placeholder="Internal notes about this competitor..."
+                  rows={2}
+                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
+                />
+              </div>
+
+              <div className="flex items-center gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => { setShowCreateDialog(false); resetForm(); }}
+                  className="flex-1 px-5 py-3 bg-white/80 border border-[#7c5cff]/30 text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-[#7c5cff]/50 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
+                >
+                  Add Competitor
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Dialog */}
+      {showEditDialog && editingCompetitor && (
+        <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-8 max-w-lg w-full">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-[22px] font-bold text-[#1a1a1a]">Edit Competitor</h2>
+              <button
+                onClick={() => { setShowEditDialog(false); setEditingCompetitor(null); resetForm(); }}
+                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/60 text-[#666666] hover:text-[#1a1a1a] transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdate} className="space-y-4">
+              <div>
+                <label className="block text-[13px] text-[#1a1a1a] mb-2 font-semibold">Competitor Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[13px] text-[#1a1a1a] mb-2 font-semibold">Website URL *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.website_url}
+                  onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
+                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[13px] text-[#1a1a1a] mb-2 font-semibold">Category</label>
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all"
+                >
+                  <option value="">Select category...</option>
+                  {categoryOptions.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[13px] text-[#1a1a1a] mb-2 font-semibold">Description</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  rows={2}
+                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[13px] text-[#1a1a1a] mb-2 font-semibold">Notes</label>
+                <textarea
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  rows={2}
+                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
+                />
+              </div>
+
+              <div className="flex items-center gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => { setShowEditDialog(false); setEditingCompetitor(null); resetForm(); }}
+                  className="flex-1 px-5 py-3 bg-white/80 border border-[#7c5cff]/30 text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-[#7c5cff]/50 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
+import { anthropic } from "@/lib/braintrust";
 
 // This API generates A/B test suggestions based on analytics data
 // In production, this would analyze real data from Supabase
@@ -96,11 +96,6 @@ export async function POST(request: Request) {
 
     console.log("🤖 Calling Claude API for A/B test suggestions...");
     try {
-      const client = new Anthropic({
-        apiKey: process.env.ANTHROPIC_API_KEY,
-      });
-
-
       const prompt = `You are a CRO (Conversion Rate Optimization) expert. Based on the following analytics data, generate 3-5 A/B test suggestions.
 
 Analytics Data:
@@ -120,7 +115,7 @@ IMPORTANT: Return ONLY a valid JSON array, no text before or after.
 
 Format: [{"priority": "high", "page": "...", "element": "...", "hypothesis": "...", "expectedImpact": "...", "metrics": [...], "reasoning": "...", "dataSource": "..."}]`;
 
-      const message = await client.messages.create({
+      const message = await anthropic.messages.create({
         model: "claude-3-haiku-20240307",
         max_tokens: 2000,
         messages: [

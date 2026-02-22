@@ -1,12 +1,8 @@
 import { NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
 import { getDataForAIAnalysis, fetchCRODashboardData } from "@/lib/supabase-data";
 import { queryRAG } from "@/lib/rag-client";
 import { trackCroUsage } from "@/lib/cro-usage";
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+import { anthropic } from "@/lib/braintrust";
 
 const CRO_SYSTEM_PROMPT = `You are an expert CRO (Conversion Rate Optimization) consultant with 15+ years of experience. You analyze website behavior data and provide actionable, prioritized recommendations.
 

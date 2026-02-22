@@ -15,6 +15,7 @@ import {
   Folder,
   Archive,
   Target,
+  Globe,
 } from "lucide-react";
 
 const menuItems = [
@@ -26,6 +27,7 @@ const menuItems = [
   { name: "Heatmaps", href: "/heatmaps", icon: MousePointerClick },
   { name: "Projects", href: "/products", icon: Folder },
   { name: "Landing Analysis", href: "/landing-analysis", icon: FileSearch },
+  { name: "Competitor Monitoring", href: "/competitor-monitoring", icon: Globe },
   { name: "Archivio", href: "/saved-items", icon: Archive },
   { name: "Data Sources", href: "/data-sources", icon: Database },
 ];

@@ -1,11 +1,7 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { queryRAG } from "@/lib/rag-client";
 import { trackCroUsage } from "@/lib/cro-usage";
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+import { anthropic } from "@/lib/braintrust";
 
 export async function POST(req: NextRequest) {
   try {

@@ -2,14 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { fetchClarityInsights } from "@/lib/supabase-data";
-
-// ============================================
-// CONFIGURATION
-// ============================================
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+import { anthropic } from "@/lib/braintrust";
 
 // ============================================
 // CRO TOOL DEFINITIONS
