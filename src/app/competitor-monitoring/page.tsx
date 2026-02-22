@@ -976,6 +976,26 @@ export default function CompetitorMonitoringPage() {
                             )}
                           </div>
 
+                          {/* Strategic Assumption */}
+                          {analysis.strategic_assumption && (
+                            <div className="p-6 border-b border-[#e0e0e0]/50">
+                              <div className="bg-gradient-to-br from-[#f59e0b]/15 to-[#f59e0b]/5 border border-[#f59e0b]/30 rounded-2xl p-6">
+                                <div className="flex items-center gap-3 mb-3">
+                                  <div className="w-10 h-10 bg-[#f59e0b]/20 rounded-xl flex items-center justify-center">
+                                    <Brain className="w-5 h-5 text-[#f59e0b]" />
+                                  </div>
+                                  <div>
+                                    <h4 className="text-[15px] font-bold text-[#1a1a1a]">Why Did They Make This Change?</h4>
+                                    <p className="text-[11px] text-[#888888] font-medium">AI Strategic Assumption — powered by Claude</p>
+                                  </div>
+                                </div>
+                                <p className="text-[14px] text-[#333333] leading-relaxed pl-[52px]">
+                                  {analysis.strategic_assumption}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+
                           {/* Change Categories */}
                           {analysis.categories && (
                             <div className="p-6 border-b border-[#e0e0e0]/50">
@@ -1363,18 +1383,27 @@ export default function CompetitorMonitoringPage() {
                         </div>
                       )}
 
-                      {snapAnalysis.strategic_assumption && (
-                        <div className="mt-4 flex items-start gap-3 p-4 bg-gradient-to-r from-[#f59e0b]/10 to-[#f59e0b]/5 border border-[#f59e0b]/25 rounded-xl">
-                          <div className="w-8 h-8 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center shrink-0">
-                            <Brain className="w-4 h-4 text-[#f59e0b]" />
-                          </div>
-                          <div>
-                            <p className="text-[12px] font-bold text-[#f59e0b] uppercase tracking-wide mb-1">Strategic Assumption</p>
-                            <p className="text-[13px] text-[#444444] leading-relaxed">{snapAnalysis.strategic_assumption}</p>
-                          </div>
-                        </div>
-                      )}
                     </div>
+
+                    {/* Strategic Assumption */}
+                    {snapAnalysis.strategic_assumption && (
+                      <div className="px-6 py-5 border-b border-[#e0e0e0]/50">
+                        <div className="bg-gradient-to-br from-[#f59e0b]/15 to-[#f59e0b]/5 border border-[#f59e0b]/30 rounded-2xl p-6">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="w-10 h-10 bg-[#f59e0b]/20 rounded-xl flex items-center justify-center">
+                              <Brain className="w-5 h-5 text-[#f59e0b]" />
+                            </div>
+                            <div>
+                              <h4 className="text-[15px] font-bold text-[#1a1a1a]">Why Did They Make This Change?</h4>
+                              <p className="text-[11px] text-[#888888] font-medium">AI Strategic Assumption — powered by Claude</p>
+                            </div>
+                          </div>
+                          <p className="text-[14px] text-[#333333] leading-relaxed pl-[52px]">
+                            {snapAnalysis.strategic_assumption}
+                          </p>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Change Categories */}
                     {snapAnalysis.categories && (
