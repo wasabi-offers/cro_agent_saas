@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Sidebar from "@/components/Sidebar";
-import AIChatAssistant from "@/components/AIChatAssistant";
+import AuthLayout from "@/components/AuthLayout";
 
 export const metadata: Metadata = {
   title: "CRO Agent - Conversion Rate Optimization",
@@ -18,7 +17,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Microsoft Clarity */}
         {clarityProjectId && (
           <script
             type="text/javascript"
@@ -35,11 +33,7 @@ export default function RootLayout({
         )}
       </head>
       <body>
-        <div className="min-h-screen bg-white">
-          <Sidebar />
-          <main className="pl-[280px]">{children}</main>
-          <AIChatAssistant />
-        </div>
+        <AuthLayout>{children}</AuthLayout>
       </body>
     </html>
   );

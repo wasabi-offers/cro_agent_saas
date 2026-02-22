@@ -1,7 +1,10 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
+import type { User } from "@supabase/supabase-js";
 import {
   LayoutDashboard,
   BarChart3,
@@ -16,6 +19,8 @@ import {
   Archive,
   Target,
   Globe,
+  LogOut,
+  User as UserIcon,
 } from "lucide-react";
 
 const menuItems = [
@@ -34,6 +39,24 @@ const menuItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const supabase = createSupabaseBrowserClient();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUser(data.user));
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-[280px] bg-[#f8f9fa] border-r border-[#e0e0e0] flex flex-col z-50">
@@ -70,16 +93,30 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* Sync Status */}
+      {/* User & Logout */}
       <div className="px-4 py-4 border-t border-[#e0e0e0]">
         <div className="bg-white rounded-xl p-4 border border-[#e0e0e0]">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-2 h-2 rounded-full bg-[#00d4aa] animate-pulse" />
-            <span className="text-[12px] text-[#666666]">All sources synced</span>
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-lg flex items-center justify-center flex-shrink-0">
+              <UserIcon className="w-4 h-4 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[13px] font-medium text-[#1a1a1a] truncate">
+                {user?.email || "Loading..."}
+              </p>
+              <div className="flex items-center gap-1.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#00d4aa]" />
+                <span className="text-[11px] text-[#888888]">Online</span>
+              </div>
+            </div>
           </div>
-          <p className="text-[11px] text-[#888888]">
-            Last sync: 2 hours ago
-          </p>
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 py-2 text-[13px] font-medium text-[#888888] hover:text-[#ff6b6b] hover:bg-red-50 rounded-lg transition-all"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            Sign Out
+          </button>
         </div>
       </div>
     </aside>
