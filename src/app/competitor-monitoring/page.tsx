@@ -591,7 +591,7 @@ export default function CompetitorMonitoringPage() {
         {activeTab === "competitors" && (
           <>
             {/* Search & Filter */}
-            <div className="flex items-center gap-4 mb-8">
+            <div className="flex items-center gap-4 mb-6">
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#666666]" />
                 <input
@@ -599,7 +599,7 @@ export default function CompetitorMonitoringPage() {
                   placeholder="Search competitors by name, URL, or category..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                  className="w-full pl-12 pr-4 py-3 bg-[#f8f9fa] border border-[#e0e0e0] rounded-xl text-[#1a1a1a] text-[14px] placeholder:text-[#999999] focus:outline-none focus:border-[#7c5cff] transition-all"
                 />
               </div>
               <div className="flex items-center gap-2">
@@ -609,8 +609,8 @@ export default function CompetitorMonitoringPage() {
                     onClick={() => setFilterStatus(status)}
                     className={`px-4 py-3 rounded-xl text-[13px] font-medium transition-all ${
                       filterStatus === status
-                        ? "bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white"
-                        : "bg-gradient-to-br from-[#7c5cff]/10 to-[#7c5cff]/5 border border-[#7c5cff]/20 text-[#666666] hover:text-[#1a1a1a] hover:border-[#7c5cff]/40"
+                        ? "bg-[#7c5cff] text-white"
+                        : "bg-[#f8f9fa] border border-[#e0e0e0] text-[#666666] hover:text-[#1a1a1a] hover:border-[#7c5cff]/40"
                     }`}
                   >
                     {status === "all" ? "All" : status.charAt(0).toUpperCase() + status.slice(1)}
@@ -619,7 +619,7 @@ export default function CompetitorMonitoringPage() {
               </div>
             </div>
 
-            {/* Competitors List */}
+            {/* Competitors Table */}
             {filteredCompetitors.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20">
                 <Globe className="w-16 h-16 text-[#666666] mb-4" />
@@ -631,147 +631,188 @@ export default function CompetitorMonitoringPage() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-4">
-                {filteredCompetitors.map((competitor) => {
-                  const sc = statusConfig[competitor.status];
-                  const StatusIcon = sc.icon;
-                  const isAnalyzing = analyzingId === competitor.id;
+              <div className="border border-[#e0e0e0] rounded-2xl overflow-hidden bg-white">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-[#f8f9fa] border-b border-[#e0e0e0]">
+                        <th className="text-left px-6 py-4 text-[12px] font-bold text-[#888888] uppercase tracking-wider">Brand</th>
+                        <th className="text-left px-4 py-4 text-[12px] font-bold text-[#888888] uppercase tracking-wider">Status</th>
+                        <th className="text-left px-4 py-4 text-[12px] font-bold text-[#888888] uppercase tracking-wider">Created</th>
+                        <th className="text-left px-4 py-4 text-[12px] font-bold text-[#888888] uppercase tracking-wider">Last Update</th>
+                        <th className="text-center px-4 py-4 text-[12px] font-bold text-[#888888] uppercase tracking-wider">Days Running</th>
+                        <th className="text-center px-4 py-4 text-[12px] font-bold text-[#888888] uppercase tracking-wider">CRO Score</th>
+                        <th className="text-center px-4 py-4 text-[12px] font-bold text-[#888888] uppercase tracking-wider">N. of Updates</th>
+                        <th className="text-center px-4 py-4 text-[12px] font-bold text-[#888888] uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#f0f0f0]">
+                      {filteredCompetitors.map((competitor) => {
+                        const sc = statusConfig[competitor.status];
+                        const StatusIcon = sc.icon;
+                        const isAnalyzing = analyzingId === competitor.id;
+                        const createdDate = new Date(competitor.created_at);
+                        const daysRunning = Math.floor((Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
+                        const lastUpdateDate = competitor.last_analyzed_at ? new Date(competitor.last_analyzed_at) : null;
 
-                  return (
-                    <div
-                      key={competitor.id}
-                      className={`bg-gradient-to-br ${sc.bg} border rounded-2xl p-6 transition-all hover:shadow-md group`}
-                      style={{ borderColor: `${sc.border}30` }}
-                    >
-                      <div className="flex items-center gap-6">
-                        {/* Favicon */}
-                        <div className="w-14 h-14 rounded-xl bg-white flex items-center justify-center shadow-sm border border-[#e0e0e0] shrink-0 overflow-hidden">
-                          <img
-                            src={getFaviconUrl(competitor.website_url)}
-                            alt={competitor.name}
-                            className="w-8 h-8"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = "none";
-                              (e.target as HTMLImageElement).parentElement!.innerHTML =
-                                '<div class="w-8 h-8 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-lg flex items-center justify-center text-white font-bold text-[14px]">' +
-                                competitor.name.charAt(0).toUpperCase() +
-                                "</div>";
-                            }}
-                          />
-                        </div>
+                        return (
+                          <tr
+                            key={competitor.id}
+                            className="hover:bg-[#fafaff] transition-colors group"
+                          >
+                            {/* Brand */}
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-lg bg-[#f8f9fa] flex items-center justify-center border border-[#e0e0e0] shrink-0 overflow-hidden">
+                                  <img
+                                    src={getFaviconUrl(competitor.website_url)}
+                                    alt={competitor.name}
+                                    className="w-5 h-5"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).style.display = "none";
+                                      (e.target as HTMLImageElement).parentElement!.innerHTML =
+                                        '<div class="w-5 h-5 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded flex items-center justify-center text-white font-bold text-[10px]">' +
+                                        competitor.name.charAt(0).toUpperCase() +
+                                        "</div>";
+                                    }}
+                                  />
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="text-[14px] font-semibold text-[#1a1a1a] truncate">{competitor.name}</p>
+                                  <a
+                                    href={competitor.website_url.startsWith("http") ? competitor.website_url : `https://${competitor.website_url}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-[12px] text-[#7c5cff] hover:underline inline-flex items-center gap-1"
+                                  >
+                                    {getDomain(competitor.website_url)}
+                                    <ExternalLink className="w-2.5 h-2.5" />
+                                  </a>
+                                </div>
+                              </div>
+                            </td>
 
-                        {/* Info */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-3 mb-1">
-                            <h3 className="text-[18px] font-semibold text-[#1a1a1a] truncate">
-                              {competitor.name}
-                            </h3>
-                            <div
-                              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold"
-                              style={{ backgroundColor: `${sc.color}20`, color: sc.color }}
-                            >
-                              <StatusIcon className="w-3 h-3" />
-                              {sc.label}
-                            </div>
-                            {competitor.category && (
-                              <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#7c5cff]/10 text-[#7c5cff] text-[11px] font-semibold">
-                                <Tag className="w-3 h-3" />
-                                {competitor.category}
+                            {/* Status */}
+                            <td className="px-4 py-4">
+                              <button
+                                onClick={() => handleToggleStatus(competitor)}
+                                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[11px] font-semibold transition-opacity hover:opacity-80"
+                                style={{ backgroundColor: `${sc.color}15`, color: sc.color }}
+                                title={competitor.status === "active" ? "Click to pause" : "Click to activate"}
+                              >
+                                <StatusIcon className="w-3 h-3" />
+                                {sc.label}
+                              </button>
+                            </td>
+
+                            {/* Created */}
+                            <td className="px-4 py-4">
+                              <div>
+                                <p className="text-[13px] text-[#1a1a1a]">{createdDate.toLocaleDateString()}</p>
+                                <p className="text-[11px] text-[#aaaaaa]">{createdDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                               </div>
-                            )}
-                            {competitor.last_cro_score && (
-                              <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#00d4aa]/10 text-[#00d4aa] text-[11px] font-bold">
-                                <BarChart3 className="w-3 h-3" />
-                                CRO: {competitor.last_cro_score}/100
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <a
-                              href={competitor.website_url.startsWith("http") ? competitor.website_url : `https://${competitor.website_url}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-[14px] text-[#7c5cff] hover:underline inline-flex items-center gap-1"
-                            >
-                              {getDomain(competitor.website_url)}
-                              <ExternalLink className="w-3 h-3" />
-                            </a>
-                            {competitor.last_analyzed_at && (
-                              <span className="text-[12px] text-[#888888] flex items-center gap-1">
-                                <Clock className="w-3 h-3" />
-                                Last analyzed: {new Date(competitor.last_analyzed_at).toLocaleDateString()}
+                            </td>
+
+                            {/* Last Update */}
+                            <td className="px-4 py-4">
+                              {lastUpdateDate ? (
+                                <div>
+                                  <p className="text-[13px] text-[#1a1a1a]">{lastUpdateDate.toLocaleDateString()}</p>
+                                  <p className="text-[11px] text-[#aaaaaa]">{lastUpdateDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                </div>
+                              ) : (
+                                <span className="text-[12px] text-[#cccccc] italic">Never</span>
+                              )}
+                            </td>
+
+                            {/* Days Running */}
+                            <td className="px-4 py-4 text-center">
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#f8f9fa] border border-[#e0e0e0] rounded-lg text-[13px] font-semibold text-[#1a1a1a]">
+                                <Clock className="w-3 h-3 text-[#7c5cff]" />
+                                {daysRunning}d
                               </span>
-                            )}
-                          </div>
-                          {competitor.description && (
-                            <p className="text-[13px] text-[#666666] mt-1 line-clamp-1">{competitor.description}</p>
-                          )}
-                        </div>
+                            </td>
 
-                        {/* Date */}
-                        <div className="text-right shrink-0 hidden lg:block">
-                          <p className="text-[11px] text-[#888888] uppercase font-bold mb-1">Added</p>
-                          <p className="text-[13px] text-[#1a1a1a] font-medium">
-                            {new Date(competitor.created_at).toLocaleDateString()}
-                          </p>
-                        </div>
+                            {/* CRO Score */}
+                            <td className="px-4 py-4 text-center">
+                              {competitor.last_cro_score ? (
+                                <span
+                                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[13px] font-bold"
+                                  style={{
+                                    backgroundColor: competitor.last_cro_score >= 70 ? '#00d4aa15' : competitor.last_cro_score >= 40 ? '#f59e0b15' : '#ef444415',
+                                    color: competitor.last_cro_score >= 70 ? '#00d4aa' : competitor.last_cro_score >= 40 ? '#f59e0b' : '#ef4444',
+                                  }}
+                                >
+                                  {competitor.last_cro_score}/100
+                                </span>
+                              ) : (
+                                <span className="text-[12px] text-[#cccccc]">—</span>
+                              )}
+                            </td>
 
-                        {/* Actions */}
-                        <div className="flex items-center gap-2 shrink-0">
-                          <button
-                            onClick={() => handleAnalyzeSingle(competitor)}
-                            disabled={isAnalyzing}
-                            className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/60 text-[#7c5cff] hover:text-[#7c5cff] transition-colors disabled:opacity-50"
-                            title="Run CRO Analysis Now"
-                          >
-                            {isAnalyzing ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <Camera className="w-4 h-4" />
-                            )}
-                          </button>
-                          <button
-                            onClick={() => handleViewAnalysis(competitor)}
-                            className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/60 text-[#666666] hover:text-[#00d4aa] transition-colors"
-                            title="View Analysis History"
-                          >
-                            <BarChart3 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleToggleStatus(competitor)}
-                            className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/60 text-[#666666] hover:text-[#1a1a1a] transition-colors"
-                            title={competitor.status === "active" ? "Pause monitoring" : "Resume monitoring"}
-                          >
-                            {competitor.status === "active" ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                          </button>
-                          <button
-                            onClick={() => handleOpenEdit(competitor)}
-                            className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/60 text-[#666666] hover:text-[#7c5cff] transition-colors"
-                            title="Edit competitor"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(competitor.id, competitor.name)}
-                            className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/60 text-[#666666] hover:text-[#ff6b6b] transition-colors"
-                            title="Delete competitor"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
+                            {/* Number of Updates */}
+                            <td className="px-4 py-4 text-center">
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#7c5cff]/10 rounded-lg text-[13px] font-bold text-[#7c5cff]">
+                                <Activity className="w-3 h-3" />
+                                {competitor.total_changes_detected || 0}
+                              </span>
+                            </td>
 
-                      {competitor.notes && (
-                        <div className="mt-4 pt-4 border-t" style={{ borderColor: `${sc.border}15` }}>
-                          <div className="flex items-start gap-2">
-                            <FileText className="w-4 h-4 text-[#888888] mt-0.5 shrink-0" />
-                            <p className="text-[13px] text-[#666666]">{competitor.notes}</p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                            {/* Actions */}
+                            <td className="px-4 py-4">
+                              <div className="flex items-center justify-center gap-1">
+                                <button
+                                  onClick={() => handleViewAnalysis(competitor)}
+                                  className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white text-[12px] font-semibold rounded-lg hover:opacity-90 transition-all"
+                                  title="View Details"
+                                >
+                                  <Eye className="w-3.5 h-3.5" />
+                                  Details
+                                </button>
+                                <button
+                                  onClick={() => handleAnalyzeSingle(competitor)}
+                                  disabled={isAnalyzing}
+                                  className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#7c5cff]/10 text-[#7c5cff] transition-colors disabled:opacity-50"
+                                  title="Run CRO Analysis"
+                                >
+                                  {isAnalyzing ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                  ) : (
+                                    <Camera className="w-4 h-4" />
+                                  )}
+                                </button>
+                                <button
+                                  onClick={() => handleOpenEdit(competitor)}
+                                  className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#7c5cff]/10 text-[#666666] hover:text-[#7c5cff] transition-colors"
+                                  title="Edit"
+                                >
+                                  <Edit2 className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(competitor.id, competitor.name)}
+                                  className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-50 text-[#666666] hover:text-[#ff6b6b] transition-colors"
+                                  title="Delete"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Table Footer */}
+                <div className="px-6 py-3 bg-[#f8f9fa] border-t border-[#e0e0e0] flex items-center justify-between">
+                  <p className="text-[12px] text-[#888888]">
+                    {filteredCompetitors.length} competitor{filteredCompetitors.length !== 1 ? "s" : ""} shown
+                  </p>
+                  <p className="text-[12px] text-[#888888]">
+                    {activeCount} active &middot; {pausedCount} paused
+                  </p>
+                </div>
               </div>
             )}
           </>
