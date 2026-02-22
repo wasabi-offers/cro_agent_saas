@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import AuthLayout from "@/components/AuthLayout";
 
@@ -31,6 +32,12 @@ export default function RootLayout({
             }}
           />
         )}
+        <Script
+          data-website-id="dfid_3xAOfHpWfK9xSEcQ4Q4ne"
+          data-domain="cro-agent.vercel.app"
+          src="https://datafa.st/js/script.js"
+          strategy="afterInteractive"
+        />
       </head>
       <body>
         <AuthLayout>{children}</AuthLayout>

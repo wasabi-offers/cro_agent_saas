@@ -1266,7 +1266,7 @@ export default function CompetitorMonitoringPage() {
       {/* Analysis Detail Modal — Chronological Grid */}
       {analysisView && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-start justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-[1200px] w-full my-8 overflow-hidden shadow-2xl">
+          <div className="bg-white rounded-2xl max-w-[1400px] w-full my-4 overflow-hidden shadow-2xl">
             {/* Modal Header */}
             <div className="sticky top-0 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] px-8 py-5 z-10">
               <div className="flex items-center justify-between">
@@ -1329,308 +1329,223 @@ export default function CompetitorMonitoringPage() {
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {analysisView.snapshots.map((snapshot) => {
+                <div className="space-y-0">
+                  {/* Chronological Timeline Table */}
+                  {[...analysisView.snapshots].reverse().map((snapshot, idx, arr) => {
                     const analysis = snapshot.analysis_result;
                     const severity = severityConfig[snapshot.change_severity] || severityConfig.none;
                     const impact = analysis ? impactConfig[analysis.overall_impact] || impactConfig.neutral : impactConfig.neutral;
+                    const ImpactIcon = impact.icon;
                     const capturedDate = new Date(snapshot.captured_at);
                     const totalChanges = analysis?.categories
-                      ? Object.values(analysis.categories).reduce((sum, arr) => sum + ((arr as CROChangeItem[])?.length || 0), 0)
+                      ? Object.values(analysis.categories).reduce((sum, a) => sum + ((a as CROChangeItem[])?.length || 0), 0)
                       : 0;
+                    const isExpanded = expandedSnapshot === snapshot.id;
+                    const isFirst = idx === 0;
+                    const isLast = idx === arr.length - 1;
+                    const userNote = feedbackState[`note_${snapshot.id}`]?.comment || "";
 
                     return (
-                      <div
-                        key={snapshot.id}
-                        className="group border border-[#e0e0e0] rounded-2xl overflow-hidden bg-white hover:shadow-lg hover:border-[#7c5cff]/30 transition-all cursor-pointer"
-                        onClick={() => setExpandedSnapshot(expandedSnapshot === snapshot.id ? null : snapshot.id)}
-                      >
-                        {/* Date Header */}
-                        <div className="px-4 py-3 bg-[#f8f9fa] border-b border-[#e0e0e0] flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-3.5 h-3.5 text-[#7c5cff]" />
-                            <span className="text-[13px] font-bold text-[#1a1a1a]">
-                              {capturedDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                            </span>
+                      <div key={snapshot.id}>
+                        {/* Timeline Row */}
+                        <div
+                          className={`flex items-stretch gap-0 border-x border-[#e0e0e0] ${isFirst ? "border-t rounded-t-2xl" : ""} ${isLast && !isExpanded ? "border-b rounded-b-2xl" : "border-b"} ${isExpanded ? "bg-[#fafaff]" : "bg-white hover:bg-[#fafaff]"} transition-colors cursor-pointer`}
+                          onClick={() => setExpandedSnapshot(isExpanded ? null : snapshot.id)}
+                        >
+                          {/* Timeline Line */}
+                          <div className="w-16 flex flex-col items-center py-4 shrink-0">
+                            <div className="w-3 h-3 rounded-full border-2 shrink-0" style={{ borderColor: severity.color, backgroundColor: snapshot.changes_detected ? severity.color : "white" }} />
+                            {!isLast && <div className="flex-1 w-px bg-[#e0e0e0] mt-1" />}
                           </div>
-                          <span className="text-[11px] text-[#aaaaaa]">
-                            {capturedDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                          </span>
-                        </div>
 
-                        {/* Screenshot Thumbnail */}
-                        <div className="relative aspect-[16/10] bg-[#f0f0f5] overflow-hidden">
-                          {snapshot.screenshot_base64 ? (
-                            <img
-                              src={`data:image/jpeg;base64,${snapshot.screenshot_base64}`}
-                              alt={`Snapshot ${capturedDate.toLocaleDateString()}`}
-                              className="w-full h-full object-cover object-top group-hover:scale-[1.02] transition-transform duration-300"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Camera className="w-8 h-8 text-[#cccccc]" />
-                            </div>
-                          )}
-                          {/* Overlay badges */}
-                          <div className="absolute top-2 left-2 flex items-center gap-1.5">
-                            <div
-                              className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold backdrop-blur-sm"
-                              style={{ backgroundColor: `${severity.color}20`, color: severity.color, border: `1px solid ${severity.color}40` }}
-                            >
-                              {snapshot.changes_detected ? <AlertTriangle className="w-2.5 h-2.5" /> : <CheckCircle className="w-2.5 h-2.5" />}
-                              {severity.label}
+                          {/* Screenshot Thumbnail */}
+                          <div className="w-[120px] py-3 shrink-0">
+                            <div className="w-[100px] h-[62px] rounded-lg overflow-hidden bg-[#f0f0f5] border border-[#e0e0e0]">
+                              {snapshot.screenshot_base64 ? (
+                                <img src={`data:image/jpeg;base64,${snapshot.screenshot_base64}`} alt="" className="w-full h-full object-cover object-top" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center"><Camera className="w-5 h-5 text-[#cccccc]" /></div>
+                              )}
                             </div>
                           </div>
-                          {snapshot.cro_score > 0 && (
-                            <div className="absolute top-2 right-2 px-2 py-1 rounded-lg text-[11px] font-bold bg-white/90 backdrop-blur-sm text-[#7c5cff] border border-[#7c5cff]/20">
-                              {snapshot.cro_score}/100
-                            </div>
-                          )}
-                          {analysis?.is_baseline && (
-                            <div className="absolute bottom-2 left-2 px-2 py-1 rounded-lg text-[10px] font-bold bg-[#7c5cff] text-white">
-                              BASELINE
-                            </div>
-                          )}
-                        </div>
 
-                        {/* Change Description */}
-                        <div className="px-4 py-3">
-                          <p className="text-[13px] text-[#1a1a1a] leading-snug line-clamp-2 mb-2">
-                            {snapshot.change_summary || analysis?.summary || "No changes detected"}
-                          </p>
-
-                          {analysis?.strategic_assumption && (
-                            <div className="flex items-start gap-2 p-2.5 bg-gradient-to-r from-[#f59e0b]/10 to-[#f59e0b]/5 border border-[#f59e0b]/20 rounded-lg mb-2">
-                              <Brain className="w-3.5 h-3.5 text-[#f59e0b] mt-0.5 shrink-0" />
-                              <p className="text-[11px] text-[#666666] leading-snug line-clamp-2">
-                                {analysis.strategic_assumption}
-                              </p>
-                            </div>
-                          )}
-
-                          <div className="flex items-center gap-2 flex-wrap">
-                            {totalChanges > 0 && (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#7c5cff]/10 text-[#7c5cff] rounded text-[11px] font-semibold">
-                                <Activity className="w-2.5 h-2.5" />
-                                {totalChanges} change{totalChanges !== 1 ? "s" : ""}
+                          {/* Content */}
+                          <div className="flex-1 py-4 pr-4 min-w-0">
+                            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                              <span className="text-[14px] font-bold text-[#1a1a1a]">
+                                {capturedDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                               </span>
+                              <span className="text-[12px] text-[#aaaaaa]">
+                                {capturedDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                              </span>
+                              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ backgroundColor: `${severity.color}15`, color: severity.color }}>
+                                {snapshot.changes_detected ? <AlertTriangle className="w-2.5 h-2.5" /> : <CheckCircle className="w-2.5 h-2.5" />}
+                                {severity.label}
+                              </div>
+                              {snapshot.cro_score > 0 && (
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#7c5cff]/10 text-[#7c5cff]">
+                                  {snapshot.cro_score}/100
+                                </span>
+                              )}
+                              {analysis?.is_baseline && (
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#7c5cff] text-white">BASELINE</span>
+                              )}
+                              {totalChanges > 0 && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#7c5cff]/10 text-[#7c5cff] rounded-full text-[10px] font-bold">
+                                  <Activity className="w-2.5 h-2.5" />{totalChanges}
+                                </span>
+                              )}
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ backgroundColor: `${impact.color}10`, color: impact.color }}>
+                                <ImpactIcon className="w-2.5 h-2.5" />{impact.label}
+                              </span>
+                            </div>
+                            <p className="text-[13px] text-[#555555] leading-snug line-clamp-2">
+                              {snapshot.change_summary || analysis?.summary || "No changes detected"}
+                            </p>
+                            {analysis?.strategic_assumption && (
+                              <div className="flex items-start gap-1.5 mt-2">
+                                <Brain className="w-3 h-3 text-[#f59e0b] mt-0.5 shrink-0" />
+                                <p className="text-[11px] text-[#888888] line-clamp-1">{analysis.strategic_assumption}</p>
+                              </div>
                             )}
-                            <span
-                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold"
-                              style={{ backgroundColor: `${impact.color}10`, color: impact.color }}
-                            >
-                              {impact.label}
-                            </span>
+                          </div>
+
+                          {/* Arrow */}
+                          <div className="w-10 flex items-center justify-center shrink-0">
+                            {isExpanded ? <ChevronUp className="w-5 h-5 text-[#7c5cff]" /> : <ChevronDown className="w-5 h-5 text-[#cccccc]" />}
                           </div>
                         </div>
+
+                        {/* Expanded Detail */}
+                        {isExpanded && analysis && (
+                          <div className={`border-x border-b border-[#e0e0e0] ${isLast ? "rounded-b-2xl" : ""} bg-gradient-to-br from-[#fafaff] to-white`}>
+                            {/* Summary + Score */}
+                            <div className="px-8 py-5 border-b border-[#e0e0e0]/50">
+                              <p className="text-[14px] text-[#444444] leading-relaxed">{analysis.summary}</p>
+                              {analysis.cro_score_previous !== undefined && analysis.cro_score_previous !== null && (
+                                <div className="flex items-center gap-3 mt-3">
+                                  <span className="text-[13px] text-[#888888]">Score:</span>
+                                  <span className="text-[14px] font-semibold text-[#888888]">{analysis.cro_score_previous}</span>
+                                  <ArrowLeftRight className="w-4 h-4 text-[#cccccc]" />
+                                  <span className="text-[14px] font-bold text-[#7c5cff]">{analysis.cro_score}</span>
+                                  <span className="text-[13px] font-bold" style={{ color: analysis.cro_score > analysis.cro_score_previous ? "#00d4aa" : analysis.cro_score < analysis.cro_score_previous ? "#ef4444" : "#888888" }}>
+                                    ({analysis.cro_score > analysis.cro_score_previous ? "+" : ""}{analysis.cro_score - analysis.cro_score_previous})
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Strategic Assumption */}
+                            {analysis.strategic_assumption && (
+                              <div className="px-8 py-5 border-b border-[#e0e0e0]/50">
+                                <div className="bg-gradient-to-br from-[#f59e0b]/15 to-[#f59e0b]/5 border border-[#f59e0b]/30 rounded-2xl p-5">
+                                  <div className="flex items-center gap-3 mb-2">
+                                    <div className="w-9 h-9 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center">
+                                      <Brain className="w-4 h-4 text-[#f59e0b]" />
+                                    </div>
+                                    <div>
+                                      <h4 className="text-[14px] font-bold text-[#1a1a1a]">Why Did They Make This Change?</h4>
+                                      <p className="text-[10px] text-[#888888]">AI Strategic Assumption — Claude</p>
+                                    </div>
+                                  </div>
+                                  <p className="text-[13px] text-[#333333] leading-relaxed pl-[48px] mb-3">{analysis.strategic_assumption}</p>
+
+                                  {snapshot.braintrust_span_id && (
+                                    <div className="pl-[48px]">
+                                      {feedbackState[snapshot.id]?.submitted ? (
+                                        <p className="text-[12px] text-[#00d4aa] font-medium flex items-center gap-1.5">
+                                          <CheckCircle className="w-3.5 h-3.5" /> Feedback submitted
+                                        </p>
+                                      ) : (
+                                        <div className="flex items-center gap-3">
+                                          <span className="text-[11px] text-[#888888]">Accurate?</span>
+                                          <button onClick={(e) => { e.stopPropagation(); handleFeedback(snapshot.id, snapshot.braintrust_span_id!, 1); submitFeedback(snapshot.id, snapshot.braintrust_span_id!); }}
+                                            className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-white border border-[#e0e0e0] text-[#666666] hover:border-[#00d4aa] hover:text-[#00d4aa] transition-all">
+                                            <ThumbsUp className="w-3 h-3" /> Yes
+                                          </button>
+                                          <button onClick={(e) => { e.stopPropagation(); handleFeedback(snapshot.id, snapshot.braintrust_span_id!, 0); submitFeedback(snapshot.id, snapshot.braintrust_span_id!); }}
+                                            className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-white border border-[#e0e0e0] text-[#666666] hover:border-[#ef4444] hover:text-[#ef4444] transition-all">
+                                            <ThumbsDown className="w-3 h-3" /> No
+                                          </button>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Screenshot Full */}
+                            {snapshot.screenshot_base64 && (
+                              <div className="px-8 py-4 border-b border-[#e0e0e0]/50">
+                                <div className="border border-[#e0e0e0] rounded-xl overflow-hidden max-h-[400px] overflow-y-auto">
+                                  <img src={`data:image/jpeg;base64,${snapshot.screenshot_base64}`} alt="Full screenshot" className="w-full" />
+                                </div>
+                              </div>
+                            )}
+
+                            {/* User Note */}
+                            <div className="px-8 py-4 border-b border-[#e0e0e0]/50">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Edit2 className="w-3.5 h-3.5 text-[#7c5cff]" />
+                                <span className="text-[13px] font-bold text-[#1a1a1a]">Your Notes</span>
+                              </div>
+                              <textarea
+                                placeholder="Leave your considerations about this change..."
+                                value={userNote}
+                                onClick={(e) => e.stopPropagation()}
+                                onChange={(e) => setFeedbackState((prev) => ({
+                                  ...prev, [`note_${snapshot.id}`]: { ...prev[`note_${snapshot.id}`], comment: e.target.value, submitted: false, showComment: false }
+                                }))}
+                                className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#e0e0e0] rounded-xl text-[13px] text-[#1a1a1a] placeholder:text-[#bbbbbb] focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
+                                rows={2}
+                              />
+                            </div>
+
+                            {/* Change Categories (compact) */}
+                            {analysis.categories && Object.entries(analysis.categories).some(([, items]) => (items as CROChangeItem[])?.length > 0) && (
+                              <div className="px-8 py-4 border-b border-[#e0e0e0]/50">
+                                <h4 className="text-[13px] font-bold text-[#1a1a1a] mb-3">Detailed Changes</h4>
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                                  {Object.entries(analysis.categories).map(([key, items]) => {
+                                    const typedItems = items as CROChangeItem[];
+                                    if (!typedItems || typedItems.length === 0) return null;
+                                    const Icon = categoryIcons[key] || FileText;
+                                    const label = categoryLabels[key] || key;
+                                    return (
+                                      <div key={key} className="bg-white border border-[#e0e0e0] rounded-xl p-3">
+                                        <div className="flex items-center gap-2 mb-2">
+                                          <Icon className="w-3.5 h-3.5 text-[#7c5cff]" />
+                                          <span className="text-[12px] font-bold text-[#1a1a1a]">{label}</span>
+                                          <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded-full bg-[#7c5cff]/10 text-[#7c5cff] font-semibold">{typedItems.length}</span>
+                                        </div>
+                                        <div className="space-y-1.5">
+                                          {typedItems.map((item, i) => (
+                                            <div key={i} className="text-[11px] text-[#555555]">
+                                              <p>{item.description}</p>
+                                              {(item.before || item.after) && (
+                                                <div className="flex items-center gap-1 mt-0.5 flex-wrap">
+                                                  {item.before && <span className="px-1 py-0.5 bg-[#ef4444]/10 text-[#ef4444] rounded text-[10px] line-through">{item.before}</span>}
+                                                  {item.before && item.after && <span className="text-[#cccccc] text-[10px]">&rarr;</span>}
+                                                  {item.after && <span className="px-1 py-0.5 bg-[#00d4aa]/10 text-[#00d4aa] rounded text-[10px]">{item.after}</span>}
+                                                </div>
+                                              )}
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     );
                   })}
                 </div>
               )}
-
-              {/* Expanded Snapshot Detail (inline below grid) */}
-              {expandedSnapshot && analysisView.snapshots.find(s => s.id === expandedSnapshot) && (() => {
-                const snap = analysisView.snapshots.find(s => s.id === expandedSnapshot)!;
-                const snapAnalysis = snap.analysis_result;
-                if (!snapAnalysis) return null;
-                const snapSeverity = severityConfig[snap.change_severity] || severityConfig.none;
-
-                return (
-                  <div className="mt-8 border border-[#7c5cff]/30 rounded-2xl overflow-hidden bg-gradient-to-br from-[#fafaff] to-white">
-                    {/* Detail Header */}
-                    <div className="px-6 py-4 bg-gradient-to-r from-[#7c5cff]/10 to-transparent border-b border-[#7c5cff]/20 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Calendar className="w-4 h-4 text-[#7c5cff]" />
-                        <span className="text-[15px] font-bold text-[#1a1a1a]">
-                          {new Date(snap.captured_at).toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
-                        </span>
-                        <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold ${snapSeverity.bg}`} style={{ color: snapSeverity.color }}>
-                          {snapSeverity.label}
-                        </div>
-                        {snap.cro_score > 0 && (
-                          <span className="text-[13px] font-bold text-[#7c5cff]">Score: {snap.cro_score}/100</span>
-                        )}
-                      </div>
-                      <button onClick={() => setExpandedSnapshot(null)} className="text-[13px] text-[#888888] hover:text-[#1a1a1a] font-medium transition-colors">
-                        Close
-                      </button>
-                    </div>
-
-                    {/* Summary */}
-                    <div className="px-6 py-4 border-b border-[#e0e0e0]/50">
-                      <p className="text-[14px] text-[#444444] leading-relaxed">{snapAnalysis.summary}</p>
-
-                      {snapAnalysis.cro_score_previous !== undefined && snapAnalysis.cro_score_previous !== null && (
-                        <div className="flex items-center gap-3 mt-4">
-                          <span className="text-[13px] text-[#888888]">Score:</span>
-                          <span className="text-[14px] font-semibold text-[#888888]">{snapAnalysis.cro_score_previous}</span>
-                          <ArrowLeftRight className="w-4 h-4 text-[#cccccc]" />
-                          <span className="text-[14px] font-bold text-[#7c5cff]">{snapAnalysis.cro_score}</span>
-                          <span
-                            className="text-[13px] font-bold"
-                            style={{ color: snapAnalysis.cro_score > snapAnalysis.cro_score_previous ? "#00d4aa" : snapAnalysis.cro_score < snapAnalysis.cro_score_previous ? "#ef4444" : "#888888" }}
-                          >
-                            ({snapAnalysis.cro_score > snapAnalysis.cro_score_previous ? "+" : ""}{snapAnalysis.cro_score - snapAnalysis.cro_score_previous})
-                          </span>
-                        </div>
-                      )}
-
-                    </div>
-
-                    {/* Strategic Assumption */}
-                    {snapAnalysis.strategic_assumption && (
-                      <div className="px-6 py-5 border-b border-[#e0e0e0]/50">
-                        <div className="bg-gradient-to-br from-[#f59e0b]/15 to-[#f59e0b]/5 border border-[#f59e0b]/30 rounded-2xl p-6">
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="w-10 h-10 bg-[#f59e0b]/20 rounded-xl flex items-center justify-center">
-                              <Brain className="w-5 h-5 text-[#f59e0b]" />
-                            </div>
-                            <div>
-                              <h4 className="text-[15px] font-bold text-[#1a1a1a]">Why Did They Make This Change?</h4>
-                              <p className="text-[11px] text-[#888888] font-medium">AI Strategic Assumption — powered by Claude</p>
-                            </div>
-                          </div>
-                          <p className="text-[14px] text-[#333333] leading-relaxed pl-[52px] mb-4">
-                            {snapAnalysis.strategic_assumption}
-                          </p>
-
-                          {/* Feedback */}
-                          {snap.braintrust_span_id && (
-                            <div className="pl-[52px]">
-                              {feedbackState[snap.id]?.submitted ? (
-                                <p className="text-[12px] text-[#00d4aa] font-medium flex items-center gap-1.5">
-                                  <CheckCircle className="w-3.5 h-3.5" /> Feedback submitted — thank you!
-                                </p>
-                              ) : (
-                                <div className="space-y-3">
-                                  <div className="flex items-center gap-3">
-                                    <span className="text-[12px] text-[#888888] font-medium">Was this assumption accurate?</span>
-                                    <button
-                                      onClick={() => handleFeedback(snap.id, snap.braintrust_span_id!, 1)}
-                                      className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all ${
-                                        feedbackState[snap.id]?.score === 1
-                                          ? "bg-[#00d4aa] text-white"
-                                          : "bg-white border border-[#e0e0e0] text-[#666666] hover:border-[#00d4aa] hover:text-[#00d4aa]"
-                                      }`}
-                                    >
-                                      <ThumbsUp className="w-3.5 h-3.5" /> Yes
-                                    </button>
-                                    <button
-                                      onClick={() => handleFeedback(snap.id, snap.braintrust_span_id!, 0)}
-                                      className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all ${
-                                        feedbackState[snap.id]?.score === 0
-                                          ? "bg-[#ef4444] text-white"
-                                          : "bg-white border border-[#e0e0e0] text-[#666666] hover:border-[#ef4444] hover:text-[#ef4444]"
-                                      }`}
-                                    >
-                                      <ThumbsDown className="w-3.5 h-3.5" /> No
-                                    </button>
-                                  </div>
-                                  {feedbackState[snap.id]?.showComment && (
-                                    <div className="flex items-center gap-2">
-                                      <div className="relative flex-1">
-                                        <MessageSquare className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#999999]" />
-                                        <input
-                                          type="text"
-                                          placeholder="Add a comment (optional)..."
-                                          value={feedbackState[snap.id]?.comment || ""}
-                                          onChange={(e) => setFeedbackState((prev) => ({
-                                            ...prev, [snap.id]: { ...prev[snap.id], comment: e.target.value }
-                                          }))}
-                                          className="w-full pl-9 pr-3 py-2 bg-white border border-[#e0e0e0] rounded-lg text-[12px] text-[#1a1a1a] placeholder:text-[#bbbbbb] focus:outline-none focus:border-[#7c5cff] transition-all"
-                                        />
-                                      </div>
-                                      <button
-                                        onClick={() => submitFeedback(snap.id, snap.braintrust_span_id!)}
-                                        className="flex items-center gap-1.5 px-4 py-2 bg-[#7c5cff] text-white text-[12px] font-medium rounded-lg hover:opacity-90 transition-all"
-                                      >
-                                        <Send className="w-3 h-3" /> Send
-                                      </button>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Change Categories */}
-                    {snapAnalysis.categories && (
-                      <div className="px-6 py-4 border-b border-[#e0e0e0]/50">
-                        <h4 className="text-[14px] font-bold text-[#1a1a1a] mb-4">Detailed Changes</h4>
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                          {Object.entries(snapAnalysis.categories).map(([key, items]) => {
-                            const typedItems = items as CROChangeItem[];
-                            if (!typedItems || typedItems.length === 0) return null;
-                            const Icon = categoryIcons[key] || FileText;
-                            const label = categoryLabels[key] || key;
-                            return (
-                              <div key={key} className="bg-white border border-[#e0e0e0] rounded-xl p-4">
-                                <div className="flex items-center gap-2 mb-3">
-                                  <Icon className="w-4 h-4 text-[#7c5cff]" />
-                                  <span className="text-[13px] font-bold text-[#1a1a1a]">{label}</span>
-                                  <span className="ml-auto text-[11px] px-2 py-0.5 rounded-full bg-[#7c5cff]/10 text-[#7c5cff] font-semibold">
-                                    {typedItems.length}
-                                  </span>
-                                </div>
-                                <div className="space-y-2">
-                                  {typedItems.map((item, idx) => (
-                                    <div key={idx} className="text-[12px] text-[#444444]">
-                                      <p>{item.description}</p>
-                                      {(item.before || item.after) && (
-                                        <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                                          {item.before && <span className="px-1.5 py-0.5 bg-[#ef4444]/10 text-[#ef4444] rounded text-[11px] line-through">{item.before}</span>}
-                                          {item.before && item.after && <span className="text-[#cccccc]">&rarr;</span>}
-                                          {item.after && <span className="px-1.5 py-0.5 bg-[#00d4aa]/10 text-[#00d4aa] rounded text-[11px]">{item.after}</span>}
-                                        </div>
-                                      )}
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Observations & Recommendations */}
-                    <div className="px-6 py-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      {snapAnalysis.key_observations && snapAnalysis.key_observations.length > 0 && (
-                        <div>
-                          <h4 className="text-[13px] font-bold text-[#1a1a1a] mb-2 flex items-center gap-2">
-                            <Eye className="w-3.5 h-3.5 text-[#f59e0b]" /> Key Observations
-                          </h4>
-                          <ul className="space-y-1.5">
-                            {snapAnalysis.key_observations.map((obs, idx) => (
-                              <li key={idx} className="flex items-start gap-2 text-[12px] text-[#555555]">
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] mt-1.5 shrink-0" />{obs}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                      {snapAnalysis.recommendations && snapAnalysis.recommendations.length > 0 && (
-                        <div>
-                          <h4 className="text-[13px] font-bold text-[#1a1a1a] mb-2 flex items-center gap-2">
-                            <Zap className="w-3.5 h-3.5 text-[#00d4aa]" /> Recommendations
-                          </h4>
-                          <ul className="space-y-1.5">
-                            {snapAnalysis.recommendations.map((rec, idx) => (
-                              <li key={idx} className="flex items-start gap-2 text-[12px] text-[#555555]">
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#00d4aa] mt-1.5 shrink-0" />{rec}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })()}
             </div>
           </div>
         </div>
