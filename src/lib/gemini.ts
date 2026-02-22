@@ -47,6 +47,7 @@ export interface CROAnalysisResult {
   };
   key_observations: string[];
   recommendations: string[];
+  strategic_assumption?: string;
 }
 
 const BASELINE_PROMPT = `You are the world's top CRO (Conversion Rate Optimization) analyst. You must analyze this FULL-PAGE website screenshot with EXTREME thoroughness. This is a complete full-page capture from top to bottom.

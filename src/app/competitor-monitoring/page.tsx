@@ -106,6 +106,7 @@ interface CROAnalysis {
   };
   key_observations: string[];
   recommendations: string[];
+  strategic_assumption?: string;
 }
 
 interface Snapshot {
@@ -1281,9 +1282,19 @@ export default function CompetitorMonitoringPage() {
 
                         {/* Change Description */}
                         <div className="px-4 py-3">
-                          <p className="text-[13px] text-[#1a1a1a] leading-snug line-clamp-3 mb-2">
+                          <p className="text-[13px] text-[#1a1a1a] leading-snug line-clamp-2 mb-2">
                             {snapshot.change_summary || analysis?.summary || "No changes detected"}
                           </p>
+
+                          {analysis?.strategic_assumption && (
+                            <div className="flex items-start gap-2 p-2.5 bg-gradient-to-r from-[#f59e0b]/10 to-[#f59e0b]/5 border border-[#f59e0b]/20 rounded-lg mb-2">
+                              <Brain className="w-3.5 h-3.5 text-[#f59e0b] mt-0.5 shrink-0" />
+                              <p className="text-[11px] text-[#666666] leading-snug line-clamp-2">
+                                {analysis.strategic_assumption}
+                              </p>
+                            </div>
+                          )}
+
                           <div className="flex items-center gap-2 flex-wrap">
                             {totalChanges > 0 && (
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#7c5cff]/10 text-[#7c5cff] rounded text-[11px] font-semibold">
@@ -1349,6 +1360,18 @@ export default function CompetitorMonitoringPage() {
                           >
                             ({snapAnalysis.cro_score > snapAnalysis.cro_score_previous ? "+" : ""}{snapAnalysis.cro_score - snapAnalysis.cro_score_previous})
                           </span>
+                        </div>
+                      )}
+
+                      {snapAnalysis.strategic_assumption && (
+                        <div className="mt-4 flex items-start gap-3 p-4 bg-gradient-to-r from-[#f59e0b]/10 to-[#f59e0b]/5 border border-[#f59e0b]/25 rounded-xl">
+                          <div className="w-8 h-8 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center shrink-0">
+                            <Brain className="w-4 h-4 text-[#f59e0b]" />
+                          </div>
+                          <div>
+                            <p className="text-[12px] font-bold text-[#f59e0b] uppercase tracking-wide mb-1">Strategic Assumption</p>
+                            <p className="text-[13px] text-[#444444] leading-relaxed">{snapAnalysis.strategic_assumption}</p>
+                          </div>
                         </div>
                       )}
                     </div>

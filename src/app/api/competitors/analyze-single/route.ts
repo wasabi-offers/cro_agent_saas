@@ -4,7 +4,9 @@ import { captureScreenshot } from "@/lib/competitor-screenshot";
 import {
   analyzeBaselineScreenshot,
   compareScreenshots,
+  CROAnalysisResult,
 } from "@/lib/gemini";
+import { anthropic } from "@/lib/braintrust";
 
 function getSupabaseClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -81,6 +83,38 @@ export async function POST(request: Request) {
       );
     } else {
       analysis = await analyzeBaselineScreenshot(screenshotBase64);
+    }
+
+    if (analysis.changes_detected && process.env.ANTHROPIC_API_KEY) {
+      try {
+        const changeSummary = Object.entries(analysis.categories || {})
+          .filter(([, items]) => (items as any[])?.length > 0)
+          .map(([category, items]) => {
+            const descriptions = (items as any[]).map((i: any) => {
+              let line = `- ${i.description}`;
+              if (i.before && i.after) line += ` (from "${i.before}" to "${i.after}")`;
+              return line;
+            }).join("\n");
+            return `${category}:\n${descriptions}`;
+          })
+          .join("\n\n");
+
+        const assumptionResponse = await anthropic.messages.create({
+          model: "claude-3-5-haiku-20241022",
+          max_tokens: 300,
+          messages: [{
+            role: "user",
+            content: `You are a CRO strategist. A competitor website "${competitor.name}" (${competitor.website_url}) made these changes:\n\n${changeSummary}\n\nCRO Score: ${analysis.cro_score_previous || "N/A"} → ${analysis.cro_score}\nOverall impact: ${analysis.overall_impact}\n\nIn 2-3 concise sentences, explain the most likely STRATEGIC REASON why they made these changes. Focus on the business/conversion goal behind the decision. Be concrete and specific, not generic.`,
+          }],
+        });
+
+        const assumptionText = assumptionResponse.content.find((c) => c.type === "text");
+        if (assumptionText && assumptionText.type === "text") {
+          analysis.strategic_assumption = assumptionText.text;
+        }
+      } catch (err) {
+        console.error("Error generating strategic assumption:", err);
+      }
     }
 
     const snapshotId = `snap_${competitor_id}_${Date.now()}`;
