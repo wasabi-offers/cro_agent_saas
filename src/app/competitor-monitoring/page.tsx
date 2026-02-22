@@ -42,6 +42,10 @@ import {
   Layers,
   MapPin,
   Box,
+  ThumbsUp,
+  ThumbsDown,
+  MessageSquare,
+  Send,
 } from "lucide-react";
 
 interface Competitor {
@@ -120,6 +124,7 @@ interface Snapshot {
   change_summary: string;
   cro_score: number;
   previous_snapshot_id?: string;
+  braintrust_span_id?: string;
 }
 
 const statusConfig = {
@@ -207,6 +212,34 @@ export default function CompetitorMonitoringPage() {
   const [loadingChanges, setLoadingChanges] = useState(false);
   const [expandedSnapshot, setExpandedSnapshot] = useState<string | null>(null);
   const [runningCron, setRunningCron] = useState(false);
+
+  const [feedbackState, setFeedbackState] = useState<Record<string, { score?: number; comment: string; submitted: boolean; showComment: boolean }>>({});
+
+  const handleFeedback = async (snapshotId: string, spanId: string, score: number) => {
+    const current = feedbackState[snapshotId] || { comment: "", submitted: false, showComment: false };
+    setFeedbackState((prev) => ({ ...prev, [snapshotId]: { ...current, score, showComment: true } }));
+  };
+
+  const submitFeedback = async (snapshotId: string, spanId: string) => {
+    const state = feedbackState[snapshotId];
+    if (!state || state.score === undefined) return;
+
+    try {
+      await fetch("/api/competitors/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          spanId,
+          score: state.score,
+          comment: state.comment || undefined,
+          snapshotId,
+        }),
+      });
+      setFeedbackState((prev) => ({ ...prev, [snapshotId]: { ...state, submitted: true, showComment: false } }));
+    } catch (err) {
+      console.error("Error submitting feedback:", err);
+    }
+  };
 
   const [formData, setFormData] = useState({
     name: "",
@@ -989,9 +1022,69 @@ export default function CompetitorMonitoringPage() {
                                     <p className="text-[11px] text-[#888888] font-medium">AI Strategic Assumption — powered by Claude</p>
                                   </div>
                                 </div>
-                                <p className="text-[14px] text-[#333333] leading-relaxed pl-[52px]">
+                                <p className="text-[14px] text-[#333333] leading-relaxed pl-[52px] mb-4">
                                   {analysis.strategic_assumption}
                                 </p>
+
+                                {/* Feedback */}
+                                {snapshot.braintrust_span_id && (
+                                  <div className="pl-[52px]">
+                                    {feedbackState[snapshot.id]?.submitted ? (
+                                      <p className="text-[12px] text-[#00d4aa] font-medium flex items-center gap-1.5">
+                                        <CheckCircle className="w-3.5 h-3.5" /> Feedback submitted — thank you!
+                                      </p>
+                                    ) : (
+                                      <div className="space-y-3">
+                                        <div className="flex items-center gap-3">
+                                          <span className="text-[12px] text-[#888888] font-medium">Was this assumption accurate?</span>
+                                          <button
+                                            onClick={(e) => { e.stopPropagation(); handleFeedback(snapshot.id, snapshot.braintrust_span_id!, 1); }}
+                                            className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all ${
+                                              feedbackState[snapshot.id]?.score === 1
+                                                ? "bg-[#00d4aa] text-white"
+                                                : "bg-white border border-[#e0e0e0] text-[#666666] hover:border-[#00d4aa] hover:text-[#00d4aa]"
+                                            }`}
+                                          >
+                                            <ThumbsUp className="w-3.5 h-3.5" /> Yes
+                                          </button>
+                                          <button
+                                            onClick={(e) => { e.stopPropagation(); handleFeedback(snapshot.id, snapshot.braintrust_span_id!, 0); }}
+                                            className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all ${
+                                              feedbackState[snapshot.id]?.score === 0
+                                                ? "bg-[#ef4444] text-white"
+                                                : "bg-white border border-[#e0e0e0] text-[#666666] hover:border-[#ef4444] hover:text-[#ef4444]"
+                                            }`}
+                                          >
+                                            <ThumbsDown className="w-3.5 h-3.5" /> No
+                                          </button>
+                                        </div>
+                                        {feedbackState[snapshot.id]?.showComment && (
+                                          <div className="flex items-center gap-2">
+                                            <div className="relative flex-1">
+                                              <MessageSquare className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#999999]" />
+                                              <input
+                                                type="text"
+                                                placeholder="Add a comment (optional)..."
+                                                value={feedbackState[snapshot.id]?.comment || ""}
+                                                onClick={(e) => e.stopPropagation()}
+                                                onChange={(e) => setFeedbackState((prev) => ({
+                                                  ...prev, [snapshot.id]: { ...prev[snapshot.id], comment: e.target.value }
+                                                }))}
+                                                className="w-full pl-9 pr-3 py-2 bg-white border border-[#e0e0e0] rounded-lg text-[12px] text-[#1a1a1a] placeholder:text-[#bbbbbb] focus:outline-none focus:border-[#7c5cff] transition-all"
+                                              />
+                                            </div>
+                                            <button
+                                              onClick={(e) => { e.stopPropagation(); submitFeedback(snapshot.id, snapshot.braintrust_span_id!); }}
+                                              className="flex items-center gap-1.5 px-4 py-2 bg-[#7c5cff] text-white text-[12px] font-medium rounded-lg hover:opacity-90 transition-all"
+                                            >
+                                              <Send className="w-3 h-3" /> Send
+                                            </button>
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
                               </div>
                             </div>
                           )}
@@ -1398,9 +1491,68 @@ export default function CompetitorMonitoringPage() {
                               <p className="text-[11px] text-[#888888] font-medium">AI Strategic Assumption — powered by Claude</p>
                             </div>
                           </div>
-                          <p className="text-[14px] text-[#333333] leading-relaxed pl-[52px]">
+                          <p className="text-[14px] text-[#333333] leading-relaxed pl-[52px] mb-4">
                             {snapAnalysis.strategic_assumption}
                           </p>
+
+                          {/* Feedback */}
+                          {snap.braintrust_span_id && (
+                            <div className="pl-[52px]">
+                              {feedbackState[snap.id]?.submitted ? (
+                                <p className="text-[12px] text-[#00d4aa] font-medium flex items-center gap-1.5">
+                                  <CheckCircle className="w-3.5 h-3.5" /> Feedback submitted — thank you!
+                                </p>
+                              ) : (
+                                <div className="space-y-3">
+                                  <div className="flex items-center gap-3">
+                                    <span className="text-[12px] text-[#888888] font-medium">Was this assumption accurate?</span>
+                                    <button
+                                      onClick={() => handleFeedback(snap.id, snap.braintrust_span_id!, 1)}
+                                      className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all ${
+                                        feedbackState[snap.id]?.score === 1
+                                          ? "bg-[#00d4aa] text-white"
+                                          : "bg-white border border-[#e0e0e0] text-[#666666] hover:border-[#00d4aa] hover:text-[#00d4aa]"
+                                      }`}
+                                    >
+                                      <ThumbsUp className="w-3.5 h-3.5" /> Yes
+                                    </button>
+                                    <button
+                                      onClick={() => handleFeedback(snap.id, snap.braintrust_span_id!, 0)}
+                                      className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all ${
+                                        feedbackState[snap.id]?.score === 0
+                                          ? "bg-[#ef4444] text-white"
+                                          : "bg-white border border-[#e0e0e0] text-[#666666] hover:border-[#ef4444] hover:text-[#ef4444]"
+                                      }`}
+                                    >
+                                      <ThumbsDown className="w-3.5 h-3.5" /> No
+                                    </button>
+                                  </div>
+                                  {feedbackState[snap.id]?.showComment && (
+                                    <div className="flex items-center gap-2">
+                                      <div className="relative flex-1">
+                                        <MessageSquare className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#999999]" />
+                                        <input
+                                          type="text"
+                                          placeholder="Add a comment (optional)..."
+                                          value={feedbackState[snap.id]?.comment || ""}
+                                          onChange={(e) => setFeedbackState((prev) => ({
+                                            ...prev, [snap.id]: { ...prev[snap.id], comment: e.target.value }
+                                          }))}
+                                          className="w-full pl-9 pr-3 py-2 bg-white border border-[#e0e0e0] rounded-lg text-[12px] text-[#1a1a1a] placeholder:text-[#bbbbbb] focus:outline-none focus:border-[#7c5cff] transition-all"
+                                        />
+                                      </div>
+                                      <button
+                                        onClick={() => submitFeedback(snap.id, snap.braintrust_span_id!)}
+                                        className="flex items-center gap-1.5 px-4 py-2 bg-[#7c5cff] text-white text-[12px] font-medium rounded-lg hover:opacity-90 transition-all"
+                                      >
+                                        <Send className="w-3 h-3" /> Send
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
