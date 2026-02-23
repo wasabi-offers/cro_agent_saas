@@ -686,7 +686,8 @@ export default function CompetitorMonitoringPage() {
                         const StatusIcon = sc.icon;
                         const isAnalyzing = analyzingId === competitor.id;
                         const createdDate = new Date(competitor.created_at);
-                        const daysRunning = Math.floor((Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
+                        const daysRunningRaw = competitor.created_at ? Math.floor((Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24)) : null;
+                        const daysRunning = daysRunningRaw !== null && !isNaN(daysRunningRaw) ? Math.max(0, daysRunningRaw) : null;
                         const lastUpdateDate = competitor.last_analyzed_at ? new Date(competitor.last_analyzed_at) : null;
 
                         return (
@@ -761,10 +762,14 @@ export default function CompetitorMonitoringPage() {
 
                             {/* Days Running */}
                             <td className="px-4 py-4 text-center">
-                              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#f8f9fa] border border-[#e0e0e0] rounded-lg text-[13px] font-semibold text-[#1a1a1a]">
-                                <Clock className="w-3 h-3 text-[#7c5cff]" />
-                                {daysRunning}d
-                              </span>
+                              {daysRunning !== null ? (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#f8f9fa] border border-[#e0e0e0] rounded-lg text-[13px] font-semibold text-[#1a1a1a]">
+                                  <Clock className="w-3 h-3 text-[#7c5cff]" />
+                                  {daysRunning === 0 ? "Today" : `${daysRunning}d`}
+                                </span>
+                              ) : (
+                                <span className="text-[12px] text-[#cccccc]">—</span>
+                              )}
                             </td>
 
                             {/* CRO Score */}
