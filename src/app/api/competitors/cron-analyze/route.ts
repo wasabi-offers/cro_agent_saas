@@ -19,14 +19,8 @@ function getSupabaseClient() {
 export const maxDuration = 300;
 export const dynamic = "force-dynamic";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const authHeader = request.headers.get("authorization");
-    const cronSecret = process.env.CRON_SECRET;
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json(
         { success: false, error: "GEMINI_API_KEY not configured" },
