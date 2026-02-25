@@ -7,7 +7,7 @@
   ],
   "headers": [
     {
-      "source": "/cro-tracker.js",
+      "source": "/cro-tracking-attribution.js",
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",

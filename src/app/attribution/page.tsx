@@ -120,11 +120,11 @@ export default function AttributionPage() {
 
   function getLifecycleColor(stage: string) {
     switch (stage) {
-      case "visitor": return "bg-gray-100 text-gray-700";
+      case "visitor": return "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]";
       case "lead": return "bg-blue-100 text-blue-700";
-      case "customer": return "bg-green-100 text-green-700";
+      case "customer": return "bg-amber-100 text-amber-700";
       case "returning_customer": return "bg-purple-100 text-purple-700";
-      default: return "bg-gray-100 text-gray-700";
+      default: return "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]";
     }
   }
 
@@ -156,7 +156,7 @@ export default function AttributionPage() {
   window.funnelId = "YOUR_FUNNEL_ID";
   window.funnelStep = "YOUR_STEP_NAME";
 </script>
-<script src="${process.env.NEXT_PUBLIC_APP_URL || "https://cro-agent.vercel.app"}/cro-tracker-attribution.js" defer></script>`;
+<script src="${process.env.NEXT_PUBLIC_APP_URL || "https://cro-agent.vercel.app"}/cro-tracking-attribution.js" defer></script>`;
     navigator.clipboard.writeText(script);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -164,28 +164,28 @@ export default function AttributionPage() {
 
   if (loading && !data) {
     return (
-      <div className="flex-1 flex items-center justify-center min-h-screen bg-[#f8f9fa]">
+      <div className="flex-1 flex items-center justify-center min-h-screen" style={{ backgroundColor: "var(--bg-secondary)" }}>
         <div className="flex flex-col items-center gap-4">
-          <RefreshCw className="w-8 h-8 text-[#7c5cff] animate-spin" />
-          <p className="text-[#666]">Loading attribution data...</p>
+          <RefreshCw className="w-8 h-8 text-[#F97316] animate-spin" />
+          <p style={{ color: "var(--text-muted)" }}>Loading attribution data...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 min-h-screen bg-[#f8f9fa]">
+    <div className="flex-1 min-h-screen" style={{ backgroundColor: "var(--bg-secondary)" }}>
       {/* Header */}
-      <div className="bg-white border-b border-[#e0e0e0] px-8 py-6">
+      <div className="border-b px-8 py-6" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-primary)" }}>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-[#1a1a1a] flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-xl flex items-center justify-center">
+            <h1 className="text-2xl font-semibold flex items-center gap-3" style={{ color: "var(--text-primary)" }}>
+              <div className="w-10 h-10 bg-gradient-to-br from-[#F97316] to-[#3b82f6] rounded-xl flex items-center justify-center">
                 <Target className="w-5 h-5 text-white" />
               </div>
               Attribution
             </h1>
-            <p className="text-[#666] mt-1">First-party data tracking & multi-touch attribution</p>
+            <p className="mt-1" style={{ color: "var(--text-muted)" }}>First-party data tracking & multi-touch attribution</p>
           </div>
           <div className="flex items-center gap-3">
             {/* Period Selector */}
@@ -193,7 +193,13 @@ export default function AttributionPage() {
               <select
                 value={selectedPeriod}
                 onChange={(e) => setSelectedPeriod(parseInt(e.target.value))}
-                className="appearance-none bg-white border border-[#e0e0e0] rounded-xl px-4 py-2 pr-10 text-sm font-medium text-[#1a1a1a] cursor-pointer hover:border-[#7c5cff] transition-colors"
+                className="appearance-none rounded-xl px-4 py-2 pr-10 text-sm font-medium cursor-pointer transition-colors"
+                style={{
+                  backgroundColor: "var(--bg-card)",
+                  borderColor: "var(--border-primary)",
+                  color: "var(--text-primary)",
+                  border: "1px solid var(--border-primary)",
+                }}
               >
                 <option value={7}>Last 7 days</option>
                 <option value={14}>Last 14 days</option>
@@ -201,12 +207,12 @@ export default function AttributionPage() {
                 <option value={60}>Last 60 days</option>
                 <option value={90}>Last 90 days</option>
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#666] pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: "var(--text-muted)" }} />
             </div>
             <button
               onClick={fetchData}
               disabled={loading}
-              className="flex items-center gap-2 px-4 py-2 bg-[#7c5cff] text-white rounded-xl font-medium hover:bg-[#6b4fee] transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 bg-[#F97316] text-white rounded-xl font-medium hover:bg-[#EA580C] transition-colors disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
               Refresh
@@ -215,7 +221,7 @@ export default function AttributionPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 mt-6 bg-[#f0f0f0] p-1 rounded-xl w-fit">
+        <div className="flex gap-1 mt-6 p-1 rounded-xl w-fit" style={{ backgroundColor: "var(--bg-tertiary)" }}>
           {[
             { id: "overview", label: "Overview", icon: Eye },
             { id: "channels", label: "Channels", icon: Share2 },
@@ -225,11 +231,12 @@ export default function AttributionPage() {
             <button
               key={tab.id}
               onClick={() => setSelectedTab(tab.id as any)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${
-                selectedTab === tab.id
-                  ? "bg-white text-[#1a1a1a] shadow-sm"
-                  : "text-[#666] hover:text-[#1a1a1a]"
-              }`}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all"
+              style={{
+                backgroundColor: selectedTab === tab.id ? "var(--bg-card)" : "transparent",
+                color: selectedTab === tab.id ? "var(--text-primary)" : "var(--text-muted)",
+                boxShadow: selectedTab === tab.id ? "var(--shadow-sm)" : "none",
+              }}
             >
               <tab.icon className="w-4 h-4" />
               {tab.label}
@@ -250,16 +257,16 @@ export default function AttributionPage() {
           <div className="space-y-6">
             {/* Key Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white rounded-2xl p-6 border border-[#e0e0e0]">
+              <div className="rounded-2xl p-6 border" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-primary)" }}>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
                     <Users className="w-5 h-5 text-blue-600" />
                   </div>
-                  <span className="text-[#666] text-sm font-medium">Total Users</span>
+                  <span className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>Total Users</span>
                 </div>
-                <p className="text-3xl font-bold text-[#1a1a1a]">{formatNumber(data.metrics.totalUsers)}</p>
+                <p className="text-3xl font-bold" style={{ color: "var(--text-primary)" }}>{formatNumber(data.metrics.totalUsers)}</p>
                 <div className="flex items-center gap-4 mt-2 text-sm">
-                  <span className="text-green-600 flex items-center gap-1">
+                  <span className="text-[#F97316] flex items-center gap-1">
                     <UserPlus className="w-3 h-3" />
                     {data.metrics.newUsers} new
                   </span>
@@ -270,41 +277,41 @@ export default function AttributionPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl p-6 border border-[#e0e0e0]">
+              <div className="rounded-2xl p-6 border" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-primary)" }}>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
                     <MousePointerClick className="w-5 h-5 text-purple-600" />
                   </div>
-                  <span className="text-[#666] text-sm font-medium">Total Sessions</span>
+                  <span className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>Total Sessions</span>
                 </div>
-                <p className="text-3xl font-bold text-[#1a1a1a]">{formatNumber(data.metrics.totalSessions)}</p>
-                <p className="text-sm text-[#666] mt-2">
+                <p className="text-3xl font-bold" style={{ color: "var(--text-primary)" }}>{formatNumber(data.metrics.totalSessions)}</p>
+                <p className="text-sm mt-2" style={{ color: "var(--text-muted)" }}>
                   Avg {data.metrics.avgSessionsPerUser} per user
                 </p>
               </div>
 
-              <div className="bg-white rounded-2xl p-6 border border-[#e0e0e0]">
+              <div className="rounded-2xl p-6 border" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-primary)" }}>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-                    <Target className="w-5 h-5 text-green-600" />
+                  <div className="w-10 h-10 bg-[#F97316]/10 rounded-xl flex items-center justify-center">
+                    <Target className="w-5 h-5 text-[#F97316]" />
                   </div>
-                  <span className="text-[#666] text-sm font-medium">Conversions</span>
+                  <span className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>Conversions</span>
                 </div>
-                <p className="text-3xl font-bold text-[#1a1a1a]">{data.metrics.totalConversions}</p>
-                <p className="text-sm text-green-600 mt-2">
+                <p className="text-3xl font-bold" style={{ color: "var(--text-primary)" }}>{data.metrics.totalConversions}</p>
+                <p className="text-sm text-[#F97316] mt-2">
                   {data.metrics.conversionRate}% conversion rate
                 </p>
               </div>
 
-              <div className="bg-white rounded-2xl p-6 border border-[#e0e0e0]">
+              <div className="rounded-2xl p-6 border" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-primary)" }}>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
                     <DollarSign className="w-5 h-5 text-amber-600" />
                   </div>
-                  <span className="text-[#666] text-sm font-medium">Revenue</span>
+                  <span className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>Revenue</span>
                 </div>
-                <p className="text-3xl font-bold text-[#1a1a1a]">{formatCurrency(data.metrics.totalRevenue)}</p>
-                <p className="text-sm text-[#666] mt-2">
+                <p className="text-3xl font-bold" style={{ color: "var(--text-primary)" }}>{formatCurrency(data.metrics.totalRevenue)}</p>
+                <p className="text-sm mt-2" style={{ color: "var(--text-muted)" }}>
                   {data.metrics.touchpoints} touchpoints tracked
                 </p>
               </div>
@@ -313,14 +320,14 @@ export default function AttributionPage() {
             {/* Channel Attribution & Lifecycle */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Channel Attribution */}
-              <div className="lg:col-span-2 bg-white rounded-2xl p-6 border border-[#e0e0e0]">
-                <h3 className="text-lg font-semibold text-[#1a1a1a] mb-4 flex items-center gap-2">
-                  <Share2 className="w-5 h-5 text-[#7c5cff]" />
+              <div className="lg:col-span-2 rounded-2xl p-6 border" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-primary)" }}>
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
+                  <Share2 className="w-5 h-5 text-[#F97316]" />
                   Channel Attribution (First Touch)
                 </h3>
                 <div className="space-y-3">
                   {data.channelAttribution.length === 0 ? (
-                    <p className="text-[#666] text-center py-8">No data yet. Install the tracking script to start collecting data.</p>
+                    <p className="text-center py-8" style={{ color: "var(--text-muted)" }}>No data yet. Install the tracking script to start collecting data.</p>
                   ) : (
                     data.channelAttribution.map((channel, idx) => {
                       const maxUsers = Math.max(...data.channelAttribution.map((c) => c.users));
@@ -330,19 +337,19 @@ export default function AttributionPage() {
                           <div className="flex items-center justify-between mb-1">
                             <div className="flex items-center gap-2">
                               {getChannelIcon(channel.channel)}
-                              <span className="font-medium text-[#1a1a1a]">
+                              <span className="font-medium" style={{ color: "var(--text-primary)" }}>
                                 {channel.channel}/{channel.medium}
                               </span>
                             </div>
                             <div className="flex items-center gap-4 text-sm">
-                              <span className="text-[#666]">{channel.users} users</span>
-                              <span className="text-[#666]">{channel.sessions} sessions</span>
-                              <span className="text-green-600 font-medium">{formatCurrency(channel.revenue)}</span>
+                              <span style={{ color: "var(--text-muted)" }}>{channel.users} users</span>
+                              <span style={{ color: "var(--text-muted)" }}>{channel.sessions} sessions</span>
+                              <span className="text-[#F97316] font-medium">{formatCurrency(channel.revenue)}</span>
                             </div>
                           </div>
-                          <div className="h-2 bg-[#f0f0f0] rounded-full overflow-hidden">
+                          <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: "var(--bg-tertiary)" }}>
                             <div
-                              className="h-full bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] rounded-full transition-all duration-500"
+                              className="h-full bg-gradient-to-r from-[#F97316] to-[#3b82f6] rounded-full transition-all duration-500"
                               style={{ width: `${percentage}%` }}
                             />
                           </div>
@@ -354,9 +361,9 @@ export default function AttributionPage() {
               </div>
 
               {/* Lifecycle Stages */}
-              <div className="bg-white rounded-2xl p-6 border border-[#e0e0e0]">
-                <h3 className="text-lg font-semibold text-[#1a1a1a] mb-4 flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-[#7c5cff]" />
+              <div className="rounded-2xl p-6 border" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-primary)" }}>
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
+                  <TrendingUp className="w-5 h-5 text-[#F97316]" />
                   Lifecycle Stages
                 </h3>
                 <div className="space-y-4">
@@ -367,13 +374,13 @@ export default function AttributionPage() {
                           {stage.replace("_", " ")}
                         </span>
                       </div>
-                      <span className="font-semibold text-[#1a1a1a]">{count}</span>
+                      <span className="font-semibold" style={{ color: "var(--text-primary)" }}>{count}</span>
                     </div>
                   ))}
                 </div>
 
                 {/* Lifecycle Funnel Visual */}
-                <div className="mt-6 pt-4 border-t border-[#e0e0e0]">
+                <div className="mt-6 pt-4 border-t" style={{ borderColor: "var(--border-primary)" }}>
                   <div className="space-y-2">
                     {Object.entries(data.lifecycleStages).map(([stage, count], idx) => {
                       const total = Object.values(data.lifecycleStages).reduce((a, b) => a + b, 0);
@@ -397,34 +404,34 @@ export default function AttributionPage() {
             {/* Device & Browser */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Device Breakdown */}
-              <div className="bg-white rounded-2xl p-6 border border-[#e0e0e0]">
-                <h3 className="text-lg font-semibold text-[#1a1a1a] mb-4">Device Breakdown</h3>
+              <div className="rounded-2xl p-6 border" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-primary)" }}>
+                <h3 className="text-lg font-semibold mb-4" style={{ color: "var(--text-primary)" }}>Device Breakdown</h3>
                 <div className="grid grid-cols-3 gap-4">
                   {data.deviceBreakdown.map((item) => (
-                    <div key={item.device} className="text-center p-4 bg-[#f8f9fa] rounded-xl">
+                    <div key={item.device} className="text-center p-4 rounded-xl" style={{ backgroundColor: "var(--bg-tertiary)" }}>
                       <div className="flex justify-center mb-2">
                         {getDeviceIcon(item.device)}
                       </div>
-                      <p className="text-2xl font-bold text-[#1a1a1a]">{item.count}</p>
-                      <p className="text-xs text-[#666] capitalize">{item.device}</p>
+                      <p className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>{item.count}</p>
+                      <p className="text-xs capitalize" style={{ color: "var(--text-muted)" }}>{item.device}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Browser Breakdown */}
-              <div className="bg-white rounded-2xl p-6 border border-[#e0e0e0]">
-                <h3 className="text-lg font-semibold text-[#1a1a1a] mb-4">Browser Breakdown</h3>
+              <div className="rounded-2xl p-6 border" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-primary)" }}>
+                <h3 className="text-lg font-semibold mb-4" style={{ color: "var(--text-primary)" }}>Browser Breakdown</h3>
                 <div className="space-y-3">
                   {data.browserBreakdown.slice(0, 5).map((item) => {
                     const total = data.browserBreakdown.reduce((a, b) => a + b.count, 0);
                     const percentage = total > 0 ? (item.count / total) * 100 : 0;
                     return (
                       <div key={item.browser} className="flex items-center gap-3">
-                        <div className="w-20 text-sm text-[#666]">{item.browser}</div>
-                        <div className="flex-1 h-6 bg-[#f0f0f0] rounded-full overflow-hidden">
+                        <div className="w-20 text-sm" style={{ color: "var(--text-muted)" }}>{item.browser}</div>
+                        <div className="flex-1 h-6 rounded-full overflow-hidden" style={{ backgroundColor: "var(--bg-tertiary)" }}>
                           <div
-                            className="h-full bg-[#7c5cff] rounded-full flex items-center justify-end pr-2"
+                            className="h-full bg-[#F97316] rounded-full flex items-center justify-end pr-2"
                             style={{ width: `${percentage}%` }}
                           >
                             <span className="text-xs text-white font-medium">{item.count}</span>
@@ -441,44 +448,44 @@ export default function AttributionPage() {
 
         {/* Channels Tab */}
         {selectedTab === "channels" && data && (
-          <div className="bg-white rounded-2xl border border-[#e0e0e0] overflow-hidden">
-            <div className="p-6 border-b border-[#e0e0e0]">
-              <h3 className="text-lg font-semibold text-[#1a1a1a]">Channel Performance</h3>
-              <p className="text-sm text-[#666] mt-1">First-touch attribution model</p>
+          <div className="rounded-2xl border overflow-hidden" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-primary)" }}>
+            <div className="p-6 border-b" style={{ borderColor: "var(--border-primary)" }}>
+              <h3 className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>Channel Performance</h3>
+              <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>First-touch attribution model</p>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-[#f8f9fa]">
+                <thead style={{ backgroundColor: "var(--bg-tertiary)" }}>
                   <tr>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-[#666] uppercase">Channel</th>
-                    <th className="text-right px-6 py-3 text-xs font-semibold text-[#666] uppercase">Users</th>
-                    <th className="text-right px-6 py-3 text-xs font-semibold text-[#666] uppercase">Sessions</th>
-                    <th className="text-right px-6 py-3 text-xs font-semibold text-[#666] uppercase">Conversions</th>
-                    <th className="text-right px-6 py-3 text-xs font-semibold text-[#666] uppercase">Revenue</th>
-                    <th className="text-right px-6 py-3 text-xs font-semibold text-[#666] uppercase">Conv. Rate</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold uppercase" style={{ color: "var(--text-muted)" }}>Channel</th>
+                    <th className="text-right px-6 py-3 text-xs font-semibold uppercase" style={{ color: "var(--text-muted)" }}>Users</th>
+                    <th className="text-right px-6 py-3 text-xs font-semibold uppercase" style={{ color: "var(--text-muted)" }}>Sessions</th>
+                    <th className="text-right px-6 py-3 text-xs font-semibold uppercase" style={{ color: "var(--text-muted)" }}>Conversions</th>
+                    <th className="text-right px-6 py-3 text-xs font-semibold uppercase" style={{ color: "var(--text-muted)" }}>Revenue</th>
+                    <th className="text-right px-6 py-3 text-xs font-semibold uppercase" style={{ color: "var(--text-muted)" }}>Conv. Rate</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#e0e0e0]">
+                <tbody style={{ borderColor: "var(--border-primary)" }}>
                   {data.channelAttribution.map((channel, idx) => (
-                    <tr key={idx} className="hover:bg-[#f8f9fa] transition-colors">
+                    <tr key={idx} className="transition-colors border-t" style={{ borderColor: "var(--border-primary)" }}>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           {getChannelIcon(channel.channel)}
-                          <span className="font-medium text-[#1a1a1a]">{channel.channel}</span>
-                          <span className="text-[#666]">/ {channel.medium}</span>
+                          <span className="font-medium" style={{ color: "var(--text-primary)" }}>{channel.channel}</span>
+                          <span style={{ color: "var(--text-muted)" }}>/ {channel.medium}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-right font-medium">{channel.users}</td>
-                      <td className="px-6 py-4 text-right text-[#666]">{channel.sessions}</td>
+                      <td className="px-6 py-4 text-right font-medium" style={{ color: "var(--text-primary)" }}>{channel.users}</td>
+                      <td className="px-6 py-4 text-right" style={{ color: "var(--text-muted)" }}>{channel.sessions}</td>
                       <td className="px-6 py-4 text-right">
-                        <span className="inline-flex items-center px-2 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-medium">
+                        <span className="inline-flex items-center px-2 py-1 bg-[#F97316]/10 text-[#F97316] rounded-lg text-sm font-medium">
                           {channel.conversions}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-right font-semibold text-green-600">
+                      <td className="px-6 py-4 text-right font-semibold text-[#F97316]">
                         {formatCurrency(channel.revenue)}
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-6 py-4 text-right" style={{ color: "var(--text-primary)" }}>
                         {channel.users > 0 ? ((channel.conversions / channel.users) * 100).toFixed(1) : 0}%
                       </td>
                     </tr>
@@ -491,51 +498,51 @@ export default function AttributionPage() {
 
         {/* Users Tab */}
         {selectedTab === "users" && data && (
-          <div className="bg-white rounded-2xl border border-[#e0e0e0] overflow-hidden">
-            <div className="p-6 border-b border-[#e0e0e0]">
-              <h3 className="text-lg font-semibold text-[#1a1a1a]">Recent Users</h3>
-              <p className="text-sm text-[#666] mt-1">Individual user tracking with complete journey</p>
+          <div className="rounded-2xl border overflow-hidden" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-primary)" }}>
+            <div className="p-6 border-b" style={{ borderColor: "var(--border-primary)" }}>
+              <h3 className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>Recent Users</h3>
+              <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>Individual user tracking with complete journey</p>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-[#f8f9fa]">
+                <thead style={{ backgroundColor: "var(--bg-tertiary)" }}>
                   <tr>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-[#666] uppercase">User ID</th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-[#666] uppercase">First Seen</th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-[#666] uppercase">Source</th>
-                    <th className="text-center px-6 py-3 text-xs font-semibold text-[#666] uppercase">Sessions</th>
-                    <th className="text-center px-6 py-3 text-xs font-semibold text-[#666] uppercase">Pageviews</th>
-                    <th className="text-center px-6 py-3 text-xs font-semibold text-[#666] uppercase">Stage</th>
-                    <th className="text-right px-6 py-3 text-xs font-semibold text-[#666] uppercase">Revenue</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold uppercase" style={{ color: "var(--text-muted)" }}>User ID</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold uppercase" style={{ color: "var(--text-muted)" }}>First Seen</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold uppercase" style={{ color: "var(--text-muted)" }}>Source</th>
+                    <th className="text-center px-6 py-3 text-xs font-semibold uppercase" style={{ color: "var(--text-muted)" }}>Sessions</th>
+                    <th className="text-center px-6 py-3 text-xs font-semibold uppercase" style={{ color: "var(--text-muted)" }}>Pageviews</th>
+                    <th className="text-center px-6 py-3 text-xs font-semibold uppercase" style={{ color: "var(--text-muted)" }}>Stage</th>
+                    <th className="text-right px-6 py-3 text-xs font-semibold uppercase" style={{ color: "var(--text-muted)" }}>Revenue</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#e0e0e0]">
+                <tbody>
                   {data.recentUsers.map((user) => (
-                    <tr key={user.user_id} className="hover:bg-[#f8f9fa] transition-colors">
+                    <tr key={user.user_id} className="transition-colors border-t" style={{ borderColor: "var(--border-primary)" }}>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           {getDeviceIcon(user.device || "desktop")}
-                          <span className="font-mono text-sm text-[#1a1a1a]">
+                          <span className="font-mono text-sm" style={{ color: "var(--text-primary)" }}>
                             {user.user_id.substring(0, 20)}...
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-[#666]">
+                      <td className="px-6 py-4 text-sm" style={{ color: "var(--text-muted)" }}>
                         {formatDate(user.first_seen_at)}
                       </td>
                       <td className="px-6 py-4">
-                        <span className="text-sm">
+                        <span className="text-sm" style={{ color: "var(--text-primary)" }}>
                           {user.first_touch_source || "direct"}/{user.first_touch_medium || "none"}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-center font-medium">{user.total_sessions}</td>
-                      <td className="px-6 py-4 text-center text-[#666]">{user.total_pageviews}</td>
+                      <td className="px-6 py-4 text-center font-medium" style={{ color: "var(--text-primary)" }}>{user.total_sessions}</td>
+                      <td className="px-6 py-4 text-center" style={{ color: "var(--text-muted)" }}>{user.total_pageviews}</td>
                       <td className="px-6 py-4 text-center">
                         <span className={`px-2 py-1 rounded-lg text-xs font-medium ${getLifecycleColor(user.lifecycle_stage)}`}>
                           {user.lifecycle_stage?.replace("_", " ") || "visitor"}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-right font-semibold text-green-600">
+                      <td className="px-6 py-4 text-right font-semibold text-[#F97316]">
                         {formatCurrency(parseFloat(user.total_revenue?.toString() || "0"))}
                       </td>
                     </tr>
@@ -550,30 +557,30 @@ export default function AttributionPage() {
         {selectedTab === "setup" && (
           <div className="space-y-6">
             {/* Tracking Script */}
-            <div className="bg-white rounded-2xl p-6 border border-[#e0e0e0]">
+            <div className="rounded-2xl p-6 border" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-primary)" }}>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-[#1a1a1a] flex items-center gap-2">
-                  <Code className="w-5 h-5 text-[#7c5cff]" />
+                <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
+                  <Code className="w-5 h-5 text-[#F97316]" />
                   Tracking Script
                 </h3>
                 <button
                   onClick={copyTrackingScript}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#7c5cff] text-white rounded-xl font-medium hover:bg-[#6b4fee] transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-[#F97316] text-white rounded-xl font-medium hover:bg-[#EA580C] transition-colors"
                 >
                   {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   {copied ? "Copied!" : "Copy Script"}
                 </button>
               </div>
-              <p className="text-[#666] mb-4">
+              <p className="mb-4" style={{ color: "var(--text-muted)" }}>
                 Add this script to your website to start tracking users with first-party data attribution.
               </p>
-              <pre className="bg-[#1a1a1a] text-[#00d4aa] p-4 rounded-xl overflow-x-auto text-sm">
+              <pre className="text-[#3b82f6] p-4 rounded-xl overflow-x-auto text-sm" style={{ backgroundColor: "var(--bg-tertiary)" }}>
 {`<!-- CRO Attribution Tracking Script -->
 <script>
   window.funnelId = "YOUR_FUNNEL_ID";
   window.funnelStep = "YOUR_STEP_NAME";
 </script>
-<script src="${process.env.NEXT_PUBLIC_APP_URL || "https://cro-agent.vercel.app"}/cro-tracker-attribution.js" defer></script>`}
+<script src="${process.env.NEXT_PUBLIC_APP_URL || "https://cro-agent.vercel.app"}/cro-tracking-attribution.js" defer></script>`}
               </pre>
             </div>
 
@@ -611,37 +618,37 @@ export default function AttributionPage() {
                   description: "Every click, scroll, and page view recorded"
                 }
               ].map((feature, idx) => (
-                <div key={idx} className="bg-white rounded-2xl p-6 border border-[#e0e0e0]">
-                  <div className="w-10 h-10 bg-gradient-to-br from-[#7c5cff]/10 to-[#00d4aa]/10 rounded-xl flex items-center justify-center mb-4">
-                    <feature.icon className="w-5 h-5 text-[#7c5cff]" />
+                <div key={idx} className="rounded-2xl p-6 border" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-primary)" }}>
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#F97316]/10 to-[#3b82f6]/10 rounded-xl flex items-center justify-center mb-4">
+                    <feature.icon className="w-5 h-5 text-[#F97316]" />
                   </div>
-                  <h4 className="font-semibold text-[#1a1a1a] mb-2">{feature.title}</h4>
-                  <p className="text-sm text-[#666]">{feature.description}</p>
+                  <h4 className="font-semibold mb-2" style={{ color: "var(--text-primary)" }}>{feature.title}</h4>
+                  <p className="text-sm" style={{ color: "var(--text-muted)" }}>{feature.description}</p>
                 </div>
               ))}
             </div>
 
             {/* Database Setup */}
-            <div className="bg-white rounded-2xl p-6 border border-[#e0e0e0]">
-              <h3 className="text-lg font-semibold text-[#1a1a1a] mb-4 flex items-center gap-2">
-                <ArrowRight className="w-5 h-5 text-[#7c5cff]" />
+            <div className="rounded-2xl p-6 border" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-primary)" }}>
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
+                <ArrowRight className="w-5 h-5 text-[#F97316]" />
                 Database Setup
               </h3>
-              <ol className="space-y-3 text-[#666]">
+              <ol className="space-y-3" style={{ color: "var(--text-muted)" }}>
                 <li className="flex items-start gap-3">
-                  <span className="w-6 h-6 bg-[#7c5cff] text-white rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0">1</span>
+                  <span className="w-6 h-6 bg-[#F97316] text-white rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0">1</span>
                   <span>Open Supabase SQL Editor</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="w-6 h-6 bg-[#7c5cff] text-white rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0">2</span>
-                  <span>Run the migration file: <code className="bg-[#f0f0f0] px-2 py-1 rounded">migrations/add_attribution_tracking.sql</code></span>
+                  <span className="w-6 h-6 bg-[#F97316] text-white rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0">2</span>
+                  <span>Run the migration file: <code className="px-2 py-1 rounded" style={{ backgroundColor: "var(--bg-tertiary)" }}>migrations/add_attribution_tracking.sql</code></span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="w-6 h-6 bg-[#7c5cff] text-white rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0">3</span>
+                  <span className="w-6 h-6 bg-[#F97316] text-white rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0">3</span>
                   <span>Deploy the updated Edge Function to Supabase</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="w-6 h-6 bg-[#7c5cff] text-white rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0">4</span>
+                  <span className="w-6 h-6 bg-[#F97316] text-white rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0">4</span>
                   <span>Install the tracking script on your website</span>
                 </li>
               </ol>

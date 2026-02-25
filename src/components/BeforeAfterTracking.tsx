@@ -64,8 +64,8 @@ export default function BeforeAfterTracking({
   const scoreRange = maxScore - minScore;
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return "#00d4aa";
-    if (score >= 60) return "#7c5cff";
+    if (score >= 80) return "#3b82f6";
+    if (score >= 60) return "#F97316";
     if (score >= 40) return "#f59e0b";
     return "#ff6b6b";
   };
@@ -87,7 +87,7 @@ export default function BeforeAfterTracking({
             <div className="text-[32px] font-bold" style={{ color: getScoreColor(latestScore) }}>
               {latestScore}
             </div>
-            <div className={`flex items-center gap-1.5 text-[13px] justify-end ${change >= 0 ? 'text-[#00d4aa]' : 'text-[#ff6b6b]'}`}>
+            <div className={`flex items-center gap-1.5 text-[13px] justify-end ${change >= 0 ? 'text-[#3b82f6]' : 'text-[#ff6b6b]'}`}>
               {change >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
               {Math.abs(parseFloat(changePercent))}% {change >= 0 ? 'improvement' : 'decrease'}
             </div>
@@ -102,8 +102,8 @@ export default function BeforeAfterTracking({
               onClick={() => setSelectedCategory(category.id as any)}
               className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all ${
                 selectedCategory === category.id
-                  ? "bg-[#7c5cff] text-white"
-                  : "bg-[#111111] text-[#888888] border border-[#2a2a2a] hover:border-[#7c5cff]/50"
+                  ? "bg-[#F97316] text-white"
+                  : "bg-[#111111] text-[#888888] border border-[#2a2a2a] hover:border-[#F97316]/50"
               }`}
             >
               {category.label}
@@ -202,7 +202,7 @@ export default function BeforeAfterTracking({
                         cy={`${y}%`}
                         r="8"
                         fill="none"
-                        stroke="#00d4aa"
+                        stroke="#3b82f6"
                         strokeWidth="2"
                         strokeDasharray="2,2"
                       />
@@ -270,7 +270,7 @@ export default function BeforeAfterTracking({
                   </span>
                   <div className="flex items-center gap-3">
                     {itemChange !== 0 && (
-                      <span className={`text-[12px] font-medium ${itemChange > 0 ? 'text-[#00d4aa]' : 'text-[#ff6b6b]'}`}>
+                      <span className={`text-[12px] font-medium ${itemChange > 0 ? 'text-[#3b82f6]' : 'text-[#ff6b6b]'}`}>
                         {itemChange > 0 ? '+' : ''}{itemChange}
                       </span>
                     )}
@@ -283,15 +283,15 @@ export default function BeforeAfterTracking({
                 {item.changes && item.changes.length > 0 && (
                   <div className="bg-[#111111] border border-[#2a2a2a] rounded-lg p-3">
                     <div className="flex items-center gap-2 mb-2">
-                      <Target className="w-3.5 h-3.5 text-[#00d4aa]" />
-                      <span className="text-[12px] font-semibold text-[#00d4aa]">
+                      <Target className="w-3.5 h-3.5 text-[#3b82f6]" />
+                      <span className="text-[12px] font-semibold text-[#3b82f6]">
                         Changes Implemented
                       </span>
                     </div>
                     <ul className="space-y-1">
                       {item.changes.map((change, idx) => (
                         <li key={idx} className="text-[12px] text-[#888888] flex items-start gap-2">
-                          <span className="text-[#7c5cff] mt-1">•</span>
+                          <span className="text-[#F97316] mt-1">•</span>
                           {change}
                         </li>
                       ))}

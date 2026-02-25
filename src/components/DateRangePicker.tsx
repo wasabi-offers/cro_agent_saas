@@ -49,9 +49,9 @@ export default function DateRangePicker({ value, onChange, className = "" }: Dat
     <div className={`relative ${className}`}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2.5 bg-[#f8f9fa] border border-[#2a2a2a] rounded-xl text-[#1a1a1a] text-[14px] hover:border-[#7c5cff] transition-all"
+        className="flex items-center gap-2 px-4 py-2.5 bg-[#f8f9fa] border border-[#2a2a2a] rounded-xl text-[#1a1a1a] text-[14px] hover:border-[#F97316] transition-all"
       >
-        <Calendar className="w-4 h-4 text-[#7c5cff]" />
+        <Calendar className="w-4 h-4 text-[#F97316]" />
         <span>
           {formatDate(value.start)} - {formatDate(value.end)}
         </span>
@@ -77,7 +77,7 @@ export default function DateRangePicker({ value, onChange, className = "" }: Dat
                   <button
                     key={preset.label}
                     onClick={() => handlePreset(preset.days)}
-                    className="px-4 py-2 bg-[#f8f9fa] border border-[#2a2a2a] rounded-lg text-[13px] text-[#666666] hover:border-[#7c5cff] hover:text-[#1a1a1a] transition-all"
+                    className="px-4 py-2 bg-[#f8f9fa] border border-[#2a2a2a] rounded-lg text-[13px] text-[#666666] hover:border-[#F97316] hover:text-[#1a1a1a] transition-all"
                   >
                     {preset.label}
                   </button>
@@ -92,7 +92,7 @@ export default function DateRangePicker({ value, onChange, className = "" }: Dat
                     type="date"
                     value={tempRange.start}
                     onChange={(e) => setTempRange({ ...tempRange, start: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#f8f9fa] border border-[#2a2a2a] rounded-lg text-[#1a1a1a] text-[13px] focus:outline-none focus:border-[#7c5cff]"
+                    className="w-full px-3 py-2 bg-[#f8f9fa] border border-[#2a2a2a] rounded-lg text-[#1a1a1a] text-[13px] focus:outline-none focus:border-[#F97316]"
                   />
                 </div>
                 <div>
@@ -101,7 +101,7 @@ export default function DateRangePicker({ value, onChange, className = "" }: Dat
                     type="date"
                     value={tempRange.end}
                     onChange={(e) => setTempRange({ ...tempRange, end: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#f8f9fa] border border-[#2a2a2a] rounded-lg text-[#1a1a1a] text-[13px] focus:outline-none focus:border-[#7c5cff]"
+                    className="w-full px-3 py-2 bg-[#f8f9fa] border border-[#2a2a2a] rounded-lg text-[#1a1a1a] text-[13px] focus:outline-none focus:border-[#F97316]"
                   />
                 </div>
               </div>
@@ -116,7 +116,7 @@ export default function DateRangePicker({ value, onChange, className = "" }: Dat
                 </button>
                 <button
                   onClick={handleApply}
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white rounded-lg text-[13px] font-medium hover:shadow-lg transition-all"
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-[#F97316] to-[#3b82f6] text-white rounded-lg text-[13px] font-medium hover:shadow-lg transition-all"
                 >
                   Apply
                 </button>

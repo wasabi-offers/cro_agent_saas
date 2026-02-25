@@ -17,7 +17,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { Plus, Trash2, Save, X, ArrowRight, Link as LinkIcon, ExternalLink, Code, Copy, Check } from 'lucide-react';
-import { generateTrackingScript } from '@/lib/tracking-script';
+import { getTrackingScriptTag } from '@/lib/advanced-tracking-script';
 
 interface FunnelStep {
   name: string;
@@ -62,11 +62,11 @@ function StepNode({ data, id }: { data: StepNodeData; id: string }) {
       <Handle
         type="target"
         position={Position.Left}
-        className="w-4 h-4 !bg-[#7c5cff] border-2 border-white"
+        className="w-4 h-4 !bg-[#F97316] border-2 border-white"
         style={{ left: -8 }}
       />
 
-      <div className="bg-[#0a0a0a] border-2 border-[#7c5cff] rounded-xl p-4 w-[260px] min-w-[260px] max-w-[260px] min-h-[140px] shadow-lg hover:border-[#00d4aa] transition-all overflow-hidden">
+      <div className="bg-[#0a0a0a] border-2 border-[#F97316] rounded-xl p-4 w-[260px] min-w-[260px] max-w-[260px] min-h-[140px] shadow-lg hover:border-[#3b82f6] transition-all overflow-hidden">
         <div className="flex flex-col gap-2 min-w-0">
           {isEditing ? (
             <div className="space-y-2">
@@ -84,7 +84,7 @@ function StepNode({ data, id }: { data: StepNodeData; id: string }) {
                       setIsEditing(false);
                     }
                   }}
-                  className="w-full px-2 py-1 bg-[#111111] border border-[#7c5cff] rounded text-[14px] text-[#fafafa] focus:outline-none"
+                  className="w-full px-2 py-1 bg-[#111111] border border-[#F97316] rounded text-[14px] text-[#fafafa] focus:outline-none"
                   autoFocus
                   placeholder="e.g., Landing Page"
                 />
@@ -105,7 +105,7 @@ function StepNode({ data, id }: { data: StepNodeData; id: string }) {
                         setIsEditing(false);
                       }
                     }}
-                    className="w-full pl-8 pr-2 py-1 bg-[#111111] border border-[#7c5cff] rounded text-[13px] text-[#fafafa] focus:outline-none"
+                    className="w-full pl-8 pr-2 py-1 bg-[#111111] border border-[#F97316] rounded text-[13px] text-[#fafafa] focus:outline-none"
                     placeholder="https://..."
                   />
                 </div>
@@ -113,7 +113,7 @@ function StepNode({ data, id }: { data: StepNodeData; id: string }) {
               <div className="flex gap-2">
                 <button
                   onClick={handleSave}
-                  className="flex-1 px-2 py-1 bg-[#00d4aa] text-white rounded text-[12px] hover:bg-[#00c499] transition-colors"
+                  className="flex-1 px-2 py-1 bg-[#3b82f6] text-white rounded text-[12px] hover:bg-[#2563eb] transition-colors"
                 >
                   Save
                 </button>
@@ -152,7 +152,7 @@ function StepNode({ data, id }: { data: StepNodeData; id: string }) {
               {data.url ? (
                 <div className="mb-2 bg-[#111111] border border-[#2a2a2a] rounded-lg p-2 min-w-0 overflow-hidden">
                   <div className="flex items-center gap-2 min-w-0">
-                    <LinkIcon className="w-3 h-3 text-[#00d4aa] flex-shrink-0" />
+                    <LinkIcon className="w-3 h-3 text-[#3b82f6] flex-shrink-0" />
                     <span className="text-[11px] text-[#888888] truncate flex-1 min-w-0" title={data.url}>
                       {data.url}
                     </span>
@@ -161,7 +161,7 @@ function StepNode({ data, id }: { data: StepNodeData; id: string }) {
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="flex-shrink-0 text-[#7c5cff] hover:text-[#00d4aa] transition-colors"
+                      className="flex-shrink-0 text-[#F97316] hover:text-[#3b82f6] transition-colors"
                     >
                       <ExternalLink className="w-3 h-3" />
                     </a>
@@ -177,7 +177,7 @@ function StepNode({ data, id }: { data: StepNodeData; id: string }) {
               <p className="text-[11px] text-[#666666]">
                 Double-click to edit
               </p>
-              <div className="flex items-center gap-1 text-[10px] text-[#7c5cff] mt-1">
+              <div className="flex items-center gap-1 text-[10px] text-[#F97316] mt-1">
                 <ArrowRight className="w-3 h-3" />
                 <span>Drag from circle to connect</span>
               </div>
@@ -190,7 +190,7 @@ function StepNode({ data, id }: { data: StepNodeData; id: string }) {
       <Handle
         type="source"
         position={Position.Right}
-        className="w-4 h-4 !bg-[#00d4aa] border-2 border-white"
+        className="w-4 h-4 !bg-[#3b82f6] border-2 border-white"
         style={{ right: -8 }}
       />
     </div>
@@ -264,18 +264,18 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
           type: 'smoothstep',
           animated: true,
           style: {
-            stroke: '#7c5cff',
+            stroke: '#F97316',
             strokeWidth: 3,
           },
           markerEnd: {
             type: MarkerType.ArrowClosed,
-            color: '#7c5cff',
+            color: '#F97316',
             width: 20,
             height: 20,
           },
           label: '→',
           labelStyle: {
-            fill: '#00d4aa',
+            fill: '#3b82f6',
             fontSize: 14,
             fontWeight: 700,
           },
@@ -292,18 +292,18 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
           type: 'smoothstep',
           animated: true,
           style: {
-            stroke: '#7c5cff',
+            stroke: '#F97316',
             strokeWidth: 3,
           },
           markerEnd: {
             type: MarkerType.ArrowClosed,
-            color: '#7c5cff',
+            color: '#F97316',
             width: 20,
             height: 20,
           },
           label: '→',
           labelStyle: {
-            fill: '#00d4aa',
+            fill: '#3b82f6',
             fontSize: 14,
             fontWeight: 700,
           },
@@ -325,18 +325,18 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
         type: 'smoothstep',
         animated: true,
         style: {
-          stroke: '#7c5cff',
+          stroke: '#F97316',
           strokeWidth: 3,
         },
         markerEnd: {
           type: MarkerType.ArrowClosed,
-          color: '#7c5cff',
+          color: '#F97316',
           width: 20,
           height: 20,
         },
         label: '→',
         labelStyle: {
-          fill: '#00d4aa',
+          fill: '#3b82f6',
           fontSize: 14,
           fontWeight: 700,
         },
@@ -391,7 +391,7 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
     }
 
     if (edges.length === 0) {
-      setError('❌ Connect the steps: drag from the green circle (→) of one step to the purple circle (←) of another step');
+      setError('❌ Connect the steps: drag from the blue circle (→) of one step to the orange circle (←) of another step');
       return;
     }
 
@@ -533,14 +533,14 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
               value={funnelName}
               onChange={(e) => setFunnelName(e.target.value)}
               placeholder="e.g., E-commerce Checkout Flow"
-              className="w-full px-4 py-3 bg-[#111111] border border-white/10 rounded-xl text-[#fafafa] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+              className="w-full px-4 py-3 bg-[#111111] border border-white/10 rounded-xl text-[#fafafa] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all"
             />
           </div>
 
           <div className="flex items-center gap-4">
             <button
               onClick={addStep}
-              className="flex items-center gap-2 px-4 py-2.5 bg-[#7c5cff] text-white rounded-xl text-[14px] font-medium hover:bg-[#6b4ee6] transition-all"
+              className="flex items-center gap-2 px-4 py-2.5 bg-[#F97316] text-white rounded-xl text-[14px] font-medium hover:bg-[#EA580C] transition-all"
             >
               <Plus className="w-4 h-4" />
               Add Step
@@ -560,7 +560,7 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
 
       {/* Tutorial Banner */}
       {showTutorial && nodes.length === 0 && (
-        <div className="bg-gradient-to-r from-[#7c5cff]/20 to-[#00d4aa]/20 border border-[#7c5cff]/30 rounded-2xl p-6">
+        <div className="bg-gradient-to-r from-[#F97316]/20 to-[#3b82f6]/20 border border-[#F97316]/30 rounded-2xl p-6">
           <div className="flex items-start justify-between mb-4">
             <h3 className="text-[18px] font-semibold text-[#fafafa]">
               👋 How to build your funnel
@@ -574,7 +574,7 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-[#0a0a0a]/50 border border-white/10 rounded-xl p-4">
-              <div className="w-10 h-10 bg-[#7c5cff] rounded-lg flex items-center justify-center text-white font-bold mb-3">
+              <div className="w-10 h-10 bg-[#F97316] rounded-lg flex items-center justify-center text-white font-bold mb-3">
                 1
               </div>
               <h4 className="text-[14px] font-semibold text-[#fafafa] mb-2">
@@ -585,14 +585,14 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
               </p>
             </div>
             <div className="bg-[#0a0a0a]/50 border border-white/10 rounded-xl p-4">
-              <div className="w-10 h-10 bg-[#00d4aa] rounded-lg flex items-center justify-center text-white font-bold mb-3">
+              <div className="w-10 h-10 bg-[#3b82f6] rounded-lg flex items-center justify-center text-white font-bold mb-3">
                 2
               </div>
               <h4 className="text-[14px] font-semibold text-[#fafafa] mb-2">
                 Connect Cards
               </h4>
               <p className="text-[13px] text-[#888888]">
-                Drag from the <span className="text-[#00d4aa] font-semibold">green circle (→)</span> of one card to the <span className="text-[#7c5cff] font-semibold">purple circle (←)</span> of the next card. <span className="text-[#fafafa] font-semibold">You can create multiple paths and branches!</span>
+                Drag from the <span className="text-[#3b82f6] font-semibold">blue circle (→)</span> of one card to the <span className="text-[#F97316] font-semibold">orange circle (←)</span> of the next card. <span className="text-[#fafafa] font-semibold">You can create multiple paths and branches!</span>
               </p>
             </div>
             <div className="bg-[#0a0a0a]/50 border border-white/10 rounded-xl p-4">
@@ -607,20 +607,20 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
               </p>
             </div>
           </div>
-          <div className="mt-4 bg-[#0a0a0a]/80 border border-[#00d4aa]/30 rounded-xl p-4">
+          <div className="mt-4 bg-[#0a0a0a]/80 border border-[#3b82f6]/30 rounded-xl p-4">
             <p className="text-[12px] text-[#888888] mb-2">💡 <span className="text-[#fafafa] font-semibold">Examples of funnels you can create:</span></p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px] text-[#888888]">
               <div>
-                <span className="text-[#00d4aa]">→</span> <span className="text-[#fafafa]">Linear:</span> Landing → Checkout → Thank You
+                <span className="text-[#3b82f6]">→</span> <span className="text-[#fafafa]">Linear:</span> Landing → Checkout → Thank You
               </div>
               <div>
-                <span className="text-[#00d4aa]">→</span> <span className="text-[#fafafa]">Branched:</span> Landing → (Product A / Product B) → Checkout
+                <span className="text-[#3b82f6]">→</span> <span className="text-[#fafafa]">Branched:</span> Landing → (Product A / Product B) → Checkout
               </div>
               <div>
-                <span className="text-[#00d4aa]">→</span> <span className="text-[#fafafa]">Convergent:</span> (Landing A / Landing B) → Checkout → Thank You
+                <span className="text-[#3b82f6]">→</span> <span className="text-[#fafafa]">Convergent:</span> (Landing A / Landing B) → Checkout → Thank You
               </div>
               <div>
-                <span className="text-[#00d4aa]">→</span> <span className="text-[#fafafa]">Complex:</span> Multiple paths that merge and branch
+                <span className="text-[#3b82f6]">→</span> <span className="text-[#fafafa]">Complex:</span> Multiple paths that merge and branch
               </div>
             </div>
           </div>
@@ -633,18 +633,18 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#00d4aa]"></div>
-                <span className="text-[12px] text-[#888888]">Green circle = Output (drag from here)</span>
+                <div className="w-3 h-3 rounded-full bg-[#3b82f6]"></div>
+                <span className="text-[12px] text-[#888888]">Blue circle = Output (drag from here)</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#7c5cff]"></div>
-                <span className="text-[12px] text-[#888888]">Purple circle = Input (connect here)</span>
+                <div className="w-3 h-3 rounded-full bg-[#F97316]"></div>
+                <span className="text-[12px] text-[#888888]">Orange circle = Input (connect here)</span>
               </div>
             </div>
             {nodes.length > 0 && (
               <button
                 onClick={() => setShowTutorial(true)}
-                className="text-[12px] text-[#7c5cff] hover:text-[#00d4aa] transition-colors"
+                className="text-[12px] text-[#F97316] hover:text-[#3b82f6] transition-colors"
               >
                 Show tutorial
               </button>
@@ -674,8 +674,8 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
           {nodes.length === 0 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="text-center">
-                <div className="w-16 h-16 bg-[#7c5cff]/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Plus className="w-8 h-8 text-[#7c5cff]" />
+                <div className="w-16 h-16 bg-[#F97316]/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Plus className="w-8 h-8 text-[#F97316]" />
                 </div>
                 <h3 className="text-[18px] font-semibold text-[#fafafa] mb-2">
                   Start by adding your first step
@@ -697,7 +697,7 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
             className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-r from-[#F97316] to-[#3b82f6] rounded-xl flex items-center justify-center">
                 <Code className="w-5 h-5 text-white" />
               </div>
               <div className="text-left">
@@ -719,13 +719,13 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
           {showTrackingSetup && (
             <div className="px-6 py-6 border-t border-white/10 space-y-6">
               {/* Instructions */}
-              <div className="bg-gradient-to-r from-[#7c5cff]/10 to-[#00d4aa]/10 border border-[#7c5cff]/30 rounded-xl p-4">
+              <div className="bg-gradient-to-r from-[#F97316]/10 to-[#3b82f6]/10 border border-[#F97316]/30 rounded-xl p-4">
                 <h4 className="text-[14px] font-semibold text-[#fafafa] mb-2">
                   📋 How to use
                 </h4>
                 <ol className="text-[13px] text-[#888888] space-y-1.5 list-decimal list-inside">
                   <li>Copy the script for each landing page by clicking the &quot;Copy&quot; button</li>
-                  <li>Paste the script in the <code className="px-1.5 py-0.5 bg-[#0a0a0a] rounded text-[#00d4aa]">&lt;head&gt;</code> of your landing page HTML</li>
+                  <li>Paste the script in the <code className="px-1.5 py-0.5 bg-[#0a0a0a] rounded text-[#3b82f6]">&lt;head&gt;</code> of your landing page HTML</li>
                   <li>The script will automatically start tracking clicks, scrolls, and mouse movements</li>
                   <li>Data will be visible in the Heatmap after users visit the page</li>
                 </ol>
@@ -736,16 +736,20 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
                 {nodes
                   .filter(node => node.data.url)
                   .map(node => {
-                    const apiEndpoint = `${typeof window !== 'undefined' ? window.location.origin : 'https://your-app.vercel.app'}/api/track`;
-                    const landingId = `landing_${node.id}`;
-                    const script = generateTrackingScript(landingId, apiEndpoint);
+                    const stepIndex = parseInt(node.id.split('-')[1] || '0', 10) - 1;
+                    const script = getTrackingScriptTag({
+                      funnelId: `YOUR_FUNNEL_ID`,
+                      funnelStepName: node.data.label,
+                      funnelStepOrder: Math.max(0, stepIndex),
+                      enableHeatmap: true,
+                    });
                     const isCopied = copiedScriptId === node.id;
 
                     return (
                       <div key={node.id} className="bg-[#111111] border border-white/10 rounded-xl overflow-hidden">
                         <div className="px-4 py-3 bg-[#0a0a0a] border-b border-white/10 flex items-center justify-between gap-4">
                           <div className="flex items-center gap-3 min-w-0 flex-1">
-                            <div className="w-8 h-8 bg-[#7c5cff] rounded-lg flex items-center justify-center text-white text-[13px] font-bold flex-shrink-0">
+                            <div className="w-8 h-8 bg-[#F97316] rounded-lg flex items-center justify-center text-white text-[13px] font-bold flex-shrink-0">
                               {node.id.split('-')[1]}
                             </div>
                             <div className="min-w-0 flex-1">
@@ -760,8 +764,8 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
                             onClick={() => copyTrackingScript(node.id, `<script>\n${script}\n</script>`)}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${
                               isCopied
-                                ? 'bg-[#00d4aa] text-white'
-                                : 'bg-[#7c5cff] text-white hover:bg-[#6b4ee6]'
+                                ? 'bg-[#3b82f6] text-white'
+                                : 'bg-[#F97316] text-white hover:bg-[#EA580C]'
                             }`}
                           >
                             {isCopied ? (
@@ -781,7 +785,7 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
                           <div className="bg-[#0a0a0a] rounded-lg p-3 overflow-x-auto">
                             <div className="flex items-start gap-2 mb-2">
                               <span className="text-[11px] text-[#888888] select-none">Landing ID:</span>
-                              <code className="text-[11px] font-mono text-[#00d4aa]">{landingId}</code>
+                              <code className="text-[11px] font-mono text-[#3b82f6]">{landingId}</code>
                             </div>
                             <pre className="text-[11px] font-mono text-[#888888] overflow-x-auto">
                               <code>{`<script>\n${script.substring(0, 200)}...\n</script>`}</code>
@@ -802,9 +806,9 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
                   ⚠️ Importante
                 </h4>
                 <ul className="text-[13px] text-[#888888] space-y-1 list-disc list-inside">
-                  <li>Ogni landing page ha uno script unico con il suo <code className="px-1.5 py-0.5 bg-[#0a0a0a] rounded text-[#00d4aa]">landingId</code></li>
-                  <li>Do not modify the <code className="px-1.5 py-0.5 bg-[#0a0a0a] rounded text-[#00d4aa]">landingId</code> otherwise data will not be tracked correctly</li>
-                  <li>Assicurati che le tue landing pages possano contattare il dominio: <code className="px-1.5 py-0.5 bg-[#0a0a0a] rounded text-[#7c5cff]">{typeof window !== 'undefined' ? window.location.origin : 'https://your-app.vercel.app'}</code></li>
+                  <li>Ogni landing page ha uno script unico con il suo <code className="px-1.5 py-0.5 bg-[#0a0a0a] rounded text-[#3b82f6]">landingId</code></li>
+                  <li>Do not modify the <code className="px-1.5 py-0.5 bg-[#0a0a0a] rounded text-[#3b82f6]">landingId</code> otherwise data will not be tracked correctly</li>
+                  <li>Assicurati che le tue landing pages possano contattare il dominio: <code className="px-1.5 py-0.5 bg-[#0a0a0a] rounded text-[#F97316]">{typeof window !== 'undefined' ? window.location.origin : 'https://your-app.vercel.app'}</code></li>
                 </ul>
               </div>
             </div>
@@ -816,14 +820,14 @@ export default function FunnelBuilder({ onSave, onCancel, initialFunnel }: Funne
       <div className="flex items-center justify-end gap-4">
         <button
           onClick={onCancel}
-          className="px-6 py-3 bg-[#111111] border border-white/10 text-[#888888] rounded-xl text-[14px] font-medium hover:text-[#fafafa] hover:border-[#7c5cff]/50 transition-all"
+          className="px-6 py-3 bg-[#111111] border border-white/10 text-[#888888] rounded-xl text-[14px] font-medium hover:text-[#fafafa] hover:border-[#F97316]/50 transition-all"
         >
           Cancel
         </button>
         <button
           onClick={handleSave}
           disabled={nodes.length < 2}
-          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white rounded-xl text-[14px] font-medium hover:shadow-lg hover:shadow-purple-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#F97316] to-[#3b82f6] text-white rounded-xl text-[14px] font-medium hover:shadow-lg hover:shadow-orange-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Save className="w-4 h-4" />
           {initialFunnel ? 'Save Changes' : 'Create Funnel'}

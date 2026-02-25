@@ -139,11 +139,11 @@ export default function HeatmapAIInsights({
   const getTypeIcon = (type: HeatmapInsight["type"]) => {
     switch (type) {
       case "opportunity":
-        return <TrendingUp className="w-5 h-5 text-[#00d4aa]" />;
+        return <TrendingUp className="w-5 h-5 text-[#3b82f6]" />;
       case "issue":
         return <AlertTriangle className="w-5 h-5 text-[#ff6b6b]" />;
       case "success":
-        return <CheckCircle className="w-5 h-5 text-[#7c5cff]" />;
+        return <CheckCircle className="w-5 h-5 text-[#F97316]" />;
       case "recommendation":
         return <Target className="w-5 h-5 text-[#f59e0b]" />;
     }
@@ -153,9 +153,9 @@ export default function HeatmapAIInsights({
     switch (type) {
       case "opportunity":
         return {
-          bg: "bg-[#00d4aa]/10",
-          border: "border-[#00d4aa]/30",
-          text: "text-[#00d4aa]",
+          bg: "bg-[#3b82f6]/10",
+          border: "border-[#3b82f6]/30",
+          text: "text-[#3b82f6]",
         };
       case "issue":
         return {
@@ -165,9 +165,9 @@ export default function HeatmapAIInsights({
         };
       case "success":
         return {
-          bg: "bg-[#7c5cff]/10",
-          border: "border-[#7c5cff]/30",
-          text: "text-[#7c5cff]",
+          bg: "bg-[#F97316]/10",
+          border: "border-[#F97316]/30",
+          text: "text-[#F97316]",
         };
       case "recommendation":
         return {
@@ -193,7 +193,7 @@ export default function HeatmapAIInsights({
       <div className="p-6 border-b border-[#2a2a2a]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Sparkles className="w-6 h-6 text-[#7c5cff]" />
+            <Sparkles className="w-6 h-6 text-[#F97316]" />
             <div>
               <h3 className="text-[18px] font-semibold text-[#fafafa]">
                 AI Insights
@@ -260,7 +260,7 @@ export default function HeatmapAIInsights({
                   )}
 
                   <div className="flex items-start gap-3 mt-3 pt-3 border-t border-white/10">
-                    <div className="w-6 h-6 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-md flex items-center justify-center flex-shrink-0">
+                    <div className="w-6 h-6 bg-gradient-to-br from-[#F97316] to-[#3b82f6] rounded-md flex items-center justify-center flex-shrink-0">
                       <span className="text-white text-[11px] font-bold">→</span>
                     </div>
                     <div>
@@ -285,7 +285,7 @@ export default function HeatmapAIInsights({
           <p className="text-[12px] text-[#666666]">
             Insights updated in real-time based on user behavior patterns
           </p>
-          <button className="px-4 py-2 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white rounded-lg text-[13px] font-medium hover:shadow-lg hover:shadow-purple-500/20 transition-all">
+          <button className="px-4 py-2 bg-gradient-to-r from-[#F97316] to-[#3b82f6] text-white rounded-lg text-[13px] font-medium hover:shadow-lg hover:shadow-orange-500/20 transition-all">
             Create A/B Tests from Insights
           </button>
         </div>

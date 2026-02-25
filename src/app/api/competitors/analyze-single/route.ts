@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { captureScreenshot } from "@/lib/competitor-screenshot";
+import { captureScreenshot, DeviceType } from "@/lib/competitor-screenshot";
 import {
   analyzeBaselineScreenshot,
   compareScreenshots,
-  CROAnalysisResult,
 } from "@/lib/gemini";
 import { anthropic, logger } from "@/lib/braintrust";
 
@@ -18,7 +17,120 @@ function getSupabaseClient() {
   return createClient(supabaseUrl, supabaseKey);
 }
 
-export const maxDuration = 120;
+export const maxDuration = 180;
+
+async function generateStrategicAssumption(
+  competitorName: string,
+  competitorUrl: string,
+  analysis: any,
+  device: string
+) {
+  if (!analysis.changes_detected || !process.env.ANTHROPIC_API_KEY) return null;
+
+  try {
+    const changeSummary = Object.entries(analysis.categories || {})
+      .filter(([, items]) => (items as any[])?.length > 0)
+      .map(([category, items]) => {
+        const descriptions = (items as any[]).map((i: any) => {
+          let line = `- ${i.description}`;
+          if (i.before && i.after) line += ` (from "${i.before}" to "${i.after}")`;
+          return line;
+        }).join("\n");
+        return `${category}:\n${descriptions}`;
+      })
+      .join("\n\n");
+
+    const assumptionResponse = await anthropic.messages.create({
+      model: "claude-3-5-haiku-20241022",
+      max_tokens: 300,
+      messages: [{
+        role: "user",
+        content: `You are a CRO strategist. A competitor website "${competitorName}" (${competitorUrl}) made these changes on ${device.toUpperCase()} version:\n\n${changeSummary}\n\nCRO Score: ${analysis.cro_score_previous || "N/A"} → ${analysis.cro_score}\nOverall impact: ${analysis.overall_impact}\n\nIn 2-3 concise sentences, explain the most likely STRATEGIC REASON why they made these changes. Focus on the business/conversion goal behind the decision. Be concrete and specific, not generic.`,
+      }],
+    });
+
+    const assumptionText = assumptionResponse.content.find((c: any) => c.type === "text");
+    if (assumptionText && assumptionText.type === "text") {
+      return assumptionText.text;
+    }
+  } catch (err) {
+    console.error("Error generating strategic assumption:", err);
+  }
+  return null;
+}
+
+async function analyzeForDevice(
+  supabase: any,
+  competitor: any,
+  device: DeviceType,
+  spanId: string
+) {
+  const screenshotBase64 = await captureScreenshot(competitor.website_url, device);
+
+  const { data: previousSnapshots } = await supabase
+    .from("competitor_snapshots")
+    .select("id, screenshot_base64, cro_score, captured_at")
+    .eq("competitor_id", competitor.id)
+    .eq("device_type", device)
+    .order("captured_at", { ascending: false })
+    .limit(1);
+
+  const previousSnapshot =
+    previousSnapshots && previousSnapshots.length > 0
+      ? previousSnapshots[0]
+      : null;
+
+  let analysis;
+
+  if (previousSnapshot?.screenshot_base64) {
+    analysis = await compareScreenshots(
+      previousSnapshot.screenshot_base64,
+      screenshotBase64
+    );
+  } else {
+    analysis = await analyzeBaselineScreenshot(screenshotBase64);
+  }
+
+  const assumption = await generateStrategicAssumption(
+    competitor.name,
+    competitor.website_url,
+    analysis,
+    device
+  );
+  if (assumption) {
+    analysis.strategic_assumption = assumption;
+  }
+
+  const viewport = device === "mobile" ? { w: 390, h: 844 } : { w: 1280, h: 900 };
+  const snapshotId = `snap_${competitor.id}_${device}_${Date.now()}`;
+
+  const { data: snapshot, error: insertError } = await supabase
+    .from("competitor_snapshots")
+    .insert({
+      id: snapshotId,
+      competitor_id: competitor.id,
+      screenshot_base64: screenshotBase64,
+      captured_at: new Date().toISOString(),
+      analysis_result: analysis,
+      changes_detected: analysis.changes_detected,
+      change_severity: analysis.severity,
+      change_summary: analysis.summary,
+      cro_score: analysis.cro_score,
+      previous_snapshot_id: previousSnapshot?.id || null,
+      braintrust_span_id: spanId,
+      device_type: device,
+      viewport_width: viewport.w,
+      viewport_height: viewport.h,
+    })
+    .select()
+    .single();
+
+  if (insertError) {
+    throw new Error(insertError.message);
+  }
+
+  return { snapshot, analysis, device };
+}
 
 export async function POST(request: Request) {
   try {
@@ -60,96 +172,21 @@ export async function POST(request: Request) {
 
       span.log({
         input: { competitor_id, competitor_name: competitor.name, url: competitor.website_url },
-        metadata: { type: "competitor_analysis" },
+        metadata: { type: "competitor_analysis", devices: ["desktop", "mobile"] },
       });
 
-      const screenshotBase64 = await captureScreenshot(competitor.website_url);
-
-      const { data: previousSnapshots } = await supabase
-        .from("competitor_snapshots")
-        .select("id, screenshot_base64, cro_score, captured_at")
-        .eq("competitor_id", competitor_id)
-        .order("captured_at", { ascending: false })
-        .limit(1);
-
-      const previousSnapshot =
-        previousSnapshots && previousSnapshots.length > 0
-          ? previousSnapshots[0]
-          : null;
-
-      let analysis;
-
-      if (previousSnapshot?.screenshot_base64) {
-        analysis = await compareScreenshots(
-          previousSnapshot.screenshot_base64,
-          screenshotBase64
-        );
-      } else {
-        analysis = await analyzeBaselineScreenshot(screenshotBase64);
-      }
-
-      if (analysis.changes_detected && process.env.ANTHROPIC_API_KEY) {
-        try {
-          const changeSummary = Object.entries(analysis.categories || {})
-            .filter(([, items]) => (items as any[])?.length > 0)
-            .map(([category, items]) => {
-              const descriptions = (items as any[]).map((i: any) => {
-                let line = `- ${i.description}`;
-                if (i.before && i.after) line += ` (from "${i.before}" to "${i.after}")`;
-                return line;
-              }).join("\n");
-              return `${category}:\n${descriptions}`;
-            })
-            .join("\n\n");
-
-          const assumptionResponse = await anthropic.messages.create({
-            model: "claude-3-5-haiku-20241022",
-            max_tokens: 300,
-            messages: [{
-              role: "user",
-              content: `You are a CRO strategist. A competitor website "${competitor.name}" (${competitor.website_url}) made these changes:\n\n${changeSummary}\n\nCRO Score: ${analysis.cro_score_previous || "N/A"} → ${analysis.cro_score}\nOverall impact: ${analysis.overall_impact}\n\nIn 2-3 concise sentences, explain the most likely STRATEGIC REASON why they made these changes. Focus on the business/conversion goal behind the decision. Be concrete and specific, not generic.`,
-            }],
-          });
-
-          const assumptionText = assumptionResponse.content.find((c) => c.type === "text");
-          if (assumptionText && assumptionText.type === "text") {
-            analysis.strategic_assumption = assumptionText.text;
-          }
-        } catch (err) {
-          console.error("Error generating strategic assumption:", err);
-        }
-      }
-
-      const snapshotId = `snap_${competitor_id}_${Date.now()}`;
-
-      const { data: snapshot, error: insertError } = await supabase
-        .from("competitor_snapshots")
-        .insert({
-          id: snapshotId,
-          competitor_id: competitor_id,
-          screenshot_base64: screenshotBase64,
-          captured_at: new Date().toISOString(),
-          analysis_result: analysis,
-          changes_detected: analysis.changes_detected,
-          change_severity: analysis.severity,
-          change_summary: analysis.summary,
-          cro_score: analysis.cro_score,
-          previous_snapshot_id: previousSnapshot?.id || null,
-          braintrust_span_id: span.id,
-        })
-        .select()
-        .single();
-
-      if (insertError) {
-        return { error: insertError.message, status: 500 };
-      }
+      const [desktopResult, mobileResult] = await Promise.all([
+        analyzeForDevice(supabase, competitor, "desktop", span.id),
+        analyzeForDevice(supabase, competitor, "mobile", span.id),
+      ]);
 
       const updateData: Record<string, unknown> = {
         last_analyzed_at: new Date().toISOString(),
-        last_cro_score: analysis.cro_score,
+        last_cro_score: desktopResult.analysis.cro_score,
       };
 
-      if (analysis.changes_detected) {
+      const changesDetected = desktopResult.analysis.changes_detected || mobileResult.analysis.changes_detected;
+      if (changesDetected) {
         updateData.total_changes_detected =
           (competitor.total_changes_detected || 0) + 1;
       }
@@ -161,20 +198,21 @@ export async function POST(request: Request) {
 
       span.log({
         output: {
-          cro_score: analysis.cro_score,
-          changes_detected: analysis.changes_detected,
-          severity: analysis.severity,
-          has_assumption: !!analysis.strategic_assumption,
+          desktop_cro_score: desktopResult.analysis.cro_score,
+          mobile_cro_score: mobileResult.analysis.cro_score,
+          desktop_changes: desktopResult.analysis.changes_detected,
+          mobile_changes: mobileResult.analysis.changes_detected,
+          severity: desktopResult.analysis.severity,
         },
       });
 
       return {
         success: true,
-        snapshot,
-        analysis,
+        desktop: { snapshot: desktopResult.snapshot, analysis: desktopResult.analysis },
+        mobile: { snapshot: mobileResult.snapshot, analysis: mobileResult.analysis },
         spanId: span.id,
-        message: analysis.changes_detected
-          ? `Changes detected! Severity: ${analysis.severity}`
+        message: changesDetected
+          ? `Changes detected! Desktop: ${desktopResult.analysis.severity}, Mobile: ${mobileResult.analysis.severity}`
           : "No changes detected since last analysis",
       };
     }, { name: "competitor-cro-analysis" });

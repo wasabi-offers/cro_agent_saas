@@ -64,19 +64,19 @@ export default function AlertsSection() {
         };
       case "success":
         return {
-          bg: "bg-[#00d4aa]/10",
-          border: "border-[#00d4aa]/30",
+          bg: "bg-[#3b82f6]/10",
+          border: "border-[#3b82f6]/30",
           icon: TrendingUp,
-          iconColor: "text-[#00d4aa]",
-          iconBg: "bg-[#00d4aa]/20"
+          iconColor: "text-[#3b82f6]",
+          iconBg: "bg-[#3b82f6]/20"
         };
       case "info":
         return {
-          bg: "bg-[#7c5cff]/10",
-          border: "border-[#7c5cff]/30",
+          bg: "bg-[#F97316]/10",
+          border: "border-[#F97316]/30",
           icon: Info,
-          iconColor: "text-[#7c5cff]",
-          iconBg: "bg-[#7c5cff]/20"
+          iconColor: "text-[#F97316]",
+          iconBg: "bg-[#F97316]/20"
         };
     }
   };
@@ -87,7 +87,7 @@ export default function AlertsSection() {
     <div className="mb-10">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-[18px] font-semibold text-[#fafafa]">Alerts & Anomalies</h3>
-        <button className="text-[13px] text-[#7c5cff] hover:text-[#00d4aa] transition-colors">
+        <button className="text-[13px] text-[#F97316] hover:text-[#3b82f6] transition-colors">
           View All ({alerts.length})
         </button>
       </div>

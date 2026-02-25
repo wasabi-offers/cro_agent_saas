@@ -47,7 +47,7 @@ export default function GoalsTrackingSection() {
     <div className="mb-10">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <Target className="w-5 h-5 text-[#7c5cff]" />
+          <Target className="w-5 h-5 text-[#F97316]" />
           <h3 className="text-[18px] font-semibold text-[#fafafa]">Goals & Targets</h3>
         </div>
       </div>
@@ -67,8 +67,8 @@ export default function GoalsTrackingSection() {
             >
               {/* Header */}
               <div className="flex items-center justify-between mb-4">
-                <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
-                  <Icon className="w-5 h-5 text-[#7c5cff]" />
+                <div className="w-10 h-10 bg-[#F97316]/20 rounded-lg flex items-center justify-center">
+                  <Icon className="w-5 h-5 text-[#F97316]" />
                 </div>
                 <span className="text-[11px] text-[#666666]">{goal.period}</span>
               </div>
@@ -94,9 +94,9 @@ export default function GoalsTrackingSection() {
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${
                       isAhead
-                        ? 'bg-gradient-to-r from-[#00d4aa] to-[#00d4aa]'
+                        ? 'bg-gradient-to-r from-[#3b82f6] to-[#3b82f6]'
                         : isOnTrack
-                        ? 'bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]'
+                        ? 'bg-gradient-to-r from-[#F97316] to-[#3b82f6]'
                         : 'bg-gradient-to-r from-[#ff6b6b] to-[#f59e0b]'
                     }`}
                     style={{ width: `${progressCapped}%` }}
@@ -107,7 +107,7 @@ export default function GoalsTrackingSection() {
               {/* Status */}
               <div className="flex items-center justify-between">
                 <span className="text-[13px] font-semibold" style={{
-                  color: isAhead ? '#00d4aa' : isOnTrack ? '#7c5cff' : '#f59e0b'
+                  color: isAhead ? '#3b82f6' : isOnTrack ? '#F97316' : '#f59e0b'
                 }}>
                   {progressCapped.toFixed(0)}% Complete
                 </span>

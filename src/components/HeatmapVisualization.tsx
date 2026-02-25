@@ -195,7 +195,7 @@ export default function HeatmapVisualization({
                 onClick={() => setDevice(d.id)}
                 className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
                   isActive
-                    ? "bg-[#7c5cff] text-white"
+                    ? "bg-[#F97316] text-white"
                     : "bg-[#f8f9fa] text-[#666666] hover:text-[#888888] border border-[#d0d0d0]"
                 }`}
               >
@@ -209,7 +209,7 @@ export default function HeatmapVisualization({
           onClick={() => setShowPage(!showPage)}
           className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all ${
             showPage
-              ? "bg-[#7c5cff] text-white"
+              ? "bg-[#F97316] text-white"
               : "bg-[#f8f9fa] text-[#666666] hover:text-[#888888]"
           }`}
         >
@@ -267,7 +267,7 @@ export default function HeatmapVisualization({
             {!isLoading && !hasData && (
               <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center z-20 bg-[#f8f9fa]/95">
                 <div className="text-center">
-                  <MousePointerClick className="w-16 h-16 text-[#7c5cff] mx-auto mb-4 opacity-50" />
+                  <MousePointerClick className="w-16 h-16 text-[#F97316] mx-auto mb-4 opacity-50" />
                   <p className="text-[16px] text-[#1a1a1a] font-semibold mb-2">
                     NO REAL DATA AVAILABLE
                   </p>

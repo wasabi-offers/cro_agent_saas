@@ -45,7 +45,7 @@ const quickActions: QuickAction[] = [
     description: "Summary of key data and metrics",
     query: "Give me a complete CRO overview: sessions, users, engagement metrics and UX issues.",
     icon: <BarChart3 className="w-5 h-5" />,
-    color: "#7c5cff",
+    color: "#F97316",
   },
   {
     id: "ux-issues",
@@ -61,7 +61,7 @@ const quickActions: QuickAction[] = [
     description: "Prioritized tests to launch",
     query: "Suggest 5 A/B tests to launch based on current data. For each test I want: name, hypothesis, priority and expected impact.",
     icon: <FlaskConical className="w-5 h-5" />,
-    color: "#00d4aa",
+    color: "#3b82f6",
   },
   {
     id: "mobile",
@@ -199,7 +199,7 @@ export default function ExploreAIPage() {
       // Code blocks
       .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre class="bg-[#1a1a1a] p-4 rounded-lg overflow-x-auto my-3"><code>$2</code></pre>')
       // Inline code
-      .replace(/`([^`]+)`/g, '<code class="bg-[#1a1a1a] px-1.5 py-0.5 rounded text-[#00d4aa]">$1</code>')
+      .replace(/`([^`]+)`/g, '<code class="bg-[#1a1a1a] px-1.5 py-0.5 rounded text-[#3b82f6]">$1</code>')
       // Headers
       .replace(/^#### (.*$)/gm, '<h4 class="text-[15px] font-semibold text-[#fafafa] mt-4 mb-2">$1</h4>')
       .replace(/^### (.*$)/gm, '<h3 class="text-[16px] font-semibold text-[#fafafa] mt-5 mb-2">$1</h3>')
@@ -243,7 +243,7 @@ export default function ExploreAIPage() {
               <div className="max-w-4xl mx-auto">
                 {/* Welcome */}
                 <div className="text-center mb-10 pt-8">
-                  <div className="w-20 h-20 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-purple-500/20">
+                  <div className="w-20 h-20 bg-gradient-to-br from-[#F97316] to-[#3b82f6] rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-orange-500/20">
                     <Brain className="w-10 h-10 text-white" />
                   </div>
                   <h1 className="text-[28px] font-bold text-[#1a1a1a] mb-3">
@@ -298,7 +298,7 @@ export default function ExploreAIPage() {
                         key={idx}
                         onClick={() => sendMessage(question)}
                         disabled={isLoading}
-                        className="p-3 bg-white/80 border border-[#f59e0b]/40 rounded-xl hover:border-[#7c5cff]/50 hover:bg-white transition-all text-left text-[13px] text-[#1a1a1a] font-medium disabled:opacity-50 shadow-sm"
+                        className="p-3 bg-white/80 border border-[#f59e0b]/40 rounded-xl hover:border-[#F97316]/50 hover:bg-white transition-all text-left text-[13px] text-[#1a1a1a] font-medium disabled:opacity-50 shadow-sm"
                       >
                         {question}
                       </button>
@@ -309,16 +309,16 @@ export default function ExploreAIPage() {
                 {/* Features */}
                 <div className="mt-10 grid grid-cols-3 gap-6">
                   <div className="text-center">
-                    <div className="w-12 h-12 bg-[#7c5cff]/20 rounded-xl flex items-center justify-center mx-auto mb-3">
-                      <MousePointerClick className="w-6 h-6 text-[#7c5cff]" />
+                    <div className="w-12 h-12 bg-[#F97316]/20 rounded-xl flex items-center justify-center mx-auto mb-3">
+                      <MousePointerClick className="w-6 h-6 text-[#F97316]" />
                     </div>
                     <p className="text-[13px] text-[#666666]">
                       Real-time UX analysis
                     </p>
                   </div>
                   <div className="text-center">
-                    <div className="w-12 h-12 bg-[#00d4aa]/20 rounded-xl flex items-center justify-center mx-auto mb-3">
-                      <TrendingUp className="w-6 h-6 text-[#00d4aa]" />
+                    <div className="w-12 h-12 bg-[#3b82f6]/20 rounded-xl flex items-center justify-center mx-auto mb-3">
+                      <TrendingUp className="w-6 h-6 text-[#3b82f6]" />
                     </div>
                     <p className="text-[13px] text-[#666666]">
                       Data-driven suggestions
@@ -344,15 +344,15 @@ export default function ExploreAIPage() {
                     }`}
                   >
                     {message.role === "assistant" && (
-                      <div className="w-10 h-10 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-xl flex items-center justify-center flex-shrink-0">
+                      <div className="w-10 h-10 bg-gradient-to-br from-[#F97316] to-[#3b82f6] rounded-xl flex items-center justify-center flex-shrink-0">
                         <Brain className="w-5 h-5 text-white" />
                       </div>
                     )}
                     <div
                       className={`max-w-[85%] rounded-2xl p-5 ${
                         message.role === "user"
-                          ? "bg-[#7c5cff] text-white"
-                          : "bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 text-[#1a1a1a]"
+                          ? "bg-[#F97316] text-white"
+                          : "bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 text-[#1a1a1a]"
                       }`}
                     >
                       {message.role === "assistant" ? (
@@ -390,12 +390,12 @@ export default function ExploreAIPage() {
 
                 {isLoading && (
                   <div className="flex gap-4 justify-start">
-                    <div className="w-10 h-10 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-xl flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 bg-gradient-to-br from-[#F97316] to-[#3b82f6] rounded-xl flex items-center justify-center flex-shrink-0">
                       <Brain className="w-5 h-5 text-white" />
                     </div>
-                    <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-5">
+                    <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-5">
                       <div className="flex items-center gap-3">
-                        <Loader2 className="w-5 h-5 text-[#7c5cff] animate-spin" />
+                        <Loader2 className="w-5 h-5 text-[#F97316] animate-spin" />
                         <span className="text-[14px] text-[#666666]">
                           Analyzing CRO data...
                         </span>
@@ -429,7 +429,7 @@ export default function ExploreAIPage() {
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="Ask something about your CRO data..."
-                    className="w-full bg-white/80 border border-[#7c5cff]/30 rounded-xl px-4 py-3 text-[14px] text-[#1a1a1a] placeholder-[#666666] focus:outline-none focus:border-[#7c5cff]/50 resize-none shadow-sm"
+                    className="w-full bg-white/80 border border-[#F97316]/30 rounded-xl px-4 py-3 text-[14px] text-[#1a1a1a] placeholder-[#666666] focus:outline-none focus:border-[#F97316]/50 resize-none shadow-sm"
                     rows={1}
                     disabled={isLoading}
                   />
@@ -437,7 +437,7 @@ export default function ExploreAIPage() {
                 <button
                   onClick={() => sendMessage(input)}
                   disabled={isLoading || !input.trim()}
-                  className="px-5 py-3 bg-[#7c5cff] text-white rounded-xl text-[14px] font-medium hover:bg-[#6b4ee0] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="px-5 py-3 bg-[#F97316] text-white rounded-xl text-[14px] font-medium hover:bg-[#6b4ee0] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   {isLoading ? (
                     <RefreshCw className="w-5 h-5 animate-spin" />
@@ -455,7 +455,7 @@ export default function ExploreAIPage() {
                       key={action.id}
                       onClick={() => sendMessage(action.query)}
                       disabled={isLoading}
-                      className="px-3 py-1.5 bg-white/60 border border-[#7c5cff]/30 rounded-lg text-[12px] text-[#666666] hover:text-[#1a1a1a] hover:border-[#7c5cff]/50 transition-all disabled:opacity-50 flex items-center gap-1.5"
+                      className="px-3 py-1.5 bg-white/60 border border-[#F97316]/30 rounded-lg text-[12px] text-[#666666] hover:text-[#1a1a1a] hover:border-[#F97316]/50 transition-all disabled:opacity-50 flex items-center gap-1.5"
                     >
                       <div style={{ color: action.color }}>
                         {action.icon}
@@ -470,19 +470,19 @@ export default function ExploreAIPage() {
         </div>
 
         {/* Sidebar - Info */}
-        <div className="w-80 border-l border-[#7c5cff]/20 bg-gradient-to-br from-[#7c5cff]/10 to-[#7c5cff]/5 p-6 hidden lg:block overflow-y-auto">
+        <div className="w-80 border-l border-[#F97316]/20 bg-gradient-to-br from-[#F97316]/10 to-[#F97316]/5 p-6 hidden lg:block overflow-y-auto">
           <div className="sticky top-0">
             <div className="flex items-center gap-2 mb-6">
-              <Sparkles className="w-5 h-5 text-[#7c5cff]" />
+              <Sparkles className="w-5 h-5 text-[#F97316]" />
               <h3 className="text-[15px] font-semibold text-[#1a1a1a]">
                 How It Works
               </h3>
             </div>
 
             <div className="space-y-4 mb-8">
-              <div className="p-4 bg-white/60 border border-[#7c5cff]/20 rounded-xl">
+              <div className="p-4 bg-white/60 border border-[#F97316]/20 rounded-xl">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="w-6 h-6 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center text-[12px] font-bold text-[#7c5cff]">
+                  <div className="w-6 h-6 bg-[#F97316]/20 rounded-lg flex items-center justify-center text-[12px] font-bold text-[#F97316]">
                     1
                   </div>
                   <p className="text-[13px] font-medium text-[#1a1a1a]">
@@ -494,9 +494,9 @@ export default function ExploreAIPage() {
                 </p>
               </div>
 
-              <div className="p-4 bg-white/60 border border-[#7c5cff]/20 rounded-xl">
+              <div className="p-4 bg-white/60 border border-[#F97316]/20 rounded-xl">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="w-6 h-6 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center text-[12px] font-bold text-[#00d4aa]">
+                  <div className="w-6 h-6 bg-[#3b82f6]/20 rounded-lg flex items-center justify-center text-[12px] font-bold text-[#3b82f6]">
                     2
                   </div>
                   <p className="text-[13px] font-medium text-[#1a1a1a]">
@@ -508,7 +508,7 @@ export default function ExploreAIPage() {
                 </p>
               </div>
 
-              <div className="p-4 bg-white/60 border border-[#7c5cff]/20 rounded-xl">
+              <div className="p-4 bg-white/60 border border-[#F97316]/20 rounded-xl">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-6 h-6 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center text-[12px] font-bold text-[#f59e0b]">
                     3
@@ -530,7 +530,7 @@ export default function ExploreAIPage() {
               </h4>
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-[12px] text-[#666666]">
-                  <div className="w-1.5 h-1.5 bg-[#7c5cff] rounded-full" />
+                  <div className="w-1.5 h-1.5 bg-[#F97316] rounded-full" />
                   Sessions and users by device
                 </div>
                 <div className="flex items-center gap-2 text-[12px] text-[#666666]">
@@ -538,7 +538,7 @@ export default function ExploreAIPage() {
                   Dead clicks, rage clicks, quickbacks
                 </div>
                 <div className="flex items-center gap-2 text-[12px] text-[#666666]">
-                  <div className="w-1.5 h-1.5 bg-[#00d4aa] rounded-full" />
+                  <div className="w-1.5 h-1.5 bg-[#3b82f6] rounded-full" />
                   Engagement and time on page
                 </div>
                 <div className="flex items-center gap-2 text-[12px] text-[#666666]">
@@ -553,9 +553,9 @@ export default function ExploreAIPage() {
             </div>
 
             {/* Powered by */}
-            <div className="p-4 bg-gradient-to-br from-[#7c5cff]/10 to-[#00d4aa]/10 border border-[#7c5cff]/20 rounded-xl">
+            <div className="p-4 bg-gradient-to-br from-[#F97316]/10 to-[#3b82f6]/10 border border-[#F97316]/20 rounded-xl">
               <div className="flex items-center gap-2 mb-2">
-                <Brain className="w-4 h-4 text-[#7c5cff]" />
+                <Brain className="w-4 h-4 text-[#F97316]" />
                 <p className="text-[12px] font-medium text-[#1a1a1a]">
                   Powered by Claude AI
                 </p>

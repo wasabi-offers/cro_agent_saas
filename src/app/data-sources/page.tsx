@@ -132,7 +132,7 @@ export default function DataSourcesPage() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'connected':
-        return <CheckCircle className="w-5 h-5 text-[#00d4aa]" />;
+        return <CheckCircle className="w-5 h-5 text-[#3b82f6]" />;
       case 'error':
         return <XCircle className="w-5 h-5 text-[#ff6b6b]" />;
       default:
@@ -143,7 +143,7 @@ export default function DataSourcesPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'connected':
-        return 'bg-[#00d4aa]/20 text-[#00d4aa] border-[#00d4aa]/30';
+        return 'bg-[#3b82f6]/20 text-[#3b82f6] border-[#3b82f6]/30';
       case 'error':
         return 'bg-[#ff6b6b]/20 text-[#ff6b6b] border-[#ff6b6b]/30';
       default:
@@ -177,7 +177,7 @@ export default function DataSourcesPage() {
       case 'supabase':
         return 'from-[#3ECF8E] to-[#24B47E]';
       default:
-        return 'from-[#7c5cff] to-[#5b3fd9]';
+        return 'from-[#F97316] to-[#C2410C]';
     }
   };
 
@@ -285,7 +285,7 @@ export default function DataSourcesPage() {
         <Header title="Data Sources" breadcrumb={["Dashboard", "Data Sources"]} />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-10 h-10 border-2 border-[#7c5cff] border-t-transparent rounded-full animate-spin" />
+            <div className="w-10 h-10 border-2 border-[#F97316] border-t-transparent rounded-full animate-spin" />
             <p className="text-[#666666] text-[14px]">Loading data sources...</p>
           </div>
         </div>
@@ -303,7 +303,7 @@ export default function DataSourcesPage() {
             <p className="text-[#ff6b6b] text-[14px]">{error}</p>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-[#7c5cff] text-white rounded-lg text-sm hover:bg-[#6b4ee0] transition"
+              className="px-4 py-2 bg-[#F97316] text-white rounded-lg text-sm hover:bg-[#6b4ee0] transition"
             >
               Retry
             </button>
@@ -330,7 +330,7 @@ export default function DataSourcesPage() {
           </div>
           <button
             onClick={() => alert('Select an integration from the "Available Integrations" section below')}
-            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#5b3fd9] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all shadow-lg shadow-purple-500/25"
+            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#F97316] to-[#C2410C] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all shadow-lg shadow-orange-500/25"
           >
             <Link2 className="w-4 h-4" />
             Add Integration
@@ -339,10 +339,10 @@ export default function DataSourcesPage() {
 
         {/* Status Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-gradient-to-br from-[#00d4aa]/20 to-[#00d4aa]/5 border border-[#00d4aa]/30 rounded-xl p-5">
+          <div className="bg-gradient-to-br from-[#3b82f6]/20 to-[#3b82f6]/5 border border-[#3b82f6]/30 rounded-xl p-5">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-[#00d4aa]/20 rounded-xl flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-[#00d4aa]" />
+              <div className="w-12 h-12 bg-[#3b82f6]/20 rounded-xl flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-[#3b82f6]" />
               </div>
               <div>
                 <p className="text-[28px] font-bold text-[#1a1a1a]">{connectedSources}</p>
@@ -350,10 +350,10 @@ export default function DataSourcesPage() {
               </div>
             </div>
           </div>
-          <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-xl p-5">
+          <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-xl p-5">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-[#7c5cff]/20 rounded-xl flex items-center justify-center">
-                <Database className="w-6 h-6 text-[#7c5cff]" />
+              <div className="w-12 h-12 bg-[#F97316]/20 rounded-xl flex items-center justify-center">
+                <Database className="w-6 h-6 text-[#F97316]" />
               </div>
               <div>
                 <p className="text-[28px] font-bold text-[#1a1a1a]">
@@ -381,7 +381,7 @@ export default function DataSourcesPage() {
           {dataSources.map((source) => (
             <div
               key={source.id}
-              className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6 hover:border-[#7c5cff]/50 transition-all"
+              className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-6 hover:border-[#F97316]/50 transition-all"
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-5">
@@ -410,7 +410,7 @@ export default function DataSourcesPage() {
                     <div className="flex gap-6">
                       {source.metrics.sessions !== undefined && (
                         <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full bg-[#7c5cff]" />
+                          <div className="w-2 h-2 rounded-full bg-[#F97316]" />
                           <span className="text-[13px] text-[#888888]">
                             <span className="text-[#fafafa] font-medium">{source.metrics.sessions.toLocaleString()}</span> sessions
                           </span>
@@ -418,7 +418,7 @@ export default function DataSourcesPage() {
                       )}
                       {source.metrics.users !== undefined && (
                         <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full bg-[#00d4aa]" />
+                          <div className="w-2 h-2 rounded-full bg-[#3b82f6]" />
                           <span className="text-[13px] text-[#888888]">
                             <span className="text-[#fafafa] font-medium">{source.metrics.users.toLocaleString()}</span> users
                           </span>
@@ -445,7 +445,7 @@ export default function DataSourcesPage() {
                     <button
                       onClick={() => handleSync(source.id)}
                       disabled={syncingId === source.id}
-                      className="flex items-center gap-2 px-4 py-2.5 bg-white/60 text-[#1a1a1a] border border-[#7c5cff]/30 text-[13px] font-medium rounded-lg hover:bg-white/80 transition-all disabled:opacity-50"
+                      className="flex items-center gap-2 px-4 py-2.5 bg-white/60 text-[#1a1a1a] border border-[#F97316]/30 text-[13px] font-medium rounded-lg hover:bg-white/80 transition-all disabled:opacity-50"
                     >
                       <RefreshCw className={`w-4 h-4 ${syncingId === source.id ? 'animate-spin' : ''}`} />
                       {syncingId === source.id ? 'Syncing...' : 'Sync Now'}
@@ -453,7 +453,7 @@ export default function DataSourcesPage() {
                   ) : (
                     <button
                       onClick={() => handleConnect(source.id)}
-                      className="flex items-center gap-2 px-4 py-2.5 bg-[#7c5cff]/20 text-[#a78bff] text-[13px] font-medium rounded-lg hover:bg-[#7c5cff]/30 transition-all"
+                      className="flex items-center gap-2 px-4 py-2.5 bg-[#F97316]/20 text-[#a78bff] text-[13px] font-medium rounded-lg hover:bg-[#F97316]/30 transition-all"
                     >
                       <Link2 className="w-4 h-4" />
                       Connect
@@ -482,19 +482,19 @@ export default function DataSourcesPage() {
             ].map((integration) => (
               <div
                 key={integration.name}
-                className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-dashed border-[#7c5cff]/30 rounded-xl p-5 hover:border-[#7c5cff]/50 transition-all cursor-pointer group"
+                className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-dashed border-[#F97316]/30 rounded-xl p-5 hover:border-[#F97316]/50 transition-all cursor-pointer group"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-white/60 rounded-xl flex items-center justify-center text-[24px] border border-[#7c5cff]/20">
+                  <div className="w-12 h-12 bg-white/60 rounded-xl flex items-center justify-center text-[24px] border border-[#F97316]/20">
                     {integration.icon}
                   </div>
                   <div className="flex-1">
-                    <p className="text-[14px] font-medium text-[#fafafa] group-hover:text-[#7c5cff] transition-colors">
+                    <p className="text-[14px] font-medium text-[#fafafa] group-hover:text-[#F97316] transition-colors">
                       {integration.name}
                     </p>
                     <p className="text-[12px] text-[#666666]">{integration.description}</p>
                   </div>
-                  <Link2 className="w-5 h-5 text-[#555555] group-hover:text-[#7c5cff] transition-colors" />
+                  <Link2 className="w-5 h-5 text-[#555555] group-hover:text-[#F97316] transition-colors" />
                 </div>
               </div>
             ))}
@@ -502,10 +502,10 @@ export default function DataSourcesPage() {
         </div>
 
         {/* AI Integration Info */}
-        <div className="mt-8 bg-gradient-to-br from-[#7c5cff]/10 to-transparent border border-[#7c5cff]/20 rounded-2xl p-6">
+        <div className="mt-8 bg-gradient-to-br from-[#F97316]/10 to-transparent border border-[#F97316]/20 rounded-2xl p-6">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-[#7c5cff]/20 rounded-xl flex items-center justify-center">
-              <Brain className="w-6 h-6 text-[#7c5cff]" />
+            <div className="w-12 h-12 bg-[#F97316]/20 rounded-xl flex items-center justify-center">
+              <Brain className="w-6 h-6 text-[#F97316]" />
             </div>
             <div>
               <h3 className="text-[16px] font-semibold text-[#fafafa] mb-2">AI-Powered Analysis</h3>
@@ -516,7 +516,7 @@ export default function DataSourcesPage() {
               <div className="flex gap-3">
                 <Link
                   href="/explore-ai"
-                  className="px-4 py-2 bg-[#7c5cff]/20 text-[#a78bff] text-[13px] font-medium rounded-lg hover:bg-[#7c5cff]/30 transition-all"
+                  className="px-4 py-2 bg-[#F97316]/20 text-[#a78bff] text-[13px] font-medium rounded-lg hover:bg-[#F97316]/30 transition-all"
                 >
                   Explore AI Insights
                 </Link>
@@ -548,13 +548,13 @@ export default function DataSourcesPage() {
 
               {showConnectModal === 'clarity' && (
                 <div className="space-y-5">
-                  <div className="bg-white/60 border border-[#7c5cff]/20 rounded-xl p-5">
+                  <div className="bg-white/60 border border-[#F97316]/20 rounded-xl p-5">
                     <div className="flex items-start gap-3 mb-4">
-                      <AlertCircle className="w-5 h-5 text-[#7c5cff] flex-shrink-0 mt-0.5" />
+                      <AlertCircle className="w-5 h-5 text-[#F97316] flex-shrink-0 mt-0.5" />
                       <div>
                         <h3 className="text-[15px] font-semibold text-[#fafafa] mb-1">Get your API Key</h3>
                         <p className="text-[13px] text-[#888888]">
-                          Go to <a href="https://clarity.microsoft.com" target="_blank" rel="noopener noreferrer" className="text-[#7c5cff] hover:underline">Microsoft Clarity</a> →
+                          Go to <a href="https://clarity.microsoft.com" target="_blank" rel="noopener noreferrer" className="text-[#F97316] hover:underline">Microsoft Clarity</a> →
                           Settings → API → Copy your API key
                         </p>
                       </div>
@@ -570,7 +570,7 @@ export default function DataSourcesPage() {
                           value={tempApiKey}
                           onChange={(e) => setTempApiKey(e.target.value)}
                           placeholder="Paste your API key here..."
-                          className="w-full px-4 py-3 bg-white border border-[#d0d0d0] rounded-lg text-[#fafafa] text-[14px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all font-mono"
+                          className="w-full px-4 py-3 bg-white border border-[#d0d0d0] rounded-lg text-[#fafafa] text-[14px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all font-mono"
                           autoFocus
                         />
                       </label>
@@ -610,7 +610,7 @@ export default function DataSourcesPage() {
                     setShowConnectModal(null);
                     setTempApiKey('');
                   }}
-                  className="px-6 py-2.5 bg-white/60 text-[#666666] border border-[#7c5cff]/30 text-[14px] font-medium rounded-lg hover:bg-white/80 hover:text-[#1a1a1a] transition-all"
+                  className="px-6 py-2.5 bg-white/60 text-[#666666] border border-[#F97316]/30 text-[14px] font-medium rounded-lg hover:bg-white/80 hover:text-[#1a1a1a] transition-all"
                 >
                   Cancel
                 </button>
@@ -618,7 +618,7 @@ export default function DataSourcesPage() {
                   <button
                     onClick={handleSaveApiKey}
                     disabled={!tempApiKey.trim() || isSaving}
-                    className="px-6 py-2.5 bg-[#7c5cff] text-white text-[14px] font-medium rounded-lg hover:bg-[#6b4ee6] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-2.5 bg-[#F97316] text-white text-[14px] font-medium rounded-lg hover:bg-[#EA580C] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSaving ? 'Saving...' : 'Save & Connect'}
                   </button>

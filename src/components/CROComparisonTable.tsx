@@ -25,7 +25,7 @@ export default function CROComparisonTable({ rows, onUpdateTest }: CROComparison
       case 'running':
         return 'bg-[#f59e0b]/20 text-[#f59e0b] border-[#f59e0b]/30';
       case 'completed':
-        return 'bg-[#00d4aa]/20 text-[#00d4aa] border-[#00d4aa]/30';
+        return 'bg-[#3b82f6]/20 text-[#3b82f6] border-[#3b82f6]/30';
       default:
         return 'bg-[#666666]/10 text-[#666666] border-[#666666]/20';
     }
@@ -34,7 +34,7 @@ export default function CROComparisonTable({ rows, onUpdateTest }: CROComparison
   const getResultColor = (result?: string) => {
     switch (result) {
       case 'win':
-        return 'text-[#00d4aa] bg-[#00d4aa]/10';
+        return 'text-[#3b82f6] bg-[#3b82f6]/10';
       case 'loss':
         return 'text-[#ff6b6b] bg-[#ff6b6b]/10';
       default:
@@ -49,7 +49,7 @@ export default function CROComparisonTable({ rows, onUpdateTest }: CROComparison
       case 'medium':
         return 'bg-[#f59e0b]/20 text-[#f59e0b] border-[#f59e0b]/30';
       case 'low':
-        return 'bg-[#7c5cff]/20 text-[#7c5cff] border-[#7c5cff]/30';
+        return 'bg-[#F97316]/20 text-[#F97316] border-[#F97316]/30';
       default:
         return 'bg-[#666666]/10 text-[#666666] border-[#666666]/20';
     }
@@ -58,9 +58,9 @@ export default function CROComparisonTable({ rows, onUpdateTest }: CROComparison
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-br from-white to-[#f8f9fa] border border-[#7c5cff]/30 rounded-2xl p-6 shadow-sm">
+      <div className="bg-gradient-to-br from-white to-[#f8f9fa] border border-[#F97316]/30 rounded-2xl p-6 shadow-sm">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-xl flex items-center justify-center">
+          <div className="w-12 h-12 bg-gradient-to-br from-[#F97316] to-[#3b82f6] rounded-xl flex items-center justify-center">
             <TrendingUp className="w-6 h-6 text-white" />
           </div>
           <div>
@@ -82,7 +82,7 @@ export default function CROComparisonTable({ rows, onUpdateTest }: CROComparison
           return (
             <div
               key={row.id}
-              className="bg-white border border-[#d0d0d0] rounded-2xl overflow-hidden hover:border-[#7c5cff]/50 hover:shadow-lg transition-all"
+              className="bg-white border border-[#d0d0d0] rounded-2xl overflow-hidden hover:border-[#F97316]/50 hover:shadow-lg transition-all"
             >
               {/* Card Header - Always Visible */}
               <div
@@ -91,7 +91,7 @@ export default function CROComparisonTable({ rows, onUpdateTest }: CROComparison
               >
                 <div className="flex items-start gap-4">
                   {/* Number Badge */}
-                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-xl flex items-center justify-center">
+                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-[#F97316] to-[#3b82f6] rounded-xl flex items-center justify-center">
                     <span className="text-[18px] font-bold text-white">
                       {row.id}
                     </span>
@@ -107,9 +107,9 @@ export default function CROComparisonTable({ rows, onUpdateTest }: CROComparison
                     {/* Quick Info Row */}
                     <div className="flex flex-wrap items-center gap-4 mt-3">
                       {/* Expected Lift */}
-                      <div className="flex items-center gap-2 px-3 py-1.5 bg-[#00d4aa]/10 border border-[#00d4aa]/30 rounded-lg">
-                        <TrendingUp className="w-4 h-4 text-[#00d4aa]" />
-                        <span className="text-[15px] font-bold text-[#00d4aa]">
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-[#3b82f6]/10 border border-[#3b82f6]/30 rounded-lg">
+                        <TrendingUp className="w-4 h-4 text-[#3b82f6]" />
+                        <span className="text-[15px] font-bold text-[#3b82f6]">
                           {row.expectedLift}
                         </span>
                       </div>
@@ -129,7 +129,7 @@ export default function CROComparisonTable({ rows, onUpdateTest }: CROComparison
                       )}
 
                       {/* Test Title */}
-                      <div className="text-[14px] font-semibold text-[#7c5cff]">
+                      <div className="text-[14px] font-semibold text-[#F97316]">
                         {row.practicalTest.title}
                       </div>
                     </div>
@@ -151,9 +151,9 @@ export default function CROComparisonTable({ rows, onUpdateTest }: CROComparison
                 <div className="border-t border-[#d0d0d0] bg-[#f8f9fa] p-6 space-y-6">
                   {/* What You See */}
                   {row.whatYouSee && (
-                    <div className="bg-white rounded-xl p-4 border border-[#7c5cff]/20">
+                    <div className="bg-white rounded-xl p-4 border border-[#F97316]/20">
                       <div className="flex items-start gap-3">
-                        <Eye className="w-5 h-5 text-[#7c5cff] flex-shrink-0 mt-0.5" />
+                        <Eye className="w-5 h-5 text-[#F97316] flex-shrink-0 mt-0.5" />
                         <div>
                           <h5 className="text-[14px] font-bold text-[#1a1a1a] mb-2">What You See</h5>
                           <p className="text-[15px] text-[#666666] leading-relaxed">
@@ -165,9 +165,9 @@ export default function CROComparisonTable({ rows, onUpdateTest }: CROComparison
                   )}
 
                   {/* Assumption */}
-                  <div className="bg-white rounded-xl p-4 border border-[#00d4aa]/20">
+                  <div className="bg-white rounded-xl p-4 border border-[#3b82f6]/20">
                     <div className="flex items-start gap-3 mb-3">
-                      <Lightbulb className="w-5 h-5 text-[#00d4aa] flex-shrink-0 mt-0.5" />
+                      <Lightbulb className="w-5 h-5 text-[#3b82f6] flex-shrink-0 mt-0.5" />
                       <div className="flex-1">
                         <h5 className="text-[14px] font-bold text-[#1a1a1a] mb-2">Correct Assumption</h5>
                         <p className="text-[15px] text-[#666666] leading-relaxed">
@@ -191,7 +191,7 @@ export default function CROComparisonTable({ rows, onUpdateTest }: CROComparison
                   </div>
 
                   {/* Practical Test */}
-                  <div className="bg-white rounded-xl p-4 border border-[#7c5cff]/20">
+                  <div className="bg-white rounded-xl p-4 border border-[#F97316]/20">
                     <h5 className="text-[14px] font-bold text-[#1a1a1a] mb-4">{row.practicalTest.title}</h5>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="bg-[#f8f9fa] rounded-lg p-4 border border-[#d0d0d0]">
@@ -200,8 +200,8 @@ export default function CROComparisonTable({ rows, onUpdateTest }: CROComparison
                           {row.practicalTest.from}
                         </div>
                       </div>
-                      <div className="bg-[#00d4aa]/10 border border-[#00d4aa]/30 rounded-lg p-4">
-                        <div className="text-[12px] text-[#00d4aa] uppercase font-bold mb-2">TO:</div>
+                      <div className="bg-[#3b82f6]/10 border border-[#3b82f6]/30 rounded-lg p-4">
+                        <div className="text-[12px] text-[#3b82f6] uppercase font-bold mb-2">TO:</div>
                         <div className="text-[15px] text-[#1a1a1a] leading-relaxed font-medium">
                           {row.practicalTest.to}
                         </div>
@@ -230,16 +230,16 @@ export default function CROComparisonTable({ rows, onUpdateTest }: CROComparison
                   </div>
 
                   {/* KPI to Observe */}
-                  <div className="bg-white rounded-xl p-4 border border-[#7c5cff]/20">
+                  <div className="bg-white rounded-xl p-4 border border-[#F97316]/20">
                     <h5 className="text-[14px] font-bold text-[#1a1a1a] mb-3 flex items-center gap-2">
-                      <Target className="w-4 h-4 text-[#7c5cff]" />
+                      <Target className="w-4 h-4 text-[#F97316]" />
                       KPI to Observe
                     </h5>
                     <div className="flex flex-wrap gap-2">
                       {row.kpiToObserve.map((kpi, idx) => (
                         <div
                           key={idx}
-                          className="px-3 py-1.5 bg-[#7c5cff]/10 border border-[#7c5cff]/20 rounded-lg text-[14px] text-[#7c5cff] font-medium"
+                          className="px-3 py-1.5 bg-[#F97316]/10 border border-[#F97316]/20 rounded-lg text-[14px] text-[#F97316] font-medium"
                         >
                           {kpi}
                         </div>
@@ -309,7 +309,7 @@ export default function CROComparisonTable({ rows, onUpdateTest }: CROComparison
       </div>
 
       {/* Footer Summary */}
-      <div className="bg-gradient-to-br from-white to-[#f8f9fa] border border-[#7c5cff]/30 rounded-2xl p-6 shadow-sm">
+      <div className="bg-gradient-to-br from-white to-[#f8f9fa] border border-[#F97316]/30 rounded-2xl p-6 shadow-sm">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="text-[15px] text-[#666666]">
             <span className="font-bold text-[#1a1a1a]">{rows.length}</span> optimization opportunities identified
@@ -324,7 +324,7 @@ export default function CROComparisonTable({ rows, onUpdateTest }: CROComparison
               <span className="text-[#666666]">Medium Priority</span>
             </div>
             <div className="flex items-center gap-2 text-[14px]">
-              <div className="w-3 h-3 rounded-full bg-[#7c5cff]"></div>
+              <div className="w-3 h-3 rounded-full bg-[#F97316]"></div>
               <span className="text-[#666666]">Low Priority</span>
             </div>
           </div>

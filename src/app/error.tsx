@@ -76,7 +76,7 @@ export default function Error({
           onClick={() => reset()}
           style={{
             padding: "12px 24px",
-            background: "#7c5cff",
+            background: "#F97316",
             color: "#ffffff",
             border: "none",
             borderRadius: "8px",

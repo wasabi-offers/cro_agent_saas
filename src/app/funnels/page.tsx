@@ -195,7 +195,7 @@ export default function FunnelsListPage() {
         <Header title="Funnels" breadcrumb={["Dashboard", "Funnels"]} />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-10 h-10 border-2 border-[#7c5cff] border-t-transparent rounded-full animate-spin" />
+            <div className="w-10 h-10 border-2 border-[#F97316] border-t-transparent rounded-full animate-spin" />
             <p className="text-[#666666] text-[14px]">Loading funnels...</p>
           </div>
         </div>
@@ -219,7 +219,7 @@ export default function FunnelsListPage() {
           <div className="flex items-center gap-3">
             {lastUpdate && (
               <div className="flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl">
-                <div className="w-2 h-2 rounded-full bg-[#00d4aa] animate-pulse" />
+                <div className="w-2 h-2 rounded-full bg-[#3b82f6] animate-pulse" />
                 <span className="text-[13px] text-[#888888]">
                   Updated {lastUpdate.toLocaleTimeString()}
                 </span>
@@ -228,7 +228,7 @@ export default function FunnelsListPage() {
             <button
               onClick={loadData}
               disabled={isLoading}
-              className="flex items-center gap-2 px-5 py-3 bg-[#0a0a0a] border border-[#d0d0d0] text-white text-[14px] font-medium rounded-xl hover:border-[#7c5cff]/50 transition-all disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-3 bg-[#0a0a0a] border border-[#d0d0d0] text-white text-[14px] font-medium rounded-xl hover:border-[#F97316]/50 transition-all disabled:opacity-50"
               title="Refresh live data"
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
@@ -236,14 +236,14 @@ export default function FunnelsListPage() {
             </button>
             <button
               onClick={() => setShowImporter(true)}
-              className="flex items-center gap-2 px-5 py-3 bg-[#0a0a0a] border border-[#7c5cff]/50 text-[#7c5cff] text-[14px] font-medium rounded-xl hover:bg-[#7c5cff]/10 transition-all"
+              className="flex items-center gap-2 px-5 py-3 bg-[#0a0a0a] border border-[#F97316]/50 text-[#F97316] text-[14px] font-medium rounded-xl hover:bg-[#F97316]/10 transition-all"
             >
               <Upload className="w-4 h-4" />
               Import Flows
             </button>
             <button
               onClick={() => setShowBuilder(true)}
-              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
+              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#F97316] to-[#3b82f6] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
             >
               <Plus className="w-4 h-4" />
               Create Funnel
@@ -255,8 +255,8 @@ export default function FunnelsListPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
-                <Target className="w-5 h-5 text-[#7c5cff]" />
+              <div className="w-10 h-10 bg-[#F97316]/20 rounded-lg flex items-center justify-center">
+                <Target className="w-5 h-5 text-[#F97316]" />
               </div>
               <span className="text-[13px] text-white">Total Funnels</span>
             </div>
@@ -267,8 +267,8 @@ export default function FunnelsListPage() {
 
           <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
-                <Users className="w-5 h-5 text-[#00d4aa]" />
+              <div className="w-10 h-10 bg-[#3b82f6]/20 rounded-lg flex items-center justify-center">
+                <Users className="w-5 h-5 text-[#3b82f6]" />
               </div>
               <span className="text-[13px] text-white">Total Visitors</span>
             </div>
@@ -291,8 +291,8 @@ export default function FunnelsListPage() {
 
           <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
-                <Target className="w-5 h-5 text-[#7c5cff]" />
+              <div className="w-10 h-10 bg-[#F97316]/20 rounded-lg flex items-center justify-center">
+                <Target className="w-5 h-5 text-[#F97316]" />
               </div>
               <span className="text-[13px] text-white">Avg Conversion</span>
             </div>
@@ -319,14 +319,14 @@ export default function FunnelsListPage() {
               placeholder="Search funnels..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+              className="w-full pl-12 pr-4 py-3 bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all"
             />
           </div>
           <div className="relative">
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="appearance-none pl-4 pr-10 py-3 bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl text-white text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all cursor-pointer"
+              className="appearance-none pl-4 pr-10 py-3 bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl text-white text-[15px] focus:outline-none focus:border-[#F97316] transition-all cursor-pointer"
             >
               <option value="conversion">Sort by Conversion Rate</option>
               <option value="visitors">Sort by Visitors</option>
@@ -358,12 +358,12 @@ export default function FunnelsListPage() {
                 <Link
                   key={funnel.id}
                   href={`/funnels/${funnel.id}`}
-                  className="group bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6 hover:border-[#7c5cff]/50 hover:shadow-lg hover:shadow-[#7c5cff]/10 transition-all cursor-pointer"
+                  className="group bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl p-6 hover:border-[#F97316]/50 hover:shadow-lg hover:shadow-[#F97316]/10 transition-all cursor-pointer"
                 >
                   {/* Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <h3 className="text-[18px] font-semibold text-[#1a1a1a] mb-1 group-hover:text-[#7c5cff] transition-colors">
+                      <h3 className="text-[18px] font-semibold text-[#1a1a1a] mb-1 group-hover:text-[#F97316] transition-colors">
                         {funnel.name}
                       </h3>
                       <p className="text-[13px] text-[#666666]">
@@ -374,7 +374,7 @@ export default function FunnelsListPage() {
                       <div
                         className={`px-3 py-1 rounded-full text-[12px] font-bold ${
                           isGoodConversion
-                            ? "bg-[#00d4aa]/10 text-[#00d4aa]"
+                            ? "bg-[#3b82f6]/10 text-[#3b82f6]"
                             : "bg-[#f59e0b]/10 text-[#f59e0b]"
                         }`}
                       >
@@ -386,7 +386,7 @@ export default function FunnelsListPage() {
                           e.stopPropagation();
                           handleEditFunnel(funnel);
                         }}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#7c5cff]/10 text-[#666666] hover:text-[#7c5cff] transition-colors"
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#F97316]/10 text-[#666666] hover:text-[#F97316] transition-colors"
                         title="Edit funnel"
                       >
                         <Edit2 className="w-4 h-4" />
@@ -415,7 +415,7 @@ export default function FunnelsListPage() {
                     </div>
                     <div>
                       <p className="text-[11px] text-[#666666] uppercase mb-1">Converted</p>
-                      <p className="text-[16px] font-bold text-[#00d4aa]">
+                      <p className="text-[16px] font-bold text-[#3b82f6]">
                         {conversions.toLocaleString()}
                       </p>
                     </div>
@@ -440,9 +440,9 @@ export default function FunnelsListPage() {
                           </div>
                         )}
                         {funnel.abTests.activeCount > 0 && (
-                          <div className="flex items-center gap-2 px-3 py-1.5 bg-[#00d4aa]/10 border border-[#00d4aa]/30 rounded-lg">
-                            <div className="w-2 h-2 rounded-full bg-[#00d4aa]" />
-                            <span className="text-[11px] font-medium text-[#00d4aa]">
+                          <div className="flex items-center gap-2 px-3 py-1.5 bg-[#3b82f6]/10 border border-[#3b82f6]/30 rounded-lg">
+                            <div className="w-2 h-2 rounded-full bg-[#3b82f6]" />
+                            <span className="text-[11px] font-medium text-[#3b82f6]">
                               {funnel.abTests.activeCount} Active Test{funnel.abTests.activeCount > 1 ? 's' : ''}
                             </span>
                           </div>
@@ -452,7 +452,7 @@ export default function FunnelsListPage() {
                   )}
 
                   {/* View Details Link */}
-                  <div className="mt-4 flex items-center justify-end gap-2 text-[13px] text-[#7c5cff] group-hover:gap-3 transition-all">
+                  <div className="mt-4 flex items-center justify-end gap-2 text-[13px] text-[#F97316] group-hover:gap-3 transition-all">
                     View Details
                     <ArrowRight className="w-4 h-4" />
                   </div>

@@ -25,7 +25,7 @@ export default function ROIEstimator() {
   return (
     <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6">
       <div className="flex items-center gap-2 mb-6">
-        <Euro className="w-5 h-5 text-[#00d4aa]" />
+        <Euro className="w-5 h-5 text-[#3b82f6]" />
         <h3 className="text-[16px] font-semibold text-[#fafafa]">ROI Estimator</h3>
       </div>
 
@@ -37,7 +37,7 @@ export default function ROIEstimator() {
             type="number"
             value={monthlyVisitors}
             onChange={(e) => setMonthlyVisitors(Number(e.target.value))}
-            className="w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[14px] focus:outline-none focus:border-[#7c5cff]"
+            className="w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[14px] focus:outline-none focus:border-[#F97316]"
           />
         </div>
         <div>
@@ -47,7 +47,7 @@ export default function ROIEstimator() {
             step="0.1"
             value={currentCR}
             onChange={(e) => setCurrentCR(Number(e.target.value))}
-            className="w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[14px] focus:outline-none focus:border-[#7c5cff]"
+            className="w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[14px] focus:outline-none focus:border-[#F97316]"
           />
         </div>
         <div>
@@ -56,7 +56,7 @@ export default function ROIEstimator() {
             type="number"
             value={expectedIncrease}
             onChange={(e) => setExpectedIncrease(Number(e.target.value))}
-            className="w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[14px] focus:outline-none focus:border-[#7c5cff]"
+            className="w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[14px] focus:outline-none focus:border-[#F97316]"
           />
         </div>
         <div>
@@ -65,19 +65,19 @@ export default function ROIEstimator() {
             type="number"
             value={avgOrderValue}
             onChange={(e) => setAvgOrderValue(Number(e.target.value))}
-            className="w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[14px] focus:outline-none focus:border-[#7c5cff]"
+            className="w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[14px] focus:outline-none focus:border-[#F97316]"
           />
         </div>
       </div>
 
       {/* Results */}
-      <div className="bg-gradient-to-br from-[#00d4aa]/10 to-[#00d4aa]/5 border border-[#00d4aa]/20 rounded-xl p-5 mb-4">
+      <div className="bg-gradient-to-br from-[#3b82f6]/10 to-[#3b82f6]/5 border border-[#3b82f6]/20 rounded-xl p-5 mb-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-[#00d4aa]" />
+            <CheckCircle className="w-5 h-5 text-[#3b82f6]" />
             <span className="text-[14px] font-semibold text-[#fafafa]">Projected Impact</span>
           </div>
-          <span className="text-[14px] font-bold text-[#00d4aa]">+{roiPercentage}% ROI</span>
+          <span className="text-[14px] font-bold text-[#3b82f6]">+{roiPercentage}% ROI</span>
         </div>
 
         <div className="grid grid-cols-3 gap-4 mb-4">
@@ -87,26 +87,26 @@ export default function ROIEstimator() {
           </div>
           <div>
             <p className="text-[11px] text-[#888888] mb-1">New CR</p>
-            <p className="text-[16px] font-bold text-[#00d4aa]">{newCR.toFixed(1)}%</p>
+            <p className="text-[16px] font-bold text-[#3b82f6]">{newCR.toFixed(1)}%</p>
           </div>
           <div>
             <p className="text-[11px] text-[#888888] mb-1">Increase</p>
-            <p className="text-[16px] font-bold text-[#00d4aa]">+{additionalConversions.toFixed(0)}</p>
+            <p className="text-[16px] font-bold text-[#3b82f6]">+{additionalConversions.toFixed(0)}</p>
           </div>
         </div>
 
-        <div className="h-px bg-[#00d4aa]/20 mb-4" />
+        <div className="h-px bg-[#3b82f6]/20 mb-4" />
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-[13px] text-[#888888]">Monthly Additional Revenue</span>
-            <span className="text-[16px] font-bold text-[#00d4aa]">
+            <span className="text-[16px] font-bold text-[#3b82f6]">
               +€{additionalRevenue.toLocaleString('en-US', { maximumFractionDigits: 0 })}
             </span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-[13px] text-[#fafafa] font-semibold">Annual Additional Revenue</span>
-            <span className="text-[18px] font-bold text-[#00d4aa]">
+            <span className="text-[18px] font-bold text-[#3b82f6]">
               +€{annualAdditionalRevenue.toLocaleString('en-US', { maximumFractionDigits: 0 })}
             </span>
           </div>

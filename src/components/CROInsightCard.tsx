@@ -94,7 +94,7 @@ export default function CROInsightCard({ insight, category, index, compact }: CR
   const getEffortBadge = () => {
     if (!parsed.effort) return null;
     const colors = {
-      low: "bg-[#00d4aa]/20 text-[#00d4aa] border-[#00d4aa]/40",
+      low: "bg-[#3b82f6]/20 text-[#3b82f6] border-[#3b82f6]/40",
       medium: "bg-[#f59e0b]/20 text-[#f59e0b] border-[#f59e0b]/40",
       high: "bg-[#ff6b6b]/20 text-[#ff6b6b] border-[#ff6b6b]/40",
     };
@@ -107,7 +107,7 @@ export default function CROInsightCard({ insight, category, index, compact }: CR
 
   return (
     <div
-      className={`bg-white rounded-xl overflow-hidden border border-[#d0d0d0] hover:border-[#7c5cff]/50 transition-all ${
+      className={`bg-white rounded-xl overflow-hidden border border-[#d0d0d0] hover:border-[#F97316]/50 transition-all ${
         compact ? "" : "p-5"
       }`}
     >
@@ -115,7 +115,7 @@ export default function CROInsightCard({ insight, category, index, compact }: CR
         className={`flex items-start gap-4 ${compact ? "cursor-pointer p-3" : ""}`}
         onClick={compact ? () => setExpanded(!expanded) : undefined}
       >
-        <div className="w-2 h-2 bg-[#7c5cff] rounded-full mt-2.5 flex-shrink-0" />
+        <div className="w-2 h-2 bg-[#F97316] rounded-full mt-2.5 flex-shrink-0" />
         <div className="flex-1 min-w-0">
           {showStructured && expanded ? (
             <div className="space-y-4">
@@ -127,14 +127,14 @@ export default function CROInsightCard({ insight, category, index, compact }: CR
               )}
               {parsed.action && (
                 <div className="flex items-start gap-3">
-                  <Lightbulb className="w-5 h-5 text-[#00d4aa] flex-shrink-0 mt-0.5" />
+                  <Lightbulb className="w-5 h-5 text-[#3b82f6] flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <span className="text-[12px] font-bold text-[#00d4aa] uppercase">Action</span>
+                    <span className="text-[12px] font-bold text-[#3b82f6] uppercase">Action</span>
                     <p className="text-[15px] text-[#1a1a1a] mt-1.5 leading-relaxed">{parsed.action}</p>
                     {!compact && (
                       <button
                         onClick={handleCopy}
-                        className="mt-3 flex items-center gap-2 text-[13px] text-[#7c5cff] hover:text-[#00d4aa] transition-colors font-medium"
+                        className="mt-3 flex items-center gap-2 text-[13px] text-[#F97316] hover:text-[#3b82f6] transition-colors font-medium"
                       >
                         {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                         {copied ? "Copied!" : "Copy to clipboard"}
@@ -145,9 +145,9 @@ export default function CROInsightCard({ insight, category, index, compact }: CR
               )}
               {parsed.principle && (
                 <div className="flex items-start gap-3">
-                  <Target className="w-5 h-5 text-[#7c5cff] flex-shrink-0 mt-0.5" />
+                  <Target className="w-5 h-5 text-[#F97316] flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <span className="text-[12px] font-bold text-[#7c5cff] uppercase">Principle</span>
+                    <span className="text-[12px] font-bold text-[#F97316] uppercase">Principle</span>
                     <p className="text-[15px] text-[#666666] mt-1.5 leading-relaxed">{parsed.principle}</p>
                   </div>
                 </div>
@@ -155,7 +155,7 @@ export default function CROInsightCard({ insight, category, index, compact }: CR
               {(parsed.impact || parsed.effort) && (
                 <div className="flex items-center gap-3 flex-wrap pt-2">
                   {parsed.impact && (
-                    <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#00d4aa]/10 border border-[#00d4aa]/30 rounded-lg text-[14px] font-semibold text-[#00d4aa]">
+                    <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#3b82f6]/10 border border-[#3b82f6]/30 rounded-lg text-[14px] font-semibold text-[#3b82f6]">
                       <Zap className="w-4 h-4" />
                       {parsed.impact}
                     </span>

@@ -77,7 +77,7 @@ export default function SavedItemsPage() {
           </div>
           <Link
             href="/landing-analysis"
-            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
+            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#F97316] to-[#3b82f6] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
           >
             <Plus className="w-4 h-4" />
             Analyze New Page
@@ -97,7 +97,7 @@ export default function SavedItemsPage() {
             <Target className="w-4 h-4" />
             Funnels ({funnels.length})
             {activeTab === 'funnels' && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]" />
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#F97316] to-[#3b82f6]" />
             )}
           </button>
           <button
@@ -111,7 +111,7 @@ export default function SavedItemsPage() {
             <FileText className="w-4 h-4" />
             Landing Pages ({pages.length})
             {activeTab === 'pages' && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]" />
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#F97316] to-[#3b82f6]" />
             )}
           </button>
         </div>
@@ -125,7 +125,7 @@ export default function SavedItemsPage() {
               placeholder="Search items..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+              className="w-full pl-12 pr-4 py-3 bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all"
             />
           </div>
           <div className="flex items-center gap-2">
@@ -133,7 +133,7 @@ export default function SavedItemsPage() {
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="px-4 py-3 bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all cursor-pointer"
+              className="px-4 py-3 bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] focus:outline-none focus:border-[#F97316] transition-all cursor-pointer"
             >
               <option value="all">All Categories</option>
               {categories.map(cat => (
@@ -160,7 +160,7 @@ export default function SavedItemsPage() {
                 return (
                   <div
                     key={funnel.id}
-                    className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6 hover:border-[#7c5cff]/50 transition-all"
+                    className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-6 hover:border-[#F97316]/50 transition-all"
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
@@ -195,7 +195,7 @@ export default function SavedItemsPage() {
                           href={funnel.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-[12px] text-[#7c5cff] hover:text-[#a78bff] transition-colors"
+                          className="flex items-center gap-2 text-[12px] text-[#F97316] hover:text-[#a78bff] transition-colors"
                         >
                           <ExternalLink className="w-3.5 h-3.5" />
                           View funnel
@@ -207,7 +207,7 @@ export default function SavedItemsPage() {
                       <div className="pt-4 border-t border-white/5">
                         <Link
                           href={`/saved-items/${funnel.id}`}
-                          className="inline-flex items-center gap-2 text-[12px] text-[#00d4aa] font-medium hover:text-[#00e5b8] transition-colors cursor-pointer group"
+                          className="inline-flex items-center gap-2 text-[12px] text-[#3b82f6] font-medium hover:text-[#2563eb] transition-colors cursor-pointer group"
                         >
                           <span className="group-hover:underline">
                             ✓ Analysis available ({funnel.analysis.comparisonTable.length} opportunities)
@@ -236,7 +236,7 @@ export default function SavedItemsPage() {
                 return (
                   <div
                     key={page.id}
-                    className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6 hover:border-[#7c5cff]/50 transition-all"
+                    className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-6 hover:border-[#F97316]/50 transition-all"
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
@@ -270,7 +270,7 @@ export default function SavedItemsPage() {
                         href={page.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-[12px] text-[#7c5cff] hover:text-[#a78bff] transition-colors truncate"
+                        className="flex items-center gap-2 text-[12px] text-[#F97316] hover:text-[#a78bff] transition-colors truncate"
                       >
                         <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />
                         <span className="truncate">{page.url}</span>
@@ -281,7 +281,7 @@ export default function SavedItemsPage() {
                       <div className="pt-4 border-t border-white/5">
                         <Link
                           href={`/saved-items/${page.id}`}
-                          className="inline-flex items-center gap-2 text-[12px] text-[#00d4aa] font-medium hover:text-[#00e5b8] transition-colors cursor-pointer group"
+                          className="inline-flex items-center gap-2 text-[12px] text-[#3b82f6] font-medium hover:text-[#2563eb] transition-colors cursor-pointer group"
                         >
                           <span className="group-hover:underline">
                             ✓ Analysis available ({page.analysis.comparisonTable.length} opportunities)

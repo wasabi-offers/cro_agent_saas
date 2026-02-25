@@ -89,7 +89,7 @@ export default function SettingsPage() {
         <Header title="Settings" breadcrumb={["Dashboard", "Settings"]} />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-10 h-10 border-2 border-[#7c5cff] border-t-transparent rounded-full animate-spin" />
+            <div className="w-10 h-10 border-2 border-[#F97316] border-t-transparent rounded-full animate-spin" />
             <p className="text-[#666666] text-[14px]">Loading settings...</p>
           </div>
         </div>
@@ -111,10 +111,10 @@ export default function SettingsPage() {
         </div>
 
         {/* Data Sources Section */}
-        <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-8 mb-6">
+        <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-8 mb-6">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-xl flex items-center justify-center">
-              <Key className="w-5 h-5 text-[#7c5cff]" />
+            <div className="w-10 h-10 bg-[#F97316]/20 rounded-xl flex items-center justify-center">
+              <Key className="w-5 h-5 text-[#F97316]" />
             </div>
             <div>
               <h2 className="text-[20px] font-semibold text-[#1a1a1a]">Data Sources</h2>
@@ -136,7 +136,7 @@ export default function SettingsPage() {
                   href="https://screenshotapi.net/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#7c5cff] hover:text-[#6b4fee] inline-flex items-center gap-1"
+                  className="text-[#F97316] hover:text-[#EA580C] inline-flex items-center gap-1"
                 >
                   screenshotapi.net
                   <ExternalLink className="w-3 h-3" />
@@ -147,7 +147,7 @@ export default function SettingsPage() {
                 value={settings.screenshot_api_access_key}
                 onChange={(e) => setSettings({ ...settings, screenshot_api_access_key: e.target.value })}
                 placeholder="2E6KAaX6dDYr (example)"
-                className="w-full px-4 py-3 bg-white/60 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all font-mono"
+                className="w-full px-4 py-3 bg-white/60 border border-[#F97316]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all font-mono"
               />
             </div>
 
@@ -160,18 +160,18 @@ export default function SettingsPage() {
                 value={settings.screenshot_api_secret_key}
                 onChange={(e) => setSettings({ ...settings, screenshot_api_secret_key: e.target.value })}
                 placeholder="Nnc5BoaQXEB8 (example)"
-                className="w-full px-4 py-3 bg-white/60 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all font-mono"
+                className="w-full px-4 py-3 bg-white/60 border border-[#F97316]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all font-mono"
               />
             </div>
 
             {/* Info Box */}
-            <div className="bg-gradient-to-r from-[#7c5cff]/10 to-[#00d4aa]/10 border border-[#7c5cff]/20 rounded-xl p-4">
+            <div className="bg-gradient-to-r from-[#F97316]/10 to-[#3b82f6]/10 border border-[#F97316]/20 rounded-xl p-4">
               <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-[#7c5cff] flex-shrink-0 mt-0.5" />
+                <AlertCircle className="w-5 h-5 text-[#F97316] flex-shrink-0 mt-0.5" />
                 <div className="text-[13px] text-[#888888]">
                   <p className="font-medium text-[#1a1a1a] mb-1">How to get your API token:</p>
                   <ol className="list-decimal list-inside space-y-1">
-                    <li>Go to <a href="https://screenshotapi.net/" target="_blank" rel="noopener noreferrer" className="text-[#7c5cff] hover:underline">screenshotapi.net</a></li>
+                    <li>Go to <a href="https://screenshotapi.net/" target="_blank" rel="noopener noreferrer" className="text-[#F97316] hover:underline">screenshotapi.net</a></li>
                     <li>Sign up for free (100 screenshots/month)</li>
                     <li>Copy your API token from the dashboard</li>
                     <li>Paste it here and click "Save Settings"</li>
@@ -187,7 +187,7 @@ export default function SettingsPage() {
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:shadow-lg hover:shadow-purple-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#F97316] to-[#3b82f6] text-white text-[14px] font-medium rounded-xl hover:shadow-lg hover:shadow-orange-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSaving ? (
               <>
@@ -205,7 +205,7 @@ export default function SettingsPage() {
           {/* Save Status */}
           {saveStatus !== 'idle' && (
             <div className={`flex items-center gap-2 text-[14px] ${
-              saveStatus === 'success' ? 'text-[#00d4aa]' : 'text-[#ff6b6b]'
+              saveStatus === 'success' ? 'text-[#3b82f6]' : 'text-[#ff6b6b]'
             }`}>
               {saveStatus === 'success' ? (
                 <CheckCircle2 className="w-4 h-4" />

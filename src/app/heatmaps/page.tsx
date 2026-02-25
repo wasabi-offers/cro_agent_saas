@@ -71,7 +71,7 @@ export default function HeatmapsPage() {
         <Header title="Heatmaps" breadcrumb={["Dashboard", "Heatmaps"]} />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-10 h-10 border-2 border-[#7c5cff] border-t-transparent rounded-full animate-spin" />
+            <div className="w-10 h-10 border-2 border-[#F97316] border-t-transparent rounded-full animate-spin" />
             <p className="text-[#1a1a1a] text-[14px]">Loading click data...</p>
           </div>
         </div>
@@ -89,7 +89,7 @@ export default function HeatmapsPage() {
             <p className="text-[#ff6b6b] text-[14px]">{error || 'No data available'}</p>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-[#7c5cff] text-white rounded-lg text-sm hover:bg-[#6b4ee0] transition"
+              className="px-4 py-2 bg-[#F97316] text-white rounded-lg text-sm hover:bg-[#6b4ee0] transition"
             >
               Retry
             </button>
@@ -128,7 +128,7 @@ export default function HeatmapsPage() {
           </div>
           <Link
             href="/explore-ai"
-            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
+            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#F97316] to-[#3b82f6] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
           >
             <Brain className="w-4 h-4" />
             Analyze with AI
@@ -136,10 +136,10 @@ export default function HeatmapsPage() {
         </div>
 
         {/* Info Banner */}
-        <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6 mb-8">
+        <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-6 mb-8">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-[#7c5cff]/20 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Info className="w-6 h-6 text-[#7c5cff]" />
+            <div className="w-12 h-12 bg-[#F97316]/20 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Info className="w-6 h-6 text-[#F97316]" />
             </div>
             <div>
               <h3 className="text-[16px] font-bold text-[#1a1a1a] mb-2">
@@ -151,7 +151,7 @@ export default function HeatmapsPage() {
               </p>
               <Link
                 href="/data-sources"
-                className="text-[13px] text-[#7c5cff] hover:text-[#a78bff] transition-colors font-semibold"
+                className="text-[13px] text-[#F97316] hover:text-[#a78bff] transition-colors font-semibold"
               >
                 Configure Data Sources →
               </Link>
@@ -177,8 +177,8 @@ export default function HeatmapsPage() {
               onClick={() => setSelectedDevice(device)}
               className={`px-4 py-2 rounded-lg text-[13px] font-medium transition-all capitalize ${
                 selectedDevice === device
-                  ? 'bg-[#7c5cff] text-white'
-                  : 'bg-white/60 text-[#1a1a1a] border border-[#7c5cff]/30 hover:bg-white/80'
+                  ? 'bg-[#F97316] text-white'
+                  : 'bg-white/60 text-[#1a1a1a] border border-[#F97316]/30 hover:bg-white/80'
               }`}
             >
               {device === 'all' ? 'All Devices' : device}
@@ -218,10 +218,10 @@ export default function HeatmapsPage() {
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6">
+          <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
-                <ArrowDown className="w-5 h-5 text-[#7c5cff] rotate-180" />
+              <div className="w-10 h-10 bg-[#F97316]/20 rounded-lg flex items-center justify-center">
+                <ArrowDown className="w-5 h-5 text-[#F97316] rotate-180" />
               </div>
               <span className="text-[13px] text-[#888888]">Quickbacks</span>
             </div>
@@ -233,10 +233,10 @@ export default function HeatmapsPage() {
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-[#00d4aa]/20 to-[#00d4aa]/5 border border-[#00d4aa]/30 rounded-2xl p-6">
+          <div className="bg-gradient-to-br from-[#3b82f6]/20 to-[#3b82f6]/5 border border-[#3b82f6]/30 rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
-                <Eye className="w-5 h-5 text-[#00d4aa]" />
+              <div className="w-10 h-10 bg-[#3b82f6]/20 rounded-lg flex items-center justify-center">
+                <Eye className="w-5 h-5 text-[#3b82f6]" />
               </div>
               <span className="text-[13px] text-[#888888]">Scroll Depth</span>
             </div>
@@ -339,7 +339,7 @@ export default function HeatmapsPage() {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   {scriptErrors.map((err, idx) => (
-                    <div key={idx} className="bg-white/60 rounded-lg p-3 border border-[#7c5cff]/20">
+                    <div key={idx} className="bg-white/60 rounded-lg p-3 border border-[#F97316]/20">
                       <div className="flex items-center gap-2 mb-1">
                         {getDeviceIcon(err.device)}
                         <span className="text-[13px] font-medium text-[#1a1a1a]">{err.device}</span>
@@ -365,16 +365,16 @@ export default function HeatmapsPage() {
         )}
 
         {/* Traffic Distribution */}
-        <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6">
+        <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-6">
           <h2 className="text-[18px] font-semibold text-[#1a1a1a] mb-6">Traffic by Device</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {trafficByDevice.map((device) => {
               const percentage = (device.total_session_count / summary.totalSessions) * 100;
-              const color = device.device === 'Mobile' ? '#7c5cff' : 
-                           device.device === 'Desktop' || device.device === 'PC' ? '#00d4aa' : '#f59e0b';
+              const color = device.device === 'Mobile' ? '#F97316' : 
+                           device.device === 'Desktop' || device.device === 'PC' ? '#3b82f6' : '#f59e0b';
               
               return (
-                <div key={device.device} className="p-6 bg-white/60 rounded-xl border border-[#7c5cff]/20">
+                <div key={device.device} className="p-6 bg-white/60 rounded-xl border border-[#F97316]/20">
                   <div className="flex items-center gap-3 mb-4">
                     <div 
                       className="w-12 h-12 rounded-xl flex items-center justify-center"
@@ -389,13 +389,13 @@ export default function HeatmapsPage() {
                   </div>
                   
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="text-center p-3 bg-white/80 rounded-lg border border-[#7c5cff]/20">
+                    <div className="text-center p-3 bg-white/80 rounded-lg border border-[#F97316]/20">
                       <p className="text-[18px] font-bold text-[#1a1a1a]">
                         {device.total_session_count.toLocaleString()}
                       </p>
                       <p className="text-[11px] text-[#1a1a1a] font-semibold">Sessions</p>
                     </div>
-                    <div className="text-center p-3 bg-white/80 rounded-lg border border-[#7c5cff]/20">
+                    <div className="text-center p-3 bg-white/80 rounded-lg border border-[#F97316]/20">
                       <p className="text-[18px] font-bold text-[#1a1a1a]">
                         {device.distinct_user_count.toLocaleString()}
                       </p>

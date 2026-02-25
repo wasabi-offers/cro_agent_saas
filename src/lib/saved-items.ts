@@ -162,13 +162,13 @@ function getDefaultCategories(): Category[] {
     {
       id: 'cat_ecommerce',
       name: 'E-commerce',
-      color: '#7c5cff',
+      color: '#F97316',
       createdAt: new Date().toISOString(),
     },
     {
       id: 'cat_saas',
       name: 'SaaS',
-      color: '#00d4aa',
+      color: '#3b82f6',
       createdAt: new Date().toISOString(),
     },
     {

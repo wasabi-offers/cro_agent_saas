@@ -20,6 +20,7 @@ export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingS
     script: getTrackingScriptTag({
       funnelId,
       funnelStepName: step.name,
+      funnelStepOrder: index,
       enableHeatmap: true
     })
   }));
@@ -50,9 +51,9 @@ export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingS
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#7c5cff]/10 to-[#00d4aa]/10 border border-[#7c5cff]/20 rounded-2xl p-8">
+      <div className="bg-gradient-to-br from-[#F97316]/10 to-[#3b82f6]/10 border border-[#F97316]/20 rounded-2xl p-8">
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-xl flex items-center justify-center flex-shrink-0">
+          <div className="w-12 h-12 bg-gradient-to-br from-[#F97316] to-[#3b82f6] rounded-xl flex items-center justify-center flex-shrink-0">
             <Zap className="w-6 h-6 text-white" />
           </div>
           <div className="flex-1">
@@ -72,7 +73,7 @@ export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingS
           <h4 className="text-[16px] font-semibold text-[#fafafa]">Script di Tracking per Step</h4>
           <button
             onClick={handleDownloadAll}
-            className="flex items-center gap-2 px-4 py-2 bg-[#00d4aa] hover:bg-[#00b894] text-white text-[13px] font-medium rounded-lg transition-all"
+            className="flex items-center gap-2 px-4 py-2 bg-[#3b82f6] hover:bg-[#2563eb] text-white text-[13px] font-medium rounded-lg transition-all"
           >
             <Download className="w-4 h-4" />
             Download All Scripts
@@ -84,8 +85,8 @@ export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingS
             <div className="flex items-center justify-between mb-4">
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-8 h-8 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
-                    <span className="text-[13px] font-bold text-[#7c5cff]">{index + 1}</span>
+                  <div className="w-8 h-8 bg-[#F97316]/20 rounded-lg flex items-center justify-center">
+                    <span className="text-[13px] font-bold text-[#F97316]">{index + 1}</span>
                   </div>
                   <h5 className="text-[16px] font-semibold text-[#fafafa]">{item.stepName}</h5>
                 </div>
@@ -94,7 +95,7 @@ export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingS
                     href={item.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[12px] text-[#00d4aa] hover:text-[#00b894] flex items-center gap-1 ml-11"
+                    className="text-[12px] text-[#3b82f6] hover:text-[#2563eb] flex items-center gap-1 ml-11"
                   >
                     {item.url}
                     <ExternalLink className="w-3 h-3" />
@@ -103,7 +104,7 @@ export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingS
               </div>
               <button
                 onClick={() => handleCopy(item.script, item.stepName)}
-                className="flex items-center gap-2 px-4 py-2 bg-[#7c5cff] hover:bg-[#6b4de8] text-white text-[13px] font-medium rounded-lg transition-all"
+                className="flex items-center gap-2 px-4 py-2 bg-[#F97316] hover:bg-[#EA580C] text-white text-[13px] font-medium rounded-lg transition-all"
               >
                 {copied === item.stepName ? (
                   <>
@@ -125,9 +126,9 @@ export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingS
               </pre>
             </div>
 
-            <div className="mt-3 p-3 bg-[#7c5cff]/10 border border-[#7c5cff]/20 rounded-lg">
+            <div className="mt-3 p-3 bg-[#F97316]/10 border border-[#F97316]/20 rounded-lg">
               <p className="text-[12px] text-[#888888]">
-                💡 Paste this script before the <code className="text-[#7c5cff]">&lt;/body&gt;</code> tag of your page
+                💡 Paste this script before the <code className="text-[#F97316]">&lt;/body&gt;</code> tag of your page
               </p>
             </div>
           </div>
@@ -135,9 +136,9 @@ export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingS
       </div>
 
       {/* Live Stats Info */}
-      <div className="bg-gradient-to-br from-[#00d4aa]/10 to-[#7c5cff]/10 border border-[#00d4aa]/20 rounded-2xl p-6">
+      <div className="bg-gradient-to-br from-[#3b82f6]/10 to-[#F97316]/10 border border-[#3b82f6]/20 rounded-2xl p-6">
         <div className="flex items-start gap-4">
-          <div className="w-10 h-10 bg-[#00d4aa] rounded-xl flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 bg-[#3b82f6] rounded-xl flex items-center justify-center flex-shrink-0">
             <Zap className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1">
@@ -159,51 +160,51 @@ export default function TrackingSetup({ funnelId, funnelName, steps }: TrackingS
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div className="flex items-start gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#00d4aa] flex-shrink-0 mt-0.5" />
+            <CheckCircle2 className="w-4 h-4 text-[#3b82f6] flex-shrink-0 mt-0.5" />
             <span className="text-[13px] text-[#888888]">Page views e sessioni</span>
           </div>
           <div className="flex items-start gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#00d4aa] flex-shrink-0 mt-0.5" />
+            <CheckCircle2 className="w-4 h-4 text-[#3b82f6] flex-shrink-0 mt-0.5" />
             <span className="text-[13px] text-[#888888]">Click (posizione, elemento, testo)</span>
           </div>
           <div className="flex items-start gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#00d4aa] flex-shrink-0 mt-0.5" />
+            <CheckCircle2 className="w-4 h-4 text-[#3b82f6] flex-shrink-0 mt-0.5" />
             <span className="text-[13px] text-[#888888]">CTA clicks (bottoni, link)</span>
           </div>
           <div className="flex items-start gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#00d4aa] flex-shrink-0 mt-0.5" />
+            <CheckCircle2 className="w-4 h-4 text-[#3b82f6] flex-shrink-0 mt-0.5" />
             <span className="text-[13px] text-[#888888]">Scroll depth e percentuale</span>
           </div>
           <div className="flex items-start gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#00d4aa] flex-shrink-0 mt-0.5" />
+            <CheckCircle2 className="w-4 h-4 text-[#3b82f6] flex-shrink-0 mt-0.5" />
             <span className="text-[13px] text-[#888888]">Mouse movement (heatmap)</span>
           </div>
           <div className="flex items-start gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#00d4aa] flex-shrink-0 mt-0.5" />
+            <CheckCircle2 className="w-4 h-4 text-[#3b82f6] flex-shrink-0 mt-0.5" />
             <span className="text-[13px] text-[#888888]">Form interactions</span>
           </div>
           <div className="flex items-start gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#00d4aa] flex-shrink-0 mt-0.5" />
+            <CheckCircle2 className="w-4 h-4 text-[#3b82f6] flex-shrink-0 mt-0.5" />
             <span className="text-[13px] text-[#888888]">Rage clicks (user frustration)</span>
           </div>
           <div className="flex items-start gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#00d4aa] flex-shrink-0 mt-0.5" />
+            <CheckCircle2 className="w-4 h-4 text-[#3b82f6] flex-shrink-0 mt-0.5" />
             <span className="text-[13px] text-[#888888]">Dead clicks (non-clickable elements)</span>
           </div>
           <div className="flex items-start gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#00d4aa] flex-shrink-0 mt-0.5" />
+            <CheckCircle2 className="w-4 h-4 text-[#3b82f6] flex-shrink-0 mt-0.5" />
             <span className="text-[13px] text-[#888888]">Time on page and engagement</span>
           </div>
           <div className="flex items-start gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#00d4aa] flex-shrink-0 mt-0.5" />
+            <CheckCircle2 className="w-4 h-4 text-[#3b82f6] flex-shrink-0 mt-0.5" />
             <span className="text-[13px] text-[#888888]">Exit intent</span>
           </div>
           <div className="flex items-start gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#00d4aa] flex-shrink-0 mt-0.5" />
+            <CheckCircle2 className="w-4 h-4 text-[#3b82f6] flex-shrink-0 mt-0.5" />
             <span className="text-[13px] text-[#888888]">Device, browser, OS</span>
           </div>
           <div className="flex items-start gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#00d4aa] flex-shrink-0 mt-0.5" />
+            <CheckCircle2 className="w-4 h-4 text-[#3b82f6] flex-shrink-0 mt-0.5" />
             <span className="text-[13px] text-[#888888]">UTM parameters</span>
           </div>
         </div>

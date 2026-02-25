@@ -120,7 +120,7 @@ export default function Home() {
         <Header title="Dashboard" breadcrumb={["Dashboard"]} />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-10 h-10 border-2 border-[#7c5cff] border-t-transparent rounded-full animate-spin" />
+            <div className="w-10 h-10 border-2 border-[#F97316] border-t-transparent rounded-full animate-spin" />
             <p className="text-[#666666] text-[14px]">Loading tracking data...</p>
           </div>
         </div>
@@ -138,7 +138,7 @@ export default function Home() {
             <p className="text-[#ff6b6b] text-[14px]">{error}</p>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-[#7c5cff] text-white rounded-lg text-sm hover:bg-[#6b4ee0] transition"
+              className="px-4 py-2 bg-[#F97316] text-white rounded-lg text-sm hover:bg-[#6b4ee0] transition"
             >
               Retry
             </button>
@@ -184,10 +184,10 @@ export default function Home() {
         </div>
 
         {/* AI Analysis Banner */}
-        <div className="bg-gradient-to-r from-[#7c5cff]/20 via-[#00d4aa]/10 to-[#7c5cff]/20 border border-[#7c5cff]/30 rounded-2xl p-6 mb-8">
+        <div className="bg-gradient-to-r from-[#F97316]/20 via-[#3b82f6]/10 to-[#F97316]/20 border border-[#F97316]/30 rounded-2xl p-6 mb-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-2xl flex items-center justify-center">
+              <div className="w-14 h-14 bg-gradient-to-br from-[#F97316] to-[#3b82f6] rounded-2xl flex items-center justify-center">
                 <Brain className="w-7 h-7 text-white" />
               </div>
               <div>
@@ -203,7 +203,7 @@ export default function Home() {
               <button
                 onClick={() => requestAIAnalysis('full-analysis')}
                 disabled={isAnalyzing}
-                className="px-5 py-2.5 bg-[#7c5cff] text-white rounded-xl text-[14px] font-medium hover:bg-[#6b4ee0] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-5 py-2.5 bg-[#F97316] text-white rounded-xl text-[14px] font-medium hover:bg-[#6b4ee0] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isAnalyzing ? (
                   <>
@@ -219,7 +219,7 @@ export default function Home() {
               </button>
               <Link
                 href="/explore-ai"
-                className="px-5 py-2.5 bg-[#00d4aa]/20 text-[#00d4aa] border border-[#00d4aa]/30 rounded-xl text-[14px] font-medium hover:bg-[#00d4aa]/30 transition-all flex items-center gap-2"
+                className="px-5 py-2.5 bg-[#3b82f6]/20 text-[#3b82f6] border border-[#3b82f6]/30 rounded-xl text-[14px] font-medium hover:bg-[#3b82f6]/30 transition-all flex items-center gap-2"
               >
                 <Brain className="w-4 h-4" />
                 Explore AI
@@ -231,12 +231,12 @@ export default function Home() {
         {/* Stats Cards - Real Data */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           {/* Total Sessions */}
-          <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6">
+          <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-[#7c5cff]/20 rounded-xl flex items-center justify-center">
-                <Users className="w-6 h-6 text-[#7c5cff]" />
+              <div className="w-12 h-12 bg-[#F97316]/20 rounded-xl flex items-center justify-center">
+                <Users className="w-6 h-6 text-[#F97316]" />
               </div>
-              <div className="flex items-center gap-1 text-[13px] font-medium text-[#00d4aa]">
+              <div className="flex items-center gap-1 text-[13px] font-medium text-[#3b82f6]">
                 <TrendingUp className="w-4 h-4" />
                 Live
               </div>
@@ -253,10 +253,10 @@ export default function Home() {
           </div>
 
           {/* Pages per Session */}
-          <div className="bg-gradient-to-br from-[#00d4aa]/20 to-[#00d4aa]/5 border border-[#00d4aa]/30 rounded-2xl p-6">
+          <div className="bg-gradient-to-br from-[#3b82f6]/20 to-[#3b82f6]/5 border border-[#3b82f6]/30 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-[#00d4aa]/20 rounded-xl flex items-center justify-center">
-                <Eye className="w-6 h-6 text-[#00d4aa]" />
+              <div className="w-12 h-12 bg-[#3b82f6]/20 rounded-xl flex items-center justify-center">
+                <Eye className="w-6 h-6 text-[#3b82f6]" />
               </div>
             </div>
             <p className="text-[#888888] text-[13px] font-medium uppercase tracking-wide mb-1">
@@ -313,10 +313,10 @@ export default function Home() {
 
         {/* AI Analysis Result */}
         {aiAnalysis && (
-          <div className="bg-[#0a0a0a] border border-[#7c5cff]/30 rounded-2xl overflow-hidden mb-10">
-            <div className="px-6 py-5 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-[#7c5cff]/10 to-transparent">
+          <div className="bg-[#0a0a0a] border border-[#F97316]/30 rounded-2xl overflow-hidden mb-10">
+            <div className="px-6 py-5 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-[#F97316]/10 to-transparent">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-br from-[#F97316] to-[#3b82f6] rounded-xl flex items-center justify-center">
                   <Brain className="w-5 h-5 text-white" />
                 </div>
                 {aiAnalysisSource && (
@@ -371,7 +371,7 @@ export default function Home() {
               <button
                 onClick={() => requestAIAnalysis('ux-issues')}
                 disabled={isAnalyzing}
-                className="px-4 py-2 bg-[#7c5cff]/20 text-[#a78bff] rounded-lg text-[13px] font-medium hover:bg-[#7c5cff]/30 transition-all flex items-center gap-2"
+                className="px-4 py-2 bg-[#F97316]/20 text-[#a78bff] rounded-lg text-[13px] font-medium hover:bg-[#F97316]/30 transition-all flex items-center gap-2"
               >
                 <Sparkles className="w-4 h-4" />
                 Analyze with AI
@@ -395,8 +395,8 @@ export default function Home() {
                   </p>
                   <p className="text-[12px] text-[#666666]">Rage Clicks</p>
                 </div>
-                <div className="bg-white/60 border border-[#7c5cff]/40 rounded-xl p-4 text-center">
-                  <ArrowRight className="w-6 h-6 text-[#7c5cff] mx-auto mb-2 rotate-180" />
+                <div className="bg-white/60 border border-[#F97316]/40 rounded-xl p-4 text-center">
+                  <ArrowRight className="w-6 h-6 text-[#F97316] mx-auto mb-2 rotate-180" />
                   <p className="text-[24px] font-bold text-[#1a1a1a]">
                     {summary.totalQuickbacks.toLocaleString()}
                   </p>
@@ -437,10 +437,10 @@ export default function Home() {
           </div>
 
           {/* Device Distribution */}
-          <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6 shadow-sm">
+          <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-xl flex items-center justify-center">
-                <Activity className="w-5 h-5 text-[#7c5cff]" />
+              <div className="w-10 h-10 bg-[#F97316]/20 rounded-xl flex items-center justify-center">
+                <Activity className="w-5 h-5 text-[#F97316]" />
               </div>
               <div>
                 <h2 className="text-[18px] font-semibold text-[#1a1a1a]">
@@ -453,11 +453,11 @@ export default function Home() {
             <div className="space-y-4">
               {trafficByDevice.map((device) => {
                 const percentage = (device.total_session_count / summary.totalSessions) * 100;
-                const color = device.device === 'Mobile' ? '#7c5cff' : 
-                             device.device === 'Desktop' ? '#00d4aa' : '#f59e0b';
+                const color = device.device === 'Mobile' ? '#F97316' : 
+                             device.device === 'Desktop' ? '#3b82f6' : '#f59e0b';
                 
                 return (
-                  <div key={device.device} className="p-4 bg-white/60 rounded-xl border border-[#7c5cff]/20">
+                  <div key={device.device} className="p-4 bg-white/60 rounded-xl border border-[#F97316]/20">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[14px] font-medium text-[#1a1a1a]">
                         {device.device}
@@ -513,25 +513,25 @@ export default function Home() {
           {engagementByDevice.map((device) => (
             <div
               key={device.device}
-              className="bg-gradient-to-br from-[#00d4aa]/20 to-[#00d4aa]/5 border border-[#00d4aa]/30 rounded-2xl p-6 shadow-sm"
+              className="bg-gradient-to-br from-[#3b82f6]/20 to-[#3b82f6]/5 border border-[#3b82f6]/30 rounded-2xl p-6 shadow-sm"
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-[16px] font-semibold text-[#1a1a1a]">
                   {device.device}
                 </h3>
-                <span className="px-2.5 py-1 bg-[#00d4aa]/20 text-[#00d4aa] rounded-full text-[11px] font-medium">
+                <span className="px-2.5 py-1 bg-[#3b82f6]/20 text-[#3b82f6] rounded-full text-[11px] font-medium">
                   Engagement
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-4 bg-white/60 rounded-xl border border-[#00d4aa]/20">
+                <div className="text-center p-4 bg-white/60 rounded-xl border border-[#3b82f6]/20">
                   <p className="text-[24px] font-bold text-[#1a1a1a]">
                     {formatDuration(device.total_time)}
                   </p>
                   <p className="text-[12px] text-[#666666]">Total Time</p>
                 </div>
-                <div className="text-center p-4 bg-white/60 rounded-xl border border-[#00d4aa]/20">
-                  <p className="text-[24px] font-bold text-[#00d4aa]">
+                <div className="text-center p-4 bg-white/60 rounded-xl border border-[#3b82f6]/20">
+                  <p className="text-[24px] font-bold text-[#3b82f6]">
                     {formatDuration(device.active_time)}
                   </p>
                   <p className="text-[12px] text-[#666666]">Active Time</p>
@@ -540,13 +540,13 @@ export default function Home() {
               <div className="mt-4">
                 <div className="flex items-center justify-between text-[12px] mb-1">
                   <span className="text-[#666666]">Engagement Rate</span>
-                  <span className="text-[#00d4aa] font-medium">
+                  <span className="text-[#3b82f6] font-medium">
                     {((device.active_time / device.total_time) * 100).toFixed(0)}%
                   </span>
                 </div>
                 <div className="h-2 bg-white/50 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] rounded-full"
+                    className="h-full bg-gradient-to-r from-[#F97316] to-[#3b82f6] rounded-full"
                     style={{ width: `${(device.active_time / device.total_time) * 100}%` }}
                   />
                 </div>
@@ -558,7 +558,7 @@ export default function Home() {
         {/* Quick Actions */}
         <div className="bg-gradient-to-br from-[#f59e0b]/20 to-[#f59e0b]/5 border border-[#f59e0b]/30 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-[#F97316] to-[#3b82f6] rounded-xl flex items-center justify-center">
               <FlaskConical className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -575,9 +575,9 @@ export default function Home() {
             <button
               onClick={() => requestAIAnalysis('ab-tests')}
               disabled={isAnalyzing}
-              className="p-4 bg-white/60 border border-[#7c5cff]/30 rounded-xl hover:border-[#7c5cff]/50 transition-all text-left group"
+              className="p-4 bg-white/60 border border-[#F97316]/30 rounded-xl hover:border-[#F97316]/50 transition-all text-left group"
             >
-              <FlaskConical className="w-6 h-6 text-[#7c5cff] mb-3" />
+              <FlaskConical className="w-6 h-6 text-[#F97316] mb-3" />
               <h3 className="text-[14px] font-medium text-[#1a1a1a] mb-1">
                 Generate A/B Tests
               </h3>
@@ -602,9 +602,9 @@ export default function Home() {
 
             <Link
               href="/explore-ai"
-              className="p-4 bg-white/60 border border-[#00d4aa]/30 rounded-xl hover:border-[#00d4aa]/50 transition-all text-left group"
+              className="p-4 bg-white/60 border border-[#3b82f6]/30 rounded-xl hover:border-[#3b82f6]/50 transition-all text-left group"
             >
-              <Brain className="w-6 h-6 text-[#00d4aa] mb-3" />
+              <Brain className="w-6 h-6 text-[#3b82f6] mb-3" />
               <h3 className="text-[14px] font-medium text-[#1a1a1a] mb-1">
                 Chat with CRO Expert
               </h3>

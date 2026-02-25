@@ -1,14 +1,27 @@
 import puppeteer, { Browser } from "puppeteer-core";
 
-const VIEWPORT_WIDTH = 1280;
-const VIEWPORT_HEIGHT = 900;
+export type DeviceType = "desktop" | "mobile";
 
-async function launchBrowser(): Promise<Browser> {
+const VIEWPORTS: Record<DeviceType, { width: number; height: number }> = {
+  desktop: { width: 1280, height: 900 },
+  mobile: { width: 390, height: 844 },
+};
+
+const USER_AGENTS: Record<DeviceType, string> = {
+  desktop:
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+  mobile:
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+};
+
+async function launchBrowser(device: DeviceType = "desktop"): Promise<Browser> {
+  const viewport = VIEWPORTS[device];
+
   if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
     const chromium = await import("@sparticuz/chromium");
     return puppeteer.launch({
       args: chromium.default.args,
-      defaultViewport: { width: VIEWPORT_WIDTH, height: VIEWPORT_HEIGHT },
+      defaultViewport: viewport,
       executablePath: await chromium.default.executablePath(),
       headless: chromium.default.headless as boolean,
     });
@@ -25,7 +38,7 @@ async function launchBrowser(): Promise<Browser> {
   return puppeteer.launch({
     executablePath,
     headless: true,
-    defaultViewport: { width: VIEWPORT_WIDTH, height: VIEWPORT_HEIGHT },
+    defaultViewport: viewport,
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
@@ -40,25 +53,32 @@ async function launchBrowser(): Promise<Browser> {
   });
 }
 
-export async function captureScreenshot(url: string): Promise<string> {
+export async function captureScreenshot(
+  url: string,
+  device: DeviceType = "desktop"
+): Promise<string> {
   const normalizedUrl = url.startsWith("http") ? url : `https://${url}`;
 
   let browser: Browser | null = null;
 
   try {
-    browser = await launchBrowser();
+    browser = await launchBrowser(device);
     const page = await browser.newPage();
 
-    await page.setUserAgent(
-      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    );
+    await page.setUserAgent(USER_AGENTS[device]);
+
+    if (device === "mobile") {
+      await page.emulate({
+        viewport: { ...VIEWPORTS.mobile, isMobile: true, hasTouch: true },
+        userAgent: USER_AGENTS.mobile,
+      });
+    }
 
     await page.goto(normalizedUrl, {
       waitUntil: "networkidle2",
       timeout: 45000,
     });
 
-    // Scroll the entire page to trigger lazy-loaded images, animations, sticky elements
     await page.evaluate(async () => {
       await new Promise<void>((resolve) => {
         let totalHeight = 0;
@@ -76,7 +96,6 @@ export async function captureScreenshot(url: string): Promise<string> {
       });
     });
 
-    // Wait for lazy content to finish rendering after scroll
     await new Promise((resolve) => setTimeout(resolve, 3000));
 
     const screenshotBuffer = await page.screenshot({
@@ -91,4 +110,14 @@ export async function captureScreenshot(url: string): Promise<string> {
       await browser.close().catch(() => {});
     }
   }
+}
+
+export async function captureScreenshotBothDevices(
+  url: string
+): Promise<{ desktop: string; mobile: string }> {
+  const [desktop, mobile] = await Promise.all([
+    captureScreenshot(url, "desktop"),
+    captureScreenshot(url, "mobile"),
+  ]);
+  return { desktop, mobile };
 }

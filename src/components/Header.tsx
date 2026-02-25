@@ -16,22 +16,28 @@ export default function Header({
   onAction,
 }: HeaderProps) {
   return (
-    <header className="flex items-center justify-between px-10 py-5 border-b border-[#e0e0e0] bg-white">
+    <header
+      className="flex items-center justify-between px-10 py-5 border-b"
+      style={{
+        backgroundColor: "var(--bg-primary)",
+        borderColor: "var(--border-primary)",
+      }}
+    >
       {/* Breadcrumb */}
       <div className="flex items-center gap-3 text-[15px]">
         {breadcrumb.map((item, index) => (
           <div key={item} className="flex items-center gap-3">
             <span
-              className={
-                index === breadcrumb.length - 1
-                  ? "text-[#1a1a1a] font-medium"
-                  : "text-[#666666] hover:text-[#1a1a1a] cursor-pointer transition-colors"
-              }
+              style={{
+                color: index === breadcrumb.length - 1 ? "var(--text-primary)" : "var(--text-muted)",
+                fontWeight: index === breadcrumb.length - 1 ? 500 : 400,
+                cursor: index < breadcrumb.length - 1 ? "pointer" : "default",
+              }}
             >
               {item}
             </span>
             {index < breadcrumb.length - 1 && (
-              <ChevronRight className="w-4 h-4 text-[#999999]" />
+              <ChevronRight className="w-4 h-4" style={{ color: "var(--text-faint)" }} />
             )}
           </div>
         ))}
@@ -39,11 +45,10 @@ export default function Header({
 
       {/* Right side */}
       <div className="flex items-center gap-4">
-        {/* Action button */}
         {actionLabel && (
           <button
             onClick={onAction}
-            className="flex items-center gap-2.5 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#5b3fd9] hover:opacity-90 text-white text-[14px] font-medium rounded-[10px] transition-all shadow-lg shadow-purple-500/25"
+            className="flex items-center gap-2.5 px-5 py-3 bg-gradient-to-br from-[#F97316] to-[#C2410C] hover:opacity-90 text-white text-[14px] font-medium rounded-[10px] transition-all shadow-lg shadow-orange-500/25"
           >
             <span className="text-[18px] font-light">+</span>
             {actionLabel}

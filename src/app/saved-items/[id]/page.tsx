@@ -68,7 +68,7 @@ export default function SavedAnalysisPage() {
             </p>
             <button
               onClick={() => router.push('/saved-items')}
-              className="flex items-center gap-2 px-6 py-3 bg-[#7c5cff] hover:bg-[#6b4ce6] text-white rounded-xl text-[14px] font-medium transition-all mx-auto"
+              className="flex items-center gap-2 px-6 py-3 bg-[#F97316] hover:bg-[#6b4ce6] text-white rounded-xl text-[14px] font-medium transition-all mx-auto"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Archive
@@ -131,7 +131,7 @@ export default function SavedAnalysisPage() {
                   href={item.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 bg-[#7c5cff]/20 hover:bg-[#7c5cff]/30 text-[#7c5cff] rounded-xl text-[13px] font-medium transition-all"
+                  className="flex items-center gap-2 px-4 py-2 bg-[#F97316]/20 hover:bg-[#F97316]/30 text-[#F97316] rounded-xl text-[13px] font-medium transition-all"
                 >
                   <ExternalLink className="w-4 h-4" />
                   View {isFunnel ? 'Funnel' : 'Page'}
@@ -150,19 +150,19 @@ export default function SavedAnalysisPage() {
             {analysis.expectedImpact && (
               <div className="mt-4 pt-4 border-t border-[#e0e0e0]">
                 <div className="flex items-center gap-2 mb-3">
-                  <Target className="w-5 h-5 text-[#00d4aa]" />
+                  <Target className="w-5 h-5 text-[#3b82f6]" />
                   <h3 className="text-[16px] font-semibold text-[#fafafa]">Expected Impact</h3>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-[#00d4aa]/10 border border-[#00d4aa]/20 rounded-xl p-4">
+                  <div className="bg-[#3b82f6]/10 border border-[#3b82f6]/20 rounded-xl p-4">
                     <div className="text-[12px] text-[#888888] mb-1">Total Expected Lift</div>
-                    <div className="text-[24px] font-bold text-[#00d4aa]">
+                    <div className="text-[24px] font-bold text-[#3b82f6]">
                       {analysis.expectedImpact.totalLift}
                     </div>
                   </div>
-                  <div className="bg-[#7c5cff]/10 border border-[#7c5cff]/20 rounded-xl p-4">
+                  <div className="bg-[#F97316]/10 border border-[#F97316]/20 rounded-xl p-4">
                     <div className="text-[12px] text-[#888888] mb-1">Confidence Level</div>
-                    <div className="text-[24px] font-bold text-[#7c5cff]">
+                    <div className="text-[24px] font-bold text-[#F97316]">
                       {analysis.expectedImpact.confidence}%
                     </div>
                   </div>

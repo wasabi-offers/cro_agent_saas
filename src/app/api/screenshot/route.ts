@@ -22,10 +22,10 @@ export async function GET(request: NextRequest) {
     const highlightScript = `
       <style>
         ${selector} {
-          outline: 4px solid #00d4aa !important;
+          outline: 4px solid #3b82f6 !important;
           outline-offset: 2px !important;
-          box-shadow: 0 0 20px rgba(0, 212, 170, 0.5) !important;
-          background-color: rgba(0, 212, 170, 0.1) !important;
+          box-shadow: 0 0 20px rgba(59, 130, 246, 0.5) !important;
+          background-color: rgba(59, 130, 246, 0.1) !important;
         }
       </style>
       <script>

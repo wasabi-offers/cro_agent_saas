@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
 import AuthLayout from "@/components/AuthLayout";
+import ThemeProvider from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "CRO Agent - Conversion Rate Optimization",
@@ -16,7 +17,7 @@ export default function RootLayout({
   const clarityProjectId = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID;
 
   return (
-    <html lang="en">
+    <html lang="en" data-theme="dark" suppressHydrationWarning>
       <head>
         {clarityProjectId && (
           <script
@@ -40,7 +41,9 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <AuthLayout>{children}</AuthLayout>
+        <ThemeProvider>
+          <AuthLayout>{children}</AuthLayout>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -46,6 +46,9 @@ import {
   ThumbsDown,
   MessageSquare,
   Send,
+  Monitor,
+  Smartphone,
+  Brain,
 } from "lucide-react";
 
 interface Competitor {
@@ -125,15 +128,20 @@ interface Snapshot {
   cro_score: number;
   previous_snapshot_id?: string;
   braintrust_span_id?: string;
+  device_type?: "desktop" | "mobile";
+  viewport_width?: number;
+  viewport_height?: number;
 }
+
+type DeviceFilter = "all" | "desktop" | "mobile";
 
 const statusConfig = {
   active: {
     label: "Active",
     icon: CheckCircle,
-    color: "#00d4aa",
-    bg: "from-[#00d4aa]/20 to-[#00d4aa]/5",
-    border: "#00d4aa",
+    color: "#3b82f6",
+    bg: "from-[#3b82f6]/20 to-[#3b82f6]/5",
+    border: "#3b82f6",
   },
   paused: {
     label: "Paused",
@@ -159,7 +167,7 @@ const severityConfig: Record<string, { color: string; bg: string; label: string 
 };
 
 const impactConfig: Record<string, { icon: typeof TrendingUp; color: string; label: string }> = {
-  positive: { icon: TrendingUp, color: "#00d4aa", label: "Positive" },
+  positive: { icon: TrendingUp, color: "#3b82f6", label: "Positive" },
   negative: { icon: TrendingDown, color: "#ef4444", label: "Negative" },
   neutral: { icon: Minus, color: "#888888", label: "Neutral" },
   mixed: { icon: Activity, color: "#f59e0b", label: "Mixed" },
@@ -212,6 +220,9 @@ export default function CompetitorMonitoringPage() {
   const [loadingChanges, setLoadingChanges] = useState(false);
   const [expandedSnapshot, setExpandedSnapshot] = useState<string | null>(null);
   const [runningCron, setRunningCron] = useState(false);
+
+  const [deviceFilter, setDeviceFilter] = useState<DeviceFilter>("all");
+  const [modalDeviceFilter, setModalDeviceFilter] = useState<DeviceFilter>("all");
 
   const [feedbackState, setFeedbackState] = useState<Record<string, { score?: number; comment: string; submitted: boolean; showComment: boolean }>>({});
 
@@ -273,9 +284,8 @@ export default function CompetitorMonitoringPage() {
   const loadRecentChanges = useCallback(async () => {
     setLoadingChanges(true);
     try {
-      const response = await fetch(
-        "/api/competitors/snapshots?limit=20&include_screenshot=false"
-      );
+      const params = new URLSearchParams({ limit: "40", include_screenshot: "false" });
+      const response = await fetch(`/api/competitors/snapshots?${params}`);
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
@@ -467,6 +477,10 @@ export default function CompetitorMonitoringPage() {
   const pausedCount = competitors.filter((c) => c.status === "paused").length;
   const changesCount = recentChanges.filter((s) => s.changes_detected).length;
 
+  const filteredChanges = deviceFilter === "all"
+    ? recentChanges
+    : recentChanges.filter((s) => (s.device_type || "desktop") === deviceFilter);
+
   const getDomain = (url: string) => {
     try {
       return new URL(url.startsWith("http") ? url : `https://${url}`).hostname.replace("www.", "");
@@ -494,7 +508,7 @@ export default function CompetitorMonitoringPage() {
         <Header title="Competitor Monitoring" breadcrumb={["Dashboard", "Competitor Monitoring"]} />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-10 h-10 border-2 border-[#7c5cff] border-t-transparent rounded-full animate-spin" />
+            <div className="w-10 h-10 border-2 border-[#F97316] border-t-transparent rounded-full animate-spin" />
             <p className="text-[#666666] text-[14px]">Loading competitors...</p>
           </div>
         </div>
@@ -515,8 +529,8 @@ export default function CompetitorMonitoringPage() {
           </div>
           <div className="flex items-center gap-3">
             {lastUpdate && (
-              <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-[#00d4aa]/20 to-[#00d4aa]/5 border border-[#00d4aa]/30 rounded-xl">
-                <div className="w-2 h-2 rounded-full bg-[#00d4aa] animate-pulse" />
+              <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-[#3b82f6]/20 to-[#3b82f6]/5 border border-[#3b82f6]/30 rounded-xl">
+                <div className="w-2 h-2 rounded-full bg-[#3b82f6] animate-pulse" />
                 <span className="text-[13px] text-[#1a1a1a] font-semibold">
                   Updated {lastUpdate.toLocaleTimeString()}
                 </span>
@@ -532,14 +546,14 @@ export default function CompetitorMonitoringPage() {
             </button>
             <button
               onClick={loadCompetitors}
-              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-[#7c5cff]/50 transition-all"
+              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-[#F97316]/50 transition-all"
             >
               <RefreshCw className="w-4 h-4" />
               Refresh
             </button>
             <button
               onClick={() => setShowCreateDialog(true)}
-              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
+              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#F97316] to-[#3b82f6] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
             >
               <Plus className="w-4 h-4" />
               Add Competitor
@@ -548,7 +562,7 @@ export default function CompetitorMonitoringPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-1 mb-8 bg-gradient-to-br from-[#7c5cff]/10 to-[#7c5cff]/5 border border-[#7c5cff]/20 rounded-xl p-1">
+        <div className="flex items-center gap-1 mb-8 bg-gradient-to-br from-[#F97316]/10 to-[#F97316]/5 border border-[#F97316]/20 rounded-xl p-1">
           <button
             onClick={() => setActiveTab("competitors")}
             className={`flex items-center gap-2 px-6 py-3 rounded-lg text-[14px] font-medium transition-all ${
@@ -580,20 +594,20 @@ export default function CompetitorMonitoringPage() {
 
         {/* Summary Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6">
+          <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
-                <Globe className="w-5 h-5 text-[#7c5cff]" />
+              <div className="w-10 h-10 bg-[#F97316]/20 rounded-lg flex items-center justify-center">
+                <Globe className="w-5 h-5 text-[#F97316]" />
               </div>
               <span className="text-[13px] text-[#1a1a1a] font-bold">Total Competitors</span>
             </div>
             <p className="text-[28px] font-bold text-[#1a1a1a]">{competitors.length}</p>
           </div>
 
-          <div className="bg-gradient-to-br from-[#00d4aa]/20 to-[#00d4aa]/5 border border-[#00d4aa]/30 rounded-2xl p-6">
+          <div className="bg-gradient-to-br from-[#3b82f6]/20 to-[#3b82f6]/5 border border-[#3b82f6]/30 rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
-                <Eye className="w-5 h-5 text-[#00d4aa]" />
+              <div className="w-10 h-10 bg-[#3b82f6]/20 rounded-lg flex items-center justify-center">
+                <Eye className="w-5 h-5 text-[#3b82f6]" />
               </div>
               <span className="text-[13px] text-[#1a1a1a] font-bold">Actively Monitored</span>
             </div>
@@ -633,7 +647,7 @@ export default function CompetitorMonitoringPage() {
                   placeholder="Search competitors by name, URL, or category..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-[#f8f9fa] border border-[#e0e0e0] rounded-xl text-[#1a1a1a] text-[14px] placeholder:text-[#999999] focus:outline-none focus:border-[#7c5cff] transition-all"
+                  className="w-full pl-12 pr-4 py-3 bg-[#f8f9fa] border border-[#e0e0e0] rounded-xl text-[#1a1a1a] text-[14px] placeholder:text-[#999999] focus:outline-none focus:border-[#F97316] transition-all"
                 />
               </div>
               <div className="flex items-center gap-2">
@@ -643,8 +657,8 @@ export default function CompetitorMonitoringPage() {
                     onClick={() => setFilterStatus(status)}
                     className={`px-4 py-3 rounded-xl text-[13px] font-medium transition-all ${
                       filterStatus === status
-                        ? "bg-[#7c5cff] text-white"
-                        : "bg-[#f8f9fa] border border-[#e0e0e0] text-[#666666] hover:text-[#1a1a1a] hover:border-[#7c5cff]/40"
+                        ? "bg-[#F97316] text-white"
+                        : "bg-[#f8f9fa] border border-[#e0e0e0] text-[#666666] hover:text-[#1a1a1a] hover:border-[#F97316]/40"
                     }`}
                   >
                     {status === "all" ? "All" : status.charAt(0).toUpperCase() + status.slice(1)}
@@ -706,7 +720,7 @@ export default function CompetitorMonitoringPage() {
                                     onError={(e) => {
                                       (e.target as HTMLImageElement).style.display = "none";
                                       (e.target as HTMLImageElement).parentElement!.innerHTML =
-                                        '<div class="w-5 h-5 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded flex items-center justify-center text-white font-bold text-[10px]">' +
+                                        '<div class="w-5 h-5 bg-gradient-to-br from-[#F97316] to-[#3b82f6] rounded flex items-center justify-center text-white font-bold text-[10px]">' +
                                         competitor.name.charAt(0).toUpperCase() +
                                         "</div>";
                                     }}
@@ -718,7 +732,7 @@ export default function CompetitorMonitoringPage() {
                                     href={competitor.website_url.startsWith("http") ? competitor.website_url : `https://${competitor.website_url}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-[12px] text-[#7c5cff] hover:underline inline-flex items-center gap-1"
+                                    className="text-[12px] text-[#F97316] hover:underline inline-flex items-center gap-1"
                                   >
                                     {getDomain(competitor.website_url)}
                                     <ExternalLink className="w-2.5 h-2.5" />
@@ -764,7 +778,7 @@ export default function CompetitorMonitoringPage() {
                             <td className="px-4 py-4 text-center">
                               {daysRunning !== null ? (
                                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#f8f9fa] border border-[#e0e0e0] rounded-lg text-[13px] font-semibold text-[#1a1a1a]">
-                                  <Clock className="w-3 h-3 text-[#7c5cff]" />
+                                  <Clock className="w-3 h-3 text-[#F97316]" />
                                   {daysRunning === 0 ? "Today" : `${daysRunning}d`}
                                 </span>
                               ) : (
@@ -778,8 +792,8 @@ export default function CompetitorMonitoringPage() {
                                 <span
                                   className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[13px] font-bold"
                                   style={{
-                                    backgroundColor: competitor.last_cro_score >= 70 ? '#00d4aa15' : competitor.last_cro_score >= 40 ? '#f59e0b15' : '#ef444415',
-                                    color: competitor.last_cro_score >= 70 ? '#00d4aa' : competitor.last_cro_score >= 40 ? '#f59e0b' : '#ef4444',
+                                    backgroundColor: competitor.last_cro_score >= 70 ? '#3b82f615' : competitor.last_cro_score >= 40 ? '#f59e0b15' : '#ef444415',
+                                    color: competitor.last_cro_score >= 70 ? '#3b82f6' : competitor.last_cro_score >= 40 ? '#f59e0b' : '#ef4444',
                                   }}
                                 >
                                   {competitor.last_cro_score}/100
@@ -791,7 +805,7 @@ export default function CompetitorMonitoringPage() {
 
                             {/* Number of Updates */}
                             <td className="px-4 py-4 text-center">
-                              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#7c5cff]/10 rounded-lg text-[13px] font-bold text-[#7c5cff]">
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#F97316]/10 rounded-lg text-[13px] font-bold text-[#F97316]">
                                 <Activity className="w-3 h-3" />
                                 {competitor.total_changes_detected || 0}
                               </span>
@@ -802,7 +816,7 @@ export default function CompetitorMonitoringPage() {
                               <div className="flex items-center justify-center gap-1">
                                 <button
                                   onClick={() => handleViewAnalysis(competitor)}
-                                  className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white text-[12px] font-semibold rounded-lg hover:opacity-90 transition-all"
+                                  className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-[#F97316] to-[#3b82f6] text-white text-[12px] font-semibold rounded-lg hover:opacity-90 transition-all"
                                   title="View Details"
                                 >
                                   <Eye className="w-3.5 h-3.5" />
@@ -811,7 +825,7 @@ export default function CompetitorMonitoringPage() {
                                 <button
                                   onClick={() => handleAnalyzeSingle(competitor)}
                                   disabled={isAnalyzing}
-                                  className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#7c5cff]/10 text-[#7c5cff] transition-colors disabled:opacity-50"
+                                  className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#F97316]/10 text-[#F97316] transition-colors disabled:opacity-50"
                                   title="Run CRO Analysis"
                                 >
                                   {isAnalyzing ? (
@@ -822,7 +836,7 @@ export default function CompetitorMonitoringPage() {
                                 </button>
                                 <button
                                   onClick={() => handleOpenEdit(competitor)}
-                                  className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#7c5cff]/10 text-[#666666] hover:text-[#7c5cff] transition-colors"
+                                  className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#F97316]/10 text-[#666666] hover:text-[#F97316] transition-colors"
                                   title="Edit"
                                 >
                                   <Edit2 className="w-3.5 h-3.5" />
@@ -863,7 +877,7 @@ export default function CompetitorMonitoringPage() {
             {loadingChanges ? (
               <div className="flex items-center justify-center py-20">
                 <div className="flex flex-col items-center gap-4">
-                  <Loader2 className="w-10 h-10 text-[#7c5cff] animate-spin" />
+                  <Loader2 className="w-10 h-10 text-[#F97316] animate-spin" />
                   <p className="text-[#666666] text-[14px]">Loading CRO analysis data...</p>
                 </div>
               </div>
@@ -877,7 +891,7 @@ export default function CompetitorMonitoringPage() {
                 <button
                   onClick={handleRunCronManually}
                   disabled={runningCron}
-                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-[#F97316] to-[#3b82f6] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all disabled:opacity-50"
                 >
                   {runningCron ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
                   {runningCron ? "Running Analysis..." : "Run First Analysis"}
@@ -885,7 +899,35 @@ export default function CompetitorMonitoringPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {recentChanges.map((snapshot) => {
+                {/* Device Filter Toggle */}
+                <div className="flex items-center justify-between">
+                  <p className="text-[13px] text-[#888888]">
+                    {filteredChanges.length} snapshot{filteredChanges.length !== 1 ? "s" : ""}
+                    {deviceFilter !== "all" && ` (${deviceFilter})`}
+                  </p>
+                  <div className="flex items-center gap-1 bg-[#f8f9fa] border border-[#e0e0e0] rounded-xl p-1">
+                    {([
+                      { id: "all" as DeviceFilter, label: "All", icon: null },
+                      { id: "desktop" as DeviceFilter, label: "Desktop", icon: Monitor },
+                      { id: "mobile" as DeviceFilter, label: "Mobile", icon: Smartphone },
+                    ]).map(({ id, label, icon: Icon }) => (
+                      <button
+                        key={id}
+                        onClick={() => setDeviceFilter(id)}
+                        className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${
+                          deviceFilter === id
+                            ? "bg-white text-[#1a1a1a] shadow-sm"
+                            : "text-[#888888] hover:text-[#1a1a1a]"
+                        }`}
+                      >
+                        {Icon && <Icon className="w-3.5 h-3.5" />}
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {filteredChanges.map((snapshot) => {
                   const analysis = snapshot.analysis_result;
                   const severity = severityConfig[snapshot.change_severity] || severityConfig.none;
                   const impact = analysis ? impactConfig[analysis.overall_impact] || impactConfig.neutral : impactConfig.neutral;
@@ -944,10 +986,17 @@ export default function CompetitorMonitoringPage() {
                                 {impact.label} Impact
                               </div>
                               {snapshot.cro_score && (
-                                <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#7c5cff]/10 text-[#7c5cff] text-[11px] font-bold">
+                                <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#F97316]/10 text-[#F97316] text-[11px] font-bold">
                                   CRO Score: {snapshot.cro_score}/100
                                 </div>
                               )}
+                              <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#f8f9fa] border border-[#e0e0e0] text-[11px] font-semibold text-[#666666]">
+                                {(snapshot.device_type || "desktop") === "mobile" ? (
+                                  <><Smartphone className="w-3 h-3" /> Mobile</>
+                                ) : (
+                                  <><Monitor className="w-3 h-3" /> Desktop</>
+                                )}
+                              </div>
                             </div>
                             <p className="text-[13px] text-[#666666] line-clamp-1">
                               {snapshot.change_summary || "No changes detected"}
@@ -979,7 +1028,7 @@ export default function CompetitorMonitoringPage() {
                           {/* Summary Section */}
                           <div className="p-6 border-b border-[#e0e0e0]/50">
                             <h4 className="text-[15px] font-bold text-[#1a1a1a] mb-3 flex items-center gap-2">
-                              <BarChart3 className="w-4 h-4 text-[#7c5cff]" />
+                              <BarChart3 className="w-4 h-4 text-[#F97316]" />
                               {analysis.is_baseline ? "Baseline CRO Audit" : "CRO Change Analysis"}
                             </h4>
                             <p className="text-[14px] text-[#444444] leading-relaxed">{analysis.summary}</p>
@@ -991,15 +1040,15 @@ export default function CompetitorMonitoringPage() {
                                   <span className="text-[16px] font-bold text-[#888888]">{analysis.cro_score_previous}</span>
                                 </div>
                                 <ArrowLeftRight className="w-4 h-4 text-[#888888]" />
-                                <div className="flex items-center gap-2 px-4 py-2 bg-[#7c5cff]/10 rounded-lg">
-                                  <span className="text-[12px] text-[#7c5cff] font-medium">After:</span>
-                                  <span className="text-[16px] font-bold text-[#7c5cff]">{analysis.cro_score}</span>
+                                <div className="flex items-center gap-2 px-4 py-2 bg-[#F97316]/10 rounded-lg">
+                                  <span className="text-[12px] text-[#F97316] font-medium">After:</span>
+                                  <span className="text-[16px] font-bold text-[#F97316]">{analysis.cro_score}</span>
                                 </div>
                                 <div
                                   className="flex items-center gap-1 px-3 py-2 rounded-lg text-[13px] font-bold"
                                   style={{
-                                    backgroundColor: analysis.cro_score > analysis.cro_score_previous ? "#00d4aa20" : analysis.cro_score < analysis.cro_score_previous ? "#ef444420" : "#88888820",
-                                    color: analysis.cro_score > analysis.cro_score_previous ? "#00d4aa" : analysis.cro_score < analysis.cro_score_previous ? "#ef4444" : "#888888",
+                                    backgroundColor: analysis.cro_score > analysis.cro_score_previous ? "#3b82f620" : analysis.cro_score < analysis.cro_score_previous ? "#ef444420" : "#88888820",
+                                    color: analysis.cro_score > analysis.cro_score_previous ? "#3b82f6" : analysis.cro_score < analysis.cro_score_previous ? "#ef4444" : "#888888",
                                   }}
                                 >
                                   {analysis.cro_score > analysis.cro_score_previous ? (
@@ -1035,7 +1084,7 @@ export default function CompetitorMonitoringPage() {
                                 {snapshot.braintrust_span_id && (
                                   <div className="pl-[52px]">
                                     {feedbackState[snapshot.id]?.submitted ? (
-                                      <p className="text-[12px] text-[#00d4aa] font-medium flex items-center gap-1.5">
+                                      <p className="text-[12px] text-[#3b82f6] font-medium flex items-center gap-1.5">
                                         <CheckCircle className="w-3.5 h-3.5" /> Feedback submitted — thank you!
                                       </p>
                                     ) : (
@@ -1046,8 +1095,8 @@ export default function CompetitorMonitoringPage() {
                                             onClick={(e) => { e.stopPropagation(); handleFeedback(snapshot.id, snapshot.braintrust_span_id!, 1); }}
                                             className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all ${
                                               feedbackState[snapshot.id]?.score === 1
-                                                ? "bg-[#00d4aa] text-white"
-                                                : "bg-white border border-[#e0e0e0] text-[#666666] hover:border-[#00d4aa] hover:text-[#00d4aa]"
+                                                ? "bg-[#3b82f6] text-white"
+                                                : "bg-white border border-[#e0e0e0] text-[#666666] hover:border-[#3b82f6] hover:text-[#3b82f6]"
                                             }`}
                                           >
                                             <ThumbsUp className="w-3.5 h-3.5" /> Yes
@@ -1075,12 +1124,12 @@ export default function CompetitorMonitoringPage() {
                                                 onChange={(e) => setFeedbackState((prev) => ({
                                                   ...prev, [snapshot.id]: { ...prev[snapshot.id], comment: e.target.value }
                                                 }))}
-                                                className="w-full pl-9 pr-3 py-2 bg-white border border-[#e0e0e0] rounded-lg text-[12px] text-[#1a1a1a] placeholder:text-[#bbbbbb] focus:outline-none focus:border-[#7c5cff] transition-all"
+                                                className="w-full pl-9 pr-3 py-2 bg-white border border-[#e0e0e0] rounded-lg text-[12px] text-[#1a1a1a] placeholder:text-[#bbbbbb] focus:outline-none focus:border-[#F97316] transition-all"
                                               />
                                             </div>
                                             <button
                                               onClick={(e) => { e.stopPropagation(); submitFeedback(snapshot.id, snapshot.braintrust_span_id!); }}
-                                              className="flex items-center gap-1.5 px-4 py-2 bg-[#7c5cff] text-white text-[12px] font-medium rounded-lg hover:opacity-90 transition-all"
+                                              className="flex items-center gap-1.5 px-4 py-2 bg-[#F97316] text-white text-[12px] font-medium rounded-lg hover:opacity-90 transition-all"
                                             >
                                               <Send className="w-3 h-3" /> Send
                                             </button>
@@ -1111,9 +1160,9 @@ export default function CompetitorMonitoringPage() {
                                       className="bg-white border border-[#e0e0e0] rounded-xl p-4"
                                     >
                                       <div className="flex items-center gap-2 mb-3">
-                                        <Icon className="w-4 h-4 text-[#7c5cff]" />
+                                        <Icon className="w-4 h-4 text-[#F97316]" />
                                         <span className="text-[13px] font-bold text-[#1a1a1a]">{label}</span>
-                                        <span className="ml-auto text-[11px] px-2 py-0.5 rounded-full bg-[#7c5cff]/10 text-[#7c5cff] font-semibold">
+                                        <span className="ml-auto text-[11px] px-2 py-0.5 rounded-full bg-[#F97316]/10 text-[#F97316] font-semibold">
                                           {typedItems.length} {typedItems.length === 1 ? "change" : "changes"}
                                         </span>
                                       </div>
@@ -1134,7 +1183,7 @@ export default function CompetitorMonitoringPage() {
                                                     <span className="text-[#888888] text-[11px] mt-0.5">&rarr;</span>
                                                   )}
                                                   {item.after && (
-                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#00d4aa]/10 text-[#00d4aa] rounded text-[11px]">
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#3b82f6]/10 text-[#3b82f6] rounded text-[11px]">
                                                       {item.after}
                                                     </span>
                                                   )}
@@ -1166,7 +1215,7 @@ export default function CompetitorMonitoringPage() {
                           {analysis.page_structure && analysis.page_structure.sections && analysis.page_structure.sections.length > 0 && (
                             <div className="p-6 border-b border-[#e0e0e0]/50">
                               <h4 className="text-[15px] font-bold text-[#1a1a1a] mb-2 flex items-center gap-2">
-                                <Layers className="w-4 h-4 text-[#7c5cff]" />
+                                <Layers className="w-4 h-4 text-[#F97316]" />
                                 Full Page Element Map
                               </h4>
                               <p className="text-[12px] text-[#888888] mb-4">
@@ -1179,9 +1228,9 @@ export default function CompetitorMonitoringPage() {
                                     key={sIdx}
                                     className="border border-[#e0e0e0] rounded-xl overflow-hidden"
                                   >
-                                    <div className="px-4 py-3 bg-gradient-to-r from-[#7c5cff]/5 to-transparent flex items-center justify-between">
+                                    <div className="px-4 py-3 bg-gradient-to-r from-[#F97316]/5 to-transparent flex items-center justify-between">
                                       <div className="flex items-center gap-2">
-                                        <Box className="w-4 h-4 text-[#7c5cff]" />
+                                        <Box className="w-4 h-4 text-[#F97316]" />
                                         <span className="text-[13px] font-bold text-[#1a1a1a]">
                                           {section.section_name}
                                         </span>
@@ -1196,7 +1245,7 @@ export default function CompetitorMonitoringPage() {
                                         {section.elements.map((el, elIdx) => (
                                           <div key={elIdx} className="py-2 grid grid-cols-12 gap-2 text-[12px]">
                                             <div className="col-span-2">
-                                              <span className="inline-block px-2 py-0.5 rounded bg-[#7c5cff]/10 text-[#7c5cff] font-semibold text-[10px]">
+                                              <span className="inline-block px-2 py-0.5 rounded bg-[#F97316]/10 text-[#F97316] font-semibold text-[10px]">
                                                 {el.element_type}
                                               </span>
                                             </div>
@@ -1207,7 +1256,7 @@ export default function CompetitorMonitoringPage() {
                                               {el.styling}
                                             </div>
                                             <div className="col-span-3">
-                                              <span className="inline-block px-2 py-0.5 rounded bg-[#00d4aa]/10 text-[#00d4aa] font-semibold text-[10px]">
+                                              <span className="inline-block px-2 py-0.5 rounded bg-[#3b82f6]/10 text-[#3b82f6] font-semibold text-[10px]">
                                                 {el.cro_role}
                                               </span>
                                             </div>
@@ -1243,13 +1292,13 @@ export default function CompetitorMonitoringPage() {
                             {analysis.recommendations && analysis.recommendations.length > 0 && (
                               <div>
                                 <h4 className="text-[14px] font-bold text-[#1a1a1a] mb-3 flex items-center gap-2">
-                                  <Zap className="w-4 h-4 text-[#00d4aa]" />
+                                  <Zap className="w-4 h-4 text-[#3b82f6]" />
                                   Recommendations
                                 </h4>
                                 <ul className="space-y-2">
                                   {analysis.recommendations.map((rec, idx) => (
                                     <li key={idx} className="flex items-start gap-2 text-[13px] text-[#444444]">
-                                      <div className="w-1.5 h-1.5 rounded-full bg-[#00d4aa] mt-1.5 shrink-0" />
+                                      <div className="w-1.5 h-1.5 rounded-full bg-[#3b82f6] mt-1.5 shrink-0" />
                                       {rec}
                                     </li>
                                   ))}
@@ -1273,7 +1322,7 @@ export default function CompetitorMonitoringPage() {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-start justify-center z-50 p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl max-w-[1400px] w-full my-4 overflow-hidden shadow-2xl">
             {/* Modal Header */}
-            <div className="sticky top-0 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] px-8 py-5 z-10">
+            <div className="sticky top-0 bg-gradient-to-br from-[#F97316] to-[#3b82f6] px-8 py-5 z-10">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center overflow-hidden">
@@ -1294,6 +1343,27 @@ export default function CompetitorMonitoringPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
+                  {/* Device Toggle in Modal */}
+                  <div className="flex items-center gap-1 bg-white/20 rounded-lg p-0.5">
+                    {([
+                      { id: "all" as DeviceFilter, label: "All" },
+                      { id: "desktop" as DeviceFilter, label: "Desktop", icon: Monitor },
+                      { id: "mobile" as DeviceFilter, label: "Mobile", icon: Smartphone },
+                    ]).map(({ id, label, icon: Icon }) => (
+                      <button
+                        key={id}
+                        onClick={() => setModalDeviceFilter(id)}
+                        className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-[12px] font-medium transition-all ${
+                          modalDeviceFilter === id
+                            ? "bg-white text-[#F97316]"
+                            : "text-white/70 hover:text-white"
+                        }`}
+                      >
+                        {Icon && <Icon className="w-3 h-3" />}
+                        {label}
+                      </button>
+                    ))}
+                  </div>
                   {!analysisView.loading && analysisView.snapshots.length > 0 && (
                     <span className="text-[13px] text-white/60">
                       {analysisView.snapshots.length} snapshot{analysisView.snapshots.length !== 1 ? "s" : ""}
@@ -1314,7 +1384,7 @@ export default function CompetitorMonitoringPage() {
               {analysisView.loading ? (
                 <div className="flex items-center justify-center py-20">
                   <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="w-10 h-10 text-[#7c5cff] animate-spin" />
+                    <Loader2 className="w-10 h-10 text-[#F97316] animate-spin" />
                     <p className="text-[#666666] text-[14px]">Loading timeline...</p>
                   </div>
                 </div>
@@ -1327,7 +1397,7 @@ export default function CompetitorMonitoringPage() {
                   </p>
                   <button
                     onClick={() => { handleAnalyzeSingle(analysisView.competitor); setAnalysisView(null); }}
-                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
+                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-[#F97316] to-[#3b82f6] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
                   >
                     <Camera className="w-4 h-4" />
                     Analyze Now
@@ -1336,7 +1406,12 @@ export default function CompetitorMonitoringPage() {
               ) : (
                 <div className="space-y-0">
                   {/* Chronological Timeline Table */}
-                  {[...analysisView.snapshots].reverse().map((snapshot, idx, arr) => {
+                  {(() => {
+                    const filtered = modalDeviceFilter === "all"
+                      ? analysisView.snapshots
+                      : analysisView.snapshots.filter((s) => (s.device_type || "desktop") === modalDeviceFilter);
+                    return [...filtered].reverse();
+                  })().map((snapshot, idx, arr) => {
                     const analysis = snapshot.analysis_result;
                     const severity = severityConfig[snapshot.change_severity] || severityConfig.none;
                     const impact = analysis ? impactConfig[analysis.overall_impact] || impactConfig.neutral : impactConfig.neutral;
@@ -1365,13 +1440,23 @@ export default function CompetitorMonitoringPage() {
 
                           {/* Screenshot Thumbnail */}
                           <div className="w-[120px] py-3 shrink-0">
-                            <div className="w-[100px] h-[62px] rounded-lg overflow-hidden bg-[#f0f0f5] border border-[#e0e0e0]">
-                              {snapshot.screenshot_base64 ? (
-                                <img src={`data:image/jpeg;base64,${snapshot.screenshot_base64}`} alt="" className="w-full h-full object-cover object-top" />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center"><Camera className="w-5 h-5 text-[#cccccc]" /></div>
-                              )}
-                            </div>
+                            {(snapshot.device_type || "desktop") === "mobile" ? (
+                              <div className="w-[50px] h-[80px] mx-auto rounded-lg overflow-hidden bg-[#f0f0f5] border-2 border-[#d0d0d0] relative">
+                                {snapshot.screenshot_base64 ? (
+                                  <img src={`data:image/jpeg;base64,${snapshot.screenshot_base64}`} alt="" className="w-full h-full object-cover object-top" />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center"><Smartphone className="w-4 h-4 text-[#cccccc]" /></div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="w-[100px] h-[62px] rounded-lg overflow-hidden bg-[#f0f0f5] border border-[#e0e0e0]">
+                                {snapshot.screenshot_base64 ? (
+                                  <img src={`data:image/jpeg;base64,${snapshot.screenshot_base64}`} alt="" className="w-full h-full object-cover object-top" />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center"><Camera className="w-5 h-5 text-[#cccccc]" /></div>
+                                )}
+                              </div>
+                            )}
                           </div>
 
                           {/* Content */}
@@ -1388,15 +1473,22 @@ export default function CompetitorMonitoringPage() {
                                 {severity.label}
                               </div>
                               {snapshot.cro_score > 0 && (
-                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#7c5cff]/10 text-[#7c5cff]">
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#F97316]/10 text-[#F97316]">
                                   {snapshot.cro_score}/100
                                 </span>
                               )}
                               {analysis?.is_baseline && (
-                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#7c5cff] text-white">BASELINE</span>
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#F97316] text-white">BASELINE</span>
                               )}
+                              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#f8f9fa] border border-[#e0e0e0] text-[#888888]">
+                                {(snapshot.device_type || "desktop") === "mobile" ? (
+                                  <><Smartphone className="w-2.5 h-2.5" /> Mobile</>
+                                ) : (
+                                  <><Monitor className="w-2.5 h-2.5" /> Desktop</>
+                                )}
+                              </span>
                               {totalChanges > 0 && (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#7c5cff]/10 text-[#7c5cff] rounded-full text-[10px] font-bold">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#F97316]/10 text-[#F97316] rounded-full text-[10px] font-bold">
                                   <Activity className="w-2.5 h-2.5" />{totalChanges}
                                 </span>
                               )}
@@ -1417,7 +1509,7 @@ export default function CompetitorMonitoringPage() {
 
                           {/* Arrow */}
                           <div className="w-10 flex items-center justify-center shrink-0">
-                            {isExpanded ? <ChevronUp className="w-5 h-5 text-[#7c5cff]" /> : <ChevronDown className="w-5 h-5 text-[#cccccc]" />}
+                            {isExpanded ? <ChevronUp className="w-5 h-5 text-[#F97316]" /> : <ChevronDown className="w-5 h-5 text-[#cccccc]" />}
                           </div>
                         </div>
 
@@ -1432,8 +1524,8 @@ export default function CompetitorMonitoringPage() {
                                   <span className="text-[13px] text-[#888888]">Score:</span>
                                   <span className="text-[14px] font-semibold text-[#888888]">{analysis.cro_score_previous}</span>
                                   <ArrowLeftRight className="w-4 h-4 text-[#cccccc]" />
-                                  <span className="text-[14px] font-bold text-[#7c5cff]">{analysis.cro_score}</span>
-                                  <span className="text-[13px] font-bold" style={{ color: analysis.cro_score > analysis.cro_score_previous ? "#00d4aa" : analysis.cro_score < analysis.cro_score_previous ? "#ef4444" : "#888888" }}>
+                                  <span className="text-[14px] font-bold text-[#F97316]">{analysis.cro_score}</span>
+                                  <span className="text-[13px] font-bold" style={{ color: analysis.cro_score > analysis.cro_score_previous ? "#3b82f6" : analysis.cro_score < analysis.cro_score_previous ? "#ef4444" : "#888888" }}>
                                     ({analysis.cro_score > analysis.cro_score_previous ? "+" : ""}{analysis.cro_score - analysis.cro_score_previous})
                                   </span>
                                 </div>
@@ -1458,14 +1550,14 @@ export default function CompetitorMonitoringPage() {
                                   {snapshot.braintrust_span_id && (
                                     <div className="pl-[48px]">
                                       {feedbackState[snapshot.id]?.submitted ? (
-                                        <p className="text-[12px] text-[#00d4aa] font-medium flex items-center gap-1.5">
+                                        <p className="text-[12px] text-[#3b82f6] font-medium flex items-center gap-1.5">
                                           <CheckCircle className="w-3.5 h-3.5" /> Feedback submitted
                                         </p>
                                       ) : (
                                         <div className="flex items-center gap-3">
                                           <span className="text-[11px] text-[#888888]">Accurate?</span>
                                           <button onClick={(e) => { e.stopPropagation(); handleFeedback(snapshot.id, snapshot.braintrust_span_id!, 1); submitFeedback(snapshot.id, snapshot.braintrust_span_id!); }}
-                                            className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-white border border-[#e0e0e0] text-[#666666] hover:border-[#00d4aa] hover:text-[#00d4aa] transition-all">
+                                            className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-white border border-[#e0e0e0] text-[#666666] hover:border-[#3b82f6] hover:text-[#3b82f6] transition-all">
                                             <ThumbsUp className="w-3 h-3" /> Yes
                                           </button>
                                           <button onClick={(e) => { e.stopPropagation(); handleFeedback(snapshot.id, snapshot.braintrust_span_id!, 0); submitFeedback(snapshot.id, snapshot.braintrust_span_id!); }}
@@ -1483,16 +1575,34 @@ export default function CompetitorMonitoringPage() {
                             {/* Screenshot Full */}
                             {snapshot.screenshot_base64 && (
                               <div className="px-8 py-4 border-b border-[#e0e0e0]/50">
-                                <div className="border border-[#e0e0e0] rounded-xl overflow-hidden max-h-[400px] overflow-y-auto">
-                                  <img src={`data:image/jpeg;base64,${snapshot.screenshot_base64}`} alt="Full screenshot" className="w-full" />
+                                <div className="flex items-center gap-2 mb-3">
+                                  {(snapshot.device_type || "desktop") === "mobile" ? (
+                                    <><Smartphone className="w-4 h-4 text-[#F97316]" /><span className="text-[13px] font-bold text-[#1a1a1a]">Mobile Screenshot</span><span className="text-[11px] text-[#888888]">390 x 844px</span></>
+                                  ) : (
+                                    <><Monitor className="w-4 h-4 text-[#F97316]" /><span className="text-[13px] font-bold text-[#1a1a1a]">Desktop Screenshot</span><span className="text-[11px] text-[#888888]">1280 x 900px</span></>
+                                  )}
                                 </div>
+                                {(snapshot.device_type || "desktop") === "mobile" ? (
+                                  <div className="flex justify-center">
+                                    <div className="w-[320px] border-[3px] border-[#1a1a1a] rounded-[2rem] p-2 bg-[#1a1a1a] shadow-xl">
+                                      <div className="w-12 h-1 bg-[#333333] rounded-full mx-auto mb-2" />
+                                      <div className="rounded-[1.5rem] overflow-hidden max-h-[500px] overflow-y-auto bg-white">
+                                        <img src={`data:image/jpeg;base64,${snapshot.screenshot_base64}`} alt="Mobile screenshot" className="w-full" />
+                                      </div>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="border border-[#e0e0e0] rounded-xl overflow-hidden max-h-[400px] overflow-y-auto">
+                                    <img src={`data:image/jpeg;base64,${snapshot.screenshot_base64}`} alt="Desktop screenshot" className="w-full" />
+                                  </div>
+                                )}
                               </div>
                             )}
 
                             {/* User Note */}
                             <div className="px-8 py-4 border-b border-[#e0e0e0]/50">
                               <div className="flex items-center gap-2 mb-2">
-                                <Edit2 className="w-3.5 h-3.5 text-[#7c5cff]" />
+                                <Edit2 className="w-3.5 h-3.5 text-[#F97316]" />
                                 <span className="text-[13px] font-bold text-[#1a1a1a]">Your Notes</span>
                               </div>
                               <textarea
@@ -1502,7 +1612,7 @@ export default function CompetitorMonitoringPage() {
                                 onChange={(e) => setFeedbackState((prev) => ({
                                   ...prev, [`note_${snapshot.id}`]: { ...prev[`note_${snapshot.id}`], comment: e.target.value, submitted: false, showComment: false }
                                 }))}
-                                className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#e0e0e0] rounded-xl text-[13px] text-[#1a1a1a] placeholder:text-[#bbbbbb] focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
+                                className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#e0e0e0] rounded-xl text-[13px] text-[#1a1a1a] placeholder:text-[#bbbbbb] focus:outline-none focus:border-[#F97316] transition-all resize-none"
                                 rows={2}
                               />
                             </div>
@@ -1520,9 +1630,9 @@ export default function CompetitorMonitoringPage() {
                                     return (
                                       <div key={key} className="bg-white border border-[#e0e0e0] rounded-xl p-3">
                                         <div className="flex items-center gap-2 mb-2">
-                                          <Icon className="w-3.5 h-3.5 text-[#7c5cff]" />
+                                          <Icon className="w-3.5 h-3.5 text-[#F97316]" />
                                           <span className="text-[12px] font-bold text-[#1a1a1a]">{label}</span>
-                                          <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded-full bg-[#7c5cff]/10 text-[#7c5cff] font-semibold">{typedItems.length}</span>
+                                          <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded-full bg-[#F97316]/10 text-[#F97316] font-semibold">{typedItems.length}</span>
                                         </div>
                                         <div className="space-y-1.5">
                                           {typedItems.map((item, i) => (
@@ -1532,7 +1642,7 @@ export default function CompetitorMonitoringPage() {
                                                 <div className="flex items-center gap-1 mt-0.5 flex-wrap">
                                                   {item.before && <span className="px-1 py-0.5 bg-[#ef4444]/10 text-[#ef4444] rounded text-[10px] line-through">{item.before}</span>}
                                                   {item.before && item.after && <span className="text-[#cccccc] text-[10px]">&rarr;</span>}
-                                                  {item.after && <span className="px-1 py-0.5 bg-[#00d4aa]/10 text-[#00d4aa] rounded text-[10px]">{item.after}</span>}
+                                                  {item.after && <span className="px-1 py-0.5 bg-[#3b82f6]/10 text-[#3b82f6] rounded text-[10px]">{item.after}</span>}
                                                 </div>
                                               )}
                                             </div>
@@ -1559,7 +1669,7 @@ export default function CompetitorMonitoringPage() {
       {/* Create Dialog */}
       {showCreateDialog && (
         <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-8 max-w-lg w-full">
+          <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-8 max-w-lg w-full">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-[22px] font-bold text-[#1a1a1a]">Add Competitor</h2>
               <button
@@ -1579,7 +1689,7 @@ export default function CompetitorMonitoringPage() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g. Amazon, Shopify, Zalando..."
-                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                  className="w-full px-4 py-3 bg-white/80 border border-[#F97316]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all"
                 />
               </div>
 
@@ -1591,7 +1701,7 @@ export default function CompetitorMonitoringPage() {
                   value={formData.website_url}
                   onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
                   placeholder="https://www.example.com"
-                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                  className="w-full px-4 py-3 bg-white/80 border border-[#F97316]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all"
                 />
               </div>
 
@@ -1600,7 +1710,7 @@ export default function CompetitorMonitoringPage() {
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all"
+                  className="w-full px-4 py-3 bg-white/80 border border-[#F97316]/30 rounded-xl text-[#1a1a1a] text-[15px] focus:outline-none focus:border-[#F97316] transition-all"
                 >
                   <option value="">Select category...</option>
                   {categoryOptions.map((cat) => (
@@ -1616,7 +1726,7 @@ export default function CompetitorMonitoringPage() {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Brief description of this competitor..."
                   rows={2}
-                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
+                  className="w-full px-4 py-3 bg-white/80 border border-[#F97316]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all resize-none"
                 />
               </div>
 
@@ -1627,7 +1737,7 @@ export default function CompetitorMonitoringPage() {
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   placeholder="Internal notes about this competitor..."
                   rows={2}
-                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
+                  className="w-full px-4 py-3 bg-white/80 border border-[#F97316]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all resize-none"
                 />
               </div>
 
@@ -1635,13 +1745,13 @@ export default function CompetitorMonitoringPage() {
                 <button
                   type="button"
                   onClick={() => { setShowCreateDialog(false); resetForm(); }}
-                  className="flex-1 px-5 py-3 bg-white/80 border border-[#7c5cff]/30 text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-[#7c5cff]/50 transition-all"
+                  className="flex-1 px-5 py-3 bg-white/80 border border-[#F97316]/30 text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-[#F97316]/50 transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
+                  className="flex-1 px-5 py-3 bg-gradient-to-br from-[#F97316] to-[#3b82f6] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
                 >
                   Add Competitor
                 </button>
@@ -1654,7 +1764,7 @@ export default function CompetitorMonitoringPage() {
       {/* Edit Dialog */}
       {showEditDialog && editingCompetitor && (
         <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-8 max-w-lg w-full">
+          <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-8 max-w-lg w-full">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-[22px] font-bold text-[#1a1a1a]">Edit Competitor</h2>
               <button
@@ -1673,7 +1783,7 @@ export default function CompetitorMonitoringPage() {
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                  className="w-full px-4 py-3 bg-white/80 border border-[#F97316]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all"
                 />
               </div>
 
@@ -1684,7 +1794,7 @@ export default function CompetitorMonitoringPage() {
                   required
                   value={formData.website_url}
                   onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
-                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                  className="w-full px-4 py-3 bg-white/80 border border-[#F97316]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all"
                 />
               </div>
 
@@ -1693,7 +1803,7 @@ export default function CompetitorMonitoringPage() {
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] focus:outline-none focus:border-[#7c5cff] transition-all"
+                  className="w-full px-4 py-3 bg-white/80 border border-[#F97316]/30 rounded-xl text-[#1a1a1a] text-[15px] focus:outline-none focus:border-[#F97316] transition-all"
                 >
                   <option value="">Select category...</option>
                   {categoryOptions.map((cat) => (
@@ -1708,7 +1818,7 @@ export default function CompetitorMonitoringPage() {
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={2}
-                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
+                  className="w-full px-4 py-3 bg-white/80 border border-[#F97316]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all resize-none"
                 />
               </div>
 
@@ -1718,7 +1828,7 @@ export default function CompetitorMonitoringPage() {
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   rows={2}
-                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
+                  className="w-full px-4 py-3 bg-white/80 border border-[#F97316]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all resize-none"
                 />
               </div>
 
@@ -1726,13 +1836,13 @@ export default function CompetitorMonitoringPage() {
                 <button
                   type="button"
                   onClick={() => { setShowEditDialog(false); setEditingCompetitor(null); resetForm(); }}
-                  className="flex-1 px-5 py-3 bg-white/80 border border-[#7c5cff]/30 text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-[#7c5cff]/50 transition-all"
+                  className="flex-1 px-5 py-3 bg-white/80 border border-[#F97316]/30 text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-[#F97316]/50 transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
+                  className="flex-1 px-5 py-3 bg-gradient-to-br from-[#F97316] to-[#3b82f6] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
                 >
                   Save Changes
                 </button>

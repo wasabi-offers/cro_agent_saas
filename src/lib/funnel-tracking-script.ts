@@ -78,16 +78,15 @@ export function generateFunnelTrackingScript(config: FunnelTrackingConfig): stri
  * @param stepName - Nome dello step
  * @returns Tag script HTML
  */
-export function getFunnelTrackingScriptTag(funnelId: string, stepName: string): string {
-  const apiEndpoint = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/track`;
-
-  const script = generateFunnelTrackingScript({
-    funnelId,
-    stepName,
-    apiEndpoint,
-  });
-
-  return `<script>${script}</script>`;
+export function getFunnelTrackingScriptTag(funnelId: string, stepName: string, stepOrder?: number): string {
+  const order = stepOrder ?? 0;
+  return `<!-- CRO Agent Tracking + Attribution -->
+<script>
+window.funnelId="${funnelId}";
+window.funnelStep="${stepName}";
+window.funnelStepOrder=${order};
+</script>
+<script src="https://dohrkonencbwvvmklzuo.supabase.co/storage/v1/object/public/scripts/cro-tracking-attribution.js"></script>`;
 }
 
 /**

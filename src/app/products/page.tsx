@@ -37,7 +37,7 @@ export default function ProductsPage() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    color: "#7c5cff",
+    color: "#F97316",
     icon: "Folder",
   });
 
@@ -81,7 +81,7 @@ export default function ProductsPage() {
         if (data.success) {
           setProducts([data.product, ...products]);
           setShowCreateDialog(false);
-          setFormData({ name: "", description: "", color: "#7c5cff", icon: "Folder" });
+          setFormData({ name: "", description: "", color: "#F97316", icon: "Folder" });
           alert('✅ Project created successfully!');
         }
       }
@@ -145,7 +145,7 @@ export default function ProductsPage() {
           ));
           setShowEditDialog(false);
           setEditingProduct(null);
-          setFormData({ name: "", description: "", color: "#7c5cff", icon: "Folder" });
+          setFormData({ name: "", description: "", color: "#F97316", icon: "Folder" });
           alert('✅ Project updated successfully!');
         }
       }
@@ -168,7 +168,7 @@ export default function ProductsPage() {
         <Header title="Projects" breadcrumb={["Dashboard", "Projects"]} />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-10 h-10 border-2 border-[#7c5cff] border-t-transparent rounded-full animate-spin" />
+            <div className="w-10 h-10 border-2 border-[#F97316] border-t-transparent rounded-full animate-spin" />
             <p className="text-[#666666] text-[14px]">Loading projects...</p>
           </div>
         </div>
@@ -191,8 +191,8 @@ export default function ProductsPage() {
           </div>
           <div className="flex items-center gap-3">
             {lastUpdate && (
-              <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-[#00d4aa]/20 to-[#00d4aa]/5 border border-[#00d4aa]/30 rounded-xl">
-                <div className="w-2 h-2 rounded-full bg-[#00d4aa] animate-pulse" />
+              <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-[#3b82f6]/20 to-[#3b82f6]/5 border border-[#3b82f6]/30 rounded-xl">
+                <div className="w-2 h-2 rounded-full bg-[#3b82f6] animate-pulse" />
                 <span className="text-[13px] text-[#1a1a1a] font-semibold">
                   Updated {lastUpdate.toLocaleTimeString()}
                 </span>
@@ -200,14 +200,14 @@ export default function ProductsPage() {
             )}
             <button
               onClick={loadProducts}
-              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-[#7c5cff]/50 transition-all"
+              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-[#F97316]/50 transition-all"
             >
               <RefreshCw className="w-4 h-4" />
               Refresh
             </button>
             <button
               onClick={() => setShowCreateDialog(true)}
-              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
+              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#F97316] to-[#3b82f6] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
             >
               <Plus className="w-4 h-4" />
               New Project
@@ -217,10 +217,10 @@ export default function ProductsPage() {
 
         {/* Summary Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6">
+          <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
-                <Folder className="w-5 h-5 text-[#7c5cff]" />
+              <div className="w-10 h-10 bg-[#F97316]/20 rounded-lg flex items-center justify-center">
+                <Folder className="w-5 h-5 text-[#F97316]" />
               </div>
               <span className="text-[13px] text-[#1a1a1a] font-bold">Total Projects</span>
             </div>
@@ -229,10 +229,10 @@ export default function ProductsPage() {
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-[#00d4aa]/20 to-[#00d4aa]/5 border border-[#00d4aa]/30 rounded-2xl p-6">
+          <div className="bg-gradient-to-br from-[#3b82f6]/20 to-[#3b82f6]/5 border border-[#3b82f6]/30 rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
-                <Target className="w-5 h-5 text-[#00d4aa]" />
+              <div className="w-10 h-10 bg-[#3b82f6]/20 rounded-lg flex items-center justify-center">
+                <Target className="w-5 h-5 text-[#3b82f6]" />
               </div>
               <span className="text-[13px] text-[#1a1a1a] font-bold">Total Funnels</span>
             </div>
@@ -263,7 +263,7 @@ export default function ProductsPage() {
               placeholder="Search projects..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+              className="w-full pl-12 pr-4 py-3 bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all"
             />
           </div>
         </div>
@@ -310,7 +310,7 @@ export default function ProductsPage() {
                         e.stopPropagation();
                         handleOpenEdit(project);
                       }}
-                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/60 text-[#1a1a1a] hover:text-[#7c5cff] transition-colors"
+                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/60 text-[#1a1a1a] hover:text-[#F97316] transition-colors"
                       title="Edit project"
                     >
                       <Edit2 className="w-4 h-4" />
@@ -359,7 +359,7 @@ export default function ProductsPage() {
       {/* Create Project Dialog */}
       {showCreateDialog && (
         <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-8 max-w-md w-full">
+          <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-8 max-w-md w-full">
             <h2 className="text-[22px] font-bold text-[#1a1a1a] mb-6">Create New Project</h2>
 
             <form onSubmit={handleCreateProduct} className="space-y-4">
@@ -371,7 +371,7 @@ export default function ProductsPage() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="E-commerce, SaaS, Mobile App..."
-                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                  className="w-full px-4 py-3 bg-white/80 border border-[#F97316]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all"
                 />
               </div>
 
@@ -382,7 +382,7 @@ export default function ProductsPage() {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Brief description of this project..."
                   rows={3}
-                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
+                  className="w-full px-4 py-3 bg-white/80 border border-[#F97316]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all resize-none"
                 />
               </div>
 
@@ -393,14 +393,14 @@ export default function ProductsPage() {
                     type="color"
                     value={formData.color}
                     onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                    className="w-12 h-12 rounded-lg cursor-pointer bg-white/80 border border-[#7c5cff]/30"
+                    className="w-12 h-12 rounded-lg cursor-pointer bg-white/80 border border-[#F97316]/30"
                   />
                   <input
                     type="text"
                     value={formData.color}
                     onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                    placeholder="#7c5cff"
-                    className="flex-1 px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                    placeholder="#F97316"
+                    className="flex-1 px-4 py-3 bg-white/80 border border-[#F97316]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all"
                   />
                 </div>
               </div>
@@ -410,15 +410,15 @@ export default function ProductsPage() {
                   type="button"
                   onClick={() => {
                     setShowCreateDialog(false);
-                    setFormData({ name: "", description: "", color: "#7c5cff", icon: "Folder" });
+                    setFormData({ name: "", description: "", color: "#F97316", icon: "Folder" });
                   }}
-                  className="flex-1 px-5 py-3 bg-white/80 border border-[#7c5cff]/30 text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-[#7c5cff]/50 transition-all"
+                  className="flex-1 px-5 py-3 bg-white/80 border border-[#F97316]/30 text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-[#F97316]/50 transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
+                  className="flex-1 px-5 py-3 bg-gradient-to-br from-[#F97316] to-[#3b82f6] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
                 >
                   Create Project
                 </button>
@@ -431,7 +431,7 @@ export default function ProductsPage() {
       {/* Edit Project Dialog */}
       {showEditDialog && editingProduct && (
         <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-8 max-w-md w-full">
+          <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-8 max-w-md w-full">
             <h2 className="text-[22px] font-bold text-[#1a1a1a] mb-6">Edit Project</h2>
 
             <form onSubmit={handleUpdateProduct} className="space-y-4">
@@ -443,7 +443,7 @@ export default function ProductsPage() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="E-commerce, SaaS, Mobile App..."
-                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                  className="w-full px-4 py-3 bg-white/80 border border-[#F97316]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all"
                 />
               </div>
 
@@ -454,7 +454,7 @@ export default function ProductsPage() {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Brief description of this project..."
                   rows={3}
-                  className="w-full px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all resize-none"
+                  className="w-full px-4 py-3 bg-white/80 border border-[#F97316]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all resize-none"
                 />
               </div>
 
@@ -465,14 +465,14 @@ export default function ProductsPage() {
                     type="color"
                     value={formData.color}
                     onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                    className="w-12 h-12 rounded-lg cursor-pointer bg-white/80 border border-[#7c5cff]/30"
+                    className="w-12 h-12 rounded-lg cursor-pointer bg-white/80 border border-[#F97316]/30"
                   />
                   <input
                     type="text"
                     value={formData.color}
                     onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                    placeholder="#7c5cff"
-                    className="flex-1 px-4 py-3 bg-white/80 border border-[#7c5cff]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#7c5cff] transition-all"
+                    placeholder="#F97316"
+                    className="flex-1 px-4 py-3 bg-white/80 border border-[#F97316]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all"
                   />
                 </div>
               </div>
@@ -483,15 +483,15 @@ export default function ProductsPage() {
                   onClick={() => {
                     setShowEditDialog(false);
                     setEditingProduct(null);
-                    setFormData({ name: "", description: "", color: "#7c5cff", icon: "Folder" });
+                    setFormData({ name: "", description: "", color: "#F97316", icon: "Folder" });
                   }}
-                  className="flex-1 px-5 py-3 bg-white/80 border border-[#7c5cff]/30 text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-[#7c5cff]/50 transition-all"
+                  className="flex-1 px-5 py-3 bg-white/80 border border-[#F97316]/30 text-[#1a1a1a] text-[14px] font-medium rounded-xl hover:border-[#F97316]/50 transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
+                  className="flex-1 px-5 py-3 bg-gradient-to-br from-[#F97316] to-[#3b82f6] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
                 >
                   Update Project
                 </button>

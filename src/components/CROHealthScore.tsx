@@ -18,8 +18,8 @@ export default function CROHealthScore({ score, previousScore, breakdown }: CROH
   const changePercent = ((change / previousScore) * 100).toFixed(1);
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return { color: "#00d4aa", label: "Excellent" };
-    if (score >= 60) return { color: "#7c5cff", label: "Good" };
+    if (score >= 80) return { color: "#3b82f6", label: "Excellent" };
+    if (score >= 60) return { color: "#F97316", label: "Good" };
     if (score >= 40) return { color: "#f59e0b", label: "Fair" };
     return { color: "#ff6b6b", label: "Needs Attention" };
   };
@@ -33,7 +33,7 @@ export default function CROHealthScore({ score, previousScore, breakdown }: CROH
   return (
     <div className="bg-gradient-to-br from-[#0a0a0a] to-[#111111] border border-[#2a2a2a] rounded-2xl p-8">
       <div className="flex items-center gap-2 mb-6">
-        <Activity className="w-5 h-5 text-[#7c5cff]" />
+        <Activity className="w-5 h-5 text-[#F97316]" />
         <h3 className="text-[18px] font-semibold text-[#fafafa]">CRO Health Score</h3>
       </div>
 
@@ -77,7 +77,7 @@ export default function CROHealthScore({ score, previousScore, breakdown }: CROH
             <span className={`text-[16px] font-semibold`} style={{ color: scoreConfig.color }}>
               {scoreConfig.label}
             </span>
-            <div className={`flex items-center gap-1 text-[13px] ${change >= 0 ? 'text-[#00d4aa]' : 'text-[#ff6b6b]'}`}>
+            <div className={`flex items-center gap-1 text-[13px] ${change >= 0 ? 'text-[#3b82f6]' : 'text-[#ff6b6b]'}`}>
               {change >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
               {Math.abs(parseFloat(changePercent))}%
             </div>

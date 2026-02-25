@@ -75,9 +75,9 @@ export default function SessionReplayTimeline({ session }: SessionReplayTimeline
   const getEventIcon = (type: SessionEvent["type"]) => {
     switch (type) {
       case "click":
-        return <MousePointerClick className="w-3.5 h-3.5 text-[#7c5cff]" />;
+        return <MousePointerClick className="w-3.5 h-3.5 text-[#F97316]" />;
       case "scroll":
-        return <Eye className="w-3.5 h-3.5 text-[#00d4aa]" />;
+        return <Eye className="w-3.5 h-3.5 text-[#3b82f6]" />;
       case "pageview":
         return <Calendar className="w-3.5 h-3.5 text-[#f59e0b]" />;
       case "rage_click":
@@ -90,9 +90,9 @@ export default function SessionReplayTimeline({ session }: SessionReplayTimeline
   const getEventColor = (type: SessionEvent["type"]) => {
     switch (type) {
       case "click":
-        return "bg-[#7c5cff]/20 border-[#7c5cff]/30 text-[#7c5cff]";
+        return "bg-[#F97316]/20 border-[#F97316]/30 text-[#F97316]";
       case "scroll":
-        return "bg-[#00d4aa]/20 border-[#00d4aa]/30 text-[#00d4aa]";
+        return "bg-[#3b82f6]/20 border-[#3b82f6]/30 text-[#3b82f6]";
       case "pageview":
         return "bg-[#f59e0b]/20 border-[#f59e0b]/30 text-[#f59e0b]";
       case "rage_click":
@@ -130,7 +130,7 @@ export default function SessionReplayTimeline({ session }: SessionReplayTimeline
             </div>
             <div className="text-right">
               <div className="text-[11px] text-[#666666] uppercase">Converted</div>
-              <div className={`text-[13px] font-medium ${displaySession.converted ? 'text-[#00d4aa]' : 'text-[#ff6b6b]'}`}>
+              <div className={`text-[13px] font-medium ${displaySession.converted ? 'text-[#3b82f6]' : 'text-[#ff6b6b]'}`}>
                 {displaySession.converted ? 'Yes ✓' : 'No'}
               </div>
             </div>
@@ -149,7 +149,7 @@ export default function SessionReplayTimeline({ session }: SessionReplayTimeline
           </button>
           <button
             onClick={() => setIsPlaying(!isPlaying)}
-            className="p-3 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] rounded-lg hover:shadow-lg hover:shadow-purple-500/20 transition-all"
+            className="p-3 bg-gradient-to-r from-[#F97316] to-[#3b82f6] rounded-lg hover:shadow-lg hover:shadow-orange-500/20 transition-all"
           >
             {isPlaying ? (
               <Pause className="w-5 h-5 text-white" />
@@ -179,7 +179,7 @@ export default function SessionReplayTimeline({ session }: SessionReplayTimeline
                 className="absolute inset-0 w-full opacity-0 cursor-pointer z-10"
               />
               <div
-                className="h-full bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] rounded-full transition-all"
+                className="h-full bg-gradient-to-r from-[#F97316] to-[#3b82f6] rounded-full transition-all"
                 style={{ width: `${(currentTime / displaySession.duration) * 100}%` }}
               />
               {/* Event Markers */}

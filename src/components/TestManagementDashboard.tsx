@@ -43,7 +43,7 @@ export default function TestManagementDashboard() {
       duration: 14,
       progress: 43,
       variants: [
-        { name: "Control (Green)", traffic: 50, visitors: 2340, conversions: 187, conversionRate: 7.99 },
+        { name: "Control (Blue)", traffic: 50, visitors: 2340, conversions: 187, conversionRate: 7.99 },
         { name: "Variant (Purple)", traffic: 50, visitors: 2298, conversions: 204, conversionRate: 8.88 }
       ],
       confidence: 78,
@@ -156,17 +156,17 @@ export default function TestManagementDashboard() {
   const getStatusColor = (status: TestStatus) => {
     switch (status) {
       case "running":
-        return { bg: "bg-[#00d4aa]/20", text: "text-[#00d4aa]", border: "border-[#00d4aa]/30" };
+        return { bg: "bg-[#3b82f6]/20", text: "text-[#3b82f6]", border: "border-[#3b82f6]/30" };
       case "completed":
-        return { bg: "bg-[#7c5cff]/20", text: "text-[#7c5cff]", border: "border-[#7c5cff]/30" };
+        return { bg: "bg-[#F97316]/20", text: "text-[#F97316]", border: "border-[#F97316]/30" };
       case "scheduled":
         return { bg: "bg-[#f59e0b]/20", text: "text-[#f59e0b]", border: "border-[#f59e0b]/30" };
     }
   };
 
   const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 95) return "text-[#00d4aa]";
-    if (confidence >= 80) return "text-[#7c5cff]";
+    if (confidence >= 95) return "text-[#3b82f6]";
+    if (confidence >= 80) return "text-[#F97316]";
     if (confidence >= 60) return "text-[#f59e0b]";
     return "text-[#888888]";
   };
@@ -175,7 +175,7 @@ export default function TestManagementDashboard() {
     <div className="mb-10">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <BarChart3 className="w-5 h-5 text-[#7c5cff]" />
+          <BarChart3 className="w-5 h-5 text-[#F97316]" />
           <h3 className="text-[18px] font-semibold text-[#fafafa]">Test Management</h3>
         </div>
         <div className="flex items-center gap-2 text-[13px] text-[#888888]">
@@ -193,7 +193,7 @@ export default function TestManagementDashboard() {
           onClick={() => setActiveTab("running")}
           className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-[13px] font-medium transition-all ${
             activeTab === "running"
-              ? "bg-[#00d4aa] text-black"
+              ? "bg-[#3b82f6] text-black"
               : "text-[#888888] hover:text-[#fafafa]"
           }`}
         >
@@ -204,7 +204,7 @@ export default function TestManagementDashboard() {
           onClick={() => setActiveTab("completed")}
           className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-[13px] font-medium transition-all ${
             activeTab === "completed"
-              ? "bg-[#7c5cff] text-white"
+              ? "bg-[#F97316] text-white"
               : "text-[#888888] hover:text-[#fafafa]"
           }`}
         >
@@ -237,7 +237,7 @@ export default function TestManagementDashboard() {
           return (
             <div
               key={test.id}
-              className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-xl p-6 hover:border-[#7c5cff]/50 transition-all"
+              className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-xl p-6 hover:border-[#F97316]/50 transition-all"
             >
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
@@ -258,11 +258,11 @@ export default function TestManagementDashboard() {
                 </div>
                 {test.status === "completed" && test.winner && (
                   <div className="text-right">
-                    <div className="flex items-center gap-1.5 text-[#00d4aa] mb-1">
+                    <div className="flex items-center gap-1.5 text-[#3b82f6] mb-1">
                       <Target className="w-4 h-4" />
                       <span className="text-[12px] font-semibold">Winner: {test.winner}</span>
                     </div>
-                    <span className="text-[13px] font-bold text-[#00d4aa]">
+                    <span className="text-[13px] font-bold text-[#3b82f6]">
                       +{test.actualLift}% Lift
                     </span>
                   </div>
@@ -282,7 +282,7 @@ export default function TestManagementDashboard() {
                   </div>
                   <div className="h-2 bg-[#1a1a1a] rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] rounded-full transition-all duration-500"
+                      className="h-full bg-gradient-to-r from-[#F97316] to-[#3b82f6] rounded-full transition-all duration-500"
                       style={{ width: `${test.progress}%` }}
                     />
                   </div>
@@ -308,7 +308,7 @@ export default function TestManagementDashboard() {
                     key={idx}
                     className={`bg-[#111111] border rounded-lg p-4 ${
                       test.winner === variant.name
-                        ? "border-[#00d4aa]"
+                        ? "border-[#3b82f6]"
                         : "border-[#2a2a2a]"
                     }`}
                   >
@@ -322,7 +322,7 @@ export default function TestManagementDashboard() {
                         <div className="grid grid-cols-2 gap-3 mb-3">
                           <div>
                             <div className="flex items-center gap-1.5 mb-1">
-                              <Users className="w-3 h-3 text-[#7c5cff]" />
+                              <Users className="w-3 h-3 text-[#F97316]" />
                               <span className="text-[10px] text-[#888888]">Visitors</span>
                             </div>
                             <span className="text-[14px] font-bold text-[#fafafa]">
@@ -331,7 +331,7 @@ export default function TestManagementDashboard() {
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5 mb-1">
-                              <Target className="w-3 h-3 text-[#00d4aa]" />
+                              <Target className="w-3 h-3 text-[#3b82f6]" />
                               <span className="text-[10px] text-[#888888]">Conv.</span>
                             </div>
                             <span className="text-[14px] font-bold text-[#fafafa]">
@@ -343,7 +343,7 @@ export default function TestManagementDashboard() {
                         <div className="pt-3 border-t border-[#2a2a2a]">
                           <div className="flex items-center justify-between">
                             <span className="text-[11px] text-[#888888]">Conv. Rate</span>
-                            <span className="text-[16px] font-bold text-[#00d4aa]">
+                            <span className="text-[16px] font-bold text-[#3b82f6]">
                               {variant.conversionRate.toFixed(2)}%
                             </span>
                           </div>
@@ -382,7 +382,7 @@ export default function TestManagementDashboard() {
                   {test.status === "running" && (
                     <div className="flex items-center gap-2">
                       <span className="text-[12px] text-[#888888]">Current Lift:</span>
-                      <span className={`text-[12px] font-semibold ${currentLift > 0 ? 'text-[#00d4aa]' : 'text-[#ff6b6b]'}`}>
+                      <span className={`text-[12px] font-semibold ${currentLift > 0 ? 'text-[#3b82f6]' : 'text-[#ff6b6b]'}`}>
                         {currentLift > 0 ? '+' : ''}{currentLift.toFixed(1)}%
                       </span>
                     </div>
@@ -397,7 +397,7 @@ export default function TestManagementDashboard() {
                         <XCircle className="w-3.5 h-3.5" />
                         Stop Test
                       </button>
-                      <button className="px-3 py-1.5 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white rounded-lg text-[11px] font-medium hover:shadow-lg hover:shadow-purple-500/20 transition-all">
+                      <button className="px-3 py-1.5 bg-gradient-to-r from-[#F97316] to-[#3b82f6] text-white rounded-lg text-[11px] font-medium hover:shadow-lg hover:shadow-orange-500/20 transition-all">
                         View Details
                       </button>
                     </>
@@ -405,10 +405,10 @@ export default function TestManagementDashboard() {
 
                   {test.status === "completed" && (
                     <>
-                      <button className="px-3 py-1.5 bg-[#111111] border border-[#00d4aa]/30 text-[#00d4aa] rounded-lg text-[11px] font-medium hover:bg-[#00d4aa]/10 transition-all">
+                      <button className="px-3 py-1.5 bg-[#111111] border border-[#3b82f6]/30 text-[#3b82f6] rounded-lg text-[11px] font-medium hover:bg-[#3b82f6]/10 transition-all">
                         Implement Winner
                       </button>
-                      <button className="px-3 py-1.5 bg-[#111111] border border-[#7c5cff]/30 text-[#7c5cff] rounded-lg text-[11px] font-medium hover:bg-[#7c5cff]/10 transition-all">
+                      <button className="px-3 py-1.5 bg-[#111111] border border-[#F97316]/30 text-[#F97316] rounded-lg text-[11px] font-medium hover:bg-[#F97316]/10 transition-all">
                         View Report
                       </button>
                     </>

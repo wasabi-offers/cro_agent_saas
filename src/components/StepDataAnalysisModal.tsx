@@ -80,7 +80,7 @@ export default function StepDataAnalysisModal({
       <div className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl">
         <div className="p-6 border-b border-[#2a2a2a] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <BarChart3 className="w-6 h-6 text-[#7c5cff]" />
+            <BarChart3 className="w-6 h-6 text-[#F97316]" />
             <h2 className="text-[18px] font-semibold text-[#1a1a1a]">Data Analysis - {stepName}</h2>
           </div>
           <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#f1f3f5] text-[#888888]">
@@ -91,14 +91,14 @@ export default function StepDataAnalysisModal({
         <div className="p-6 space-y-4">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="w-8 h-8 border-2 border-[#7c5cff] border-t-transparent rounded-full animate-spin" />
+              <div className="w-8 h-8 border-2 border-[#F97316] border-t-transparent rounded-full animate-spin" />
             </div>
           ) : (
             <>
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-[#f8f9fa] rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <Users className="w-4 h-4 text-[#7c5cff]" />
+                    <Users className="w-4 h-4 text-[#F97316]" />
                     <span className="text-[11px] text-[#888888]">Visitors</span>
                   </div>
                   <p className="text-[20px] font-bold text-[#1a1a1a]">{(stats?.visitors ?? stepVisitors).toLocaleString()}</p>
@@ -112,7 +112,7 @@ export default function StepDataAnalysisModal({
                 </div>
                 <div className="bg-[#f8f9fa] rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <MousePointerClick className="w-4 h-4 text-[#00d4aa]" />
+                    <MousePointerClick className="w-4 h-4 text-[#3b82f6]" />
                     <span className="text-[11px] text-[#888888]">CTR</span>
                   </div>
                   <p className="text-[20px] font-bold text-[#1a1a1a]">{(stats?.ctr ?? 0).toFixed(1)}%</p>
@@ -126,7 +126,7 @@ export default function StepDataAnalysisModal({
                 </div>
                 <div className="bg-[#f8f9fa] rounded-xl p-4 col-span-2">
                   <div className="flex items-center gap-2 mb-1">
-                    <Send className="w-4 h-4 text-[#7c5cff]" />
+                    <Send className="w-4 h-4 text-[#F97316]" />
                     <span className="text-[11px] text-[#888888]">Form Submits</span>
                   </div>
                   <p className="text-[20px] font-bold text-[#1a1a1a]">{(stats?.submits ?? 0).toLocaleString()}</p>

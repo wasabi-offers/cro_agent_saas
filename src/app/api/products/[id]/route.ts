@@ -102,7 +102,7 @@ export async function PUT(
       .update({
         name,
         description: description || null,
-        color: color || '#7c5cff',
+        color: color || '#F97316',
         icon: icon || 'Folder',
       })
       .eq('id', productId)

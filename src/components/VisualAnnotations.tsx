@@ -37,9 +37,9 @@ export default function VisualAnnotations({
       case "warning":
         return { bg: "bg-[#f59e0b]", border: "border-[#f59e0b]", text: "text-[#f59e0b]" };
       case "success":
-        return { bg: "bg-[#00d4aa]", border: "border-[#00d4aa]", text: "text-[#00d4aa]" };
+        return { bg: "bg-[#3b82f6]", border: "border-[#3b82f6]", text: "text-[#3b82f6]" };
       case "info":
-        return { bg: "bg-[#7c5cff]", border: "border-[#7c5cff]", text: "text-[#7c5cff]" };
+        return { bg: "bg-[#F97316]", border: "border-[#F97316]", text: "text-[#F97316]" };
     }
   };
 
@@ -60,7 +60,7 @@ export default function VisualAnnotations({
     const colors = {
       high: "bg-[#ff6b6b]/20 text-[#ff6b6b] border-[#ff6b6b]/30",
       medium: "bg-[#f59e0b]/20 text-[#f59e0b] border-[#f59e0b]/30",
-      low: "bg-[#00d4aa]/20 text-[#00d4aa] border-[#00d4aa]/30",
+      low: "bg-[#3b82f6]/20 text-[#3b82f6] border-[#3b82f6]/30",
     };
     return colors[impact];
   };
@@ -114,13 +114,13 @@ export default function VisualAnnotations({
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-[#00d4aa]"></div>
+            <div className="w-3 h-3 rounded-full bg-[#3b82f6]"></div>
             <span className="text-[12px] text-[#888888]">
               {annotations.filter(a => a.type === 'success').length} Good
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-[#7c5cff]"></div>
+            <div className="w-3 h-3 rounded-full bg-[#F97316]"></div>
             <span className="text-[12px] text-[#888888]">
               {annotations.filter(a => a.type === 'info').length} Info
             </span>
@@ -277,7 +277,7 @@ export default function VisualAnnotations({
                 </h4>
                 <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] rounded-lg flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 bg-gradient-to-br from-[#F97316] to-[#3b82f6] rounded-lg flex items-center justify-center flex-shrink-0">
                       <TrendingUp className="w-4 h-4 text-white" />
                     </div>
                     <p className="text-[14px] text-[#fafafa] leading-relaxed">
@@ -289,7 +289,7 @@ export default function VisualAnnotations({
 
               {/* Action Buttons */}
               <div className="flex items-center gap-3 pt-4">
-                <button className="flex-1 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white px-4 py-3 rounded-xl text-[14px] font-medium hover:shadow-lg hover:shadow-purple-500/20 transition-all">
+                <button className="flex-1 bg-gradient-to-r from-[#F97316] to-[#3b82f6] text-white px-4 py-3 rounded-xl text-[14px] font-medium hover:shadow-lg hover:shadow-orange-500/20 transition-all">
                   Create A/B Test
                 </button>
                 <button className="px-4 py-3 bg-[#111111] border border-[#2a2a2a] text-[#fafafa] rounded-xl text-[14px] font-medium hover:bg-[#1a1a1a] transition-all">

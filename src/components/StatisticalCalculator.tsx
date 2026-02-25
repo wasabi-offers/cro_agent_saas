@@ -31,7 +31,7 @@ export default function StatisticalCalculator() {
   return (
     <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6">
       <div className="flex items-center gap-2 mb-6">
-        <Calculator className="w-5 h-5 text-[#7c5cff]" />
+        <Calculator className="w-5 h-5 text-[#F97316]" />
         <h3 className="text-[16px] font-semibold text-[#fafafa]">Statistical Calculator</h3>
       </div>
 
@@ -43,7 +43,7 @@ export default function StatisticalCalculator() {
             type="number"
             value={currentTraffic}
             onChange={(e) => setCurrentTraffic(Number(e.target.value))}
-            className="w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[14px] focus:outline-none focus:border-[#7c5cff]"
+            className="w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[14px] focus:outline-none focus:border-[#F97316]"
           />
         </div>
         <div>
@@ -53,7 +53,7 @@ export default function StatisticalCalculator() {
             step="0.1"
             value={currentCR}
             onChange={(e) => setCurrentCR(Number(e.target.value))}
-            className="w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[14px] focus:outline-none focus:border-[#7c5cff]"
+            className="w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[14px] focus:outline-none focus:border-[#F97316]"
           />
         </div>
         <div>
@@ -62,7 +62,7 @@ export default function StatisticalCalculator() {
             type="number"
             value={expectedLift}
             onChange={(e) => setExpectedLift(Number(e.target.value))}
-            className="w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[14px] focus:outline-none focus:border-[#7c5cff]"
+            className="w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[14px] focus:outline-none focus:border-[#F97316]"
           />
         </div>
         <div>
@@ -70,7 +70,7 @@ export default function StatisticalCalculator() {
           <select
             value={confidence}
             onChange={(e) => setConfidence(Number(e.target.value))}
-            className="w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[14px] focus:outline-none focus:border-[#7c5cff]"
+            className="w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[14px] focus:outline-none focus:border-[#F97316]"
           >
             <option value="90">90%</option>
             <option value="95">95%</option>
@@ -82,14 +82,14 @@ export default function StatisticalCalculator() {
       {/* Results */}
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-[#111111] rounded-lg p-4 text-center">
-          <Users className="w-5 h-5 text-[#7c5cff] mx-auto mb-2" />
+          <Users className="w-5 h-5 text-[#F97316] mx-auto mb-2" />
           <p className="text-[11px] text-[#888888] mb-1">Sample Size/Variant</p>
           <p className="text-[18px] font-bold text-[#fafafa]">
             {sampleSizePerVariant.toLocaleString()}
           </p>
         </div>
         <div className="bg-[#111111] rounded-lg p-4 text-center">
-          <TrendingUp className="w-5 h-5 text-[#00d4aa] mx-auto mb-2" />
+          <TrendingUp className="w-5 h-5 text-[#3b82f6] mx-auto mb-2" />
           <p className="text-[11px] text-[#888888] mb-1">Total Needed</p>
           <p className="text-[18px] font-bold text-[#fafafa]">
             {totalSampleSize.toLocaleString()}

@@ -78,7 +78,7 @@ export default function AnalyticsPage() {
         <Header title="Analytics" breadcrumb={["Dashboard", "Analytics"]} />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-10 h-10 border-2 border-[#7c5cff] border-t-transparent rounded-full animate-spin" />
+            <div className="w-10 h-10 border-2 border-[#F97316] border-t-transparent rounded-full animate-spin" />
             <p className="text-[#666666] text-[14px]">Loading Clarity data...</p>
           </div>
         </div>
@@ -96,7 +96,7 @@ export default function AnalyticsPage() {
             <p className="text-[#ff6b6b] text-[14px]">{error || 'No data available'}</p>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-[#7c5cff] text-white rounded-lg text-sm hover:bg-[#6b4ee0] transition"
+              className="px-4 py-2 bg-[#F97316] text-white rounded-lg text-sm hover:bg-[#6b4ee0] transition"
             >
               Retry
             </button>
@@ -123,7 +123,7 @@ export default function AnalyticsPage() {
           </div>
           <Link
             href="/explore-ai"
-            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
+            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#F97316] to-[#3b82f6] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
           >
             <Brain className="w-4 h-4" />
             Explore with AI
@@ -143,8 +143,8 @@ export default function AnalyticsPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
           <div className="bg-white border border-[#d0d0d0] rounded-2xl p-5">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
-                <Users className="w-5 h-5 text-[#7c5cff]" />
+              <div className="w-10 h-10 bg-[#F97316]/20 rounded-lg flex items-center justify-center">
+                <Users className="w-5 h-5 text-[#F97316]" />
               </div>
               <span className="text-[13px] text-[#888888]">Total Sessions</span>
             </div>
@@ -158,8 +158,8 @@ export default function AnalyticsPage() {
 
           <div className="bg-white border border-[#d0d0d0] rounded-2xl p-5">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
-                <Eye className="w-5 h-5 text-[#00d4aa]" />
+              <div className="w-10 h-10 bg-[#3b82f6]/20 rounded-lg flex items-center justify-center">
+                <Eye className="w-5 h-5 text-[#3b82f6]" />
               </div>
               <span className="text-[13px] text-[#888888]">Pages/Session</span>
             </div>
@@ -205,19 +205,19 @@ export default function AnalyticsPage() {
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
           {/* Traffic by Device */}
-          <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl overflow-hidden">
-            <div className="px-6 py-5 border-b border-[#7c5cff]/20">
+          <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl overflow-hidden">
+            <div className="px-6 py-5 border-b border-[#F97316]/20">
               <h2 className="text-[18px] font-semibold text-[#1a1a1a]">Traffic by Device</h2>
               <p className="text-[13px] text-[#666666] mt-1">Sessions and users breakdown</p>
             </div>
             <div className="p-6 space-y-4">
               {trafficByDevice.map((device) => {
                 const percentage = (device.total_session_count / summary.totalSessions) * 100;
-                const color = device.device === 'Mobile' ? '#7c5cff' : 
-                             device.device === 'Desktop' || device.device === 'PC' ? '#00d4aa' : '#f59e0b';
+                const color = device.device === 'Mobile' ? '#F97316' : 
+                             device.device === 'Desktop' || device.device === 'PC' ? '#3b82f6' : '#f59e0b';
                 
                 return (
-                  <div key={device.device} className="p-4 bg-white/60 rounded-xl border border-[#7c5cff]/20">
+                  <div key={device.device} className="p-4 bg-white/60 rounded-xl border border-[#F97316]/20">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <div 
@@ -281,7 +281,7 @@ export default function AnalyticsPage() {
                 const severity = issue.sessions_with_metric_percentage > 20 ? 'high' : 
                                 issue.sessions_with_metric_percentage > 10 ? 'medium' : 'low';
                 const severityColor = severity === 'high' ? '#ff6b6b' : 
-                                     severity === 'medium' ? '#f59e0b' : '#00d4aa';
+                                     severity === 'medium' ? '#f59e0b' : '#3b82f6';
                 
                 return (
                   <div key={idx} className="px-6 py-4 hover:bg-white/5 transition-colors">
@@ -340,9 +340,9 @@ export default function AnalyticsPage() {
                 const isGood = engagementRate > 50;
                 
                 return (
-                  <div key={device.device} className="p-6 bg-white/60 rounded-xl border border-[#00d4aa]/20">
+                  <div key={device.device} className="p-6 bg-white/60 rounded-xl border border-[#3b82f6]/20">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
+                      <div className="w-10 h-10 bg-[#F97316]/20 rounded-lg flex items-center justify-center">
                         {getDeviceIcon(device.device)}
                       </div>
                       <h3 className="text-[16px] font-semibold text-[#1a1a1a]">{device.device}</h3>
@@ -356,7 +356,7 @@ export default function AnalyticsPage() {
                         <p className="text-[11px] text-[#888888]">Total Time</p>
                       </div>
                       <div className="text-center p-3 bg-white rounded-lg">
-                        <p className="text-[20px] font-bold text-[#00d4aa]">
+                        <p className="text-[20px] font-bold text-[#3b82f6]">
                           {formatDuration(device.active_time)}
                         </p>
                         <p className="text-[11px] text-[#888888]">Active Time</p>
@@ -366,13 +366,13 @@ export default function AnalyticsPage() {
                     <div>
                       <div className="flex items-center justify-between text-[12px] mb-2">
                         <span className="text-[#888888]">Engagement Rate</span>
-                        <span className={isGood ? 'text-[#00d4aa]' : 'text-[#ff6b6b]'}>
+                        <span className={isGood ? 'text-[#3b82f6]' : 'text-[#ff6b6b]'}>
                           {engagementRate.toFixed(0)}%
                         </span>
                       </div>
                       <div className="h-2 bg-white/10 rounded-full overflow-hidden">
                         <div
-                          className={`h-full rounded-full ${isGood ? 'bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]' : 'bg-[#ff6b6b]'}`}
+                          className={`h-full rounded-full ${isGood ? 'bg-gradient-to-r from-[#F97316] to-[#3b82f6]' : 'bg-[#ff6b6b]'}`}
                           style={{ width: `${engagementRate}%` }}
                         />
                       </div>
@@ -408,8 +408,8 @@ export default function AnalyticsPage() {
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6 text-center">
-            <TrendingUp className="w-8 h-8 text-[#7c5cff] mx-auto mb-3 rotate-180" />
+          <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-6 text-center">
+            <TrendingUp className="w-8 h-8 text-[#F97316] mx-auto mb-3 rotate-180" />
             <p className="text-[32px] font-bold text-[#1a1a1a]">
               {summary.totalQuickbacks.toLocaleString()}
             </p>

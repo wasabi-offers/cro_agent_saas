@@ -69,7 +69,7 @@ export default function StepCROPreviewModal({
       <div className="bg-white border border-[#d0d0d0] rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
         <div className="p-6 border-b border-[#d0d0d0] flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-3">
-            <Eye className="w-6 h-6 text-[#7c5cff]" />
+            <Eye className="w-6 h-6 text-[#F97316]" />
             <h2 className="text-[18px] font-semibold text-[#1a1a1a]">CRO Preview - {stepName}</h2>
           </div>
           <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#f1f3f5] text-[#888888]">
@@ -107,7 +107,7 @@ export default function StepCROPreviewModal({
 
             {loading ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-8 h-8 text-[#7c5cff] animate-spin" />
+                <Loader2 className="w-8 h-8 text-[#F97316] animate-spin" />
               </div>
             ) : error ? (
               <p className="text-[13px] text-[#ff6b6b]">{error}</p>

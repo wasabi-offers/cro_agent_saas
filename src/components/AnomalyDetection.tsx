@@ -133,10 +133,10 @@ export default function AnomalyDetection({ anomalies }: AnomalyDetectionProps) {
         };
       case "info":
         return {
-          bg: "bg-[#7c5cff]/10",
-          border: "border-[#7c5cff]/30",
-          text: "text-[#7c5cff]",
-          icon: "#7c5cff",
+          bg: "bg-[#F97316]/10",
+          border: "border-[#F97316]/30",
+          text: "text-[#F97316]",
+          icon: "#F97316",
         };
     }
   };
@@ -317,7 +317,7 @@ export default function AnomalyDetection({ anomalies }: AnomalyDetectionProps) {
                 <div className="space-y-2">
                   {selectedAnomaly.possibleCauses.map((cause, idx) => (
                     <div key={idx} className="flex items-start gap-3 bg-[#111111] border border-[#2a2a2a] rounded-lg p-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#7c5cff] mt-2 flex-shrink-0"></div>
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#F97316] mt-2 flex-shrink-0"></div>
                       <p className="text-[13px] text-[#888888]">{cause}</p>
                     </div>
                   ))}
@@ -329,7 +329,7 @@ export default function AnomalyDetection({ anomalies }: AnomalyDetectionProps) {
                 <h4 className="text-[14px] font-semibold text-[#fafafa] mb-3">
                   Recommended Action
                 </h4>
-                <div className="bg-gradient-to-r from-[#7c5cff]/10 to-[#00d4aa]/10 border border-[#7c5cff]/30 rounded-xl p-4">
+                <div className="bg-gradient-to-r from-[#F97316]/10 to-[#3b82f6]/10 border border-[#F97316]/30 rounded-xl p-4">
                   <p className="text-[14px] text-[#fafafa] leading-relaxed">
                     {selectedAnomaly.recommendation}
                   </p>
@@ -338,7 +338,7 @@ export default function AnomalyDetection({ anomalies }: AnomalyDetectionProps) {
 
               {/* Actions */}
               <div className="flex items-center gap-3 pt-4">
-                <button className="flex-1 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white px-4 py-3 rounded-xl text-[14px] font-medium hover:shadow-lg hover:shadow-purple-500/20 transition-all">
+                <button className="flex-1 bg-gradient-to-r from-[#F97316] to-[#3b82f6] text-white px-4 py-3 rounded-xl text-[14px] font-medium hover:shadow-lg hover:shadow-orange-500/20 transition-all">
                   Create Alert Rule
                 </button>
                 <button className="px-4 py-3 bg-[#111111] border border-[#2a2a2a] text-[#fafafa] rounded-xl text-[14px] font-medium hover:bg-[#1a1a1a] transition-all">

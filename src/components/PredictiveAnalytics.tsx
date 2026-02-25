@@ -66,7 +66,7 @@ export default function PredictiveAnalytics({ predictions }: PredictiveAnalytics
   const getTrendColor = (impact: Prediction["impact"]) => {
     switch (impact) {
       case "positive":
-        return "text-[#00d4aa]";
+        return "text-[#3b82f6]";
       case "negative":
         return "text-[#ff6b6b]";
       case "neutral":
@@ -75,7 +75,7 @@ export default function PredictiveAnalytics({ predictions }: PredictiveAnalytics
   };
 
   const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 80) return "text-[#00d4aa]";
+    if (confidence >= 80) return "text-[#3b82f6]";
     if (confidence >= 60) return "text-[#f59e0b]";
     return "text-[#ff6b6b]";
   };
@@ -98,7 +98,7 @@ export default function PredictiveAnalytics({ predictions }: PredictiveAnalytics
       <div className="p-6 border-b border-[#2a2a2a]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Target className="w-6 h-6 text-[#7c5cff]" />
+            <Target className="w-6 h-6 text-[#F97316]" />
             <div>
               <h3 className="text-[18px] font-semibold text-[#fafafa]">
                 Predictive Forecasting
@@ -189,11 +189,11 @@ export default function PredictiveAnalytics({ predictions }: PredictiveAnalytics
                 </div>
 
                 {/* 30 Days */}
-                <div className="bg-[#0a0a0a] border border-[#7c5cff]/30 rounded-lg p-3">
+                <div className="bg-[#0a0a0a] border border-[#F97316]/30 rounded-lg p-3">
                   <div className="text-[11px] text-[#888888] uppercase mb-1">
                     30 Days
                   </div>
-                  <div className="text-[20px] font-bold text-[#7c5cff]">
+                  <div className="text-[20px] font-bold text-[#F97316]">
                     {formatValue(prediction.metric, prediction.predicted30d)}
                   </div>
                   <div className={`text-[11px] font-semibold mt-1 ${getTrendColor(prediction.impact)}`}>
@@ -209,7 +209,7 @@ export default function PredictiveAnalytics({ predictions }: PredictiveAnalytics
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${
                       prediction.impact === "positive"
-                        ? "bg-gradient-to-r from-[#7c5cff] to-[#00d4aa]"
+                        ? "bg-gradient-to-r from-[#F97316] to-[#3b82f6]"
                         : prediction.impact === "negative"
                         ? "bg-gradient-to-r from-[#ff6b6b] to-[#f59e0b]"
                         : "bg-gradient-to-r from-[#888888] to-[#666666]"
@@ -225,9 +225,9 @@ export default function PredictiveAnalytics({ predictions }: PredictiveAnalytics
         </div>
 
         {/* Info Box */}
-        <div className="mt-6 bg-[#7c5cff]/10 border border-[#7c5cff]/20 rounded-xl p-4">
+        <div className="mt-6 bg-[#F97316]/10 border border-[#F97316]/20 rounded-xl p-4">
           <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-[#7c5cff] flex-shrink-0 mt-0.5" />
+            <AlertCircle className="w-5 h-5 text-[#F97316] flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-[13px] text-[#fafafa] font-medium mb-1">
                 About These Predictions

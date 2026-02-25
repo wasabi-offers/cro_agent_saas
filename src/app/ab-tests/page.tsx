@@ -141,11 +141,11 @@ export default function ABTestsPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-[#00d4aa]/20 text-[#00d4aa] border-[#00d4aa]/30';
+        return 'bg-[#3b82f6]/20 text-[#3b82f6] border-[#3b82f6]/30';
       case 'pending':
         return 'bg-[#f59e0b]/20 text-[#f59e0b] border-[#f59e0b]/30';
       case 'completed':
-        return 'bg-[#7c5cff]/20 text-[#7c5cff] border-[#7c5cff]/30';
+        return 'bg-[#F97316]/20 text-[#F97316] border-[#F97316]/30';
       case 'rejected':
         return 'bg-[#666666]/20 text-[#666666] border-[#666666]/30';
       default:
@@ -192,7 +192,7 @@ export default function ABTestsPage() {
         <Header title="A/B Tests" breadcrumb={["Dashboard", "A/B Tests"]} />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-10 h-10 border-2 border-[#7c5cff] border-t-transparent rounded-full animate-spin" />
+            <div className="w-10 h-10 border-2 border-[#F97316] border-t-transparent rounded-full animate-spin" />
             <p className="text-[#1a1a1a] text-[14px]">Analyzing data for A/B test suggestions...</p>
           </div>
         </div>
@@ -210,7 +210,7 @@ export default function ABTestsPage() {
             <p className="text-[#ff6b6b] text-[14px]">{error}</p>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-[#7c5cff] text-white rounded-lg text-sm hover:bg-[#6b4ee0] transition"
+              className="px-4 py-2 bg-[#F97316] text-white rounded-lg text-sm hover:bg-[#6b4ee0] transition"
             >
               Retry
             </button>
@@ -240,7 +240,7 @@ export default function ABTestsPage() {
               <button
                 onClick={refreshData}
                 disabled={isLoading}
-                className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#7c5cff] to-[#5b3fd9] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all shadow-lg shadow-purple-500/25 disabled:opacity-50"
+                className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#F97316] to-[#C2410C] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all shadow-lg shadow-orange-500/25 disabled:opacity-50"
               >
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -251,7 +251,7 @@ export default function ABTestsPage() {
               </button>
               <Link
                 href="/explore-ai"
-                className="flex items-center gap-2 px-5 py-3 bg-[#00d4aa]/20 text-[#00d4aa] border border-[#00d4aa]/30 text-[14px] font-medium rounded-xl hover:bg-[#00d4aa]/30 transition-all"
+                className="flex items-center gap-2 px-5 py-3 bg-[#3b82f6]/20 text-[#3b82f6] border border-[#3b82f6]/30 text-[14px] font-medium rounded-xl hover:bg-[#3b82f6]/30 transition-all"
               >
                 <Brain className="w-4 h-4" />
                 Ask AI for More
@@ -261,14 +261,14 @@ export default function ABTestsPage() {
 
           {/* Filtri */}
           {proposals.length > 0 && (
-            <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-xl p-4 flex items-center gap-4">
+            <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-xl p-4 flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <Target className="w-4 h-4 text-[#1a1a1a]" />
                 <span className="text-[13px] text-[#1a1a1a] font-semibold">Funnel:</span>
                 <select
                   value={selectedFunnel}
                   onChange={(e) => setSelectedFunnel(e.target.value)}
-                  className="px-3 py-2 bg-white/60 border border-[#7c5cff]/30 rounded-lg text-[13px] text-[#1a1a1a] focus:outline-none focus:border-[#7c5cff] transition-all"
+                  className="px-3 py-2 bg-white/60 border border-[#F97316]/30 rounded-lg text-[13px] text-[#1a1a1a] focus:outline-none focus:border-[#F97316] transition-all"
                 >
                   <option value="all">All Funnels</option>
                   {availableFunnels.map(funnel => (
@@ -277,7 +277,7 @@ export default function ABTestsPage() {
                 </select>
               </div>
 
-              <div className="h-6 w-px bg-[#7c5cff]/30" />
+              <div className="h-6 w-px bg-[#F97316]/30" />
 
               <div className="flex items-center gap-2">
                 <span className="text-[13px] text-[#666666]">Sort by:</span>
@@ -285,8 +285,8 @@ export default function ABTestsPage() {
                   onClick={() => setSortBy("date")}
                   className={`px-3 py-2 rounded-lg text-[13px] font-medium transition-all ${
                     sortBy === "date"
-                      ? "bg-[#7c5cff] text-white"
-                      : "bg-white/60 text-[#1a1a1a] border border-[#7c5cff]/30"
+                      ? "bg-[#F97316] text-white"
+                      : "bg-white/60 text-[#1a1a1a] border border-[#F97316]/30"
                   }`}
                 >
                   Date
@@ -295,8 +295,8 @@ export default function ABTestsPage() {
                   onClick={() => setSortBy("status")}
                   className={`px-3 py-2 rounded-lg text-[13px] font-medium transition-all ${
                     sortBy === "status"
-                      ? "bg-[#7c5cff] text-white"
-                      : "bg-white/60 text-[#1a1a1a] border border-[#7c5cff]/30"
+                      ? "bg-[#F97316] text-white"
+                      : "bg-white/60 text-[#1a1a1a] border border-[#F97316]/30"
                   }`}
                 >
                   Status
@@ -306,9 +306,9 @@ export default function ABTestsPage() {
               {abTestData && abTestData.summary.activeCount > 0 && (
                 <>
                   <div className="h-6 w-px bg-[#2a2a2a]" />
-                  <div className="flex items-center gap-2 px-3 py-2 bg-[#00d4aa]/10 border border-[#00d4aa]/30 rounded-lg">
-                    <Zap className="w-4 h-4 text-[#00d4aa]" />
-                    <span className="text-[12px] text-[#00d4aa] font-medium">
+                  <div className="flex items-center gap-2 px-3 py-2 bg-[#3b82f6]/10 border border-[#3b82f6]/30 rounded-lg">
+                    <Zap className="w-4 h-4 text-[#3b82f6]" />
+                    <span className="text-[12px] text-[#3b82f6] font-medium">
                       {abTestData.summary.activeCount} Active Test{abTestData.summary.activeCount > 1 ? 's' : ''}
                     </span>
                   </div>
@@ -321,10 +321,10 @@ export default function ABTestsPage() {
         {/* Stats from Real Data */}
         {abTestData && (
           <div className="grid grid-cols-4 gap-4 mb-8">
-            <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-xl p-4">
+            <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-xl p-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
-                  <FlaskConical className="w-5 h-5 text-[#7c5cff]" />
+                <div className="w-10 h-10 bg-[#F97316]/20 rounded-lg flex items-center justify-center">
+                  <FlaskConical className="w-5 h-5 text-[#F97316]" />
                 </div>
                 <div>
                   <p className="text-[24px] font-bold text-[#1a1a1a]">{abTestData.summary.totalProposals}</p>
@@ -345,10 +345,10 @@ export default function ABTestsPage() {
                 </div>
               </div>
             </div>
-            <div className="bg-gradient-to-br from-[#00d4aa]/20 to-[#00d4aa]/5 border border-[#00d4aa]/30 rounded-xl p-4">
+            <div className="bg-gradient-to-br from-[#3b82f6]/20 to-[#3b82f6]/5 border border-[#3b82f6]/30 rounded-xl p-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-[#00d4aa]" />
+                <div className="w-10 h-10 bg-[#3b82f6]/20 rounded-lg flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-[#3b82f6]" />
                 </div>
                 <div>
                   <p className="text-[24px] font-bold text-[#1a1a1a]">
@@ -358,10 +358,10 @@ export default function ABTestsPage() {
                 </div>
               </div>
             </div>
-            <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-xl p-4">
+            <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-xl p-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
-                  <CheckCircle2 className="w-5 h-5 text-[#7c5cff]" />
+                <div className="w-10 h-10 bg-[#F97316]/20 rounded-lg flex items-center justify-center">
+                  <CheckCircle2 className="w-5 h-5 text-[#F97316]" />
                 </div>
                 <div>
                   <p className="text-[24px] font-bold text-[#1a1a1a]">
@@ -379,8 +379,8 @@ export default function ABTestsPage() {
           {/* Tests List */}
           <div className="lg:col-span-2 space-y-4">
             {proposals.length === 0 ? (
-              <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-12 text-center">
-                <FlaskConical className="w-16 h-16 text-[#7c5cff]/50 mx-auto mb-4" />
+              <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-12 text-center">
+                <FlaskConical className="w-16 h-16 text-[#F97316]/50 mx-auto mb-4" />
                 <h3 className="text-[18px] font-semibold text-[#1a1a1a] mb-2">
                   No A/B Test Proposals Yet
                 </h3>
@@ -389,7 +389,7 @@ export default function ABTestsPage() {
                 </p>
                 <Link
                   href="/explore-ai"
-                  className="inline-flex items-center gap-2 px-5 py-3 bg-[#7c5cff] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
+                  className="inline-flex items-center gap-2 px-5 py-3 bg-[#F97316] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
                 >
                   <Brain className="w-4 h-4" />
                   Ask AI to Generate Proposals
@@ -406,23 +406,23 @@ export default function ABTestsPage() {
                     <div
                       key={proposal.id}
                       onClick={() => setSelectedTest(proposal)}
-                      className={`bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 rounded-2xl p-6 cursor-pointer transition-all hover:from-[#7c5cff]/25 hover:to-[#7c5cff]/10 relative ${
+                      className={`bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 rounded-2xl p-6 cursor-pointer transition-all hover:from-[#F97316]/25 hover:to-[#F97316]/10 relative ${
                         selectedTest?.id === proposal.id
-                          ? 'border-2 border-[#7c5cff]'
+                          ? 'border-2 border-[#F97316]'
                           : isActive
-                          ? 'border-2 border-[#00d4aa]/50'
-                          : 'border border-[#7c5cff]/30'
+                          ? 'border-2 border-[#3b82f6]/50'
+                          : 'border border-[#F97316]/30'
                       }`}
                     >
                       {isActive && (
-                        <div className="absolute -top-3 -right-3 w-8 h-8 bg-[#00d4aa] rounded-full flex items-center justify-center animate-pulse">
+                        <div className="absolute -top-3 -right-3 w-8 h-8 bg-[#3b82f6] rounded-full flex items-center justify-center animate-pulse">
                           <Zap className="w-4 h-4 text-white" />
                         </div>
                       )}
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-3">
-                            <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white">
+                            <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-gradient-to-r from-[#F97316] to-[#3b82f6] text-white">
                               #{index + 1}
                             </span>
                             <span className={`px-2.5 py-1 rounded-full text-[11px] font-medium border flex items-center gap-1 ${getStatusColor(proposal.status)}`}>
@@ -443,7 +443,7 @@ export default function ABTestsPage() {
                           </p>
 
                           <div className="flex items-center gap-4">
-                            <span className="text-[13px] text-[#00d4aa] font-medium flex items-center gap-1.5">
+                            <span className="text-[13px] text-[#3b82f6] font-medium flex items-center gap-1.5">
                               <TrendingUp className="w-4 h-4" />
                               {proposal.expected_impact}
                             </span>
@@ -459,14 +459,14 @@ export default function ABTestsPage() {
                         <ArrowRight className="w-5 h-5 text-[#666666]" />
                       </div>
 
-                      <div className="mt-4 pt-4 border-t border-[#7c5cff]/20 grid grid-cols-2 gap-4">
+                      <div className="mt-4 pt-4 border-t border-[#F97316]/20 grid grid-cols-2 gap-4">
                         <div>
                           <p className="text-[11px] text-[#1a1a1a] uppercase mb-1 font-bold">Current</p>
                           <p className="text-[13px] text-[#1a1a1a]">{proposal.current_value}</p>
                         </div>
                         <div>
                           <p className="text-[11px] text-[#1a1a1a] uppercase mb-1 font-bold">Proposed</p>
-                          <p className="text-[13px] text-[#00d4aa] font-medium">{proposal.proposed_value}</p>
+                          <p className="text-[13px] text-[#3b82f6] font-medium">{proposal.proposed_value}</p>
                         </div>
                       </div>
                     </div>
@@ -478,9 +478,9 @@ export default function ABTestsPage() {
           {/* Detail Panel */}
           <div className="lg:col-span-1">
             {selectedTest ? (
-              <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6 sticky top-10">
+              <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-6 sticky top-10">
                 <div className="flex items-center gap-2 mb-4">
-                  <Sparkles className="w-5 h-5 text-[#7c5cff]" />
+                  <Sparkles className="w-5 h-5 text-[#F97316]" />
                   <h2 className="text-[16px] font-semibold text-[#1a1a1a]">Proposal Details</h2>
                 </div>
 
@@ -510,17 +510,17 @@ export default function ABTestsPage() {
 
                   <div>
                     <label className="text-[11px] text-[#1a1a1a] uppercase tracking-wide font-bold">Current Value</label>
-                    <p className="text-[14px] text-[#1a1a1a] mt-1 bg-white/60 p-3 rounded-lg border border-[#7c5cff]/20">{selectedTest.current_value}</p>
+                    <p className="text-[14px] text-[#1a1a1a] mt-1 bg-white/60 p-3 rounded-lg border border-[#F97316]/20">{selectedTest.current_value}</p>
                   </div>
 
                   <div>
                     <label className="text-[11px] text-[#666666] uppercase tracking-wide">Proposed Value</label>
-                    <p className="text-[14px] text-[#00d4aa] font-medium mt-1 bg-[#00d4aa]/10 p-3 rounded-lg border border-[#00d4aa]/30">{selectedTest.proposed_value}</p>
+                    <p className="text-[14px] text-[#3b82f6] font-medium mt-1 bg-[#3b82f6]/10 p-3 rounded-lg border border-[#3b82f6]/30">{selectedTest.proposed_value}</p>
                   </div>
 
                   <div>
                     <label className="text-[11px] text-[#1a1a1a] uppercase tracking-wide font-bold">Expected Impact</label>
-                    <p className="text-[14px] text-[#00d4aa] font-medium mt-1 flex items-center gap-2">
+                    <p className="text-[14px] text-[#3b82f6] font-medium mt-1 flex items-center gap-2">
                       <TrendingUp className="w-4 h-4" />
                       {selectedTest.expected_impact}
                     </p>
@@ -535,7 +535,7 @@ export default function ABTestsPage() {
                     <div>
                       <label className="text-[11px] text-[#1a1a1a] uppercase tracking-wide font-bold">Funnel</label>
                       <div className="flex items-center gap-2 mt-2">
-                        <Target className="w-4 h-4 text-[#7c5cff]" />
+                        <Target className="w-4 h-4 text-[#F97316]" />
                         <span className="text-[13px] text-[#1a1a1a]">{selectedTest.funnels.name}</span>
                       </div>
                     </div>
@@ -554,10 +554,10 @@ export default function ABTestsPage() {
                     </p>
                   </div>
 
-                  <div className="pt-4 border-t border-[#7c5cff]/20">
+                  <div className="pt-4 border-t border-[#F97316]/20">
                     <Link
                       href="/explore-ai"
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white/60 text-[#7c5cff] border border-[#7c5cff]/30 rounded-lg text-[13px] font-medium hover:bg-white/80 transition-all"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white/60 text-[#F97316] border border-[#F97316]/30 rounded-lg text-[13px] font-medium hover:bg-white/80 transition-all"
                     >
                       <Brain className="w-4 h-4" />
                       Get AI Implementation Guide
@@ -566,8 +566,8 @@ export default function ABTestsPage() {
                 </div>
               </div>
             ) : (
-              <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6 text-center">
-                <FlaskConical className="w-12 h-12 text-[#7c5cff]/50 mx-auto mb-4" />
+              <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-6 text-center">
+                <FlaskConical className="w-12 h-12 text-[#F97316]/50 mx-auto mb-4" />
                 <p className="text-[14px] text-[#1a1a1a]">
                   Select a proposal to view details
                 </p>

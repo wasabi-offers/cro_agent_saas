@@ -103,11 +103,11 @@ export default function ExportShareButtons({
       <button
         onClick={handleExportPDF}
         disabled={isExporting}
-        className="flex items-center gap-2 px-4 py-2.5 bg-[#111111] border border-[#2a2a2a] text-[#fafafa] rounded-xl text-[13px] font-medium hover:bg-[#1a1a1a] hover:border-[#7c5cff]/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        className="flex items-center gap-2 px-4 py-2.5 bg-[#111111] border border-[#2a2a2a] text-[#fafafa] rounded-xl text-[13px] font-medium hover:bg-[#1a1a1a] hover:border-[#F97316]/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isExporting ? (
           <>
-            <div className="w-4 h-4 border-2 border-[#7c5cff] border-t-transparent rounded-full animate-spin" />
+            <div className="w-4 h-4 border-2 border-[#F97316] border-t-transparent rounded-full animate-spin" />
             Generating...
           </>
         ) : (
@@ -123,8 +123,8 @@ export default function ExportShareButtons({
         onClick={handleCopyLink}
         className={`flex items-center gap-2 px-4 py-2.5 border rounded-xl text-[13px] font-medium transition-all ${
           linkCopied
-            ? 'bg-[#00d4aa]/20 border-[#00d4aa]/30 text-[#00d4aa]'
-            : 'bg-[#111111] border-[#2a2a2a] text-[#fafafa] hover:bg-[#1a1a1a] hover:border-[#7c5cff]/50'
+            ? 'bg-[#3b82f6]/20 border-[#3b82f6]/30 text-[#3b82f6]'
+            : 'bg-[#111111] border-[#2a2a2a] text-[#fafafa] hover:bg-[#1a1a1a] hover:border-[#F97316]/50'
         }`}
       >
         {linkCopied ? (
@@ -144,7 +144,7 @@ export default function ExportShareButtons({
       <div className="relative">
         <button
           onClick={() => setShareMenuOpen(!shareMenuOpen)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white rounded-xl text-[13px] font-medium hover:shadow-lg hover:shadow-purple-500/20 transition-all"
+          className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#F97316] to-[#3b82f6] text-white rounded-xl text-[13px] font-medium hover:shadow-lg hover:shadow-orange-500/20 transition-all"
         >
           <Share2 className="w-4 h-4" />
           Share
@@ -167,7 +167,7 @@ export default function ExportShareButtons({
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-[#111111] transition-all text-left"
               >
                 <div className="w-8 h-8 bg-[#111111] rounded-lg flex items-center justify-center">
-                  <Mail className="w-4 h-4 text-[#7c5cff]" />
+                  <Mail className="w-4 h-4 text-[#F97316]" />
                 </div>
                 <div>
                   <div className="text-[13px] font-medium text-[#fafafa]">Email</div>
@@ -184,7 +184,7 @@ export default function ExportShareButtons({
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-[#111111] transition-all text-left"
               >
                 <div className="w-8 h-8 bg-[#111111] rounded-lg flex items-center justify-center">
-                  <Link2 className="w-4 h-4 text-[#00d4aa]" />
+                  <Link2 className="w-4 h-4 text-[#3b82f6]" />
                 </div>
                 <div>
                   <div className="text-[13px] font-medium text-[#fafafa]">Copy Link</div>

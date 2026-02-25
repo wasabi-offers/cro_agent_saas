@@ -80,11 +80,11 @@ function StepNode({ data }: { data: StepData }) {
       <Handle
         type="target"
         position={Position.Left}
-        className="w-4 h-4 !bg-[#7c5cff] border-2 border-white"
+        className="w-4 h-4 !bg-[#F97316] border-2 border-white"
         style={{ left: -8 }}
       />
 
-      <div className="bg-white border-2 border-[#7c5cff] rounded-xl overflow-hidden shadow-lg hover:border-[#00d4aa] transition-all cursor-pointer" style={{ width: 280 }}>
+      <div className="bg-white border-2 border-[#F97316] rounded-xl overflow-hidden shadow-lg hover:border-[#3b82f6] transition-all cursor-pointer" style={{ width: 280 }}>
         {/* Header */}
         <div className="p-3 pb-2">
           <h3 className="text-[13px] font-semibold text-[#1a1a1a] mb-1.5 truncate">
@@ -92,11 +92,11 @@ function StepNode({ data }: { data: StepData }) {
           </h3>
             <div className="flex items-center gap-3">
             <div className="flex items-center gap-1 text-[11px] text-[#666666]">
-              <Users className="w-3 h-3 text-[#7c5cff]" />
+              <Users className="w-3 h-3 text-[#F97316]" />
               <span>{(data.visitors ?? 0).toLocaleString()}</span>
             </div>
             <div className="flex items-center gap-1 text-[11px] text-[#666666]">
-              <Percent className="w-3 h-3 text-[#00d4aa]" />
+              <Percent className="w-3 h-3 text-[#3b82f6]" />
               <span>{Number.isFinite(data.conversionRate) ? data.conversionRate.toFixed(1) : '0'}%</span>
             </div>
             {(data.dropoff ?? 0) > 0 && (
@@ -144,7 +144,7 @@ function StepNode({ data }: { data: StepData }) {
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); e.preventDefault(); onDataAnalysisClick?.(stepIndex); }}
-            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 bg-[#7c5cff]/20 hover:bg-[#7c5cff]/30 text-[#7c5cff] rounded-lg text-[10px] font-medium transition-colors"
+            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 bg-[#F97316]/20 hover:bg-[#F97316]/30 text-[#F97316] rounded-lg text-[10px] font-medium transition-colors"
           >
             <BarChart3 className="w-3 h-3" />
             Data
@@ -153,7 +153,7 @@ function StepNode({ data }: { data: StepData }) {
             type="button"
             onClick={(e) => { e.stopPropagation(); e.preventDefault(); onCROPreviewClick?.(stepIndex); }}
             disabled={!data.url}
-            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 bg-[#00d4aa]/20 hover:bg-[#00d4aa]/30 text-[#00d4aa] rounded-lg text-[10px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 bg-[#3b82f6]/20 hover:bg-[#3b82f6]/30 text-[#3b82f6] rounded-lg text-[10px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Eye className="w-3 h-3" />
             CRO
@@ -165,7 +165,7 @@ function StepNode({ data }: { data: StepData }) {
       <Handle
         type="source"
         position={Position.Right}
-        className="w-4 h-4 !bg-[#00d4aa] border-2 border-white"
+        className="w-4 h-4 !bg-[#3b82f6] border-2 border-white"
         style={{ right: -8 }}
       />
     </div>
@@ -263,18 +263,18 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
           type: 'smoothstep',
           animated: true,
           style: {
-            stroke: '#7c5cff',
+            stroke: '#F97316',
             strokeWidth: 3,
           },
           markerEnd: {
             type: MarkerType.ArrowClosed,
-            color: '#7c5cff',
+            color: '#F97316',
             width: 20,
             height: 20,
           },
           label: '→',
           labelStyle: {
-            fill: '#00d4aa',
+            fill: '#3b82f6',
             fontSize: 14,
             fontWeight: 700,
           },
@@ -291,18 +291,18 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
           type: 'smoothstep',
           animated: true,
           style: {
-            stroke: '#7c5cff',
+            stroke: '#F97316',
             strokeWidth: 3,
           },
           markerEnd: {
             type: MarkerType.ArrowClosed,
-            color: '#7c5cff',
+            color: '#F97316',
             width: 20,
             height: 20,
           },
           label: '→',
           labelStyle: {
-            fill: '#00d4aa',
+            fill: '#3b82f6',
             fontSize: 14,
             fontWeight: 700,
           },
@@ -370,7 +370,7 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
             maxZoom={1.5}
             defaultEdgeOptions={{
               animated: true,
-              style: { stroke: '#7c5cff', strokeWidth: 3 },
+              style: { stroke: '#F97316', strokeWidth: 3 },
             }}
             elementsSelectable={true}
             nodesConnectable={false}
@@ -386,7 +386,7 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
 
       {/* Details Panel */}
       {selectedNode && (
-        <div className="absolute top-4 right-4 bg-white border border-[#7c5cff] rounded-xl p-6 w-96 shadow-2xl z-50">
+        <div className="absolute top-4 right-4 bg-white border border-[#F97316] rounded-xl p-6 w-96 shadow-2xl z-50">
           <div className="flex items-start justify-between mb-4">
             <div>
               <h3 className="text-[16px] font-semibold text-[#1a1a1a] mb-1">
@@ -405,9 +405,9 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
           </div>
 
           <div className="space-y-4">
-            <div className="bg-[#7c5cff]/10 border border-[#7c5cff]/20 rounded-lg p-4">
+            <div className="bg-[#F97316]/10 border border-[#F97316]/20 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
-                <Users className="w-4 h-4 text-[#7c5cff]" />
+                <Users className="w-4 h-4 text-[#F97316]" />
                 <span className="text-[12px] text-[#666666]">Total Visitors</span>
               </div>
               <p className="text-[24px] font-bold text-[#1a1a1a]">
@@ -415,9 +415,9 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
               </p>
             </div>
 
-            <div className="bg-[#00d4aa]/10 border border-[#00d4aa]/20 rounded-lg p-4">
+            <div className="bg-[#3b82f6]/10 border border-[#3b82f6]/20 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
-                <Percent className="w-4 h-4 text-[#00d4aa]" />
+                <Percent className="w-4 h-4 text-[#3b82f6]" />
                 <span className="text-[12px] text-[#666666]">Conversion Rate</span>
               </div>
               <p className="text-[24px] font-bold text-[#1a1a1a]">
@@ -443,14 +443,14 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
             {selectedNode.data.url && (
               <div className="bg-[#2a2a2a] border border-[#d0d0d0] rounded-lg p-3">
                 <div className="flex items-center gap-2 mb-2">
-                  <ExternalLink className="w-4 h-4 text-[#7c5cff]" />
+                  <ExternalLink className="w-4 h-4 text-[#F97316]" />
                   <span className="text-[12px] text-[#666666]">URL</span>
                 </div>
                 <a
                   href={selectedNode.data.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[11px] text-[#7c5cff] hover:text-[#00d4aa] break-all line-clamp-2 block"
+                  className="text-[11px] text-[#F97316] hover:text-[#3b82f6] break-all line-clamp-2 block"
                 >
                   {selectedNode.data.url}
                 </a>
@@ -488,7 +488,7 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
                   onAnalyzePage(stepIndex);
                   closeDetails();
                 }}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#7c5cff] hover:bg-[#6b4ce6] text-white text-[13px] font-medium rounded-lg transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#F97316] hover:bg-[#6b4ce6] text-white text-[13px] font-medium rounded-lg transition-colors"
               >
                 <FileSearch className="w-4 h-4" />
                 Page Analysis

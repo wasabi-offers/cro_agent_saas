@@ -190,22 +190,22 @@ export default function FunnelOverview({
     <div className="space-y-6">
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-[#00d4aa]/20 to-[#00d4aa]/5 border border-[#00d4aa]/30 rounded-xl p-5">
+        <div className="bg-gradient-to-br from-[#3b82f6]/20 to-[#3b82f6]/5 border border-[#3b82f6]/30 rounded-xl p-5">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-[#00d4aa]" />
+            <div className="w-10 h-10 bg-[#3b82f6]/20 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-[#3b82f6]" />
             </div>
             <span className="text-[12px] text-[#666666]">Conversion Rate</span>
           </div>
-          <p className="text-[24px] font-bold text-[#00d4aa]">
+          <p className="text-[24px] font-bold text-[#3b82f6]">
             {Number.isFinite(conversionRate) ? conversionRate.toFixed(1) : "0"}%
           </p>
         </div>
 
-        <div className="bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-xl p-5">
+        <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-xl p-5">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
-              <Users className="w-5 h-5 text-[#7c5cff]" />
+            <div className="w-10 h-10 bg-[#F97316]/20 rounded-lg flex items-center justify-center">
+              <Users className="w-5 h-5 text-[#F97316]" />
             </div>
             <span className="text-[12px] text-[#666666]">Total Visitors</span>
           </div>
@@ -214,14 +214,14 @@ export default function FunnelOverview({
           </p>
         </div>
 
-        <div className="bg-gradient-to-br from-[#00d4aa]/20 to-[#00d4aa]/5 border border-[#00d4aa]/30 rounded-xl p-5">
+        <div className="bg-gradient-to-br from-[#3b82f6]/20 to-[#3b82f6]/5 border border-[#3b82f6]/30 rounded-xl p-5">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
-              <Target className="w-5 h-5 text-[#00d4aa]" />
+            <div className="w-10 h-10 bg-[#3b82f6]/20 rounded-lg flex items-center justify-center">
+              <Target className="w-5 h-5 text-[#3b82f6]" />
             </div>
             <span className="text-[12px] text-[#666666]">Conversions</span>
           </div>
-          <p className="text-[24px] font-bold text-[#00d4aa]">
+          <p className="text-[24px] font-bold text-[#3b82f6]">
             {(goalStep?.visitors ?? 0).toLocaleString()}
           </p>
           {goalStep?.name && (
@@ -248,16 +248,16 @@ export default function FunnelOverview({
       {/* RAG Summary + Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* RAG Summary */}
-        <div className="lg:col-span-2 bg-gradient-to-br from-[#7c5cff]/20 to-[#7c5cff]/5 border border-[#7c5cff]/30 rounded-2xl p-6">
+        <div className="lg:col-span-2 bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Brain className="w-5 h-5 text-[#7c5cff]" />
+              <Brain className="w-5 h-5 text-[#F97316]" />
               <h3 className="text-[16px] font-semibold text-[#1a1a1a]">RAG Insights</h3>
             </div>
             <button
               onClick={fetchRagSummary}
               disabled={isLoadingRag}
-              className="px-4 py-2 bg-[#7c5cff] hover:bg-[#6b4ce6] disabled:opacity-50 rounded-lg text-[13px] font-medium text-white flex items-center gap-2 transition-colors"
+              className="px-4 py-2 bg-[#F97316] hover:bg-[#6b4ce6] disabled:opacity-50 rounded-lg text-[13px] font-medium text-white flex items-center gap-2 transition-colors"
             >
               {isLoadingRag ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -290,31 +290,31 @@ export default function FunnelOverview({
           <h3 className="text-[14px] font-semibold text-[#888888] mb-3">Quick Actions</h3>
           <button
             onClick={onNavigateToAnalysis}
-            className="w-full flex items-center justify-between p-4 bg-white/60 hover:bg-white/80 border border-[#7c5cff]/30 hover:border-[#7c5cff]/50 rounded-xl text-left transition-all group"
+            className="w-full flex items-center justify-between p-4 bg-white/60 hover:bg-white/80 border border-[#F97316]/30 hover:border-[#F97316]/50 rounded-xl text-left transition-all group"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#7c5cff]/20 rounded-lg flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-[#7c5cff]" />
+              <div className="w-10 h-10 bg-[#F97316]/20 rounded-lg flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-[#F97316]" />
               </div>
               <span className="text-[14px] font-medium text-[#1a1a1a]">CRO Analysis</span>
             </div>
-            <ChevronRight className="w-5 h-5 text-[#666666] group-hover:text-[#7c5cff]" />
+            <ChevronRight className="w-5 h-5 text-[#666666] group-hover:text-[#F97316]" />
           </button>
           <button
             onClick={onNavigateToHeatmap}
-            className="w-full flex items-center justify-between p-4 bg-white/60 hover:bg-white/80 border border-[#7c5cff]/30 hover:border-[#7c5cff]/50 rounded-xl text-left transition-all group"
+            className="w-full flex items-center justify-between p-4 bg-white/60 hover:bg-white/80 border border-[#F97316]/30 hover:border-[#F97316]/50 rounded-xl text-left transition-all group"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#00d4aa]/20 rounded-lg flex items-center justify-center">
-                <MousePointerClick className="w-5 h-5 text-[#00d4aa]" />
+              <div className="w-10 h-10 bg-[#3b82f6]/20 rounded-lg flex items-center justify-center">
+                <MousePointerClick className="w-5 h-5 text-[#3b82f6]" />
               </div>
               <span className="text-[14px] font-medium text-[#1a1a1a]">Heatmap</span>
             </div>
-            <ChevronRight className="w-5 h-5 text-[#666666] group-hover:text-[#00d4aa]" />
+            <ChevronRight className="w-5 h-5 text-[#666666] group-hover:text-[#3b82f6]" />
           </button>
           <button
             onClick={onNavigateToABTests}
-            className="w-full flex items-center justify-between p-4 bg-white/60 hover:bg-white/80 border border-[#7c5cff]/30 hover:border-[#7c5cff]/50 rounded-xl text-left transition-all group"
+            className="w-full flex items-center justify-between p-4 bg-white/60 hover:bg-white/80 border border-[#F97316]/30 hover:border-[#F97316]/50 rounded-xl text-left transition-all group"
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center">
@@ -340,7 +340,7 @@ export default function FunnelOverview({
               <select
                 value={urgentFilterStep}
                 onChange={(e) => setUrgentFilterStep(e.target.value)}
-                className="bg-white/60 border border-[#ff6b6b]/30 rounded-lg px-3 py-1.5 text-[12px] text-[#1a1a1a] focus:outline-none focus:border-[#7c5cff]"
+                className="bg-white/60 border border-[#ff6b6b]/30 rounded-lg px-3 py-1.5 text-[12px] text-[#1a1a1a] focus:outline-none focus:border-[#F97316]"
               >
                 <option value="all">All pages</option>
                 {steps.map((s) => (
@@ -353,7 +353,7 @@ export default function FunnelOverview({
             <select
               value={urgentFilterLevel}
               onChange={(e) => setUrgentFilterLevel(e.target.value)}
-              className="bg-[#f8f9fa] border border-[#2a2a2a] rounded-lg px-3 py-1.5 text-[12px] text-[#1a1a1a] focus:outline-none focus:border-[#7c5cff]"
+              className="bg-[#f8f9fa] border border-[#2a2a2a] rounded-lg px-3 py-1.5 text-[12px] text-[#1a1a1a] focus:outline-none focus:border-[#F97316]"
             >
               <option value="all">All urgency</option>
               <option value="critical">Critical (≥80%)</option>
@@ -384,7 +384,7 @@ export default function FunnelOverview({
                       ? "bg-[#f59e0b]/10 border-[#f59e0b]/30"
                       : task.urgency === "medium"
                         ? "bg-[#f59e0b]/5 border-[#f59e0b]/20"
-                        : "bg-white/60 border-[#7c5cff]/20"
+                        : "bg-white/60 border-[#F97316]/20"
                 }`}
               >
                 <div className="flex-1 min-w-0">
@@ -395,17 +395,17 @@ export default function FunnelOverview({
                     <span>{task.visitorsLost.toLocaleString()} visitors lost</span>
                   </div>
                   {task.interventions.length > 0 && (
-                    <div className="mt-4 p-4 rounded-lg bg-[#00d4aa]/5 border border-[#00d4aa]/20">
+                    <div className="mt-4 p-4 rounded-lg bg-[#3b82f6]/5 border border-[#3b82f6]/20">
                       <div className="flex items-center gap-2 mb-3">
-                        <Lightbulb className="w-4 h-4 text-[#00d4aa]" />
-                        <p className="text-[13px] font-semibold text-[#00d4aa]">
+                        <Lightbulb className="w-4 h-4 text-[#3b82f6]" />
+                        <p className="text-[13px] font-semibold text-[#3b82f6]">
                           Mini Analysis – Tips & Action Items:
                         </p>
                       </div>
                       <ul className="space-y-2 text-[13px] text-[#666666]">
                         {task.interventions.map((item, j) => (
                           <li key={j} className="flex items-start gap-2">
-                            <span className="text-[#00d4aa] flex-shrink-0 mt-0.5">✓</span>
+                            <span className="text-[#3b82f6] flex-shrink-0 mt-0.5">✓</span>
                             <span>{item}</span>
                           </li>
                         ))}
@@ -416,13 +416,13 @@ export default function FunnelOverview({
                 <div className="flex gap-2 flex-shrink-0">
                   <button
                     onClick={onNavigateToAnalysis}
-                    className="px-3 py-1.5 bg-[#7c5cff]/20 hover:bg-[#7c5cff]/30 text-[#7c5cff] rounded-lg text-[11px] font-medium"
+                    className="px-3 py-1.5 bg-[#F97316]/20 hover:bg-[#F97316]/30 text-[#F97316] rounded-lg text-[11px] font-medium"
                   >
                     CRO Analysis
                   </button>
                   <button
                     onClick={onNavigateToHeatmap}
-                    className="px-3 py-1.5 bg-[#00d4aa]/20 hover:bg-[#00d4aa]/30 text-[#00d4aa] rounded-lg text-[11px] font-medium"
+                    className="px-3 py-1.5 bg-[#3b82f6]/20 hover:bg-[#3b82f6]/30 text-[#3b82f6] rounded-lg text-[11px] font-medium"
                   >
                     Heatmap
                   </button>

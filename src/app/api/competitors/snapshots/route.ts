@@ -26,9 +26,11 @@ export async function GET(request: Request) {
       );
     }
 
+    const deviceType = searchParams.get("device_type");
+
     const selectFields = includeScreenshot
       ? "*"
-      : "id, competitor_id, page_title, page_meta_description, captured_at, analysis_result, changes_detected, change_severity, change_summary, cro_score, previous_snapshot_id, created_at";
+      : "id, competitor_id, page_title, page_meta_description, captured_at, analysis_result, changes_detected, change_severity, change_summary, cro_score, previous_snapshot_id, created_at, device_type, viewport_width, viewport_height, braintrust_span_id";
 
     let query = supabase
       .from("competitor_snapshots")
@@ -38,6 +40,10 @@ export async function GET(request: Request) {
 
     if (competitorId) {
       query = query.eq("competitor_id", competitorId);
+    }
+
+    if (deviceType && (deviceType === "desktop" || deviceType === "mobile")) {
+      query = query.eq("device_type", deviceType);
     }
 
     const { data: snapshots, error } = await query;

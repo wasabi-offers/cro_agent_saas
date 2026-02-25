@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { captureScreenshot } from "@/lib/competitor-screenshot";
+import { captureScreenshot, DeviceType } from "@/lib/competitor-screenshot";
 import {
   analyzeBaselineScreenshot,
   compareScreenshots,
@@ -18,6 +18,65 @@ function getSupabaseClient() {
 
 export const maxDuration = 300;
 export const dynamic = "force-dynamic";
+
+async function analyzeDevice(
+  supabase: any,
+  competitor: any,
+  device: DeviceType
+) {
+  const screenshotBase64 = await captureScreenshot(competitor.website_url, device);
+
+  const { data: previousSnapshots } = await supabase
+    .from("competitor_snapshots")
+    .select("id, screenshot_base64, cro_score, captured_at")
+    .eq("competitor_id", competitor.id)
+    .eq("device_type", device)
+    .order("captured_at", { ascending: false })
+    .limit(1);
+
+  const previousSnapshot =
+    previousSnapshots && previousSnapshots.length > 0
+      ? previousSnapshots[0]
+      : null;
+
+  let analysis;
+
+  if (previousSnapshot?.screenshot_base64) {
+    analysis = await compareScreenshots(
+      previousSnapshot.screenshot_base64,
+      screenshotBase64
+    );
+  } else {
+    analysis = await analyzeBaselineScreenshot(screenshotBase64);
+  }
+
+  const viewport = device === "mobile" ? { w: 390, h: 844 } : { w: 1280, h: 900 };
+  const snapshotId = `snap_${competitor.id}_${device}_${Date.now()}`;
+
+  const { error: insertError } = await supabase
+    .from("competitor_snapshots")
+    .insert({
+      id: snapshotId,
+      competitor_id: competitor.id,
+      screenshot_base64: screenshotBase64,
+      captured_at: new Date().toISOString(),
+      analysis_result: analysis,
+      changes_detected: analysis.changes_detected,
+      change_severity: analysis.severity,
+      change_summary: analysis.summary,
+      cro_score: analysis.cro_score,
+      previous_snapshot_id: previousSnapshot?.id || null,
+      device_type: device,
+      viewport_width: viewport.w,
+      viewport_height: viewport.h,
+    });
+
+  if (insertError) {
+    throw insertError;
+  }
+
+  return { snapshotId, analysis, device };
+}
 
 export async function GET() {
   try {
@@ -60,69 +119,18 @@ export async function GET() {
 
     for (const competitor of competitors) {
       try {
-        const screenshotBase64 = await captureScreenshot(
-          competitor.website_url
-        );
-
-        const { data: previousSnapshots } = await supabase
-          .from("competitor_snapshots")
-          .select("id, screenshot_base64, cro_score, captured_at")
-          .eq("competitor_id", competitor.id)
-          .order("captured_at", { ascending: false })
-          .limit(1);
-
-        const previousSnapshot =
-          previousSnapshots && previousSnapshots.length > 0
-            ? previousSnapshots[0]
-            : null;
-
-        let analysis;
-
-        if (previousSnapshot?.screenshot_base64) {
-          analysis = await compareScreenshots(
-            previousSnapshot.screenshot_base64,
-            screenshotBase64
-          );
-        } else {
-          analysis = await analyzeBaselineScreenshot(screenshotBase64);
-        }
-
-        const snapshotId = `snap_${competitor.id}_${Date.now()}`;
-
-        const { error: insertError } = await supabase
-          .from("competitor_snapshots")
-          .insert({
-            id: snapshotId,
-            competitor_id: competitor.id,
-            screenshot_base64: screenshotBase64,
-            captured_at: new Date().toISOString(),
-            analysis_result: analysis,
-            changes_detected: analysis.changes_detected,
-            change_severity: analysis.severity,
-            change_summary: analysis.summary,
-            cro_score: analysis.cro_score,
-            previous_snapshot_id: previousSnapshot?.id || null,
-          });
-
-        if (insertError) {
-          console.error(
-            `Error saving snapshot for ${competitor.name}:`,
-            insertError
-          );
-          results.push({
-            competitor: competitor.name,
-            status: "error",
-            error: insertError.message,
-          });
-          continue;
-        }
+        const [desktopResult, mobileResult] = await Promise.all([
+          analyzeDevice(supabase, competitor, "desktop"),
+          analyzeDevice(supabase, competitor, "mobile"),
+        ]);
 
         const updateData: Record<string, unknown> = {
           last_analyzed_at: new Date().toISOString(),
-          last_cro_score: analysis.cro_score,
+          last_cro_score: desktopResult.analysis.cro_score,
         };
 
-        if (analysis.changes_detected) {
+        const changesDetected = desktopResult.analysis.changes_detected || mobileResult.analysis.changes_detected;
+        if (changesDetected) {
           updateData.total_changes_detected =
             (competitor.total_changes_detected || 0) + 1;
         }
@@ -135,10 +143,19 @@ export async function GET() {
         results.push({
           competitor: competitor.name,
           status: "success",
-          changes_detected: analysis.changes_detected,
-          severity: analysis.severity,
-          cro_score: analysis.cro_score,
-          snapshot_id: snapshotId,
+          desktop: {
+            changes_detected: desktopResult.analysis.changes_detected,
+            severity: desktopResult.analysis.severity,
+            cro_score: desktopResult.analysis.cro_score,
+            snapshot_id: desktopResult.snapshotId,
+          },
+          mobile: {
+            changes_detected: mobileResult.analysis.changes_detected,
+            severity: mobileResult.analysis.severity,
+            cro_score: mobileResult.analysis.cro_score,
+            snapshot_id: mobileResult.snapshotId,
+          },
+          changes_detected: changesDetected,
         });
       } catch (err) {
         console.error(`Error analyzing ${competitor.name}:`, err);
@@ -157,7 +174,7 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      message: `Analyzed ${totalAnalyzed}/${competitors.length} competitors. ${totalChanges} with changes detected.`,
+      message: `Analyzed ${totalAnalyzed}/${competitors.length} competitors (desktop + mobile). ${totalChanges} with changes detected.`,
       results,
       timestamp: new Date().toISOString(),
     });

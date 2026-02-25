@@ -5,7 +5,7 @@ import { join } from 'path';
 export async function GET() {
   try {
     // Read the tracking script from public folder
-    const scriptPath = join(process.cwd(), 'public', 'cro-tracker.js');
+    const scriptPath = join(process.cwd(), 'public', 'cro-tracking-attribution.js');
     const scriptContent = readFileSync(scriptPath, 'utf8');
 
     return new NextResponse(scriptContent, {

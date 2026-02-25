@@ -502,12 +502,15 @@ export function generateAdvancedTrackingScript(options: {
 export function getTrackingScriptTag(options: {
   funnelId?: string;
   funnelStepName?: string;
+  funnelStepOrder?: number;
   enableHeatmap?: boolean;
 } = {}): string {
-  return `<!-- CRO Agent Tracking -->
+  const stepOrder = options.funnelStepOrder ?? 0;
+  return `<!-- CRO Agent Tracking + Attribution -->
 <script>
 window.funnelId="${options.funnelId || ''}";
 window.funnelStep="${options.funnelStepName || ''}";
+window.funnelStepOrder=${stepOrder};
 </script>
-<script src="https://dohrkonencbwvvmklzuo.supabase.co/storage/v1/object/public/scripts/cro-tracker.js"></script>`;
+<script src="https://dohrkonencbwvvmklzuo.supabase.co/storage/v1/object/public/scripts/cro-tracking-attribution.js"></script>`;
 }

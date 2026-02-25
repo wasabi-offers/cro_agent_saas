@@ -46,11 +46,11 @@ export default function QuickWinsSection() {
   const getImpactColor = (impact: QuickWin["impact"]) => {
     switch (impact) {
       case "high":
-        return { bg: "bg-[#00d4aa]/20", text: "text-[#00d4aa]", border: "border-[#00d4aa]/30" };
+        return { bg: "bg-[#3b82f6]/20", text: "text-[#3b82f6]", border: "border-[#3b82f6]/30" };
       case "medium":
         return { bg: "bg-[#f59e0b]/20", text: "text-[#f59e0b]", border: "border-[#f59e0b]/30" };
       case "low":
-        return { bg: "bg-[#7c5cff]/20", text: "text-[#7c5cff]", border: "border-[#7c5cff]/30" };
+        return { bg: "bg-[#F97316]/20", text: "text-[#F97316]", border: "border-[#F97316]/30" };
     }
   };
 
@@ -73,12 +73,12 @@ export default function QuickWinsSection() {
           return (
             <div
               key={win.id}
-              className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-xl p-6 hover:border-[#7c5cff]/50 transition-all group"
+              className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-xl p-6 hover:border-[#F97316]/50 transition-all group"
             >
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#7c5cff] to-[#00d4aa] flex items-center justify-center">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#F97316] to-[#3b82f6] flex items-center justify-center">
                     <span className="text-[12px] font-bold text-white">{index + 1}</span>
                   </div>
                   <div className={`px-2 py-1 rounded-md border ${impactConfig.bg} ${impactConfig.border}`}>
@@ -101,22 +101,22 @@ export default function QuickWinsSection() {
               <div className="grid grid-cols-2 gap-3 mb-4">
                 <div className="bg-[#111111] rounded-lg p-3">
                   <div className="flex items-center gap-1.5 mb-1">
-                    <Clock className="w-3.5 h-3.5 text-[#7c5cff]" />
+                    <Clock className="w-3.5 h-3.5 text-[#F97316]" />
                     <span className="text-[11px] text-[#888888]">Effort</span>
                   </div>
                   <span className="text-[13px] font-semibold text-[#fafafa]">{win.effort}</span>
                 </div>
                 <div className="bg-[#111111] rounded-lg p-3">
                   <div className="flex items-center gap-1.5 mb-1">
-                    <TrendingUp className="w-3.5 h-3.5 text-[#00d4aa]" />
+                    <TrendingUp className="w-3.5 h-3.5 text-[#3b82f6]" />
                     <span className="text-[11px] text-[#888888]">Expected</span>
                   </div>
-                  <span className="text-[13px] font-semibold text-[#00d4aa]">{win.expectedIncrease}</span>
+                  <span className="text-[13px] font-semibold text-[#3b82f6]">{win.expectedIncrease}</span>
                 </div>
               </div>
 
               {/* Action */}
-              <button className="w-full bg-gradient-to-r from-[#7c5cff] to-[#00d4aa] text-white px-4 py-2.5 rounded-lg text-[13px] font-medium hover:shadow-lg hover:shadow-purple-500/20 transition-all flex items-center justify-center gap-2 group-hover:gap-3">
+              <button className="w-full bg-gradient-to-r from-[#F97316] to-[#3b82f6] text-white px-4 py-2.5 rounded-lg text-[13px] font-medium hover:shadow-lg hover:shadow-orange-500/20 transition-all flex items-center justify-center gap-2 group-hover:gap-3">
                 Start Implementation
                 <ArrowRight className="w-4 h-4" />
               </button>

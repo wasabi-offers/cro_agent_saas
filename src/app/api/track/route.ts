@@ -1,18 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-// Initialize Supabase client
 function getSupabaseClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseKey) {
-    throw new Error("Supabase credentials not configured");
-  }
-
+  if (!supabaseUrl || !supabaseKey) throw new Error("Supabase credentials not configured");
   return createClient(supabaseUrl, supabaseKey);
 }
 
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, apikey, Authorization",
+};
+
+/**
+ * POST /api/track
+ *
+ * Accepts the unified flat snake_case event format from cro-tracking-attribution.js.
+ * This is a fallback endpoint — the primary path is the Supabase Edge Function.
+ */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -21,172 +28,116 @@ export async function POST(req: NextRequest) {
     if (!events || !Array.isArray(events) || events.length === 0) {
       return NextResponse.json(
         { error: "Invalid request: events array required" },
-        {
-          status: 400,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "POST, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type",
-          }
-        }
+        { status: 400, headers: CORS_HEADERS }
       );
     }
 
     const supabase = getSupabaseClient();
-
-    console.log(`📊 Tracking ${events.length} events`);
-
-    // Process each event
     const sessionIds = new Set<string>();
 
     for (const event of events) {
-      sessionIds.add(event.sessionId);
+      const sessionId = event.session_id;
+      const userId = event.user_id;
 
-      // Upsert session if this is first event
-      if (event.type === 'pageview') {
-        const { error: sessionError } = await supabase
-          .from('tracking_sessions')
-          .upsert({
-            session_id: event.sessionId,
+      if (!sessionId) continue;
+      sessionIds.add(sessionId);
+
+      // ── Session upsert on pageview ───────────────────────
+      if (event.type === "pageview") {
+        await supabase.from("tracking_sessions").upsert(
+          {
+            session_id: sessionId,
+            user_id: userId || null,
             first_seen_at: new Date(event.timestamp).toISOString(),
             last_activity_at: new Date(event.timestamp).toISOString(),
-            device_type: event.deviceType,
-            browser: event.browser,
-            os: event.os,
-            screen_width: event.screenWidth,
-            screen_height: event.screenHeight,
-            viewport_width: event.viewportWidth,
-            viewport_height: event.viewportHeight,
+            device_type: event.device_type || "unknown",
+            browser: event.browser || "unknown",
+            os: event.os || "unknown",
+            screen_width: event.screen_width,
+            screen_height: event.screen_height,
+            viewport_width: event.viewport_width,
+            viewport_height: event.viewport_height,
             language: event.language,
             entry_url: event.url,
             entry_path: event.path,
             entry_title: event.title,
             referrer: event.referrer,
-            utm_source: event.utm_source,
-            utm_medium: event.utm_medium,
-            utm_campaign: event.utm_campaign,
-            utm_term: event.utm_term,
-            utm_content: event.utm_content,
-          }, {
-            onConflict: 'session_id',
-            ignoreDuplicates: false
-          });
-
-        if (sessionError) {
-          console.error('Session upsert error:', sessionError);
-        }
+            utm_source: event.source,
+            utm_medium: event.medium,
+            utm_campaign: event.campaign,
+            utm_term: event.term,
+            utm_content: event.content,
+          },
+          { onConflict: "session_id", ignoreDuplicates: false }
+        );
       }
 
-      // Insert event
-      const eventData: any = {
-        session_id: event.sessionId,
+      // ── Insert tracking event ────────────────────────────
+      const evtData: Record<string, unknown> = {
+        session_id: sessionId,
         event_type: event.type,
         timestamp: event.timestamp,
         url: event.url,
         path: event.path,
         title: event.title,
+        funnel_id: event.funnel_id || null,
+        funnel_step_name: event.funnel_step_name || event.step_name || null,
+        funnel_step_order: event.step_order || null,
       };
 
-      // Add click data
-      if (event.clickData) {
-        eventData.click_x = event.clickData.x;
-        eventData.click_y = event.clickData.y;
-        eventData.click_element = event.clickData.element;
-        eventData.click_element_id = event.clickData.elementId;
-        eventData.click_element_class = event.clickData.elementClass;
-        eventData.click_element_text = event.clickData.elementText;
-        eventData.is_cta_click = event.clickData.isCtaClick;
+      if (event.click_x != null) {
+        evtData.click_x = event.click_x;
+        evtData.click_y = event.click_y;
+        evtData.click_element = event.element;
+        evtData.click_element_id = event.element_id;
+        evtData.click_element_class = event.element_class;
+        evtData.click_element_text = event.element_text;
+        evtData.is_cta_click = event.is_cta_click;
       }
 
-      // Add scroll data
-      if (event.scrollData) {
-        eventData.scroll_depth = event.scrollData.depth;
-        eventData.scroll_percentage = event.scrollData.percentage;
-        eventData.max_scroll_depth = event.scrollData.maxDepth;
+      if (event.scroll_depth != null) {
+        evtData.scroll_depth = event.scroll_depth;
+        evtData.scroll_percentage = event.scroll_percentage;
+        evtData.max_scroll_depth = event.max_scroll_depth;
       }
 
-      // Add mouse data
-      if (event.mouseData) {
-        eventData.mouse_x = event.mouseData.x;
-        eventData.mouse_y = event.mouseData.y;
-        eventData.mouse_speed = event.mouseData.movementSpeed;
+      if (event.mouse_x != null) {
+        evtData.mouse_x = event.mouse_x;
+        evtData.mouse_y = event.mouse_y;
+        evtData.mouse_speed = event.mouse_speed;
       }
 
-      // Add form data
-      if (event.formData) {
-        eventData.form_id = event.formData.formId;
-        eventData.form_name = event.formData.formName;
-        eventData.form_field_name = event.formData.fieldName;
-        eventData.form_field_type = event.formData.fieldType;
-        eventData.form_action = event.formData.action;
+      if (event.form_id != null || event.field_name != null) {
+        evtData.form_id = event.form_id;
+        evtData.form_name = event.form_name;
+        evtData.form_field_name = event.field_name;
+        evtData.form_field_type = event.field_type;
+        evtData.form_action = event.form_action || event.form_action_url;
       }
 
-      // Add funnel data
-      if (event.funnelData) {
-        eventData.funnel_id = event.funnelData.funnelId;
-        eventData.funnel_step_name = event.funnelData.stepName;
-        eventData.funnel_step_order = event.funnelData.stepOrder;
+      if (event.time_on_page != null) {
+        evtData.time_on_page = event.time_on_page;
+        evtData.user_engaged = event.engaged;
       }
 
-      // Add time data
-      if (event.timeData) {
-        eventData.time_on_page = event.timeData.timeOnPage;
-        eventData.user_engaged = event.timeData.engaged;
-      }
-
-      const { error: eventError } = await supabase
-        .from('tracking_events')
-        .insert(eventData);
-
-      if (eventError) {
-        console.error('Event insert error:', eventError);
-      }
+      const { error: evtErr } = await supabase.from("tracking_events").insert(evtData);
+      if (evtErr) console.error("Event insert error:", evtErr);
     }
 
-    console.log(`✅ Tracked ${events.length} events for ${sessionIds.size} session(s)`);
-
     return NextResponse.json(
-      {
-        success: true,
-        eventsProcessed: events.length,
-        sessions: Array.from(sessionIds)
-      },
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type",
-        }
-      }
+      { success: true, eventsProcessed: events.length, sessions: Array.from(sessionIds) },
+      { headers: CORS_HEADERS }
     );
-
-  } catch (error: any) {
-    console.error("❌ Tracking Error:", error);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Tracking Error:", message);
     return NextResponse.json(
-      {
-        error: "Failed to track events",
-        details: error.message,
-      },
-      {
-        status: 500,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type",
-        }
-      }
+      { error: "Failed to track events", details: message },
+      { status: 500, headers: CORS_HEADERS }
     );
   }
 }
 
-// OPTIONS handler for CORS
-export async function OPTIONS(req: NextRequest) {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-    },
-  });
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 200, headers: CORS_HEADERS });
 }
