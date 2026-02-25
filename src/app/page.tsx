@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import Header from "@/components/Header";
+import { useLanguage } from "@/components/LanguageProvider";
 import {
   Upload,
   Send,
@@ -66,6 +67,7 @@ const impactConfig: Record<string, { color: string; bg: string; order: number }>
 };
 
 export default function Home() {
+  const { t } = useLanguage();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [userMessage, setUserMessage] = useState("");
@@ -170,10 +172,10 @@ export default function Home() {
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-[28px] font-bold text-[#1a1a1a] mb-2">
-            CRO Analysis Studio
+            {t("dashboard.title")}
           </h1>
           <p className="text-[15px] text-[#888888]">
-            Upload a screenshot and get a detailed CRO audit powered by Gemini + GPT + Claude
+            {t("dashboard.subtitle")}
           </p>
         </div>
 
@@ -230,10 +232,10 @@ export default function Home() {
                   <Upload className="w-8 h-8 text-[#F97316]" />
                 </div>
                 <p className="text-[16px] font-semibold text-[#1a1a1a] mb-2">
-                  Drop your screenshot here
+                  {t("dashboard.dropHere")}
                 </p>
                 <p className="text-[13px] text-[#888888] mb-4">
-                  or click to browse — PNG, JPG, WebP
+                  {t("dashboard.orClick")}
                 </p>
                 <button
                   onClick={(e) => {
@@ -243,7 +245,7 @@ export default function Home() {
                   className="px-5 py-2.5 bg-[#F97316] text-white rounded-xl text-[14px] font-medium hover:bg-[#EA580C] transition-all"
                 >
                   <ImageIcon className="w-4 h-4 inline mr-2" />
-                  Choose File
+                  {t("dashboard.chooseFile")}
                 </button>
               </div>
             )}
@@ -254,12 +256,12 @@ export default function Home() {
             {/* Context Input */}
             <div className="flex-1">
               <label className="block text-[13px] font-semibold text-[#1a1a1a] mb-2">
-                Context (optional)
+                {t("dashboard.context")}
               </label>
               <textarea
                 value={userMessage}
                 onChange={(e) => setUserMessage(e.target.value)}
-                placeholder="e.g., This is my checkout page for concealed permit application. I'm seeing 40% cart abandonment..."
+                placeholder={t("dashboard.contextPlaceholder")}
                 rows={5}
                 className="w-full px-4 py-3 bg-white border border-[#e0e0e0] rounded-xl text-[14px] text-[#1a1a1a] placeholder:text-[#bbbbbb] focus:outline-none focus:border-[#F97316] transition-all resize-none"
               />
@@ -268,13 +270,13 @@ export default function Home() {
             {/* Pipeline Status */}
             <div className="bg-[#f8f9fa] border border-[#e0e0e0] rounded-xl p-4">
               <p className="text-[12px] font-bold text-[#888888] uppercase tracking-wider mb-3">
-                AI Pipeline
+                {t("dashboard.aiPipeline")}
               </p>
               <div className="flex items-center gap-3">
                 {[
-                  { id: "gemini", label: "Gemini", desc: "Visual Analysis", icon: Eye },
-                  { id: "gpt", label: "GPT", desc: "Table Generation", icon: Table2 },
-                  { id: "claude", label: "Claude", desc: "Expert Review", icon: ShieldCheck },
+                  { id: "gemini", label: "Gemini", desc: t("dashboard.visualAnalysis"), icon: Eye },
+                  { id: "gpt", label: "GPT", desc: t("dashboard.tableGeneration"), icon: Table2 },
+                  { id: "claude", label: "Claude", desc: t("dashboard.expertReview"), icon: ShieldCheck },
                 ].map((step, idx) => {
                   const isActive = pipelineStep === step.id;
                   const isDone =
@@ -330,12 +332,12 @@ export default function Home() {
               {isAnalyzing ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  Analyzing with {pipelineStep === "gemini" ? "Gemini" : pipelineStep === "gpt" ? "GPT" : "Claude"}...
+                  {t("dashboard.analyzingWith")} {pipelineStep === "gemini" ? "Gemini" : pipelineStep === "gpt" ? "GPT" : "Claude"}...
                 </>
               ) : (
                 <>
                   <Sparkles className="w-5 h-5" />
-                  Start CRO Analysis
+                  {t("dashboard.startAnalysis")}
                 </>
               )}
             </button>
@@ -365,10 +367,10 @@ export default function Home() {
                   </div>
                   <div className="text-left">
                     <p className="text-[14px] font-semibold text-[#1a1a1a]">
-                      Gemini — Raw Visual Analysis
+                      {t("dashboard.geminiRaw")}
                     </p>
                     <p className="text-[12px] text-[#888888]">
-                      Detailed element-by-element breakdown
+                      {t("dashboard.geminiRawDesc")}
                     </p>
                   </div>
                 </div>
@@ -396,10 +398,10 @@ export default function Home() {
                   </div>
                   <div>
                     <h2 className="text-[18px] font-bold text-[#1a1a1a]">
-                      CRO Comparison Table
+                      {t("dashboard.croTable")}
                     </h2>
                     <p className="text-[13px] text-[#888888]">
-                      {result.tableData.length} issues found — Generated by GPT, reviewed by Claude
+                      {result.tableData.length} {t("dashboard.issuesFound")} — {t("dashboard.generatedBy")}
                     </p>
                   </div>
                 </div>
@@ -426,19 +428,19 @@ export default function Home() {
                   <thead>
                     <tr className="bg-[#f8f9fa] border-b border-[#e0e0e0]">
                       <th className="text-left px-5 py-3.5 text-[11px] font-bold text-[#888888] uppercase tracking-wider w-[140px]">
-                        Area
+                        {t("table.area")}
                       </th>
                       <th className="text-left px-5 py-3.5 text-[11px] font-bold text-[#888888] uppercase tracking-wider">
-                        ❌ Problema
+                        {t("table.problem")}
                       </th>
                       <th className="text-center px-4 py-3.5 text-[11px] font-bold text-[#888888] uppercase tracking-wider w-[90px]">
-                        🎯 Impatto
+                        {t("table.impact")}
                       </th>
                       <th className="text-left px-5 py-3.5 text-[11px] font-bold text-[#888888] uppercase tracking-wider">
-                        🧠 Perché riduce conversione
+                        {t("table.whyReduces")}
                       </th>
                       <th className="text-left px-5 py-3.5 text-[11px] font-bold text-[#888888] uppercase tracking-wider">
-                        ✅ Azione da fare
+                        {t("table.action")}
                       </th>
                     </tr>
                   </thead>
@@ -489,7 +491,7 @@ export default function Home() {
                                 <div className="flex items-center gap-2">
                                   <Brain className="w-3.5 h-3.5 text-[#8b5cf6] shrink-0" />
                                   <span className="text-[11px] font-bold text-[#8b5cf6] uppercase tracking-wider">
-                                    Claude Review
+                                    {t("dashboard.claudeReview")}
                                   </span>
                                 </div>
                                 <p className="text-[12px] text-[#888888] mt-1 italic">
@@ -498,7 +500,7 @@ export default function Home() {
                               </td>
                               <td className="px-4 py-3 align-top text-center">
                                 <span className="text-[10px] font-bold text-[#8b5cf6] bg-[#8b5cf6]/10 px-2 py-0.5 rounded-full">
-                                  Upgrade
+                                  {t("dashboard.upgrade")}
                                 </span>
                               </td>
                               <td className="px-5 py-3 align-top" colSpan={2}>
@@ -520,10 +522,10 @@ export default function Home() {
                             <div className="flex items-center gap-2">
                               <Brain className="w-4 h-4 text-[#8b5cf6]" />
                               <span className="text-[13px] font-bold text-[#8b5cf6]">
-                                Additional Issues Found by Claude
+                                {t("dashboard.additionalIssues")}
                               </span>
                               <span className="text-[11px] text-[#8b5cf6]/70">
-                                — {result.claudeReview.additional_issues.length} missed by primary analysis
+                                — {result.claudeReview.additional_issues.length} {t("dashboard.missedBy")}
                               </span>
                             </div>
                           </td>
@@ -576,7 +578,7 @@ export default function Home() {
               {/* Table Footer with totals */}
               <div className="px-6 py-3 bg-[#f8f9fa] border-t border-[#e0e0e0] flex items-center justify-between">
                 <p className="text-[12px] text-[#888888]">
-                  {result.tableData.length + (result.claudeReview?.additional_issues?.length || 0)} total issues identified
+                  {result.tableData.length + (result.claudeReview?.additional_issues?.length || 0)} {t("dashboard.totalIssues")}
                 </p>
                 <div className="flex items-center gap-1.5 text-[12px] text-[#888888]">
                   <Eye className="w-3 h-3" /> Gemini
@@ -597,10 +599,10 @@ export default function Home() {
                   </div>
                   <div>
                     <h3 className="text-[16px] font-bold text-[#1a1a1a]">
-                      Claude — Final Verdict
+                      {t("dashboard.claudeVerdict")}
                     </h3>
                     <p className="text-[12px] text-[#888888]">
-                      Expert review summary and top priorities
+                      {t("dashboard.claudeVerdictDesc")}
                     </p>
                   </div>
                 </div>

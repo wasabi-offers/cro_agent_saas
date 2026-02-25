@@ -3,6 +3,7 @@ import Script from "next/script";
 import "./globals.css";
 import AuthLayout from "@/components/AuthLayout";
 import ThemeProvider from "@/components/ThemeProvider";
+import LanguageProvider from "@/components/LanguageProvider";
 
 export const metadata: Metadata = {
   title: "CRO Agent - Conversion Rate Optimization",
@@ -42,7 +43,9 @@ export default function RootLayout({
       </head>
       <body>
         <ThemeProvider>
-          <AuthLayout>{children}</AuthLayout>
+          <LanguageProvider>
+            <AuthLayout>{children}</AuthLayout>
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

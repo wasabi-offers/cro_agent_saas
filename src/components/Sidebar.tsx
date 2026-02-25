@@ -5,7 +5,9 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import { useTheme } from "@/components/ThemeProvider";
+import { useLanguage } from "@/components/LanguageProvider";
 import type { User } from "@supabase/supabase-js";
+import type { TranslationKey } from "@/lib/i18n";
 import {
   LayoutDashboard,
   BarChart3,
@@ -23,20 +25,21 @@ import {
   User as UserIcon,
   Sun,
   Moon,
+  Languages,
 } from "lucide-react";
 
-const menuItems = [
-  { name: "Dashboard", href: "/", icon: LayoutDashboard },
-  { name: "Explore AI", href: "/explore-ai", icon: Brain },
-  { name: "Attribution", href: "/attribution", icon: Target },
-  { name: "Analytics", href: "/analytics", icon: BarChart3 },
-  { name: "A/B Tests", href: "/ab-tests", icon: FlaskConical },
-  { name: "Heatmaps", href: "/heatmaps", icon: MousePointerClick },
-  { name: "Projects", href: "/products", icon: Folder },
-  { name: "Landing Analysis", href: "/landing-analysis", icon: FileSearch },
-  { name: "Competitor Monitoring", href: "/competitor-monitoring", icon: Globe },
-  { name: "Archivio", href: "/saved-items", icon: Archive },
-  { name: "Data Sources", href: "/data-sources", icon: Database },
+const menuItems: { nameKey: TranslationKey; href: string; icon: typeof LayoutDashboard }[] = [
+  { nameKey: "sidebar.dashboard", href: "/", icon: LayoutDashboard },
+  { nameKey: "sidebar.exploreAi", href: "/explore-ai", icon: Brain },
+  { nameKey: "sidebar.attribution", href: "/attribution", icon: Target },
+  { nameKey: "sidebar.analytics", href: "/analytics", icon: BarChart3 },
+  { nameKey: "sidebar.abTests", href: "/ab-tests", icon: FlaskConical },
+  { nameKey: "sidebar.heatmaps", href: "/heatmaps", icon: MousePointerClick },
+  { nameKey: "sidebar.projects", href: "/products", icon: Folder },
+  { nameKey: "sidebar.landingAnalysis", href: "/landing-analysis", icon: FileSearch },
+  { nameKey: "sidebar.competitorMonitoring", href: "/competitor-monitoring", icon: Globe },
+  { nameKey: "sidebar.archive", href: "/saved-items", icon: Archive },
+  { nameKey: "sidebar.dataSources", href: "/data-sources", icon: Database },
 ];
 
 export default function Sidebar() {
@@ -45,6 +48,7 @@ export default function Sidebar() {
   const [user, setUser] = useState<User | null>(null);
   const supabase = createSupabaseBrowserClient();
   const { theme, toggleTheme } = useTheme();
+  const { lang, setLang, t } = useLanguage();
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
@@ -93,7 +97,7 @@ export default function Sidebar() {
           const Icon = item.icon;
           return (
             <Link
-              key={item.name}
+              key={item.nameKey}
               href={item.href}
               className="flex justify-start items-center gap-4 px-[15px] py-[15px] rounded-[12px] transition-all duration-200 group"
               style={{
@@ -103,18 +107,18 @@ export default function Sidebar() {
               }}
             >
               <Icon className={`w-5 h-5 ${isActive ? "text-[#F97316]" : "group-hover:text-[#F97316]"}`} />
-              <span className="text-[15px] font-medium">{item.name}</span>
+              <span className="text-[15px] font-medium">{t(item.nameKey)}</span>
             </Link>
           );
         })}
       </nav>
 
-      {/* Theme Toggle + User */}
+      {/* Theme + Language + User */}
       <div className="px-4 py-4 border-t" style={{ borderColor: "var(--border-primary)" }}>
         {/* Day / Night toggle */}
         <button
           onClick={toggleTheme}
-          className="w-full flex items-center justify-between px-4 py-3 rounded-xl mb-3 transition-all duration-200"
+          className="w-full flex items-center justify-between px-4 py-3 rounded-xl mb-2 transition-all duration-200"
           style={{
             backgroundColor: "var(--bg-sidebar-active)",
             border: "1px solid var(--border-primary)",
@@ -127,10 +131,9 @@ export default function Sidebar() {
               <Sun className="w-4 h-4 text-[#ff9500]" />
             )}
             <span className="text-[13px] font-medium" style={{ color: "var(--text-primary)" }}>
-              {isDark ? "Dark Mode" : "Light Mode"}
+              {isDark ? t("sidebar.darkMode") : t("sidebar.lightMode")}
             </span>
           </div>
-          {/* Pill toggle */}
           <div
             className="relative w-10 h-[22px] rounded-full transition-colors duration-300"
             style={{ backgroundColor: isDark ? "#F97316" : "#e0e0e0" }}
@@ -141,6 +144,44 @@ export default function Sidebar() {
             />
           </div>
         </button>
+
+        {/* Language toggle */}
+        <div
+          className="flex items-center justify-between px-4 py-3 rounded-xl mb-3"
+          style={{
+            backgroundColor: "var(--bg-sidebar-active)",
+            border: "1px solid var(--border-primary)",
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <Languages className="w-4 h-4 text-[#3b82f6]" />
+            <span className="text-[13px] font-medium" style={{ color: "var(--text-primary)" }}>
+              {t("common.language")}
+            </span>
+          </div>
+          <div className="flex items-center gap-1 bg-[var(--bg-tertiary)] rounded-lg p-0.5">
+            <button
+              onClick={() => setLang("en")}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all ${
+                lang === "en"
+                  ? "bg-[#F97316] text-white shadow-sm"
+                  : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              }`}
+            >
+              EN
+            </button>
+            <button
+              onClick={() => setLang("it")}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all ${
+                lang === "it"
+                  ? "bg-[#F97316] text-white shadow-sm"
+                  : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              }`}
+            >
+              IT
+            </button>
+          </div>
+        </div>
 
         {/* User card */}
         <div
@@ -156,11 +197,11 @@ export default function Sidebar() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[13px] font-medium truncate" style={{ color: "var(--text-primary)" }}>
-                {user?.email || "Loading..."}
+                {user?.email || t("sidebar.loading")}
               </p>
               <div className="flex items-center gap-1.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-[#3b82f6]" />
-                <span className="text-[11px]" style={{ color: "var(--text-faint)" }}>Online</span>
+                <span className="text-[11px]" style={{ color: "var(--text-faint)" }}>{t("sidebar.online")}</span>
               </div>
             </div>
           </div>
@@ -178,7 +219,7 @@ export default function Sidebar() {
             }}
           >
             <LogOut className="w-3.5 h-3.5" />
-            Sign Out
+            {t("sidebar.signOut")}
           </button>
         </div>
       </div>

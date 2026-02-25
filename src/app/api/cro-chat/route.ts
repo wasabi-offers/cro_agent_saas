@@ -3,7 +3,36 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 
-export const maxDuration = 180;
+export const maxDuration = 240;
+
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  label: string,
+  maxRetries = 3,
+  baseDelay = 5000
+): Promise<T> {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (err: any) {
+      const isOverloaded =
+        err?.status === 529 ||
+        err?.status === 429 ||
+        err?.error?.type === "overloaded_error" ||
+        err?.message?.includes("overloaded") ||
+        err?.message?.includes("rate_limit");
+
+      if (isOverloaded && attempt < maxRetries) {
+        const delay = baseDelay * Math.pow(2, attempt - 1);
+        console.log(`[${label}] Overloaded/rate-limited (attempt ${attempt}/${maxRetries}), retrying in ${delay / 1000}s...`);
+        await new Promise((r) => setTimeout(r, delay));
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw new Error(`[${label}] Max retries exceeded`);
+}
 
 const GEMINI_PROMPT = `You are a world-class CRO (Conversion Rate Optimization) strategist with 15+ years of experience analyzing landing pages, checkout flows, and sales funnels.
 
@@ -144,26 +173,30 @@ export async function POST(request: Request) {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
     const geminiModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-    const geminiResult = await geminiModel.generateContent({
-      contents: [
-        {
-          role: "user",
-          parts: [
-            { text: `${GEMINI_PROMPT}\n\nUser context: "${userContext}"` },
+    const geminiResult = await withRetry(
+      () =>
+        geminiModel.generateContent({
+          contents: [
             {
-              inlineData: {
-                mimeType: "image/jpeg",
-                data: imageBase64.replace(/^data:image\/\w+;base64,/, ""),
-              },
+              role: "user",
+              parts: [
+                { text: `${GEMINI_PROMPT}\n\nUser context: "${userContext}"` },
+                {
+                  inlineData: {
+                    mimeType: "image/jpeg",
+                    data: imageBase64.replace(/^data:image\/\w+;base64,/, ""),
+                  },
+                },
+              ],
             },
           ],
-        },
-      ],
-      generationConfig: {
-        maxOutputTokens: 16000,
-        temperature: 0.2,
-      },
-    });
+          generationConfig: {
+            maxOutputTokens: 16000,
+            temperature: 0.2,
+          },
+        }),
+      "Gemini"
+    );
 
     const geminiAnalysis = geminiResult.response.text();
 
@@ -177,21 +210,29 @@ export async function POST(request: Request) {
     // ═══════════════════════════════════════
     // STEP 2: GPT — Structured Table Generation
     // ═══════════════════════════════════════
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+      maxRetries: 3,
+      timeout: 120_000,
+    });
 
     const gptPrompt = GPT_PROMPT
       .replace("USER_CONTEXT", userContext)
       .replace("GEMINI_ANALYSIS", geminiAnalysis);
 
-    const gptResult = await openai.chat.completions.create({
-      model: "gpt-4.1",
-      messages: [
-        { role: "system", content: "You output ONLY valid JSON arrays. No markdown fences, no explanation." },
-        { role: "user", content: gptPrompt },
-      ],
-      max_tokens: 16000,
-      temperature: 0.1,
-    });
+    const gptResult = await withRetry(
+      () =>
+        openai.chat.completions.create({
+          model: "gpt-4.1",
+          messages: [
+            { role: "system", content: "You output ONLY valid JSON arrays. No markdown fences, no explanation." },
+            { role: "user", content: gptPrompt },
+          ],
+          max_tokens: 16000,
+          temperature: 0.1,
+        }),
+      "GPT"
+    );
 
     const gptRaw = gptResult.choices[0]?.message?.content || "[]";
 
@@ -207,31 +248,45 @@ export async function POST(request: Request) {
     // ═══════════════════════════════════════
     // STEP 3: Claude — Expert Review
     // ═══════════════════════════════════════
-    const claude = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const claude = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+      maxRetries: 5,
+      timeout: 120_000,
+    });
 
     const claudePrompt = CLAUDE_REVIEW_PROMPT
       .replace("USER_CONTEXT", userContext)
       .replace("TABLE_JSON", JSON.stringify(tableData, null, 2));
 
-    const claudeResult = await claude.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 8000,
-      messages: [
-        { role: "user", content: claudePrompt },
-      ],
-    });
-
-    const claudeRaw = claudeResult.content.find((c) => c.type === "text")?.text || "{}";
-
     let claudeReview: any;
+
     try {
-      const cleaned = claudeRaw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-      claudeReview = JSON.parse(cleaned);
-    } catch {
+      const claudeResult = await claude.messages.create({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 8000,
+        messages: [
+          { role: "user", content: claudePrompt },
+        ],
+      });
+
+      const claudeRaw = claudeResult.content.find((c) => c.type === "text")?.text || "{}";
+
+      try {
+        const cleaned = claudeRaw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+        claudeReview = JSON.parse(cleaned);
+      } catch {
+        claudeReview = {
+          corrections: [],
+          additional_issues: [],
+          overall_verdict: claudeRaw,
+        };
+      }
+    } catch (claudeErr: any) {
+      console.error("Claude review failed after retries, returning results without review:", claudeErr?.message);
       claudeReview = {
         corrections: [],
         additional_issues: [],
-        overall_verdict: claudeRaw,
+        overall_verdict: "⚠️ Claude review was unavailable (server overloaded). The Gemini + GPT analysis above is still valid. Try again later for the expert review.",
       };
     }
 
