@@ -17,8 +17,9 @@ const CORS_HEADERS = {
 /**
  * POST /api/track
  *
- * Accepts the unified flat snake_case event format from cro-tracking-attribution.js.
- * This is a fallback endpoint — the primary path is the Supabase Edge Function.
+ * Primary endpoint for cro-tracking-attribution.js.
+ * Accepts batched events in { events: [...] } format, upserts sessions,
+ * and inserts tracking events into Supabase.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -34,49 +35,60 @@ export async function POST(req: NextRequest) {
 
     const supabase = getSupabaseClient();
     const sessionIds = new Set<string>();
+    const ensuredSessions = new Set<string>();
 
-    for (const event of events) {
+    // Sort events so pageviews come first (they carry richer session data)
+    const sorted = [...events].sort((a, b) => {
+      if (a.type === "pageview" && b.type !== "pageview") return -1;
+      if (a.type !== "pageview" && b.type === "pageview") return 1;
+      return 0;
+    });
+
+    for (const event of sorted) {
       const sessionId = event.session_id;
       const userId = event.user_id;
 
       if (!sessionId) continue;
       sessionIds.add(sessionId);
 
-      // ── Session upsert on pageview ───────────────────────
-      if (event.type === "pageview") {
-        await supabase.from("tracking_sessions").upsert(
+      // ── Ensure session exists (upsert once per session per batch) ──
+      if (!ensuredSessions.has(sessionId)) {
+        ensuredSessions.add(sessionId);
+        const ts = event.timestamp ? new Date(event.timestamp).toISOString() : new Date().toISOString();
+        const { error: sessErr } = await supabase.from("tracking_sessions").upsert(
           {
             session_id: sessionId,
             user_id: userId || null,
-            first_seen_at: new Date(event.timestamp).toISOString(),
-            last_activity_at: new Date(event.timestamp).toISOString(),
+            first_seen_at: ts,
+            last_activity_at: ts,
             device_type: event.device_type || "unknown",
             browser: event.browser || "unknown",
             os: event.os || "unknown",
-            screen_width: event.screen_width,
-            screen_height: event.screen_height,
-            viewport_width: event.viewport_width,
-            viewport_height: event.viewport_height,
-            language: event.language,
-            entry_url: event.url,
-            entry_path: event.path,
-            entry_title: event.title,
-            referrer: event.referrer,
-            utm_source: event.source,
-            utm_medium: event.medium,
-            utm_campaign: event.campaign,
-            utm_term: event.term,
-            utm_content: event.content,
+            screen_width: event.screen_width || null,
+            screen_height: event.screen_height || null,
+            viewport_width: event.viewport_width || null,
+            viewport_height: event.viewport_height || null,
+            language: event.language || null,
+            entry_url: event.url || null,
+            entry_path: event.path || null,
+            entry_title: event.title || null,
+            referrer: event.referrer || null,
+            utm_source: event.source || null,
+            utm_medium: event.medium || null,
+            utm_campaign: event.campaign || null,
+            utm_term: event.term || null,
+            utm_content: event.content || null,
           },
-          { onConflict: "session_id", ignoreDuplicates: false }
+          { onConflict: "session_id", ignoreDuplicates: true }
         );
+        if (sessErr) console.error("Session upsert error:", sessErr);
       }
 
       // ── Insert tracking event ────────────────────────────
       const evtData: Record<string, unknown> = {
         session_id: sessionId,
         event_type: event.type,
-        timestamp: event.timestamp,
+        timestamp: event.timestamp || Date.now(),
         url: event.url,
         path: event.path,
         title: event.title,
@@ -121,7 +133,7 @@ export async function POST(req: NextRequest) {
       }
 
       const { error: evtErr } = await supabase.from("tracking_events").insert(evtData);
-      if (evtErr) console.error("Event insert error:", evtErr);
+      if (evtErr) console.error("Event insert error:", evtErr.message, "| type:", event.type, "| session:", sessionId);
     }
 
     return NextResponse.json(

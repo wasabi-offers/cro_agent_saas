@@ -58,7 +58,7 @@ export default function CROComparisonTable({ rows, onUpdateTest }: CROComparison
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-br from-white to-[#f8f9fa] border border-[#F97316]/30 rounded-2xl p-6 shadow-sm">
+      <div className="bg-white border border-[#F97316]/30 rounded-2xl p-6 shadow-sm">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-gradient-to-br from-[#F97316] to-[#3b82f6] rounded-xl flex items-center justify-center">
             <TrendingUp className="w-6 h-6 text-white" />
@@ -82,11 +82,11 @@ export default function CROComparisonTable({ rows, onUpdateTest }: CROComparison
           return (
             <div
               key={row.id}
-              className="bg-white border border-[#d0d0d0] rounded-2xl overflow-hidden hover:border-[#F97316]/50 hover:shadow-lg transition-all"
+              className="bg-white border border-[#d0d0d0] rounded-2xl overflow-hidden hover:border-[#F97316]/50 hover:shadow-lg transition-[border-color,box-shadow] duration-200 relative"
             >
               {/* Card Header - Always Visible */}
               <div
-                className="p-6 cursor-pointer"
+                className="p-6 cursor-pointer bg-white"
                 onClick={() => toggleRow(row.id)}
               >
                 <div className="flex items-start gap-4">

@@ -28,10 +28,31 @@
   // ═══════════════════════════════════════════
   // CONFIGURATION
   // ═══════════════════════════════════════════
+
+  // Auto-detect API base URL from the script's own src attribute
+  var APP_BASE_URL = '';
+  try {
+    var currentScriptSrc = '';
+    if (document.currentScript && document.currentScript.src) {
+      currentScriptSrc = document.currentScript.src;
+    } else {
+      var allScripts = document.getElementsByTagName('script');
+      for (var si = allScripts.length - 1; si >= 0; si--) {
+        if (allScripts[si].src && allScripts[si].src.indexOf('cro-tracking-attribution') > -1) {
+          currentScriptSrc = allScripts[si].src;
+          break;
+        }
+      }
+    }
+    if (currentScriptSrc) {
+      var parsedUrl = new URL(currentScriptSrc);
+      APP_BASE_URL = parsedUrl.origin;
+    }
+  } catch (_) {}
+  if (!APP_BASE_URL) APP_BASE_URL = 'https://cro-agent.vercel.app';
+
   var CONFIG = {
-    SUPABASE_URL: 'https://dohrkonencbwvvmklzuo.supabase.co',
-    SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvaHJrb25lbmNid3Z2bWtsenVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2OTAwNTUsImV4cCI6MjA4MzI2NjA1NX0.k2N-H_p-a4FHaOvq7V4u_uXkx45XIY-LZt0RoIJpjmU',
-    API_ENDPOINT: null,
+    API_ENDPOINT: APP_BASE_URL + '/api/track',
 
     USER_STORAGE_KEY: 'cro_user_id',
     USER_COOKIE_NAME: 'cro_uid',
@@ -48,7 +69,6 @@
     TIME_INTERVAL_S: 30,
     ENGAGEMENT_TIMEOUT_MS: 30000
   };
-  CONFIG.API_ENDPOINT = CONFIG.SUPABASE_URL + '/functions/v1/track-event';
 
   // ═══════════════════════════════════════════
   // UTILITIES
@@ -384,19 +404,20 @@
     try {
       fetch(CONFIG.API_ENDPOINT, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': CONFIG.SUPABASE_ANON_KEY,
-          'Authorization': 'Bearer ' + CONFIG.SUPABASE_ANON_KEY
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: payload,
         keepalive: true
       }).then(function (r) {
         if (!r.ok) {
-          console.error('[CRO] Send failed HTTP', r.status);
+          r.text().then(function (t) {
+            console.error('[CRO] Send failed HTTP', r.status, t);
+          }).catch(function () {
+            console.error('[CRO] Send failed HTTP', r.status);
+          });
           eventQueue = batch.concat(eventQueue);
         }
-      }).catch(function () {
+      }).catch(function (err) {
+        console.error('[CRO] Send failed network:', err.message || err);
         eventQueue = batch.concat(eventQueue);
       });
     } catch (_) {
@@ -583,8 +604,10 @@
   window.addEventListener('beforeunload', function () {
     if (eventQueue.length > 0) {
       try {
-        var blob = new Blob([JSON.stringify({ events: eventQueue })], { type: 'application/json' });
-        navigator.sendBeacon(CONFIG.API_ENDPOINT + '?apikey=' + CONFIG.SUPABASE_ANON_KEY, blob);
+        var remaining = eventQueue.slice();
+        eventQueue = [];
+        var blob = new Blob([JSON.stringify({ events: remaining })], { type: 'application/json' });
+        navigator.sendBeacon(CONFIG.API_ENDPOINT, blob);
       } catch (_) {
         flushEvents();
       }
@@ -642,6 +665,7 @@
   window.dispatchEvent(new Event('cro-tracker-ready'));
 
   console.log('[CRO] Tracking + Attribution initialized');
+  console.log('[CRO] API endpoint:', CONFIG.API_ENDPOINT);
   console.log('[CRO] User:', userId, '| Session:', sessionId);
   console.log('[CRO] First touch:', firstTouchAttribution.source + '/' + firstTouchAttribution.medium);
   console.log('[CRO] Current:', currentAttribution.source + '/' + currentAttribution.medium);
