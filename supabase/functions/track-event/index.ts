@@ -14,240 +14,155 @@ serve(async (req) => {
   try {
     const body = await req.json()
 
-    const supabase = createClient(
+    // Use SERVICE_ROLE_KEY to bypass RLS
+    const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? Deno.env.get('SUPABASE_ANON_KEY') ?? '',
     )
 
     const { events } = body
+
     if (!events || !Array.isArray(events) || events.length === 0) {
-      return new Response(JSON.stringify({ error: 'events array required' }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
-      })
+      return new Response(
+        JSON.stringify({ error: 'Invalid request: events array required' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 },
+      )
     }
 
-    console.log(`📊 Processing ${events.length} events`)
-
     const sessionIds = new Set<string>()
-    const userIds = new Set<string>()
-    let pageviewCount = 0
+    const ensuredSessions = new Set<string>()
 
-    for (const event of events) {
-      const sessionId = event.session_id
-      const userId = event.user_id
+    // Sort so pageviews come first (they carry richer session data)
+    const sorted = [...events].sort((a, b) => {
+      const aType = a.type || a.event_type
+      const bType = b.type || b.event_type
+      if (aType === 'pageview' && bType !== 'pageview') return -1
+      if (aType !== 'pageview' && bType === 'pageview') return 1
+      return 0
+    })
+
+    for (const event of sorted) {
+      // Support both flat snake_case (current script) and camelCase (legacy)
+      const sessionId = event.session_id || event.sessionId
+      const userId = event.user_id || event.userId || null
+      const eventType = event.type || event.event_type
 
       if (!sessionId) continue
-
       sessionIds.add(sessionId)
-      if (userId) userIds.add(userId)
 
-      // ── USER UPSERT (on pageview or new user) ─────────────
-      if (userId && (event.type === 'pageview' || event.is_new_user)) {
-        const userData: Record<string, unknown> = {
-          user_id: userId,
-          last_seen_at: new Date().toISOString(),
-          device_fingerprint: event.device_fingerprint,
-          primary_device_type: event.device_type,
-          primary_browser: event.browser,
-          primary_os: event.os,
-          primary_language: event.language,
-          last_touch_source: event.source,
-          last_touch_medium: event.medium,
-          last_touch_campaign: event.campaign,
-          last_touch_content: event.content,
-          last_touch_term: event.term,
-          last_touch_referrer: event.referrer,
-          last_touch_landing_page: event.url,
-        }
+      // ── Ensure session exists (once per session per batch) ──
+      if (!ensuredSessions.has(sessionId)) {
+        ensuredSessions.add(sessionId)
 
-        if (event.is_new_user) {
-          userData.first_seen_at = new Date().toISOString()
-          userData.first_touch_source = event.first_touch_source || event.source
-          userData.first_touch_medium = event.first_touch_medium || event.medium
-          userData.first_touch_campaign = event.first_touch_campaign || event.campaign
-          userData.first_touch_content = event.first_touch_content || event.content
-          userData.first_touch_term = event.first_touch_term || event.term
-          userData.first_touch_referrer = event.referrer
-          userData.first_touch_landing_page = event.url
-          userData.total_sessions = 1
-        }
-
-        const { error: userErr } = await supabase
-          .from('tracking_users')
-          .upsert(userData, { onConflict: 'user_id', ignoreDuplicates: false })
-
-        if (userErr) {
-          console.error('User upsert error:', userErr.message)
-        } else if (event.is_new_session && !event.is_new_user) {
-          await supabase.rpc('increment_user_sessions', { p_user_id: userId })
-        }
-      }
-
-      // ── SESSION UPSERT (on pageview) ───────────────────────
-      if (event.type === 'pageview') {
-        pageviewCount++
-        const sessionData = {
+        const sessionData: Record<string, unknown> = {
           session_id: sessionId,
-          user_id: userId || null,
-          first_seen_at: new Date(event.timestamp).toISOString(),
-          last_activity_at: new Date(event.timestamp).toISOString(),
-          device_type: event.device_type || 'unknown',
+          user_id: userId,
+          first_seen_at: event.timestamp ? new Date(event.timestamp).toISOString() : new Date().toISOString(),
+          last_activity_at: event.timestamp ? new Date(event.timestamp).toISOString() : new Date().toISOString(),
+          device_type: event.device_type || event.deviceType || 'unknown',
           browser: event.browser || 'unknown',
           os: event.os || 'unknown',
-          screen_width: event.screen_width,
-          screen_height: event.screen_height,
-          viewport_width: event.viewport_width,
-          viewport_height: event.viewport_height,
-          language: event.language,
-          entry_url: event.url,
-          entry_path: event.path,
-          entry_title: event.title,
-          referrer: event.referrer,
-          utm_source: event.source,
-          utm_medium: event.medium,
-          utm_campaign: event.campaign,
-          utm_term: event.term,
-          utm_content: event.content,
+          screen_width: event.screen_width || event.screenWidth || null,
+          screen_height: event.screen_height || event.screenHeight || null,
+          viewport_width: event.viewport_width || event.viewportWidth || null,
+          viewport_height: event.viewport_height || event.viewportHeight || null,
+          language: event.language || null,
+          entry_url: event.url || null,
+          entry_path: event.path || null,
+          entry_title: event.title || null,
+          referrer: event.referrer || null,
+          // Current script sends source/medium; legacy sends utm_source/utm_medium
+          utm_source: event.source || event.utm_source || null,
+          utm_medium: event.medium || event.utm_medium || null,
+          utm_campaign: event.campaign || event.utm_campaign || null,
+          utm_term: event.term || event.utm_term || null,
+          utm_content: event.content || event.utm_content || null,
         }
 
-        const { error: sessErr } = await supabase
+        const { error: sessErr } = await supabaseClient
           .from('tracking_sessions')
-          .upsert(sessionData, { onConflict: 'session_id', ignoreDuplicates: false })
+          .upsert(sessionData, { onConflict: 'session_id', ignoreDuplicates: true })
 
         if (sessErr) console.error('Session upsert error:', sessErr.message)
       }
 
-      // ── ATTRIBUTION TOUCHPOINT (key events only) ──────────
-      const touchpointTypes = ['pageview', 'cta_click', 'form_submit', 'conversion', 'funnel_step']
-      if (userId && touchpointTypes.includes(event.type)) {
-        const tp = {
-          user_id: userId,
-          session_id: sessionId,
-          touchpoint_type: event.type,
-          touchpoint_order: event.touchpoint_order || 0,
-          source: event.source,
-          medium: event.medium,
-          campaign: event.campaign,
-          content: event.content,
-          term: event.term,
-          referrer: event.referrer,
-          page_url: event.url,
-          page_path: event.path,
-          page_title: event.title,
-          is_conversion: event.is_conversion || event.type === 'conversion',
-          conversion_type: event.conversion_type || null,
-          conversion_value: event.conversion_value || 0,
-          funnel_id: event.funnel_id || null,
-          funnel_step_name: event.funnel_step_name || event.step_name || null,
-          funnel_step_order: event.step_order || null,
-          device_type: event.device_type,
-          browser: event.browser,
-          os: event.os,
-          timestamp: event.timestamp,
-        }
-
-        const { error: tpErr } = await supabase.from('attribution_touchpoints').insert(tp)
-        if (tpErr) console.warn('Touchpoint error:', tpErr.message)
-      }
-
-      // ── CONVERSION (via RPC) ──────────────────────────────
-      if (event.type === 'conversion' && userId) {
-        try {
-          await supabase.rpc('record_conversion', {
-            p_user_id: userId,
-            p_session_id: sessionId,
-            p_conversion_type: event.conversion_type || 'purchase',
-            p_conversion_name: event.conversion_name || 'Conversion',
-            p_conversion_value: parseFloat(event.conversion_value) || 0,
-          })
-        } catch (e: any) {
-          console.warn('Conversion RPC failed:', e.message)
-        }
-      }
-
-      // ── TRACKING EVENT (all events → tracking_events) ─────
+      // ── Build event data ──
       const evtData: Record<string, unknown> = {
         session_id: sessionId,
-        event_type: event.type,
-        timestamp: event.timestamp,
-        url: event.url,
-        path: event.path,
-        title: event.title,
-        funnel_id: event.funnel_id || null,
-        funnel_step_name: event.funnel_step_name || event.step_name || null,
-        funnel_step_order: event.step_order || null,
+        event_type: eventType,
+        timestamp: event.timestamp || Date.now(),
+        url: event.url || event.page_url || null,
+        path: event.path || null,
+        title: event.title || null,
       }
 
-      // Click data
-      if (event.click_x != null) {
-        evtData.click_x = event.click_x
-        evtData.click_y = event.click_y
-        evtData.click_element = event.element
-        evtData.click_element_id = event.element_id
-        evtData.click_element_class = event.element_class
-        evtData.click_element_text = event.element_text
-        evtData.is_cta_click = event.is_cta_click
+      // Click data — flat (current) or nested (legacy)
+      if (event.click_x != null || event.clickData) {
+        evtData.click_x = event.click_x ?? event.clickData?.x
+        evtData.click_y = event.click_y ?? event.clickData?.y
+        evtData.click_element = event.element ?? event.clickData?.element
+        evtData.click_element_id = event.element_id ?? event.clickData?.elementId
+        evtData.click_element_class = event.element_class ?? event.clickData?.elementClass
+        evtData.click_element_text = event.element_text ?? event.clickData?.elementText
+        evtData.is_cta_click = event.is_cta_click ?? event.clickData?.isCtaClick
       }
 
       // Scroll data
-      if (event.scroll_depth != null) {
-        evtData.scroll_depth = event.scroll_depth
-        evtData.scroll_percentage = event.scroll_percentage
-        evtData.max_scroll_depth = event.max_scroll_depth
+      if (event.scroll_depth != null || event.scrollData) {
+        evtData.scroll_depth = event.scroll_depth ?? event.scrollData?.depth
+        evtData.scroll_percentage = event.scroll_percentage ?? event.scrollData?.percentage
+        evtData.max_scroll_depth = event.max_scroll_depth ?? event.scrollData?.maxDepth
       }
 
       // Mouse data
-      if (event.mouse_x != null) {
-        evtData.mouse_x = event.mouse_x
-        evtData.mouse_y = event.mouse_y
-        evtData.mouse_speed = event.mouse_speed
+      if (event.mouse_x != null || event.mouseData) {
+        evtData.mouse_x = event.mouse_x ?? event.mouseData?.x
+        evtData.mouse_y = event.mouse_y ?? event.mouseData?.y
+        evtData.mouse_speed = event.mouse_speed ?? event.mouseData?.movementSpeed
       }
 
       // Form data
-      if (event.form_id != null || event.field_name != null) {
-        evtData.form_id = event.form_id
-        evtData.form_name = event.form_name
-        evtData.form_field_name = event.field_name
-        evtData.form_field_type = event.field_type
-        evtData.form_action = event.form_action || event.form_action_url
+      if (event.form_id != null || event.field_name != null || event.formData) {
+        evtData.form_id = event.form_id ?? event.formData?.formId
+        evtData.form_name = event.form_name ?? event.formData?.formName
+        evtData.form_field_name = event.field_name ?? event.formData?.fieldName
+        evtData.form_field_type = event.field_type ?? event.formData?.fieldType
+        evtData.form_action = event.form_action ?? event.form_action_url ?? event.formData?.action
+      }
+
+      // Funnel data
+      if (event.funnel_id != null || event.funnelData) {
+        evtData.funnel_id = event.funnel_id ?? event.funnelData?.funnelId
+        evtData.funnel_step_name = event.funnel_step_name ?? event.step_name ?? event.funnelData?.stepName
+        evtData.funnel_step_order = event.step_order ?? event.funnelData?.stepOrder
       }
 
       // Time data
-      if (event.time_on_page != null) {
-        evtData.time_on_page = event.time_on_page
-        evtData.user_engaged = event.engaged
+      if (event.time_on_page != null || event.timeData) {
+        evtData.time_on_page = event.time_on_page ?? event.timeData?.timeOnPage
+        evtData.user_engaged = event.engaged ?? event.timeData?.engaged
       }
 
-      const { error: evtErr } = await supabase.from('tracking_events').insert(evtData)
-      if (evtErr) console.error('Event insert error:', evtErr.message)
+      const { error: evtErr } = await supabaseClient
+        .from('tracking_events')
+        .insert(evtData)
 
-      // ── USER COUNTERS (via RPC) ───────────────────────────
-      if (userId) {
-        if (event.type === 'pageview') {
-          await supabase.rpc('increment_user_pageviews', { p_user_id: userId })
-        }
-        await supabase.rpc('increment_user_events', { p_user_id: userId })
-      }
+      if (evtErr) console.error('Event insert error:', evtErr.message, '| type:', eventType)
     }
-
-    console.log(`✅ Done: ${events.length} events | ${userIds.size} users | ${sessionIds.size} sessions`)
 
     return new Response(
       JSON.stringify({
         success: true,
         eventsProcessed: events.length,
-        users: Array.from(userIds),
         sessions: Array.from(sessionIds),
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 },
     )
-  } catch (error: any) {
-    console.error('FATAL:', error.message)
+  } catch (error) {
+    console.error('Track-event error:', error.message)
     return new Response(
       JSON.stringify({ error: error.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 },
     )
   }
 })
