@@ -11,6 +11,26 @@ const TOUCHPOINT_EVENTS = new Set([
   'funnel_step', 'custom', 'identify',
 ])
 
+async function triggerAIAttribution(conversionId: string, userId: string) {
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')
+  const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+  if (!supabaseUrl || !serviceKey) return
+
+  const endpoint = `${supabaseUrl}/functions/v1/ai-attribution`
+
+  await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${serviceKey}`,
+    },
+    body: JSON.stringify({
+      conversion_id: conversionId,
+      user_id: userId,
+    }),
+  })
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -263,7 +283,7 @@ serve(async (req) => {
 
       // ── 5. Record conversion ───────────────────────────
       if (userId && eventType === 'conversion' && event.is_conversion === true) {
-        const { error: convErr } = await supabaseClient.rpc('record_conversion', {
+        const { data: convId, error: convErr } = await supabaseClient.rpc('record_conversion', {
           p_user_id: userId,
           p_session_id: sessionId,
           p_conversion_type: event.conversion_type || 'purchase',
@@ -271,6 +291,31 @@ serve(async (req) => {
           p_conversion_value: parseFloat(event.conversion_value) || 0,
         })
         if (convErr) console.error('[edge] record_conversion error:', convErr.message)
+
+        // ── 5b. Trigger AI Attribution (fire-and-forget) ───
+        if (convId) {
+          triggerAIAttribution(convId, userId).catch(e =>
+            console.error('[edge] AI attribution trigger error:', e.message)
+          )
+        }
+      }
+
+      // ── 6. Log AI intervention response ──────────────
+      if (eventType === 'ai_intervention_response' && userId) {
+        const interventionType = event.intervention_type
+        const response = event.response
+        if (interventionType) {
+          await supabaseClient
+            .from('ai_interventions')
+            .update({
+              user_response: response || 'unknown',
+              response_time_ms: event.response_time_ms || null,
+            })
+            .eq('session_id', sessionId)
+            .eq('intervention_type', interventionType)
+            .order('created_at', { ascending: false })
+            .limit(1)
+        }
       }
     }
 

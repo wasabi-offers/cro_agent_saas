@@ -143,7 +143,17 @@ TABLE_JSON`;
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    let body: any;
+    try {
+      const rawText = await request.text();
+      body = JSON.parse(rawText);
+    } catch (parseErr) {
+      return NextResponse.json(
+        { success: false, error: "Image too large. Please use a smaller screenshot (max ~5MB) or lower resolution." },
+        { status: 413 }
+      );
+    }
+
     const { imageBase64, userMessage } = body;
 
     if (!imageBase64) {
@@ -296,14 +306,18 @@ export async function POST(request: Request) {
       tableData,
       claudeReview,
     });
-  } catch (error) {
-    console.error("Error in CRO chat pipeline:", error);
+  } catch (error: any) {
+    const message = error?.message || error?.toString() || "Unknown error in CRO analysis pipeline";
+    const isBodyTooLarge = message.includes("body exceeded") || message.includes("too large") || message.includes("ENOBUFS");
+    console.error("Error in CRO chat pipeline:", message);
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : "Unknown error in CRO analysis pipeline",
+        error: isBodyTooLarge
+          ? "Image too large. Please use a smaller screenshot."
+          : message,
       },
-      { status: 500 }
+      { status: isBodyTooLarge ? 413 : 500 }
     );
   }
 }

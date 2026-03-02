@@ -30,7 +30,8 @@
     "puppeteer-core": "^24.37.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "reactflow": "^11.11.4"
+    "reactflow": "^11.11.4",
+    "recharts": "^3.7.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

@@ -80,16 +80,46 @@ export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
+  const compressImage = useCallback((dataUrl: string, maxWidth = 1920, quality = 0.75): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new window.Image();
+      img.onload = () => {
+        try {
+          const canvas = document.createElement("canvas");
+          let w = img.width;
+          let h = img.height;
+          if (w > maxWidth) {
+            h = Math.round((h * maxWidth) / w);
+            w = maxWidth;
+          }
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) { resolve(dataUrl); return; }
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL("image/jpeg", quality));
+        } catch { resolve(dataUrl); }
+      };
+      img.onerror = () => resolve(dataUrl);
+      img.src = dataUrl;
+    });
+  }, []);
+
   const processFile = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) return;
     const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64 = reader.result as string;
-      setImagePreview(base64);
-      setImageBase64(base64);
+    reader.onloadend = async () => {
+      const raw = reader.result as string;
+      setImagePreview(raw);
+      try {
+        const compressed = await compressImage(raw);
+        setImageBase64(compressed);
+      } catch {
+        setImageBase64(raw);
+      }
     };
     reader.readAsDataURL(file);
-  }, []);
+  }, [compressImage]);
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
