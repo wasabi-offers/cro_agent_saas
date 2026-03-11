@@ -80,27 +80,27 @@ function StepNode({ data }: { data: StepData }) {
       <Handle
         type="target"
         position={Position.Left}
-        className="w-4 h-4 !bg-[#F97316] border-2 border-white"
+        className="w-4 h-4 !bg-[#6366F1] border-2 border-white"
         style={{ left: -8 }}
       />
 
-      <div className="bg-white border-2 border-[#F97316] rounded-xl overflow-hidden shadow-lg hover:border-[#3b82f6] transition-all cursor-pointer" style={{ width: 280 }}>
+      <div className="bg-white border-2 border-[#6366F1] rounded-xl overflow-hidden shadow-lg hover:border-[#06B6D4] transition-all cursor-pointer" style={{ width: 280 }}>
         {/* Header */}
         <div className="p-3 pb-2">
-          <h3 className="text-[13px] font-semibold text-[#1a1a1a] mb-1.5 truncate">
+          <h3 className="text-[13px] font-semibold text-[#0F172A] mb-1.5 truncate">
             {data.label}
           </h3>
             <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1 text-[11px] text-[#666666]">
-              <Users className="w-3 h-3 text-[#F97316]" />
+            <div className="flex items-center gap-1 text-[11px] text-[#64748B]">
+              <Users className="w-3 h-3 text-[#6366F1]" />
               <span>{(data.visitors ?? 0).toLocaleString()}</span>
             </div>
-            <div className="flex items-center gap-1 text-[11px] text-[#666666]">
-              <Percent className="w-3 h-3 text-[#3b82f6]" />
+            <div className="flex items-center gap-1 text-[11px] text-[#64748B]">
+              <Percent className="w-3 h-3 text-[#06B6D4]" />
               <span>{Number.isFinite(data.conversionRate) ? data.conversionRate.toFixed(1) : '0'}%</span>
             </div>
             {(data.dropoff ?? 0) > 0 && (
-              <div className="flex items-center gap-1 text-[11px] text-[#ff6b6b]">
+              <div className="flex items-center gap-1 text-[11px] text-[#EF4444]">
                 <TrendingDown className="w-3 h-3" />
                 <span>{Number.isFinite(data.dropoff) ? data.dropoff.toFixed(1) : '0'}%</span>
               </div>
@@ -110,10 +110,10 @@ function StepNode({ data }: { data: StepData }) {
 
         {/* Page Preview - frame scuro per evitare effetto bianco piatto */}
         <div className="relative overflow-hidden" style={{ height: 160 }}>
-          <div className="absolute inset-0 bg-[#f8f9fa] border-t border-[#d0d0d0]" />
+          <div className="absolute inset-0 bg-[#F8FAFC] border-t border-[#CBD5E1]" />
           {hasPreview ? (
             <>
-              <div className="absolute inset-2 rounded-md overflow-hidden border border-[#333] bg-[#1a1a1a]">
+              <div className="absolute inset-2 rounded-md overflow-hidden border border-[#333] bg-[#1E293B]">
                 <iframe
                   src={`/api/proxy-page?url=${encodeURIComponent(data.url!)}&scripts=${useScripts ? '1' : '0'}`}
                   title={`Preview: ${data.label}`}
@@ -140,11 +140,11 @@ function StepNode({ data }: { data: StepData }) {
         </div>
 
         {/* Action Buttons */}
-        <div className="p-2 flex gap-2 border-t border-[#d0d0d0]">
+        <div className="p-2 flex gap-2 border-t border-[#CBD5E1]">
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); e.preventDefault(); onDataAnalysisClick?.(stepIndex); }}
-            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 bg-[#F97316]/20 hover:bg-[#F97316]/30 text-[#F97316] rounded-lg text-[10px] font-medium transition-colors"
+            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 bg-[#6366F1]/20 hover:bg-[#6366F1]/30 text-[#6366F1] rounded-lg text-[10px] font-medium transition-colors"
           >
             <BarChart3 className="w-3 h-3" />
             Data
@@ -153,7 +153,7 @@ function StepNode({ data }: { data: StepData }) {
             type="button"
             onClick={(e) => { e.stopPropagation(); e.preventDefault(); onCROPreviewClick?.(stepIndex); }}
             disabled={!data.url}
-            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 bg-[#3b82f6]/20 hover:bg-[#3b82f6]/30 text-[#3b82f6] rounded-lg text-[10px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 bg-[#06B6D4]/20 hover:bg-[#06B6D4]/30 text-[#06B6D4] rounded-lg text-[10px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Eye className="w-3 h-3" />
             CRO
@@ -165,7 +165,7 @@ function StepNode({ data }: { data: StepData }) {
       <Handle
         type="source"
         position={Position.Right}
-        className="w-4 h-4 !bg-[#3b82f6] border-2 border-white"
+        className="w-4 h-4 !bg-[#06B6D4] border-2 border-white"
         style={{ right: -8 }}
       />
     </div>
@@ -187,8 +187,8 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
   if (!steps || steps.length === 0) {
     return (
       <div className="bg-white border border-white/10 rounded-2xl p-8 text-center">
-        <p className="text-[#ff6b6b] text-[16px]">⚠️ Error: No steps found in funnel</p>
-        <p className="text-[#666666] text-[13px] mt-2">Check that the funnel was created correctly</p>
+        <p className="text-[#EF4444] text-[16px]">⚠️ Error: No steps found in funnel</p>
+        <p className="text-[#64748B] text-[13px] mt-2">Check that the funnel was created correctly</p>
       </div>
     );
   }
@@ -263,23 +263,23 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
           type: 'smoothstep',
           animated: true,
           style: {
-            stroke: '#F97316',
+            stroke: '#6366F1',
             strokeWidth: 3,
           },
           markerEnd: {
             type: MarkerType.ArrowClosed,
-            color: '#F97316',
+            color: '#6366F1',
             width: 20,
             height: 20,
           },
           label: '→',
           labelStyle: {
-            fill: '#3b82f6',
+            fill: '#06B6D4',
             fontSize: 14,
             fontWeight: 700,
           },
           labelBgStyle: {
-            fill: '#0a0a0a',
+            fill: '#0B0F19',
             fillOpacity: 0.8,
           },
         }))
@@ -291,23 +291,23 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
           type: 'smoothstep',
           animated: true,
           style: {
-            stroke: '#F97316',
+            stroke: '#6366F1',
             strokeWidth: 3,
           },
           markerEnd: {
             type: MarkerType.ArrowClosed,
-            color: '#F97316',
+            color: '#6366F1',
             width: 20,
             height: 20,
           },
           label: '→',
           labelStyle: {
-            fill: '#3b82f6',
+            fill: '#06B6D4',
             fontSize: 14,
             fontWeight: 700,
           },
           labelBgStyle: {
-            fill: '#0a0a0a',
+            fill: '#0B0F19',
             fillOpacity: 0.8,
           },
         }));
@@ -347,11 +347,11 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
     <StepCardContext.Provider value={stepCardContextValue}>
     <div className="relative">
       <div className="bg-white border border-white/10 rounded-2xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-[#d0d0d0]">
-          <h2 className="text-[18px] font-semibold text-[#1a1a1a]">
+        <div className="px-6 py-4 border-b border-[#CBD5E1]">
+          <h2 className="text-[18px] font-semibold text-[#0F172A]">
             Funnel Flow: {name}
           </h2>
-          <p className="text-[13px] text-[#666666] mt-1">
+          <p className="text-[13px] text-[#64748B] mt-1">
             Click on any step to view detailed metrics
           </p>
         </div>
@@ -370,7 +370,7 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
             maxZoom={1.5}
             defaultEdgeOptions={{
               animated: true,
-              style: { stroke: '#F97316', strokeWidth: 3 },
+              style: { stroke: '#6366F1', strokeWidth: 3 },
             }}
             elementsSelectable={true}
             nodesConnectable={false}
@@ -386,71 +386,71 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
 
       {/* Details Panel */}
       {selectedNode && (
-        <div className="absolute top-4 right-4 bg-white border border-[#F97316] rounded-xl p-6 w-96 shadow-2xl z-50">
+        <div className="absolute top-4 right-4 bg-white border border-[#6366F1] rounded-xl p-6 w-96 shadow-2xl z-50">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h3 className="text-[16px] font-semibold text-[#1a1a1a] mb-1">
+              <h3 className="text-[16px] font-semibold text-[#0F172A] mb-1">
                 Step Details
               </h3>
-              <p className="text-[14px] text-[#666666]">
+              <p className="text-[14px] text-[#64748B]">
                 {selectedNode.data.label}
               </p>
             </div>
             <button
               onClick={closeDetails}
-              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#f8f9fa] text-[#666666] hover:text-[#1a1a1a] transition-colors"
+              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#F8FAFC] text-[#64748B] hover:text-[#0F172A] transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
           <div className="space-y-4">
-            <div className="bg-[#F97316]/10 border border-[#F97316]/20 rounded-lg p-4">
+            <div className="bg-[#6366F1]/10 border border-[#6366F1]/20 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
-                <Users className="w-4 h-4 text-[#F97316]" />
-                <span className="text-[12px] text-[#666666]">Total Visitors</span>
+                <Users className="w-4 h-4 text-[#6366F1]" />
+                <span className="text-[12px] text-[#64748B]">Total Visitors</span>
               </div>
-              <p className="text-[24px] font-bold text-[#1a1a1a]">
+              <p className="text-[24px] font-bold text-[#0F172A]">
                 {(selectedNode.data.visitors ?? 0).toLocaleString()}
               </p>
             </div>
 
-            <div className="bg-[#3b82f6]/10 border border-[#3b82f6]/20 rounded-lg p-4">
+            <div className="bg-[#06B6D4]/10 border border-[#06B6D4]/20 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
-                <Percent className="w-4 h-4 text-[#3b82f6]" />
-                <span className="text-[12px] text-[#666666]">Conversion Rate</span>
+                <Percent className="w-4 h-4 text-[#06B6D4]" />
+                <span className="text-[12px] text-[#64748B]">Conversion Rate</span>
               </div>
-              <p className="text-[24px] font-bold text-[#1a1a1a]">
+              <p className="text-[24px] font-bold text-[#0F172A]">
                 {Number.isFinite(selectedNode.data.conversionRate) ? selectedNode.data.conversionRate.toFixed(1) : '0'}%
               </p>
             </div>
 
             {selectedNode.data.dropoff > 0 && (
-              <div className="bg-[#ff6b6b]/10 border border-[#ff6b6b]/20 rounded-lg p-4">
+              <div className="bg-[#EF4444]/10 border border-[#EF4444]/20 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <TrendingDown className="w-4 h-4 text-[#ff6b6b]" />
-                  <span className="text-[12px] text-[#666666]">Drop-off Rate</span>
+                  <TrendingDown className="w-4 h-4 text-[#EF4444]" />
+                  <span className="text-[12px] text-[#64748B]">Drop-off Rate</span>
                 </div>
-                <p className="text-[24px] font-bold text-[#1a1a1a]">
+                <p className="text-[24px] font-bold text-[#0F172A]">
                   {Number.isFinite(selectedNode.data.dropoff) ? selectedNode.data.dropoff.toFixed(1) : '0'}%
                 </p>
-                <p className="text-[11px] text-[#666666] mt-2">
+                <p className="text-[11px] text-[#64748B] mt-2">
                   {Math.round((selectedNode.data.visitors ?? 0) * ((selectedNode.data.dropoff ?? 0) / 100)).toLocaleString()} visitors left at this stage
                 </p>
               </div>
             )}
 
             {selectedNode.data.url && (
-              <div className="bg-[#2a2a2a] border border-[#d0d0d0] rounded-lg p-3">
+              <div className="bg-[#1E293B] border border-[#CBD5E1] rounded-lg p-3">
                 <div className="flex items-center gap-2 mb-2">
-                  <ExternalLink className="w-4 h-4 text-[#F97316]" />
-                  <span className="text-[12px] text-[#666666]">URL</span>
+                  <ExternalLink className="w-4 h-4 text-[#6366F1]" />
+                  <span className="text-[12px] text-[#64748B]">URL</span>
                 </div>
                 <a
                   href={selectedNode.data.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[11px] text-[#F97316] hover:text-[#3b82f6] break-all line-clamp-2 block"
+                  className="text-[11px] text-[#6366F1] hover:text-[#06B6D4] break-all line-clamp-2 block"
                 >
                   {selectedNode.data.url}
                 </a>
@@ -459,7 +459,7 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
 
             {/* Page Preview */}
             {selectedNode.data.url && (
-              <div className="relative rounded-lg overflow-hidden border border-[#333] bg-[#1a1a1a]" style={{ height: 180 }}>
+              <div className="relative rounded-lg overflow-hidden border border-[#333] bg-[#1E293B]" style={{ height: 180 }}>
                 <iframe
                   src={`/api/proxy-page?url=${encodeURIComponent(selectedNode.data.url)}&scripts=${shouldUseScripts(selectedNode.data.label, selectedNode.data.url) ? '1' : '0'}`}
                   title={`Preview: ${selectedNode.data.label}`}
@@ -480,7 +480,7 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
             )}
           </div>
 
-          <div className="mt-4 pt-4 border-t border-[#d0d0d0] space-y-3">
+          <div className="mt-4 pt-4 border-t border-[#CBD5E1] space-y-3">
             {onAnalyzePage && selectedNode.data.url && (
               <button
                 onClick={() => {
@@ -488,13 +488,13 @@ function FunnelVisualizerInner({ steps, name, funnelId, connections, onAnalyzePa
                   onAnalyzePage(stepIndex);
                   closeDetails();
                 }}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#F97316] hover:bg-[#6b4ce6] text-white text-[13px] font-medium rounded-lg transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#6366F1] hover:bg-[#6366F1] text-white text-[13px] font-medium rounded-lg transition-colors"
               >
                 <FileSearch className="w-4 h-4" />
                 Page Analysis
               </button>
             )}
-            <p className="text-[11px] text-[#666666]">
+            <p className="text-[11px] text-[#64748B]">
               Click on other steps to compare metrics
             </p>
           </div>

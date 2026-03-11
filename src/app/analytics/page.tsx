@@ -78,8 +78,8 @@ export default function AnalyticsPage() {
         <Header title="Analytics" breadcrumb={["Dashboard", "Analytics"]} />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-10 h-10 border-2 border-[#F97316] border-t-transparent rounded-full animate-spin" />
-            <p className="text-[#666666] text-[14px]">Loading Clarity data...</p>
+            <div className="w-10 h-10 border-2 border-[#6366F1] border-t-transparent rounded-full animate-spin" />
+            <p className="text-[#64748B] text-[14px]">Loading Clarity data...</p>
           </div>
         </div>
       </div>
@@ -91,12 +91,12 @@ export default function AnalyticsPage() {
       <div className="min-h-screen bg-white">
         <Header title="Analytics" breadcrumb={["Dashboard", "Analytics"]} />
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="flex flex-col items-center gap-4 p-6 bg-white border border-[#ff6b6b]/30 rounded-2xl">
-            <AlertCircle className="w-10 h-10 text-[#ff6b6b]" />
-            <p className="text-[#ff6b6b] text-[14px]">{error || 'No data available'}</p>
+          <div className="flex flex-col items-center gap-4 p-6 bg-white border border-[#EF4444]/30 rounded-2xl">
+            <AlertCircle className="w-10 h-10 text-[#EF4444]" />
+            <p className="text-[#EF4444] text-[14px]">{error || 'No data available'}</p>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-[#F97316] text-white rounded-lg text-sm hover:bg-[#6b4ee0] transition"
+              className="px-4 py-2 bg-[#6366F1] text-white rounded-lg text-sm hover:bg-[#6366F1] transition"
             >
               Retry
             </button>
@@ -116,14 +116,14 @@ export default function AnalyticsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-[24px] font-bold text-[#1a1a1a] mb-2">Analytics Overview</h1>
-            <p className="text-[14px] text-[#666666]">
+            <h1 className="text-[24px] font-bold text-[#0F172A] mb-2">Analytics Overview</h1>
+            <p className="text-[14px] text-[#64748B]">
               Real-time data from Microsoft Clarity
             </p>
           </div>
           <Link
             href="/explore-ai"
-            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#F97316] to-[#3b82f6] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
+            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
           >
             <Brain className="w-4 h-4" />
             Explore with AI
@@ -141,62 +141,62 @@ export default function AnalyticsPage() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-          <div className="bg-white border border-[#d0d0d0] rounded-2xl p-5">
+          <div className="bg-white border border-[#CBD5E1] rounded-2xl p-5">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-[#F97316]/20 rounded-lg flex items-center justify-center">
-                <Users className="w-5 h-5 text-[#F97316]" />
+              <div className="w-10 h-10 bg-[#6366F1]/20 rounded-lg flex items-center justify-center">
+                <Users className="w-5 h-5 text-[#6366F1]" />
               </div>
-              <span className="text-[13px] text-[#888888]">Total Sessions</span>
+              <span className="text-[13px] text-[#94A3B8]">Total Sessions</span>
             </div>
-            <p className="text-[28px] font-bold text-[#1a1a1a]">
+            <p className="text-[24px] font-bold text-[#0F172A]">
               {summary.totalSessions.toLocaleString()}
             </p>
-            <p className="text-[12px] text-[#666666] mt-1">
+            <p className="text-[12px] text-[#64748B] mt-1">
               {summary.totalUsers.toLocaleString()} unique users
             </p>
           </div>
 
-          <div className="bg-white border border-[#d0d0d0] rounded-2xl p-5">
+          <div className="bg-white border border-[#CBD5E1] rounded-2xl p-5">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-[#3b82f6]/20 rounded-lg flex items-center justify-center">
-                <Eye className="w-5 h-5 text-[#3b82f6]" />
+              <div className="w-10 h-10 bg-[#06B6D4]/20 rounded-lg flex items-center justify-center">
+                <Eye className="w-5 h-5 text-[#06B6D4]" />
               </div>
-              <span className="text-[13px] text-[#888888]">Pages/Session</span>
+              <span className="text-[13px] text-[#94A3B8]">Pages/Session</span>
             </div>
-            <p className="text-[28px] font-bold text-[#1a1a1a]">
+            <p className="text-[24px] font-bold text-[#0F172A]">
               {summary.avgPagesPerSession.toFixed(2)}
             </p>
-            <p className="text-[12px] text-[#666666] mt-1">
+            <p className="text-[12px] text-[#64748B] mt-1">
               Scroll depth: {summary.avgScrollDepth.toFixed(0)}%
             </p>
           </div>
 
-          <div className="bg-white border border-[#d0d0d0] rounded-2xl p-5">
+          <div className="bg-white border border-[#CBD5E1] rounded-2xl p-5">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center">
                 <Clock className="w-5 h-5 text-[#f59e0b]" />
               </div>
-              <span className="text-[13px] text-[#888888]">Active Time</span>
+              <span className="text-[13px] text-[#94A3B8]">Active Time</span>
             </div>
-            <p className="text-[28px] font-bold text-[#1a1a1a]">
+            <p className="text-[24px] font-bold text-[#0F172A]">
               {formatDuration(summary.avgActiveTime)}
             </p>
-            <p className="text-[12px] text-[#666666] mt-1">
+            <p className="text-[12px] text-[#64748B] mt-1">
               Total: {formatDuration(summary.avgTotalTime)}
             </p>
           </div>
 
-          <div className="bg-white border border-[#d0d0d0] rounded-2xl p-5">
+          <div className="bg-white border border-[#CBD5E1] rounded-2xl p-5">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-[#ff6b6b]/20 rounded-lg flex items-center justify-center">
-                <AlertTriangle className="w-5 h-5 text-[#ff6b6b]" />
+              <div className="w-10 h-10 bg-[#EF4444]/20 rounded-lg flex items-center justify-center">
+                <AlertTriangle className="w-5 h-5 text-[#EF4444]" />
               </div>
-              <span className="text-[13px] text-[#888888]">UX Issues</span>
+              <span className="text-[13px] text-[#94A3B8]">UX Issues</span>
             </div>
-            <p className="text-[28px] font-bold text-[#1a1a1a]">
+            <p className="text-[24px] font-bold text-[#0F172A]">
               {(summary.totalDeadClicks + summary.totalRageClicks + summary.totalQuickbacks).toLocaleString()}
             </p>
-            <p className="text-[12px] text-[#666666] mt-1">
+            <p className="text-[12px] text-[#64748B] mt-1">
               Clicks & quickbacks
             </p>
           </div>
@@ -205,19 +205,19 @@ export default function AnalyticsPage() {
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
           {/* Traffic by Device */}
-          <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl overflow-hidden">
-            <div className="px-6 py-5 border-b border-[#F97316]/20">
-              <h2 className="text-[18px] font-semibold text-[#1a1a1a]">Traffic by Device</h2>
-              <p className="text-[13px] text-[#666666] mt-1">Sessions and users breakdown</p>
+          <div className="bg-gradient-to-br from-[#6366F1]/20 to-[#6366F1]/5 border border-[#6366F1]/30 rounded-2xl overflow-hidden">
+            <div className="px-6 py-5 border-b border-[#6366F1]/20">
+              <h2 className="text-[18px] font-semibold text-[#0F172A]">Traffic by Device</h2>
+              <p className="text-[13px] text-[#64748B] mt-1">Sessions and users breakdown</p>
             </div>
             <div className="p-6 space-y-4">
               {trafficByDevice.map((device) => {
                 const percentage = (device.total_session_count / summary.totalSessions) * 100;
-                const color = device.device === 'Mobile' ? '#F97316' : 
-                             device.device === 'Desktop' || device.device === 'PC' ? '#3b82f6' : '#f59e0b';
+                const color = device.device === 'Mobile' ? '#6366F1' : 
+                             device.device === 'Desktop' || device.device === 'PC' ? '#06B6D4' : '#f59e0b';
                 
                 return (
-                  <div key={device.device} className="p-4 bg-white/60 rounded-xl border border-[#F97316]/20">
+                  <div key={device.device} className="p-4 bg-white/60 rounded-xl border border-[#6366F1]/20">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <div 
@@ -227,15 +227,15 @@ export default function AnalyticsPage() {
                           <div style={{ color }}>{getDeviceIcon(device.device)}</div>
                         </div>
                         <div>
-                          <p className="text-[14px] font-medium text-[#1a1a1a]">{device.device}</p>
-                          <p className="text-[12px] text-[#666666]">{percentage.toFixed(1)}% of traffic</p>
+                          <p className="text-[14px] font-medium text-[#0F172A]">{device.device}</p>
+                          <p className="text-[12px] text-[#64748B]">{percentage.toFixed(1)}% of traffic</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-[16px] font-bold text-[#1a1a1a]">
+                        <p className="text-[16px] font-bold text-[#0F172A]">
                           {device.total_session_count.toLocaleString()}
                         </p>
-                        <p className="text-[11px] text-[#666666]">sessions</p>
+                        <p className="text-[11px] text-[#64748B]">sessions</p>
                       </div>
                     </div>
                     <div className="h-2 bg-white/10 rounded-full overflow-hidden">
@@ -246,19 +246,19 @@ export default function AnalyticsPage() {
                     </div>
                     <div className="grid grid-cols-3 gap-4 mt-3 text-center">
                       <div>
-                        <p className="text-[12px] text-[#888888]">Users</p>
-                        <p className="text-[13px] font-medium text-[#1a1a1a]">
+                        <p className="text-[12px] text-[#94A3B8]">Users</p>
+                        <p className="text-[13px] font-medium text-[#0F172A]">
                           {device.distinct_user_count.toLocaleString()}
                         </p>
                       </div>
                       <div>
-                        <p className="text-[12px] text-[#888888]">Pages/Sess</p>
-                        <p className="text-[13px] font-medium text-[#1a1a1a]">
+                        <p className="text-[12px] text-[#94A3B8]">Pages/Sess</p>
+                        <p className="text-[13px] font-medium text-[#0F172A]">
                           {device.pages_per_session.toFixed(2)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-[12px] text-[#888888]">Bots</p>
+                        <p className="text-[12px] text-[#94A3B8]">Bots</p>
                         <p className="text-[13px] font-medium text-[#f59e0b]">
                           {device.total_bot_session_count.toLocaleString()}
                         </p>
@@ -271,17 +271,17 @@ export default function AnalyticsPage() {
           </div>
 
           {/* UX Issues by Device */}
-          <div className="bg-gradient-to-br from-[#ff6b6b]/20 to-[#ff6b6b]/5 border border-[#ff6b6b]/30 rounded-2xl overflow-hidden">
-            <div className="px-6 py-5 border-b border-[#ff6b6b]/20">
-              <h2 className="text-[18px] font-semibold text-[#1a1a1a]">UX Issues by Device</h2>
-              <p className="text-[13px] text-[#666666] mt-1">Click issues and user frustration</p>
+          <div className="bg-gradient-to-br from-[#EF4444]/20 to-[#EF4444]/5 border border-[#EF4444]/30 rounded-2xl overflow-hidden">
+            <div className="px-6 py-5 border-b border-[#EF4444]/20">
+              <h2 className="text-[18px] font-semibold text-[#0F172A]">UX Issues by Device</h2>
+              <p className="text-[13px] text-[#64748B] mt-1">Click issues and user frustration</p>
             </div>
             <div className="divide-y divide-white/5">
               {uxIssues.slice(0, 10).map((issue, idx) => {
                 const severity = issue.sessions_with_metric_percentage > 20 ? 'high' : 
                                 issue.sessions_with_metric_percentage > 10 ? 'medium' : 'low';
-                const severityColor = severity === 'high' ? '#ff6b6b' : 
-                                     severity === 'medium' ? '#f59e0b' : '#3b82f6';
+                const severityColor = severity === 'high' ? '#EF4444' : 
+                                     severity === 'medium' ? '#f59e0b' : '#06B6D4';
                 
                 return (
                   <div key={idx} className="px-6 py-4 hover:bg-white/5 transition-colors">
@@ -300,14 +300,14 @@ export default function AnalyticsPage() {
                           )}
                         </div>
                         <div>
-                          <p className="text-[14px] text-[#1a1a1a] font-medium">
+                          <p className="text-[14px] text-[#0F172A] font-medium">
                             {issue.metric_name.replace('Count', '')}
                           </p>
-                          <p className="text-[12px] text-[#666666]">{issue.device}</p>
+                          <p className="text-[12px] text-[#64748B]">{issue.device}</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-[14px] font-bold text-[#1a1a1a]">
+                        <p className="text-[14px] font-bold text-[#0F172A]">
                           {issue.sub_total.toLocaleString()}
                         </p>
                         <p 
@@ -326,10 +326,10 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Engagement by Device */}
-        <div className="bg-white border border-[#d0d0d0] rounded-2xl overflow-hidden">
-          <div className="px-6 py-5 border-b border-[#d0d0d0]">
-            <h2 className="text-[18px] font-semibold text-[#1a1a1a]">Engagement by Device</h2>
-            <p className="text-[13px] text-[#666666] mt-1">Time on site and engagement rates</p>
+        <div className="bg-white border border-[#CBD5E1] rounded-2xl overflow-hidden">
+          <div className="px-6 py-5 border-b border-[#CBD5E1]">
+            <h2 className="text-[18px] font-semibold text-[#0F172A]">Engagement by Device</h2>
+            <p className="text-[13px] text-[#64748B] mt-1">Time on site and engagement rates</p>
           </div>
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -340,39 +340,39 @@ export default function AnalyticsPage() {
                 const isGood = engagementRate > 50;
                 
                 return (
-                  <div key={device.device} className="p-6 bg-white/60 rounded-xl border border-[#3b82f6]/20">
+                  <div key={device.device} className="p-6 bg-white/60 rounded-xl border border-[#06B6D4]/20">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 bg-[#F97316]/20 rounded-lg flex items-center justify-center">
+                      <div className="w-10 h-10 bg-[#6366F1]/20 rounded-lg flex items-center justify-center">
                         {getDeviceIcon(device.device)}
                       </div>
-                      <h3 className="text-[16px] font-semibold text-[#1a1a1a]">{device.device}</h3>
+                      <h3 className="text-[16px] font-semibold text-[#0F172A]">{device.device}</h3>
                     </div>
                     
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div className="text-center p-3 bg-white rounded-lg">
-                        <p className="text-[20px] font-bold text-[#1a1a1a]">
+                        <p className="text-[20px] font-bold text-[#0F172A]">
                           {formatDuration(device.total_time)}
                         </p>
-                        <p className="text-[11px] text-[#888888]">Total Time</p>
+                        <p className="text-[11px] text-[#94A3B8]">Total Time</p>
                       </div>
                       <div className="text-center p-3 bg-white rounded-lg">
-                        <p className="text-[20px] font-bold text-[#3b82f6]">
+                        <p className="text-[20px] font-bold text-[#06B6D4]">
                           {formatDuration(device.active_time)}
                         </p>
-                        <p className="text-[11px] text-[#888888]">Active Time</p>
+                        <p className="text-[11px] text-[#94A3B8]">Active Time</p>
                       </div>
                     </div>
 
                     <div>
                       <div className="flex items-center justify-between text-[12px] mb-2">
-                        <span className="text-[#888888]">Engagement Rate</span>
-                        <span className={isGood ? 'text-[#3b82f6]' : 'text-[#ff6b6b]'}>
+                        <span className="text-[#94A3B8]">Engagement Rate</span>
+                        <span className={isGood ? 'text-[#06B6D4]' : 'text-[#EF4444]'}>
                           {engagementRate.toFixed(0)}%
                         </span>
                       </div>
                       <div className="h-2 bg-white/10 rounded-full overflow-hidden">
                         <div
-                          className={`h-full rounded-full ${isGood ? 'bg-gradient-to-r from-[#F97316] to-[#3b82f6]' : 'bg-[#ff6b6b]'}`}
+                          className={`h-full rounded-full ${isGood ? 'bg-gradient-to-r from-[#6366F1] to-[#8B5CF6]' : 'bg-[#EF4444]'}`}
                           style={{ width: `${engagementRate}%` }}
                         />
                       </div>
@@ -386,35 +386,35 @@ export default function AnalyticsPage() {
 
         {/* UX Issues Summary */}
         <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-gradient-to-br from-[#ff6b6b]/20 to-[#ff6b6b]/5 border border-[#ff6b6b]/30 rounded-2xl p-6 text-center">
-            <MousePointerClick className="w-8 h-8 text-[#ff6b6b] mx-auto mb-3" />
-            <p className="text-[32px] font-bold text-[#1a1a1a]">
+          <div className="bg-gradient-to-br from-[#EF4444]/20 to-[#EF4444]/5 border border-[#EF4444]/30 rounded-2xl p-6 text-center">
+            <MousePointerClick className="w-8 h-8 text-[#EF4444] mx-auto mb-3" />
+            <p className="text-[32px] font-bold text-[#0F172A]">
               {summary.totalDeadClicks.toLocaleString()}
             </p>
-            <p className="text-[14px] text-[#888888]">Dead Clicks</p>
-            <p className="text-[12px] text-[#666666] mt-2">
+            <p className="text-[14px] text-[#94A3B8]">Dead Clicks</p>
+            <p className="text-[12px] text-[#64748B] mt-2">
               Users clicking non-interactive elements
             </p>
           </div>
 
           <div className="bg-gradient-to-br from-[#f59e0b]/20 to-[#f59e0b]/5 border border-[#f59e0b]/30 rounded-2xl p-6 text-center">
             <Zap className="w-8 h-8 text-[#f59e0b] mx-auto mb-3" />
-            <p className="text-[32px] font-bold text-[#1a1a1a]">
+            <p className="text-[32px] font-bold text-[#0F172A]">
               {summary.totalRageClicks.toLocaleString()}
             </p>
-            <p className="text-[14px] text-[#888888]">Rage Clicks</p>
-            <p className="text-[12px] text-[#666666] mt-2">
+            <p className="text-[14px] text-[#94A3B8]">Rage Clicks</p>
+            <p className="text-[12px] text-[#64748B] mt-2">
               Frustrated repeated clicking
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-6 text-center">
-            <TrendingUp className="w-8 h-8 text-[#F97316] mx-auto mb-3 rotate-180" />
-            <p className="text-[32px] font-bold text-[#1a1a1a]">
+          <div className="bg-gradient-to-br from-[#6366F1]/20 to-[#6366F1]/5 border border-[#6366F1]/30 rounded-2xl p-6 text-center">
+            <TrendingUp className="w-8 h-8 text-[#6366F1] mx-auto mb-3 rotate-180" />
+            <p className="text-[32px] font-bold text-[#0F172A]">
               {summary.totalQuickbacks.toLocaleString()}
             </p>
-            <p className="text-[14px] text-[#888888]">Quickbacks</p>
-            <p className="text-[12px] text-[#666666] mt-2">
+            <p className="text-[14px] text-[#94A3B8]">Quickbacks</p>
+            <p className="text-[12px] text-[#64748B] mt-2">
               Users quickly navigating back
             </p>
           </div>

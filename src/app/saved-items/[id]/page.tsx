@@ -61,14 +61,14 @@ export default function SavedAnalysisPage() {
         <Header title="Analysis Not Found" breadcrumb={["Archivio", "Analysis"]} />
         <div className="p-10 max-w-[1600px] mx-auto">
           <div className="text-center py-20">
-            <FileText className="w-16 h-16 text-[#666666] mx-auto mb-4" />
-            <p className="text-[16px] text-[#888888] mb-2">Analysis not found</p>
-            <p className="text-[14px] text-[#666666] mb-6">
+            <FileText className="w-16 h-16 text-[#64748B] mx-auto mb-4" />
+            <p className="text-[16px] text-[#94A3B8] mb-2">Analysis not found</p>
+            <p className="text-[14px] text-[#64748B] mb-6">
               The analysis you're looking for doesn't exist or has been deleted.
             </p>
             <button
               onClick={() => router.push('/saved-items')}
-              className="flex items-center gap-2 px-6 py-3 bg-[#F97316] hover:bg-[#6b4ce6] text-white rounded-xl text-[14px] font-medium transition-all mx-auto"
+              className="flex items-center gap-2 px-6 py-3 bg-[#6366F1] hover:bg-[#6366F1] text-white rounded-xl text-[14px] font-medium transition-all mx-auto"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Archive
@@ -94,26 +94,26 @@ export default function SavedAnalysisPage() {
         <div className="mb-8">
           <button
             onClick={() => router.push('/saved-items')}
-            className="flex items-center gap-2 text-[#888888] hover:text-[#fafafa] mb-6 transition-colors"
+            className="flex items-center gap-2 text-[#94A3B8] hover:text-[#F8FAFC] mb-6 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="text-[14px]">Back to Archive</span>
           </button>
 
-          <div className="bg-[#0a0a0a] border border-[#e0e0e0] rounded-2xl p-6 mb-6">
+          <div className="bg-[#0B0F19] border border-[#E2E8F0] rounded-2xl p-6 mb-6">
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
-                <h1 className="text-[28px] font-bold text-[#fafafa] mb-3">{item.name}</h1>
+                <h1 className="text-[24px] font-bold text-[#F8FAFC] mb-3">{item.name}</h1>
                 {category && (
                   <div className="flex items-center gap-2 mb-3">
                     <div
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: category.color }}
                     />
-                    <span className="text-[14px] text-[#888888]">{category.name}</span>
+                    <span className="text-[14px] text-[#94A3B8]">{category.name}</span>
                   </div>
                 )}
-                <div className="flex flex-wrap items-center gap-4 text-[13px] text-[#888888]">
+                <div className="flex flex-wrap items-center gap-4 text-[13px] text-[#94A3B8]">
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
                     <span>Saved {new Date(item.savedAt).toLocaleDateString()}</span>
@@ -131,7 +131,7 @@ export default function SavedAnalysisPage() {
                   href={item.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 bg-[#F97316]/20 hover:bg-[#F97316]/30 text-[#F97316] rounded-xl text-[13px] font-medium transition-all"
+                  className="flex items-center gap-2 px-4 py-2 bg-[#6366F1]/20 hover:bg-[#6366F1]/30 text-[#6366F1] rounded-xl text-[13px] font-medium transition-all"
                 >
                   <ExternalLink className="w-4 h-4" />
                   View {isFunnel ? 'Funnel' : 'Page'}
@@ -141,28 +141,28 @@ export default function SavedAnalysisPage() {
 
             {/* Summary */}
             {analysis.summary && (
-              <div className="pt-4 border-t border-[#e0e0e0]">
-                <p className="text-[14px] text-[#fafafa] leading-relaxed">{analysis.summary}</p>
+              <div className="pt-4 border-t border-[#E2E8F0]">
+                <p className="text-[14px] text-[#F8FAFC] leading-relaxed">{analysis.summary}</p>
               </div>
             )}
 
             {/* Expected Impact */}
             {analysis.expectedImpact && (
-              <div className="mt-4 pt-4 border-t border-[#e0e0e0]">
+              <div className="mt-4 pt-4 border-t border-[#E2E8F0]">
                 <div className="flex items-center gap-2 mb-3">
-                  <Target className="w-5 h-5 text-[#3b82f6]" />
-                  <h3 className="text-[16px] font-semibold text-[#fafafa]">Expected Impact</h3>
+                  <Target className="w-5 h-5 text-[#06B6D4]" />
+                  <h3 className="text-[16px] font-semibold text-[#F8FAFC]">Expected Impact</h3>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-[#3b82f6]/10 border border-[#3b82f6]/20 rounded-xl p-4">
-                    <div className="text-[12px] text-[#888888] mb-1">Total Expected Lift</div>
-                    <div className="text-[24px] font-bold text-[#3b82f6]">
+                  <div className="bg-[#06B6D4]/10 border border-[#06B6D4]/20 rounded-xl p-4">
+                    <div className="text-[12px] text-[#94A3B8] mb-1">Total Expected Lift</div>
+                    <div className="text-[24px] font-bold text-[#06B6D4]">
                       {analysis.expectedImpact.totalLift}
                     </div>
                   </div>
-                  <div className="bg-[#F97316]/10 border border-[#F97316]/20 rounded-xl p-4">
-                    <div className="text-[12px] text-[#888888] mb-1">Confidence Level</div>
-                    <div className="text-[24px] font-bold text-[#F97316]">
+                  <div className="bg-[#6366F1]/10 border border-[#6366F1]/20 rounded-xl p-4">
+                    <div className="text-[12px] text-[#94A3B8] mb-1">Confidence Level</div>
+                    <div className="text-[24px] font-bold text-[#6366F1]">
                       {analysis.expectedImpact.confidence}%
                     </div>
                   </div>
@@ -178,10 +178,10 @@ export default function SavedAnalysisPage() {
             <CROComparisonTable rows={analysis.comparisonTable} />
           </div>
         ) : (
-          <div className="bg-[#0a0a0a] border border-[#e0e0e0] rounded-2xl p-12 text-center">
-            <FileText className="w-16 h-16 text-[#666666] mx-auto mb-4" />
-            <p className="text-[16px] text-[#888888] mb-2">No analysis data available</p>
-            <p className="text-[14px] text-[#666666]">
+          <div className="bg-[#0B0F19] border border-[#E2E8F0] rounded-2xl p-12 text-center">
+            <FileText className="w-16 h-16 text-[#64748B] mx-auto mb-4" />
+            <p className="text-[16px] text-[#94A3B8] mb-2">No analysis data available</p>
+            <p className="text-[14px] text-[#64748B]">
               The analysis table is empty or incomplete.
             </p>
           </div>

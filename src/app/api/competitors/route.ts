@@ -55,7 +55,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, website_url, description, category, notes } = body;
+    const { name, website_url, description, category, notes, folder } = body;
 
     if (!name || !website_url) {
       return NextResponse.json(
@@ -80,6 +80,7 @@ export async function POST(request: Request) {
       description: description || null,
       category: category || null,
       notes: notes || null,
+      folder: folder || null,
       status: "active",
     };
 
@@ -117,7 +118,7 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { id, name, website_url, description, category, notes, status } = body;
+    const { id, name, website_url, description, category, notes, status, folder } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -142,6 +143,7 @@ export async function PUT(request: Request) {
     if (category !== undefined) updateData.category = category;
     if (notes !== undefined) updateData.notes = notes;
     if (status !== undefined) updateData.status = status;
+    if (folder !== undefined) updateData.folder = folder;
 
     const { data, error } = await supabase
       .from("competitors")

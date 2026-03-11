@@ -62,44 +62,44 @@ export default function FunnelTrackingInstructions({
   };
 
   return (
-    <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6">
+    <div className="bg-[#0B0F19] border border-white/10 rounded-2xl p-6">
       {/* Header */}
       <div className="flex items-start gap-3 mb-4">
-        <div className="w-10 h-10 bg-[#F97316]/20 rounded-lg flex items-center justify-center flex-shrink-0">
-          <Code className="w-5 h-5 text-[#F97316]" />
+        <div className="w-10 h-10 bg-[#6366F1]/20 rounded-lg flex items-center justify-center flex-shrink-0">
+          <Code className="w-5 h-5 text-[#6366F1]" />
         </div>
         <div className="flex-1">
-          <h3 className="text-[18px] font-semibold text-[#fafafa] mb-1">
+          <h3 className="text-[18px] font-semibold text-[#F8FAFC] mb-1">
             Tracking Setup
           </h3>
-          <p className="text-[14px] text-[#888888]">
+          <p className="text-[14px] text-[#94A3B8]">
             Installa questo codice sulla pagina per tracciare le visite
           </p>
         </div>
       </div>
 
       {/* Step Info */}
-      <div className="bg-[#111111] border border-white/5 rounded-xl p-4 mb-4">
+      <div className="bg-[#111827] border border-white/5 rounded-xl p-4 mb-4">
         <div className="flex items-center gap-2 mb-2">
-          <Info className="w-4 h-4 text-[#3b82f6]" />
-          <span className="text-[13px] font-medium text-[#3b82f6]">Step da tracciare</span>
+          <Info className="w-4 h-4 text-[#06B6D4]" />
+          <span className="text-[13px] font-medium text-[#06B6D4]">Step da tracciare</span>
         </div>
-        <p className="text-[15px] text-[#fafafa] font-medium mb-1">{stepName}</p>
+        <p className="text-[15px] text-[#F8FAFC] font-medium mb-1">{stepName}</p>
         {stepUrl && (
-          <p className="text-[13px] text-[#666666] break-all">{stepUrl}</p>
+          <p className="text-[13px] text-[#64748B] break-all">{stepUrl}</p>
         )}
       </div>
 
       {/* Script Code */}
       <div className="relative">
-        <pre className="bg-[#111111] border border-white/5 rounded-xl p-4 overflow-x-auto text-[13px] text-[#888888] font-mono mb-4">
+        <pre className="bg-[#111827] border border-white/5 rounded-xl p-4 overflow-x-auto text-[13px] text-[#94A3B8] font-mono mb-4">
           <code>{scriptTag}</code>
         </pre>
 
         {/* Copy Button */}
         <button
           onClick={handleCopy}
-          className="absolute top-2 right-2 flex items-center gap-2 px-3 py-2 bg-[#F97316] hover:bg-[#EA580C] text-white text-[13px] font-medium rounded-lg transition-all"
+          className="absolute top-2 right-2 flex items-center gap-2 px-3 py-2 bg-[#6366F1] hover:bg-[#4F46E5] text-white text-[13px] font-medium rounded-lg transition-all"
         >
           {copied ? (
             <>
@@ -116,25 +116,25 @@ export default function FunnelTrackingInstructions({
       </div>
 
       {/* Instructions */}
-      <div className="bg-[#111111] border border-white/5 rounded-xl p-4 mb-4">
-        <h4 className="text-[14px] font-medium text-[#fafafa] mb-3">
+      <div className="bg-[#111827] border border-white/5 rounded-xl p-4 mb-4">
+        <h4 className="text-[14px] font-medium text-[#F8FAFC] mb-3">
           📝 Instructions
         </h4>
-        <ol className="space-y-2 text-[13px] text-[#888888]">
+        <ol className="space-y-2 text-[13px] text-[#94A3B8]">
           <li className="flex items-start gap-2">
-            <span className="text-[#F97316] font-bold">1.</span>
+            <span className="text-[#6366F1] font-bold">1.</span>
             <span>Copy the code above</span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-[#F97316] font-bold">2.</span>
-            <span>Paste it in your page, just before the <code className="text-[#3b82f6]">&lt;/body&gt;</code> tag</span>
+            <span className="text-[#6366F1] font-bold">2.</span>
+            <span>Paste it in your page, just before the <code className="text-[#06B6D4]">&lt;/body&gt;</code> tag</span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-[#F97316] font-bold">3.</span>
+            <span className="text-[#6366F1] font-bold">3.</span>
             <span>Publish the page and wait for users to visit it</span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-[#F97316] font-bold">4.</span>
+            <span className="text-[#6366F1] font-bold">4.</span>
             <span>Click "Update Statistics" to see data in the dashboard</span>
           </li>
         </ol>
@@ -145,27 +145,27 @@ export default function FunnelTrackingInstructions({
         <button
           onClick={handleUpdateStats}
           disabled={isUpdating}
-          className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#3b82f6] to-[#00a884] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#06B6D4] to-[#00a884] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <RefreshCw className={`w-4 h-4 ${isUpdating ? 'animate-spin' : ''}`} />
           {isUpdating ? 'Updating...' : 'Update Statistics'}
         </button>
 
         {updateMessage && (
-          <span className="text-[14px] text-[#fafafa]">{updateMessage}</span>
+          <span className="text-[14px] text-[#F8FAFC]">{updateMessage}</span>
         )}
       </div>
 
       {/* Verification */}
       <div className="mt-4 pt-4 border-t border-white/5">
-        <h4 className="text-[13px] font-medium text-[#fafafa] mb-2">
+        <h4 className="text-[13px] font-medium text-[#F8FAFC] mb-2">
           ✅ Verifica installazione
         </h4>
-        <p className="text-[12px] text-[#666666] mb-2">
+        <p className="text-[12px] text-[#64748B] mb-2">
           Dopo aver installato lo script, visita la pagina e apri la Console del browser (F12).
           Dovresti vedere:
         </p>
-        <code className="block bg-[#111111] border border-white/5 rounded-lg px-3 py-2 text-[11px] text-[#3b82f6] font-mono">
+        <code className="block bg-[#111827] border border-white/5 rounded-lg px-3 py-2 text-[11px] text-[#06B6D4] font-mono">
           🔍 CRO Funnel Tracking attivo - Funnel: {funnelId} Step: {stepName}
         </code>
       </div>

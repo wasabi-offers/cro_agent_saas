@@ -18,10 +18,10 @@ export default function CROHealthScore({ score, previousScore, breakdown }: CROH
   const changePercent = ((change / previousScore) * 100).toFixed(1);
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return { color: "#3b82f6", label: "Excellent" };
-    if (score >= 60) return { color: "#F97316", label: "Good" };
+    if (score >= 80) return { color: "#06B6D4", label: "Excellent" };
+    if (score >= 60) return { color: "#6366F1", label: "Good" };
     if (score >= 40) return { color: "#f59e0b", label: "Fair" };
-    return { color: "#ff6b6b", label: "Needs Attention" };
+    return { color: "#EF4444", label: "Needs Attention" };
   };
 
   const scoreConfig = getScoreColor(score);
@@ -31,10 +31,10 @@ export default function CROHealthScore({ score, previousScore, breakdown }: CROH
   const strokeDashoffset = circumference - (score / 100) * circumference;
 
   return (
-    <div className="bg-gradient-to-br from-[#0a0a0a] to-[#111111] border border-[#2a2a2a] rounded-2xl p-8">
+    <div className="bg-gradient-to-br from-[#0B0F19] to-[#111827] border border-[#1E293B] rounded-2xl p-8">
       <div className="flex items-center gap-2 mb-6">
-        <Activity className="w-5 h-5 text-[#F97316]" />
-        <h3 className="text-[18px] font-semibold text-[#fafafa]">CRO Health Score</h3>
+        <Activity className="w-5 h-5 text-[#6366F1]" />
+        <h3 className="text-[18px] font-semibold text-[#F8FAFC]">CRO Health Score</h3>
       </div>
 
       <div className="flex items-center gap-8">
@@ -46,7 +46,7 @@ export default function CROHealthScore({ score, previousScore, breakdown }: CROH
               cx="80"
               cy="80"
               r="70"
-              stroke="#1a1a1a"
+              stroke="#1E293B"
               strokeWidth="12"
               fill="none"
             />
@@ -66,8 +66,8 @@ export default function CROHealthScore({ score, previousScore, breakdown }: CROH
           </svg>
           {/* Center text */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-[36px] font-bold text-[#fafafa]">{score}</span>
-            <span className="text-[12px] text-[#888888]">/ 100</span>
+            <span className="text-[36px] font-bold text-[#F8FAFC]">{score}</span>
+            <span className="text-[12px] text-[#94A3B8]">/ 100</span>
           </div>
         </div>
 
@@ -77,7 +77,7 @@ export default function CROHealthScore({ score, previousScore, breakdown }: CROH
             <span className={`text-[16px] font-semibold`} style={{ color: scoreConfig.color }}>
               {scoreConfig.label}
             </span>
-            <div className={`flex items-center gap-1 text-[13px] ${change >= 0 ? 'text-[#3b82f6]' : 'text-[#ff6b6b]'}`}>
+            <div className={`flex items-center gap-1 text-[13px] ${change >= 0 ? 'text-[#06B6D4]' : 'text-[#EF4444]'}`}>
               {change >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
               {Math.abs(parseFloat(changePercent))}%
             </div>
@@ -92,10 +92,10 @@ export default function CROHealthScore({ score, previousScore, breakdown }: CROH
               return (
                 <div key={key}>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[12px] text-[#888888]">{label}</span>
-                    <span className="text-[12px] font-medium text-[#fafafa]">{value}%</span>
+                    <span className="text-[12px] text-[#94A3B8]">{label}</span>
+                    <span className="text-[12px] font-medium text-[#F8FAFC]">{value}%</span>
                   </div>
-                  <div className="h-1.5 bg-[#1a1a1a] rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-[#1E293B] rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-500"
                       style={{

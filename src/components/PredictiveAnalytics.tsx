@@ -66,18 +66,18 @@ export default function PredictiveAnalytics({ predictions }: PredictiveAnalytics
   const getTrendColor = (impact: Prediction["impact"]) => {
     switch (impact) {
       case "positive":
-        return "text-[#3b82f6]";
+        return "text-[#06B6D4]";
       case "negative":
-        return "text-[#ff6b6b]";
+        return "text-[#EF4444]";
       case "neutral":
-        return "text-[#888888]";
+        return "text-[#94A3B8]";
     }
   };
 
   const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 80) return "text-[#3b82f6]";
+    if (confidence >= 80) return "text-[#06B6D4]";
     if (confidence >= 60) return "text-[#f59e0b]";
-    return "text-[#ff6b6b]";
+    return "text-[#EF4444]";
   };
 
   const formatValue = (metric: string, value: number) => {
@@ -93,22 +93,22 @@ export default function PredictiveAnalytics({ predictions }: PredictiveAnalytics
   };
 
   return (
-    <div className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-2xl overflow-hidden mb-10">
+    <div className="bg-[#0B0F19] border border-[#1E293B] rounded-2xl overflow-hidden mb-10">
       {/* Header */}
-      <div className="p-6 border-b border-[#2a2a2a]">
+      <div className="p-6 border-b border-[#1E293B]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Target className="w-6 h-6 text-[#F97316]" />
+            <Target className="w-6 h-6 text-[#6366F1]" />
             <div>
-              <h3 className="text-[18px] font-semibold text-[#fafafa]">
+              <h3 className="text-[18px] font-semibold text-[#F8FAFC]">
                 Predictive Forecasting
               </h3>
-              <p className="text-[13px] text-[#888888]">
+              <p className="text-[13px] text-[#94A3B8]">
                 AI-powered predictions for the next 30 days
               </p>
             </div>
           </div>
-          <div className="text-[11px] text-[#666666] bg-[#111111] px-3 py-1.5 rounded-lg">
+          <div className="text-[11px] text-[#64748B] bg-[#111827] px-3 py-1.5 rounded-lg">
             Updated 5 min ago
           </div>
         </div>
@@ -120,12 +120,12 @@ export default function PredictiveAnalytics({ predictions }: PredictiveAnalytics
           {displayPredictions.map((prediction) => (
             <div
               key={prediction.metric}
-              className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-5"
+              className="bg-[#111827] border border-[#1E293B] rounded-xl p-5"
             >
               {/* Metric Header */}
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <h4 className="text-[16px] font-semibold text-[#fafafa]">
+                  <h4 className="text-[16px] font-semibold text-[#F8FAFC]">
                     {prediction.metric}
                   </h4>
                   <div className="flex items-center gap-1.5">
@@ -140,7 +140,7 @@ export default function PredictiveAnalytics({ predictions }: PredictiveAnalytics
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-[#666666]">Confidence:</span>
+                  <span className="text-[11px] text-[#64748B]">Confidence:</span>
                   <span className={`text-[13px] font-bold ${getConfidenceColor(prediction.confidence)}`}>
                     {prediction.confidence}%
                   </span>
@@ -150,22 +150,22 @@ export default function PredictiveAnalytics({ predictions }: PredictiveAnalytics
               {/* Timeline */}
               <div className="grid grid-cols-4 gap-4">
                 {/* Current */}
-                <div className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg p-3">
-                  <div className="text-[11px] text-[#666666] uppercase mb-1">
+                <div className="bg-[#0B0F19] border border-[#1E293B] rounded-lg p-3">
+                  <div className="text-[11px] text-[#64748B] uppercase mb-1">
                     Current
                   </div>
-                  <div className="text-[20px] font-bold text-[#fafafa]">
+                  <div className="text-[20px] font-bold text-[#F8FAFC]">
                     {formatValue(prediction.metric, prediction.current)}
                   </div>
-                  <div className="text-[11px] text-[#888888] mt-1">Baseline</div>
+                  <div className="text-[11px] text-[#94A3B8] mt-1">Baseline</div>
                 </div>
 
                 {/* 7 Days */}
-                <div className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg p-3">
-                  <div className="text-[11px] text-[#666666] uppercase mb-1">
+                <div className="bg-[#0B0F19] border border-[#1E293B] rounded-lg p-3">
+                  <div className="text-[11px] text-[#64748B] uppercase mb-1">
                     7 Days
                   </div>
-                  <div className="text-[20px] font-bold text-[#fafafa]">
+                  <div className="text-[20px] font-bold text-[#F8FAFC]">
                     {formatValue(prediction.metric, prediction.predicted7d)}
                   </div>
                   <div className={`text-[11px] mt-1 ${getTrendColor(prediction.impact)}`}>
@@ -175,11 +175,11 @@ export default function PredictiveAnalytics({ predictions }: PredictiveAnalytics
                 </div>
 
                 {/* 14 Days */}
-                <div className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg p-3">
-                  <div className="text-[11px] text-[#666666] uppercase mb-1">
+                <div className="bg-[#0B0F19] border border-[#1E293B] rounded-lg p-3">
+                  <div className="text-[11px] text-[#64748B] uppercase mb-1">
                     14 Days
                   </div>
-                  <div className="text-[20px] font-bold text-[#fafafa]">
+                  <div className="text-[20px] font-bold text-[#F8FAFC]">
                     {formatValue(prediction.metric, prediction.predicted14d)}
                   </div>
                   <div className={`text-[11px] mt-1 ${getTrendColor(prediction.impact)}`}>
@@ -189,11 +189,11 @@ export default function PredictiveAnalytics({ predictions }: PredictiveAnalytics
                 </div>
 
                 {/* 30 Days */}
-                <div className="bg-[#0a0a0a] border border-[#F97316]/30 rounded-lg p-3">
-                  <div className="text-[11px] text-[#888888] uppercase mb-1">
+                <div className="bg-[#0B0F19] border border-[#6366F1]/30 rounded-lg p-3">
+                  <div className="text-[11px] text-[#94A3B8] uppercase mb-1">
                     30 Days
                   </div>
-                  <div className="text-[20px] font-bold text-[#F97316]">
+                  <div className="text-[20px] font-bold text-[#6366F1]">
                     {formatValue(prediction.metric, prediction.predicted30d)}
                   </div>
                   <div className={`text-[11px] font-semibold mt-1 ${getTrendColor(prediction.impact)}`}>
@@ -205,14 +205,14 @@ export default function PredictiveAnalytics({ predictions }: PredictiveAnalytics
 
               {/* Visual Progress Bar */}
               <div className="mt-4">
-                <div className="relative h-2 bg-[#0a0a0a] rounded-full overflow-hidden">
+                <div className="relative h-2 bg-[#0B0F19] rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${
                       prediction.impact === "positive"
-                        ? "bg-gradient-to-r from-[#F97316] to-[#3b82f6]"
+                        ? "bg-gradient-to-r from-[#6366F1] to-[#8B5CF6]"
                         : prediction.impact === "negative"
-                        ? "bg-gradient-to-r from-[#ff6b6b] to-[#f59e0b]"
-                        : "bg-gradient-to-r from-[#888888] to-[#666666]"
+                        ? "bg-gradient-to-r from-[#EF4444] to-[#f59e0b]"
+                        : "bg-gradient-to-r from-[#94A3B8] to-[#64748B]"
                     }`}
                     style={{
                       width: `${Math.min(100, Math.abs(calculateChange(prediction.current, prediction.predicted30d)) * 2)}%`
@@ -225,14 +225,14 @@ export default function PredictiveAnalytics({ predictions }: PredictiveAnalytics
         </div>
 
         {/* Info Box */}
-        <div className="mt-6 bg-[#F97316]/10 border border-[#F97316]/20 rounded-xl p-4">
+        <div className="mt-6 bg-[#6366F1]/10 border border-[#6366F1]/20 rounded-xl p-4">
           <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-[#F97316] flex-shrink-0 mt-0.5" />
+            <AlertCircle className="w-5 h-5 text-[#6366F1] flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-[13px] text-[#fafafa] font-medium mb-1">
+              <p className="text-[13px] text-[#F8FAFC] font-medium mb-1">
                 About These Predictions
               </p>
-              <p className="text-[12px] text-[#888888] leading-relaxed">
+              <p className="text-[12px] text-[#94A3B8] leading-relaxed">
                 Predictions are based on historical patterns, seasonality, and current trends. Confidence levels indicate the reliability of each forecast. Higher confidence means more consistent historical patterns.
               </p>
             </div>

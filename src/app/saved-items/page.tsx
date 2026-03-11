@@ -70,14 +70,14 @@ export default function SavedItemsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-[28px] font-bold text-[#1a1a1a] mb-2">Saved Items</h1>
-            <p className="text-[15px] text-[#888888]">
+            <h1 className="text-[24px] font-bold text-[#0F172A] mb-2">Saved Items</h1>
+            <p className="text-[15px] text-[#94A3B8]">
               Your saved funnels and landing pages with CRO analysis
             </p>
           </div>
           <Link
             href="/landing-analysis"
-            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#F97316] to-[#3b82f6] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
+            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
           >
             <Plus className="w-4 h-4" />
             Analyze New Page
@@ -85,33 +85,33 @@ export default function SavedItemsPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-4 mb-8 border-b border-[#1a1a1a]">
+        <div className="flex items-center gap-4 mb-8 border-b border-[#0F172A]">
           <button
             onClick={() => setActiveTab('funnels')}
             className={`px-6 py-3 text-[14px] font-medium transition-all relative flex items-center gap-2 ${
               activeTab === 'funnels'
-                ? 'text-[#1a1a1a]'
-                : 'text-[#666666] hover:text-[#888888]'
+                ? 'text-[#0F172A]'
+                : 'text-[#64748B] hover:text-[#94A3B8]'
             }`}
           >
             <Target className="w-4 h-4" />
             Funnels ({funnels.length})
             {activeTab === 'funnels' && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#F97316] to-[#3b82f6]" />
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6]" />
             )}
           </button>
           <button
             onClick={() => setActiveTab('pages')}
             className={`px-6 py-3 text-[14px] font-medium transition-all relative flex items-center gap-2 ${
               activeTab === 'pages'
-                ? 'text-[#1a1a1a]'
-                : 'text-[#666666] hover:text-[#888888]'
+                ? 'text-[#0F172A]'
+                : 'text-[#64748B] hover:text-[#94A3B8]'
             }`}
           >
             <FileText className="w-4 h-4" />
             Landing Pages ({pages.length})
             {activeTab === 'pages' && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#F97316] to-[#3b82f6]" />
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6]" />
             )}
           </button>
         </div>
@@ -119,21 +119,21 @@ export default function SavedItemsPage() {
         {/* Filters */}
         <div className="flex items-center gap-4 mb-8">
           <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#666666]" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B]" />
             <input
               type="text"
               placeholder="Search items..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all"
+              className="w-full pl-12 pr-4 py-3 bg-gradient-to-br from-[#6366F1]/20 to-[#6366F1]/5 border border-[#6366F1]/30 rounded-xl text-[#0F172A] text-[15px] placeholder:text-[#64748B] focus:outline-none focus:border-[#6366F1] transition-all"
             />
           </div>
           <div className="flex items-center gap-2">
-            <Folder className="w-5 h-5 text-[#666666]" />
+            <Folder className="w-5 h-5 text-[#64748B]" />
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="px-4 py-3 bg-[#0a0a0a] border border-[#d0d0d0] rounded-xl text-[#1a1a1a] text-[15px] focus:outline-none focus:border-[#F97316] transition-all cursor-pointer"
+              className="px-4 py-3 bg-[#0B0F19] border border-[#CBD5E1] rounded-xl text-[#0F172A] text-[15px] focus:outline-none focus:border-[#6366F1] transition-all cursor-pointer"
             >
               <option value="all">All Categories</option>
               {categories.map(cat => (
@@ -147,9 +147,9 @@ export default function SavedItemsPage() {
         {activeTab === 'funnels' ? (
           filteredFunnels.length === 0 ? (
             <div className="text-center py-20">
-              <Target className="w-16 h-16 text-[#666666] mx-auto mb-4" />
-              <p className="text-[16px] text-[#888888] mb-2">No funnels saved yet</p>
-              <p className="text-[14px] text-[#666666]">
+              <Target className="w-16 h-16 text-[#64748B] mx-auto mb-4" />
+              <p className="text-[16px] text-[#94A3B8] mb-2">No funnels saved yet</p>
+              <p className="text-[14px] text-[#64748B]">
                 Start analyzing funnels to save them here
               </p>
             </div>
@@ -160,11 +160,11 @@ export default function SavedItemsPage() {
                 return (
                   <div
                     key={funnel.id}
-                    className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-6 hover:border-[#F97316]/50 transition-all"
+                    className="bg-gradient-to-br from-[#6366F1]/20 to-[#6366F1]/5 border border-[#6366F1]/30 rounded-2xl p-6 hover:border-[#6366F1]/50 transition-all"
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
-                        <h3 className="text-[18px] font-semibold text-[#1a1a1a] mb-2">
+                        <h3 className="text-[18px] font-semibold text-[#0F172A] mb-2">
                           {funnel.name}
                         </h3>
                         {category && (
@@ -173,20 +173,20 @@ export default function SavedItemsPage() {
                               className="w-3 h-3 rounded-full"
                               style={{ backgroundColor: category.color }}
                             />
-                            <span className="text-[12px] text-[#888888]">{category.name}</span>
+                            <span className="text-[12px] text-[#94A3B8]">{category.name}</span>
                           </div>
                         )}
                       </div>
                       <button
                         onClick={() => handleDelete('funnel', funnel.id)}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#ff6b6b]/10 text-[#ff6b6b] transition-colors"
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#EF4444]/10 text-[#EF4444] transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
 
                     <div className="space-y-2 mb-4">
-                      <div className="flex items-center gap-2 text-[12px] text-[#888888]">
+                      <div className="flex items-center gap-2 text-[12px] text-[#94A3B8]">
                         <Calendar className="w-3.5 h-3.5" />
                         Saved {new Date(funnel.savedAt).toLocaleDateString()}
                       </div>
@@ -195,7 +195,7 @@ export default function SavedItemsPage() {
                           href={funnel.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-[12px] text-[#F97316] hover:text-[#a78bff] transition-colors"
+                          className="flex items-center gap-2 text-[12px] text-[#6366F1] hover:text-[#818CF8] transition-colors"
                         >
                           <ExternalLink className="w-3.5 h-3.5" />
                           View funnel
@@ -207,7 +207,7 @@ export default function SavedItemsPage() {
                       <div className="pt-4 border-t border-white/5">
                         <Link
                           href={`/saved-items/${funnel.id}`}
-                          className="inline-flex items-center gap-2 text-[12px] text-[#3b82f6] font-medium hover:text-[#2563eb] transition-colors cursor-pointer group"
+                          className="inline-flex items-center gap-2 text-[12px] text-[#06B6D4] font-medium hover:text-[#0891B2] transition-colors cursor-pointer group"
                         >
                           <span className="group-hover:underline">
                             ✓ Analysis available ({funnel.analysis.comparisonTable.length} opportunities)
@@ -223,9 +223,9 @@ export default function SavedItemsPage() {
         ) : (
           filteredPages.length === 0 ? (
             <div className="text-center py-20">
-              <FileText className="w-16 h-16 text-[#666666] mx-auto mb-4" />
-              <p className="text-[16px] text-[#888888] mb-2">No landing pages saved yet</p>
-              <p className="text-[14px] text-[#666666]">
+              <FileText className="w-16 h-16 text-[#64748B] mx-auto mb-4" />
+              <p className="text-[16px] text-[#94A3B8] mb-2">No landing pages saved yet</p>
+              <p className="text-[14px] text-[#64748B]">
                 Start analyzing pages to save them here
               </p>
             </div>
@@ -236,11 +236,11 @@ export default function SavedItemsPage() {
                 return (
                   <div
                     key={page.id}
-                    className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-6 hover:border-[#F97316]/50 transition-all"
+                    className="bg-gradient-to-br from-[#6366F1]/20 to-[#6366F1]/5 border border-[#6366F1]/30 rounded-2xl p-6 hover:border-[#6366F1]/50 transition-all"
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
-                        <h3 className="text-[18px] font-semibold text-[#1a1a1a] mb-2">
+                        <h3 className="text-[18px] font-semibold text-[#0F172A] mb-2">
                           {page.name}
                         </h3>
                         {category && (
@@ -249,20 +249,20 @@ export default function SavedItemsPage() {
                               className="w-3 h-3 rounded-full"
                               style={{ backgroundColor: category.color }}
                             />
-                            <span className="text-[12px] text-[#888888]">{category.name}</span>
+                            <span className="text-[12px] text-[#94A3B8]">{category.name}</span>
                           </div>
                         )}
                       </div>
                       <button
                         onClick={() => handleDelete('page', page.id)}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#ff6b6b]/10 text-[#ff6b6b] transition-colors"
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#EF4444]/10 text-[#EF4444] transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
 
                     <div className="space-y-2 mb-4">
-                      <div className="flex items-center gap-2 text-[12px] text-[#888888]">
+                      <div className="flex items-center gap-2 text-[12px] text-[#94A3B8]">
                         <Calendar className="w-3.5 h-3.5" />
                         Saved {new Date(page.savedAt).toLocaleDateString()}
                       </div>
@@ -270,7 +270,7 @@ export default function SavedItemsPage() {
                         href={page.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-[12px] text-[#F97316] hover:text-[#a78bff] transition-colors truncate"
+                        className="flex items-center gap-2 text-[12px] text-[#6366F1] hover:text-[#818CF8] transition-colors truncate"
                       >
                         <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />
                         <span className="truncate">{page.url}</span>
@@ -281,7 +281,7 @@ export default function SavedItemsPage() {
                       <div className="pt-4 border-t border-white/5">
                         <Link
                           href={`/saved-items/${page.id}`}
-                          className="inline-flex items-center gap-2 text-[12px] text-[#3b82f6] font-medium hover:text-[#2563eb] transition-colors cursor-pointer group"
+                          className="inline-flex items-center gap-2 text-[12px] text-[#06B6D4] font-medium hover:text-[#0891B2] transition-colors cursor-pointer group"
                         >
                           <span className="group-hover:underline">
                             ✓ Analysis available ({page.analysis.comparisonTable.length} opportunities)

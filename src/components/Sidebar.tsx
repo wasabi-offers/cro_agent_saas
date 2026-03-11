@@ -69,29 +69,29 @@ export default function Sidebar() {
 
   return (
     <aside
-      className="fixed left-0 top-0 h-screen w-[280px] flex flex-col z-50 border-r"
+      className="fixed left-0 top-0 h-screen w-[240px] flex flex-col z-50 border-r"
       style={{
         backgroundColor: "var(--bg-sidebar)",
         borderColor: "var(--border-primary)",
       }}
     >
       {/* Logo */}
-      <div className="px-6 py-6 flex items-center gap-4">
-        <div className="w-10 h-10 bg-gradient-to-br from-[#F97316] to-[#3b82f6] rounded-[12px] flex items-center justify-center shadow-lg shadow-orange-500/20">
-          <TrendingUp className="w-5 h-5 text-white" />
+      <div className="px-5 py-5 flex items-center gap-3">
+        <div className="w-9 h-9 bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+          <TrendingUp className="w-[18px] h-[18px] text-white" strokeWidth={1.5} />
         </div>
         <div className="flex flex-col">
-          <span className="font-semibold text-[16px] leading-tight" style={{ color: "var(--text-primary)" }}>
+          <span className="font-semibold text-[15px] leading-tight tracking-tight" style={{ color: "var(--text-primary)" }}>
             CRO Agent
           </span>
-          <span className="text-[12px]" style={{ color: "var(--text-muted)" }}>
+          <span className="text-[11px]" style={{ color: "var(--text-muted)" }}>
             Conversion Optimizer
           </span>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         {menuItems.map((item) => {
           const isActive = pathname === item.href;
           const Icon = item.icon;
@@ -99,72 +99,75 @@ export default function Sidebar() {
             <Link
               key={item.nameKey}
               href={item.href}
-              className="flex justify-start items-center gap-4 px-[15px] py-[15px] rounded-[12px] transition-all duration-200 group"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 group"
               style={{
                 backgroundColor: isActive ? "var(--bg-sidebar-active)" : "transparent",
                 color: isActive ? "var(--text-primary)" : "var(--text-muted)",
                 boxShadow: isActive ? "var(--shadow-sm)" : "none",
               }}
             >
-              <Icon className={`w-5 h-5 ${isActive ? "text-[#F97316]" : "group-hover:text-[#F97316]"}`} />
-              <span className="text-[15px] font-medium">{t(item.nameKey)}</span>
+              <Icon
+                className={`w-[18px] h-[18px] flex-shrink-0 ${isActive ? "text-[#6366F1]" : "group-hover:text-[#6366F1]"}`}
+                strokeWidth={1.5}
+              />
+              <span className="text-[14px] font-medium">{t(item.nameKey)}</span>
             </Link>
           );
         })}
       </nav>
 
       {/* Theme + Language + User */}
-      <div className="px-4 py-4 border-t" style={{ borderColor: "var(--border-primary)" }}>
+      <div className="px-3 py-4 border-t" style={{ borderColor: "var(--border-primary)" }}>
         {/* Day / Night toggle */}
         <button
           onClick={toggleTheme}
-          className="w-full flex items-center justify-between px-4 py-3 rounded-xl mb-2 transition-all duration-200"
+          className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl mb-1.5 transition-all duration-150"
           style={{
             backgroundColor: "var(--bg-sidebar-active)",
             border: "1px solid var(--border-primary)",
           }}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             {isDark ? (
-              <Moon className="w-4 h-4 text-[#F97316]" />
+              <Moon className="w-4 h-4 text-[#818CF8]" strokeWidth={1.5} />
             ) : (
-              <Sun className="w-4 h-4 text-[#ff9500]" />
+              <Sun className="w-4 h-4 text-[#6366F1]" strokeWidth={1.5} />
             )}
             <span className="text-[13px] font-medium" style={{ color: "var(--text-primary)" }}>
               {isDark ? t("sidebar.darkMode") : t("sidebar.lightMode")}
             </span>
           </div>
           <div
-            className="relative w-10 h-[22px] rounded-full transition-colors duration-300"
-            style={{ backgroundColor: isDark ? "#F97316" : "#e0e0e0" }}
+            className="relative w-9 h-5 rounded-full transition-colors duration-150"
+            style={{ backgroundColor: isDark ? "#6366F1" : "#CBD5E1" }}
           >
             <div
-              className="absolute top-[3px] w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-300"
-              style={{ transform: isDark ? "translateX(21px)" : "translateX(3px)" }}
+              className="absolute top-[2px] w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-150"
+              style={{ transform: isDark ? "translateX(18px)" : "translateX(2px)" }}
             />
           </div>
         </button>
 
         {/* Language toggle */}
         <div
-          className="flex items-center justify-between px-4 py-3 rounded-xl mb-3"
+          className="flex items-center justify-between px-3 py-2.5 rounded-xl mb-2"
           style={{
             backgroundColor: "var(--bg-sidebar-active)",
             border: "1px solid var(--border-primary)",
           }}
         >
-          <div className="flex items-center gap-3">
-            <Languages className="w-4 h-4 text-[#3b82f6]" />
+          <div className="flex items-center gap-2.5">
+            <Languages className="w-4 h-4 text-[#06B6D4]" strokeWidth={1.5} />
             <span className="text-[13px] font-medium" style={{ color: "var(--text-primary)" }}>
               {t("common.language")}
             </span>
           </div>
-          <div className="flex items-center gap-1 bg-[var(--bg-tertiary)] rounded-lg p-0.5">
+          <div className="flex items-center gap-0.5 bg-[var(--bg-tertiary)] rounded-lg p-0.5">
             <button
               onClick={() => setLang("en")}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all ${
+              className={`px-2 py-1 rounded-md text-[11px] font-semibold transition-all duration-150 ${
                 lang === "en"
-                  ? "bg-[#F97316] text-white shadow-sm"
+                  ? "bg-[#6366F1] text-white shadow-sm"
                   : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               }`}
             >
@@ -172,9 +175,9 @@ export default function Sidebar() {
             </button>
             <button
               onClick={() => setLang("it")}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all ${
+              className={`px-2 py-1 rounded-md text-[11px] font-semibold transition-all duration-150 ${
                 lang === "it"
-                  ? "bg-[#F97316] text-white shadow-sm"
+                  ? "bg-[#6366F1] text-white shadow-sm"
                   : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               }`}
             >
@@ -185,40 +188,40 @@ export default function Sidebar() {
 
         {/* User card */}
         <div
-          className="rounded-xl p-4"
+          className="rounded-xl p-3"
           style={{
             backgroundColor: "var(--bg-sidebar-active)",
             border: "1px solid var(--border-primary)",
           }}
         >
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-[#F97316] to-[#3b82f6] rounded-lg flex items-center justify-center flex-shrink-0">
-              <UserIcon className="w-4 h-4 text-white" />
+          <div className="flex items-center gap-2.5 mb-2.5">
+            <div className="w-8 h-8 bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] rounded-lg flex items-center justify-center flex-shrink-0">
+              <UserIcon className="w-4 h-4 text-white" strokeWidth={1.5} />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[13px] font-medium truncate" style={{ color: "var(--text-primary)" }}>
                 {user?.email || t("sidebar.loading")}
               </p>
               <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#3b82f6]" />
+                <div className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
                 <span className="text-[11px]" style={{ color: "var(--text-faint)" }}>{t("sidebar.online")}</span>
               </div>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 py-2 text-[13px] font-medium rounded-lg transition-all"
+            className="w-full flex items-center justify-center gap-2 py-2 text-[13px] font-medium rounded-lg transition-all duration-150"
             style={{ color: "var(--text-faint)" }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.color = "#ff6b6b";
-              e.currentTarget.style.backgroundColor = isDark ? "rgba(255,107,107,0.1)" : "rgba(255,107,107,0.05)";
+              e.currentTarget.style.color = "#EF4444";
+              e.currentTarget.style.backgroundColor = isDark ? "rgba(239,68,68,0.1)" : "rgba(239,68,68,0.05)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.color = "var(--text-faint)";
               e.currentTarget.style.backgroundColor = "transparent";
             }}
           >
-            <LogOut className="w-3.5 h-3.5" />
+            <LogOut className="w-3.5 h-3.5" strokeWidth={1.5} />
             {t("sidebar.signOut")}
           </button>
         </div>

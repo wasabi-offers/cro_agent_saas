@@ -77,13 +77,13 @@ export default function StepDataAnalysisModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-        <div className="p-6 border-b border-[#2a2a2a] flex items-center justify-between">
+      <div className="bg-[#0B0F19] border border-[#1E293B] rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div className="p-6 border-b border-[#1E293B] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <BarChart3 className="w-6 h-6 text-[#F97316]" />
-            <h2 className="text-[18px] font-semibold text-[#1a1a1a]">Data Analysis - {stepName}</h2>
+            <BarChart3 className="w-6 h-6 text-[#6366F1]" />
+            <h2 className="text-[18px] font-semibold text-[#0F172A]">Data Analysis - {stepName}</h2>
           </div>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#f1f3f5] text-[#888888]">
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#F1F5F9] text-[#94A3B8]">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -91,51 +91,51 @@ export default function StepDataAnalysisModal({
         <div className="p-6 space-y-4">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="w-8 h-8 border-2 border-[#F97316] border-t-transparent rounded-full animate-spin" />
+              <div className="w-8 h-8 border-2 border-[#6366F1] border-t-transparent rounded-full animate-spin" />
             </div>
           ) : (
             <>
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-[#f8f9fa] rounded-xl p-4">
+                <div className="bg-[#F8FAFC] rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <Users className="w-4 h-4 text-[#F97316]" />
-                    <span className="text-[11px] text-[#888888]">Visitors</span>
+                    <Users className="w-4 h-4 text-[#6366F1]" />
+                    <span className="text-[11px] text-[#94A3B8]">Visitors</span>
                   </div>
-                  <p className="text-[20px] font-bold text-[#1a1a1a]">{(stats?.visitors ?? stepVisitors).toLocaleString()}</p>
+                  <p className="text-[20px] font-bold text-[#0F172A]">{(stats?.visitors ?? stepVisitors).toLocaleString()}</p>
                 </div>
-                <div className="bg-[#f8f9fa] rounded-xl p-4">
+                <div className="bg-[#F8FAFC] rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <TrendingDown className="w-4 h-4 text-[#ff6b6b]" />
-                    <span className="text-[11px] text-[#888888]">Drop-off</span>
+                    <TrendingDown className="w-4 h-4 text-[#EF4444]" />
+                    <span className="text-[11px] text-[#94A3B8]">Drop-off</span>
                   </div>
-                  <p className="text-[20px] font-bold text-[#1a1a1a]">{stepDropoff.toFixed(1)}%</p>
+                  <p className="text-[20px] font-bold text-[#0F172A]">{stepDropoff.toFixed(1)}%</p>
                 </div>
-                <div className="bg-[#f8f9fa] rounded-xl p-4">
+                <div className="bg-[#F8FAFC] rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <MousePointerClick className="w-4 h-4 text-[#3b82f6]" />
-                    <span className="text-[11px] text-[#888888]">CTR</span>
+                    <MousePointerClick className="w-4 h-4 text-[#06B6D4]" />
+                    <span className="text-[11px] text-[#94A3B8]">CTR</span>
                   </div>
-                  <p className="text-[20px] font-bold text-[#1a1a1a]">{(stats?.ctr ?? 0).toFixed(1)}%</p>
+                  <p className="text-[20px] font-bold text-[#0F172A]">{(stats?.ctr ?? 0).toFixed(1)}%</p>
                 </div>
-                <div className="bg-[#f8f9fa] rounded-xl p-4">
+                <div className="bg-[#F8FAFC] rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-1">
                     <MousePointerClick className="w-4 h-4 text-[#f59e0b]" />
-                    <span className="text-[11px] text-[#888888]">Hits (clicks)</span>
+                    <span className="text-[11px] text-[#94A3B8]">Hits (clicks)</span>
                   </div>
-                  <p className="text-[20px] font-bold text-[#1a1a1a]">{(stats?.clicks ?? 0).toLocaleString()}</p>
+                  <p className="text-[20px] font-bold text-[#0F172A]">{(stats?.clicks ?? 0).toLocaleString()}</p>
                 </div>
-                <div className="bg-[#f8f9fa] rounded-xl p-4 col-span-2">
+                <div className="bg-[#F8FAFC] rounded-xl p-4 col-span-2">
                   <div className="flex items-center gap-2 mb-1">
-                    <Send className="w-4 h-4 text-[#F97316]" />
-                    <span className="text-[11px] text-[#888888]">Form Submits</span>
+                    <Send className="w-4 h-4 text-[#6366F1]" />
+                    <span className="text-[11px] text-[#94A3B8]">Form Submits</span>
                   </div>
-                  <p className="text-[20px] font-bold text-[#1a1a1a]">{(stats?.submits ?? 0).toLocaleString()}</p>
+                  <p className="text-[20px] font-bold text-[#0F172A]">{(stats?.submits ?? 0).toLocaleString()}</p>
                 </div>
               </div>
 
-              <div className="bg-[#f8f9fa] border border-[#2a2a2a] rounded-xl p-4">
-                <h4 className="text-[13px] font-semibold text-[#1a1a1a] mb-2">Brief Analysis</h4>
-                <p className="text-[13px] text-[#888888] leading-relaxed">{analysis || "Loading..."}</p>
+              <div className="bg-[#F8FAFC] border border-[#1E293B] rounded-xl p-4">
+                <h4 className="text-[13px] font-semibold text-[#0F172A] mb-2">Brief Analysis</h4>
+                <p className="text-[13px] text-[#94A3B8] leading-relaxed">{analysis || "Loading..."}</p>
               </div>
             </>
           )}

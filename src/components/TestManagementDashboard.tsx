@@ -156,29 +156,29 @@ export default function TestManagementDashboard() {
   const getStatusColor = (status: TestStatus) => {
     switch (status) {
       case "running":
-        return { bg: "bg-[#3b82f6]/20", text: "text-[#3b82f6]", border: "border-[#3b82f6]/30" };
+        return { bg: "bg-[#06B6D4]/20", text: "text-[#06B6D4]", border: "border-[#06B6D4]/30" };
       case "completed":
-        return { bg: "bg-[#F97316]/20", text: "text-[#F97316]", border: "border-[#F97316]/30" };
+        return { bg: "bg-[#6366F1]/20", text: "text-[#6366F1]", border: "border-[#6366F1]/30" };
       case "scheduled":
         return { bg: "bg-[#f59e0b]/20", text: "text-[#f59e0b]", border: "border-[#f59e0b]/30" };
     }
   };
 
   const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 95) return "text-[#3b82f6]";
-    if (confidence >= 80) return "text-[#F97316]";
+    if (confidence >= 95) return "text-[#06B6D4]";
+    if (confidence >= 80) return "text-[#6366F1]";
     if (confidence >= 60) return "text-[#f59e0b]";
-    return "text-[#888888]";
+    return "text-[#94A3B8]";
   };
 
   return (
     <div className="mb-10">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <BarChart3 className="w-5 h-5 text-[#F97316]" />
-          <h3 className="text-[18px] font-semibold text-[#fafafa]">Test Management</h3>
+          <BarChart3 className="w-5 h-5 text-[#6366F1]" />
+          <h3 className="text-[18px] font-semibold text-[#F8FAFC]">Test Management</h3>
         </div>
-        <div className="flex items-center gap-2 text-[13px] text-[#888888]">
+        <div className="flex items-center gap-2 text-[13px] text-[#94A3B8]">
           <span>{tests.filter(t => t.status === 'running').length} Running</span>
           <span>·</span>
           <span>{tests.filter(t => t.status === 'completed').length} Completed</span>
@@ -188,13 +188,13 @@ export default function TestManagementDashboard() {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 mb-6 bg-[#0a0a0a] border border-[#2a2a2a] rounded-xl p-1">
+      <div className="flex items-center gap-2 mb-6 bg-[#0B0F19] border border-[#1E293B] rounded-xl p-1">
         <button
           onClick={() => setActiveTab("running")}
           className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-[13px] font-medium transition-all ${
             activeTab === "running"
-              ? "bg-[#3b82f6] text-black"
-              : "text-[#888888] hover:text-[#fafafa]"
+              ? "bg-[#06B6D4] text-black"
+              : "text-[#94A3B8] hover:text-[#F8FAFC]"
           }`}
         >
           <Play className="w-4 h-4" />
@@ -204,8 +204,8 @@ export default function TestManagementDashboard() {
           onClick={() => setActiveTab("completed")}
           className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-[13px] font-medium transition-all ${
             activeTab === "completed"
-              ? "bg-[#F97316] text-white"
-              : "text-[#888888] hover:text-[#fafafa]"
+              ? "bg-[#6366F1] text-white"
+              : "text-[#94A3B8] hover:text-[#F8FAFC]"
           }`}
         >
           <CheckCircle className="w-4 h-4" />
@@ -216,7 +216,7 @@ export default function TestManagementDashboard() {
           className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-[13px] font-medium transition-all ${
             activeTab === "scheduled"
               ? "bg-[#f59e0b] text-black"
-              : "text-[#888888] hover:text-[#fafafa]"
+              : "text-[#94A3B8] hover:text-[#F8FAFC]"
           }`}
         >
           <Clock className="w-4 h-4" />
@@ -237,20 +237,20 @@ export default function TestManagementDashboard() {
           return (
             <div
               key={test.id}
-              className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-xl p-6 hover:border-[#F97316]/50 transition-all"
+              className="bg-[#0B0F19] border border-[#1E293B] rounded-xl p-6 hover:border-[#6366F1]/50 transition-all"
             >
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <h4 className="text-[16px] font-semibold text-[#fafafa]">{test.name}</h4>
+                    <h4 className="text-[16px] font-semibold text-[#F8FAFC]">{test.name}</h4>
                     <div className={`px-2 py-1 rounded-md border ${statusConfig.bg} ${statusConfig.border}`}>
                       <span className={`text-[10px] font-bold uppercase ${statusConfig.text}`}>
                         {test.status}
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 text-[12px] text-[#888888]">
+                  <div className="flex items-center gap-4 text-[12px] text-[#94A3B8]">
                     <span>Funnel: {test.funnel}</span>
                     <span>·</span>
                     <span>Page: {test.page}</span>
@@ -258,11 +258,11 @@ export default function TestManagementDashboard() {
                 </div>
                 {test.status === "completed" && test.winner && (
                   <div className="text-right">
-                    <div className="flex items-center gap-1.5 text-[#3b82f6] mb-1">
+                    <div className="flex items-center gap-1.5 text-[#06B6D4] mb-1">
                       <Target className="w-4 h-4" />
                       <span className="text-[12px] font-semibold">Winner: {test.winner}</span>
                     </div>
-                    <span className="text-[13px] font-bold text-[#3b82f6]">
+                    <span className="text-[13px] font-bold text-[#06B6D4]">
                       +{test.actualLift}% Lift
                     </span>
                   </div>
@@ -273,16 +273,16 @@ export default function TestManagementDashboard() {
               {test.status !== "scheduled" && (
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[11px] text-[#888888]">
+                    <span className="text-[11px] text-[#94A3B8]">
                       {test.status === "running" ? "Progress" : "Completed"}
                     </span>
-                    <span className="text-[11px] text-[#888888]">
+                    <span className="text-[11px] text-[#94A3B8]">
                       {test.status === "running" ? `${test.progress}% · ${Math.ceil((100 - test.progress) / (100 / test.duration))} days left` : test.endDate}
                     </span>
                   </div>
-                  <div className="h-2 bg-[#1a1a1a] rounded-full overflow-hidden">
+                  <div className="h-2 bg-[#1E293B] rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-[#F97316] to-[#3b82f6] rounded-full transition-all duration-500"
+                      className="h-full bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] rounded-full transition-all duration-500"
                       style={{ width: `${test.progress}%` }}
                     />
                   </div>
@@ -290,13 +290,13 @@ export default function TestManagementDashboard() {
               )}
 
               {test.status === "scheduled" && (
-                <div className="mb-4 p-3 bg-[#111111] rounded-lg border border-[#f59e0b]/20">
+                <div className="mb-4 p-3 bg-[#111827] rounded-lg border border-[#f59e0b]/20">
                   <div className="flex items-center gap-2 text-[13px]">
                     <Calendar className="w-4 h-4 text-[#f59e0b]" />
-                    <span className="text-[#888888]">Scheduled to start:</span>
-                    <span className="text-[#fafafa] font-medium">{test.startDate}</span>
-                    <span className="text-[#888888]">·</span>
-                    <span className="text-[#888888]">{test.duration} days duration</span>
+                    <span className="text-[#94A3B8]">Scheduled to start:</span>
+                    <span className="text-[#F8FAFC] font-medium">{test.startDate}</span>
+                    <span className="text-[#94A3B8]">·</span>
+                    <span className="text-[#94A3B8]">{test.duration} days duration</span>
                   </div>
                 </div>
               )}
@@ -306,15 +306,15 @@ export default function TestManagementDashboard() {
                 {test.variants.map((variant, idx) => (
                   <div
                     key={idx}
-                    className={`bg-[#111111] border rounded-lg p-4 ${
+                    className={`bg-[#111827] border rounded-lg p-4 ${
                       test.winner === variant.name
-                        ? "border-[#3b82f6]"
-                        : "border-[#2a2a2a]"
+                        ? "border-[#06B6D4]"
+                        : "border-[#1E293B]"
                     }`}
                   >
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-[13px] font-semibold text-[#fafafa]">{variant.name}</span>
-                      <span className="text-[11px] text-[#888888]">{variant.traffic}% traffic</span>
+                      <span className="text-[13px] font-semibold text-[#F8FAFC]">{variant.name}</span>
+                      <span className="text-[11px] text-[#94A3B8]">{variant.traffic}% traffic</span>
                     </div>
 
                     {test.status !== "scheduled" && (
@@ -322,28 +322,28 @@ export default function TestManagementDashboard() {
                         <div className="grid grid-cols-2 gap-3 mb-3">
                           <div>
                             <div className="flex items-center gap-1.5 mb-1">
-                              <Users className="w-3 h-3 text-[#F97316]" />
-                              <span className="text-[10px] text-[#888888]">Visitors</span>
+                              <Users className="w-3 h-3 text-[#6366F1]" />
+                              <span className="text-[10px] text-[#94A3B8]">Visitors</span>
                             </div>
-                            <span className="text-[14px] font-bold text-[#fafafa]">
+                            <span className="text-[14px] font-bold text-[#F8FAFC]">
                               {variant.visitors.toLocaleString()}
                             </span>
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5 mb-1">
-                              <Target className="w-3 h-3 text-[#3b82f6]" />
-                              <span className="text-[10px] text-[#888888]">Conv.</span>
+                              <Target className="w-3 h-3 text-[#06B6D4]" />
+                              <span className="text-[10px] text-[#94A3B8]">Conv.</span>
                             </div>
-                            <span className="text-[14px] font-bold text-[#fafafa]">
+                            <span className="text-[14px] font-bold text-[#F8FAFC]">
                               {variant.conversions}
                             </span>
                           </div>
                         </div>
 
-                        <div className="pt-3 border-t border-[#2a2a2a]">
+                        <div className="pt-3 border-t border-[#1E293B]">
                           <div className="flex items-center justify-between">
-                            <span className="text-[11px] text-[#888888]">Conv. Rate</span>
-                            <span className="text-[16px] font-bold text-[#3b82f6]">
+                            <span className="text-[11px] text-[#94A3B8]">Conv. Rate</span>
+                            <span className="text-[16px] font-bold text-[#06B6D4]">
                               {variant.conversionRate.toFixed(2)}%
                             </span>
                           </div>
@@ -353,7 +353,7 @@ export default function TestManagementDashboard() {
 
                     {test.status === "scheduled" && (
                       <div className="text-center py-3">
-                        <span className="text-[12px] text-[#666666]">Not started yet</span>
+                        <span className="text-[12px] text-[#64748B]">Not started yet</span>
                       </div>
                     )}
                   </div>
@@ -361,18 +361,18 @@ export default function TestManagementDashboard() {
               </div>
 
               {/* Stats Bar */}
-              <div className="flex items-center justify-between pt-4 border-t border-[#2a2a2a]">
+              <div className="flex items-center justify-between pt-4 border-t border-[#1E293B]">
                 <div className="flex items-center gap-6">
                   <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-[#888888]" />
-                    <span className="text-[12px] text-[#888888]">
+                    <Calendar className="w-4 h-4 text-[#94A3B8]" />
+                    <span className="text-[12px] text-[#94A3B8]">
                       {test.status === "scheduled" ? "Starts" : "Started"}: {test.startDate}
                     </span>
                   </div>
 
                   {test.status !== "scheduled" && test.confidence && (
                     <div className="flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-[#888888]" />
+                      <TrendingUp className="w-4 h-4 text-[#94A3B8]" />
                       <span className={`text-[12px] font-semibold ${getConfidenceColor(test.confidence)}`}>
                         {test.confidence}% Confidence
                       </span>
@@ -381,8 +381,8 @@ export default function TestManagementDashboard() {
 
                   {test.status === "running" && (
                     <div className="flex items-center gap-2">
-                      <span className="text-[12px] text-[#888888]">Current Lift:</span>
-                      <span className={`text-[12px] font-semibold ${currentLift > 0 ? 'text-[#3b82f6]' : 'text-[#ff6b6b]'}`}>
+                      <span className="text-[12px] text-[#94A3B8]">Current Lift:</span>
+                      <span className={`text-[12px] font-semibold ${currentLift > 0 ? 'text-[#06B6D4]' : 'text-[#EF4444]'}`}>
                         {currentLift > 0 ? '+' : ''}{currentLift.toFixed(1)}%
                       </span>
                     </div>
@@ -393,11 +393,11 @@ export default function TestManagementDashboard() {
                 <div className="flex items-center gap-2">
                   {test.status === "running" && (
                     <>
-                      <button className="px-3 py-1.5 bg-[#111111] border border-[#ff6b6b]/30 text-[#ff6b6b] rounded-lg text-[11px] font-medium hover:bg-[#ff6b6b]/10 transition-all flex items-center gap-1.5">
+                      <button className="px-3 py-1.5 bg-[#111827] border border-[#EF4444]/30 text-[#EF4444] rounded-lg text-[11px] font-medium hover:bg-[#EF4444]/10 transition-all flex items-center gap-1.5">
                         <XCircle className="w-3.5 h-3.5" />
                         Stop Test
                       </button>
-                      <button className="px-3 py-1.5 bg-gradient-to-r from-[#F97316] to-[#3b82f6] text-white rounded-lg text-[11px] font-medium hover:shadow-lg hover:shadow-orange-500/20 transition-all">
+                      <button className="px-3 py-1.5 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white rounded-lg text-[11px] font-medium hover:shadow-lg hover:shadow-indigo-500/20 transition-all">
                         View Details
                       </button>
                     </>
@@ -405,10 +405,10 @@ export default function TestManagementDashboard() {
 
                   {test.status === "completed" && (
                     <>
-                      <button className="px-3 py-1.5 bg-[#111111] border border-[#3b82f6]/30 text-[#3b82f6] rounded-lg text-[11px] font-medium hover:bg-[#3b82f6]/10 transition-all">
+                      <button className="px-3 py-1.5 bg-[#111827] border border-[#06B6D4]/30 text-[#06B6D4] rounded-lg text-[11px] font-medium hover:bg-[#06B6D4]/10 transition-all">
                         Implement Winner
                       </button>
-                      <button className="px-3 py-1.5 bg-[#111111] border border-[#F97316]/30 text-[#F97316] rounded-lg text-[11px] font-medium hover:bg-[#F97316]/10 transition-all">
+                      <button className="px-3 py-1.5 bg-[#111827] border border-[#6366F1]/30 text-[#6366F1] rounded-lg text-[11px] font-medium hover:bg-[#6366F1]/10 transition-all">
                         View Report
                       </button>
                     </>
@@ -416,10 +416,10 @@ export default function TestManagementDashboard() {
 
                   {test.status === "scheduled" && (
                     <>
-                      <button className="px-3 py-1.5 bg-[#111111] border border-[#888888]/30 text-[#888888] rounded-lg text-[11px] font-medium hover:bg-[#888888]/10 transition-all">
+                      <button className="px-3 py-1.5 bg-[#111827] border border-[#94A3B8]/30 text-[#94A3B8] rounded-lg text-[11px] font-medium hover:bg-[#94A3B8]/10 transition-all">
                         Edit Test
                       </button>
-                      <button className="px-3 py-1.5 bg-gradient-to-r from-[#f59e0b] to-[#ff6b6b] text-white rounded-lg text-[11px] font-medium hover:shadow-lg hover:shadow-orange-500/20 transition-all">
+                      <button className="px-3 py-1.5 bg-gradient-to-r from-[#f59e0b] to-[#EF4444] text-white rounded-lg text-[11px] font-medium hover:shadow-lg hover:shadow-indigo-500/20 transition-all">
                         Start Now
                       </button>
                     </>

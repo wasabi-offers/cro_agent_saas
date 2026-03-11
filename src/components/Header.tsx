@@ -17,16 +17,16 @@ export default function Header({
 }: HeaderProps) {
   return (
     <header
-      className="flex items-center justify-between px-10 py-5 border-b"
+      className="flex items-center justify-between px-8 py-4 border-b"
       style={{
         backgroundColor: "var(--bg-primary)",
         borderColor: "var(--border-primary)",
       }}
     >
       {/* Breadcrumb */}
-      <div className="flex items-center gap-3 text-[15px]">
+      <div className="flex items-center gap-2 text-[14px]">
         {breadcrumb.map((item, index) => (
-          <div key={item} className="flex items-center gap-3">
+          <div key={item} className="flex items-center gap-2">
             <span
               style={{
                 color: index === breadcrumb.length - 1 ? "var(--text-primary)" : "var(--text-muted)",
@@ -37,20 +37,20 @@ export default function Header({
               {item}
             </span>
             {index < breadcrumb.length - 1 && (
-              <ChevronRight className="w-4 h-4" style={{ color: "var(--text-faint)" }} />
+              <ChevronRight className="w-3.5 h-3.5" style={{ color: "var(--text-faint)" }} strokeWidth={1.5} />
             )}
           </div>
         ))}
       </div>
 
       {/* Right side */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         {actionLabel && (
           <button
             onClick={onAction}
-            className="flex items-center gap-2.5 px-5 py-3 bg-gradient-to-br from-[#F97316] to-[#C2410C] hover:opacity-90 text-white text-[14px] font-medium rounded-[10px] transition-all shadow-lg shadow-orange-500/25"
+            className="flex items-center gap-2 px-4 py-2.5 bg-[#6366F1] hover:bg-[#4F46E5] text-white text-[14px] font-medium rounded-xl transition-all duration-150 shadow-sm hover:shadow-brand"
           >
-            <span className="text-[18px] font-light">+</span>
+            <span className="text-[16px] font-light">+</span>
             {actionLabel}
           </button>
         )}

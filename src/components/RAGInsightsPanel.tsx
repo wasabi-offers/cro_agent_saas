@@ -69,26 +69,26 @@ export default function RAGInsightsPanel({
   };
 
   return (
-    <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-xl overflow-hidden">
+    <div className="bg-gradient-to-br from-[#6366F1]/20 to-[#6366F1]/5 border border-[#6366F1]/30 rounded-xl overflow-hidden">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full px-4 py-3 flex items-center justify-between gap-2 hover:bg-white/60 transition-colors"
       >
         <div className="flex items-center gap-2">
-          <Brain className="w-4 h-4 text-[#F97316]" />
-          <span className="text-[13px] font-semibold text-[#1a1a1a]">
+          <Brain className="w-4 h-4 text-[#6366F1]" />
+          <span className="text-[13px] font-semibold text-[#0F172A]">
             {title}
           </span>
         </div>
         {isExpanded ? (
-          <ChevronUp className="w-4 h-4 text-[#666666]" />
+          <ChevronUp className="w-4 h-4 text-[#64748B]" />
         ) : (
-          <ChevronDown className="w-4 h-4 text-[#666666]" />
+          <ChevronDown className="w-4 h-4 text-[#64748B]" />
         )}
       </button>
 
       {isExpanded && (
-        <div className="px-4 pb-4 pt-0 border-t border-[#F97316]/20">
+        <div className="px-4 pb-4 pt-0 border-t border-[#6366F1]/20">
           <div className="flex gap-2 mt-3">
             <input
               type="text"
@@ -96,12 +96,12 @@ export default function RAGInsightsPanel({
               onChange={(e) => setQuestion(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleQuery()}
               placeholder={placeholder}
-              className="flex-1 px-3 py-2 bg-white/80 border border-[#F97316]/30 rounded-lg text-[13px] text-[#1a1a1a] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316]"
+              className="flex-1 px-3 py-2 bg-white/80 border border-[#6366F1]/30 rounded-lg text-[13px] text-[#0F172A] placeholder:text-[#64748B] focus:outline-none focus:border-[#6366F1]"
             />
             <button
               onClick={handleQuery}
               disabled={!question.trim() || isLoading}
-              className="px-4 py-2 bg-[#F97316] hover:bg-[#6b4ce6] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-[13px] font-medium text-white flex items-center gap-2 transition-colors"
+              className="px-4 py-2 bg-[#6366F1] hover:bg-[#6366F1] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-[13px] font-medium text-white flex items-center gap-2 transition-colors"
             >
               {isLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -113,22 +113,22 @@ export default function RAGInsightsPanel({
           </div>
 
           {error && (
-            <p className="mt-3 text-[12px] text-[#ff6b6b]">{error}</p>
+            <p className="mt-3 text-[12px] text-[#EF4444]">{error}</p>
           )}
 
           {answer && (
             <div
-              className="mt-3 p-3 bg-white/60 border border-[#F97316]/20 rounded-lg overflow-y-auto"
+              className="mt-3 p-3 bg-white/60 border border-[#6366F1]/20 rounded-lg overflow-y-auto"
               style={{ maxHeight }}
             >
-              <p className="text-[13px] text-[#1a1a1a] whitespace-pre-wrap leading-relaxed">
+              <p className="text-[13px] text-[#0F172A] whitespace-pre-wrap leading-relaxed">
                 {answer}
               </p>
-              <p className="text-[11px] text-[#666666] mt-2">Source: RAG</p>
+              <p className="text-[11px] text-[#64748B] mt-2">Source: RAG</p>
               {sources.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-[#F97316]/20">
-                  <p className="text-[11px] text-[#666666] mb-1">Sources:</p>
-                  <ul className="text-[11px] text-[#666666] space-y-0.5">
+                <div className="mt-3 pt-3 border-t border-[#6366F1]/20">
+                  <p className="text-[11px] text-[#64748B] mb-1">Sources:</p>
+                  <ul className="text-[11px] text-[#64748B] space-y-0.5">
                     {sources.slice(0, 3).map((s, i) => (
                       <li key={i} className="truncate">
                         {s.file}

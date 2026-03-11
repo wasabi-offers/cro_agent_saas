@@ -48,11 +48,11 @@ export default function AlertsSection() {
     switch (type) {
       case "critical":
         return {
-          bg: "bg-[#ff6b6b]/10",
-          border: "border-[#ff6b6b]/30",
+          bg: "bg-[#EF4444]/10",
+          border: "border-[#EF4444]/30",
           icon: AlertTriangle,
-          iconColor: "text-[#ff6b6b]",
-          iconBg: "bg-[#ff6b6b]/20"
+          iconColor: "text-[#EF4444]",
+          iconBg: "bg-[#EF4444]/20"
         };
       case "warning":
         return {
@@ -64,19 +64,19 @@ export default function AlertsSection() {
         };
       case "success":
         return {
-          bg: "bg-[#3b82f6]/10",
-          border: "border-[#3b82f6]/30",
+          bg: "bg-[#06B6D4]/10",
+          border: "border-[#06B6D4]/30",
           icon: TrendingUp,
-          iconColor: "text-[#3b82f6]",
-          iconBg: "bg-[#3b82f6]/20"
+          iconColor: "text-[#06B6D4]",
+          iconBg: "bg-[#06B6D4]/20"
         };
       case "info":
         return {
-          bg: "bg-[#F97316]/10",
-          border: "border-[#F97316]/30",
+          bg: "bg-[#6366F1]/10",
+          border: "border-[#6366F1]/30",
           icon: Info,
-          iconColor: "text-[#F97316]",
-          iconBg: "bg-[#F97316]/20"
+          iconColor: "text-[#6366F1]",
+          iconBg: "bg-[#6366F1]/20"
         };
     }
   };
@@ -86,8 +86,8 @@ export default function AlertsSection() {
   return (
     <div className="mb-10">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-[18px] font-semibold text-[#fafafa]">Alerts & Anomalies</h3>
-        <button className="text-[13px] text-[#F97316] hover:text-[#3b82f6] transition-colors">
+        <h3 className="text-[18px] font-semibold text-[#F8FAFC]">Alerts & Anomalies</h3>
+        <button className="text-[13px] text-[#6366F1] hover:text-[#06B6D4] transition-colors">
           View All ({alerts.length})
         </button>
       </div>
@@ -106,18 +106,18 @@ export default function AlertsSection() {
                 <div className={`w-10 h-10 ${config.iconBg} rounded-lg flex items-center justify-center`}>
                   <Icon className={`w-5 h-5 ${config.iconColor}`} />
                 </div>
-                <span className="text-[11px] text-[#888888]">{alert.timestamp}</span>
+                <span className="text-[11px] text-[#94A3B8]">{alert.timestamp}</span>
               </div>
 
-              <h4 className="text-[15px] font-semibold text-[#fafafa] mb-1">
+              <h4 className="text-[15px] font-semibold text-[#F8FAFC] mb-1">
                 {alert.title}
               </h4>
-              <p className="text-[13px] text-[#888888] mb-3">
+              <p className="text-[13px] text-[#94A3B8] mb-3">
                 {alert.description}
               </p>
 
               <div className="flex items-center justify-between">
-                <span className="text-[12px] text-[#666666]">{alert.metric}</span>
+                <span className="text-[12px] text-[#64748B]">{alert.metric}</span>
                 <span className={`text-[14px] font-bold ${config.iconColor}`}>
                   {alert.change}
                 </span>

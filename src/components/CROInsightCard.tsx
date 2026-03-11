@@ -94,9 +94,9 @@ export default function CROInsightCard({ insight, category, index, compact }: CR
   const getEffortBadge = () => {
     if (!parsed.effort) return null;
     const colors = {
-      low: "bg-[#3b82f6]/20 text-[#3b82f6] border-[#3b82f6]/40",
+      low: "bg-[#06B6D4]/20 text-[#06B6D4] border-[#06B6D4]/40",
       medium: "bg-[#f59e0b]/20 text-[#f59e0b] border-[#f59e0b]/40",
-      high: "bg-[#ff6b6b]/20 text-[#ff6b6b] border-[#ff6b6b]/40",
+      high: "bg-[#EF4444]/20 text-[#EF4444] border-[#EF4444]/40",
     };
     return (
       <span className={`text-[12px] font-bold uppercase px-3 py-1.5 rounded-lg border ${colors[parsed.effort]}`}>
@@ -107,7 +107,7 @@ export default function CROInsightCard({ insight, category, index, compact }: CR
 
   return (
     <div
-      className={`bg-white rounded-xl overflow-hidden border border-[#d0d0d0] hover:border-[#F97316]/50 transition-all ${
+      className={`bg-white rounded-xl overflow-hidden border border-[#CBD5E1] hover:border-[#6366F1]/50 transition-all ${
         compact ? "" : "p-5"
       }`}
     >
@@ -115,26 +115,26 @@ export default function CROInsightCard({ insight, category, index, compact }: CR
         className={`flex items-start gap-4 ${compact ? "cursor-pointer p-3" : ""}`}
         onClick={compact ? () => setExpanded(!expanded) : undefined}
       >
-        <div className="w-2 h-2 bg-[#F97316] rounded-full mt-2.5 flex-shrink-0" />
+        <div className="w-2 h-2 bg-[#6366F1] rounded-full mt-2.5 flex-shrink-0" />
         <div className="flex-1 min-w-0">
           {showStructured && expanded ? (
             <div className="space-y-4">
               {parsed.problem && (
                 <div>
-                  <span className="text-[12px] font-bold text-[#ff6b6b] uppercase">Problem</span>
-                  <p className="text-[15px] text-[#1a1a1a] mt-1.5 leading-relaxed">{parsed.problem}</p>
+                  <span className="text-[12px] font-bold text-[#EF4444] uppercase">Problem</span>
+                  <p className="text-[15px] text-[#0F172A] mt-1.5 leading-relaxed">{parsed.problem}</p>
                 </div>
               )}
               {parsed.action && (
                 <div className="flex items-start gap-3">
-                  <Lightbulb className="w-5 h-5 text-[#3b82f6] flex-shrink-0 mt-0.5" />
+                  <Lightbulb className="w-5 h-5 text-[#06B6D4] flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <span className="text-[12px] font-bold text-[#3b82f6] uppercase">Action</span>
-                    <p className="text-[15px] text-[#1a1a1a] mt-1.5 leading-relaxed">{parsed.action}</p>
+                    <span className="text-[12px] font-bold text-[#06B6D4] uppercase">Action</span>
+                    <p className="text-[15px] text-[#0F172A] mt-1.5 leading-relaxed">{parsed.action}</p>
                     {!compact && (
                       <button
                         onClick={handleCopy}
-                        className="mt-3 flex items-center gap-2 text-[13px] text-[#F97316] hover:text-[#3b82f6] transition-colors font-medium"
+                        className="mt-3 flex items-center gap-2 text-[13px] text-[#6366F1] hover:text-[#06B6D4] transition-colors font-medium"
                       >
                         {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                         {copied ? "Copied!" : "Copy to clipboard"}
@@ -145,17 +145,17 @@ export default function CROInsightCard({ insight, category, index, compact }: CR
               )}
               {parsed.principle && (
                 <div className="flex items-start gap-3">
-                  <Target className="w-5 h-5 text-[#F97316] flex-shrink-0 mt-0.5" />
+                  <Target className="w-5 h-5 text-[#6366F1] flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <span className="text-[12px] font-bold text-[#F97316] uppercase">Principle</span>
-                    <p className="text-[15px] text-[#666666] mt-1.5 leading-relaxed">{parsed.principle}</p>
+                    <span className="text-[12px] font-bold text-[#6366F1] uppercase">Principle</span>
+                    <p className="text-[15px] text-[#64748B] mt-1.5 leading-relaxed">{parsed.principle}</p>
                   </div>
                 </div>
               )}
               {(parsed.impact || parsed.effort) && (
                 <div className="flex items-center gap-3 flex-wrap pt-2">
                   {parsed.impact && (
-                    <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#3b82f6]/10 border border-[#3b82f6]/30 rounded-lg text-[14px] font-semibold text-[#3b82f6]">
+                    <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#06B6D4]/10 border border-[#06B6D4]/30 rounded-lg text-[14px] font-semibold text-[#06B6D4]">
                       <Zap className="w-4 h-4" />
                       {parsed.impact}
                     </span>
@@ -165,11 +165,11 @@ export default function CROInsightCard({ insight, category, index, compact }: CR
               )}
             </div>
           ) : (
-            <p className="text-[15px] text-[#666666] leading-relaxed">{insight}</p>
+            <p className="text-[15px] text-[#64748B] leading-relaxed">{insight}</p>
           )}
         </div>
         {compact && (
-          <button className="flex-shrink-0 text-[#666666] hover:text-[#1a1a1a] p-1">
+          <button className="flex-shrink-0 text-[#64748B] hover:text-[#0F172A] p-1">
             {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
           </button>
         )}

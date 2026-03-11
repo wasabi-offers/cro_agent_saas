@@ -27,7 +27,7 @@ export default function SaveItemDialog({
   const [categories, setCategories] = useState<Category[]>([]);
   const [showNewCategory, setShowNewCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
-  const [newCategoryColor, setNewCategoryColor] = useState('#F97316');
+  const [newCategoryColor, setNewCategoryColor] = useState('#6366F1');
 
   useEffect(() => {
     if (isOpen) {
@@ -70,22 +70,22 @@ export default function SaveItemDialog({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white border border-[#1a1a1a] rounded-2xl max-w-lg w-full p-8">
+      <div className="bg-white border border-[#1E293B] rounded-2xl max-w-lg w-full p-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-[20px] font-semibold text-[#1a1a1a]">
+            <h2 className="text-[20px] font-semibold text-[#0F172A]">
               Save {type === 'funnel' ? 'Funnel' : 'Landing Page'}
             </h2>
-            <p className="text-[13px] text-[#888888] mt-1">
+            <p className="text-[13px] text-[#94A3B8] mt-1">
               Organize your {type === 'funnel' ? 'funnels' : 'pages'} with custom categories
             </p>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#f1f3f5] transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#F1F5F9] transition-colors"
           >
-            <X className="w-5 h-5 text-[#888888]" />
+            <X className="w-5 h-5 text-[#94A3B8]" />
           </button>
         </div>
 
@@ -93,7 +93,7 @@ export default function SaveItemDialog({
         <div className="space-y-5">
           {/* Name */}
           <div>
-            <label className="block text-[13px] text-[#888888] mb-2">
+            <label className="block text-[13px] text-[#94A3B8] mb-2">
               Name *
             </label>
             <input
@@ -101,13 +101,13 @@ export default function SaveItemDialog({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={`My ${type === 'funnel' ? 'Checkout Funnel' : 'Landing Page'}`}
-              className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all"
+              className="w-full px-4 py-3 bg-[#111827] border border-[#1E293B] rounded-xl text-[#0F172A] text-[15px] placeholder:text-[#64748B] focus:outline-none focus:border-[#6366F1] transition-all"
             />
           </div>
 
           {/* URL (optional) */}
           <div>
-            <label className="block text-[13px] text-[#888888] mb-2">
+            <label className="block text-[13px] text-[#94A3B8] mb-2">
               URL (optional)
             </label>
             <input
@@ -115,19 +115,19 @@ export default function SaveItemDialog({
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://example.com"
-              className="w-full px-4 py-3 bg-[#111111] border border-[#2a2a2a] rounded-xl text-[#1a1a1a] text-[15px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all"
+              className="w-full px-4 py-3 bg-[#111827] border border-[#1E293B] rounded-xl text-[#0F172A] text-[15px] placeholder:text-[#64748B] focus:outline-none focus:border-[#6366F1] transition-all"
             />
           </div>
 
           {/* Category */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-[13px] text-[#888888]">
+              <label className="block text-[13px] text-[#94A3B8]">
                 Category *
               </label>
               <button
                 onClick={() => setShowNewCategory(!showNewCategory)}
-                className="flex items-center gap-1.5 text-[12px] text-[#F97316] hover:text-[#a78bff] transition-colors"
+                className="flex items-center gap-1.5 text-[12px] text-[#6366F1] hover:text-[#a78bff] transition-colors"
               >
                 <Plus className="w-3.5 h-3.5" />
                 New Category
@@ -135,24 +135,24 @@ export default function SaveItemDialog({
             </div>
 
             {showNewCategory ? (
-              <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-4 space-y-3">
+              <div className="bg-[#111827] border border-[#1E293B] rounded-xl p-4 space-y-3">
                 <input
                   type="text"
                   value={newCategoryName}
                   onChange={(e) => setNewCategoryName(e.target.value)}
                   placeholder="Category name"
-                  className="w-full px-3 py-2 bg-white border border-[#2a2a2a] rounded-lg text-[#1a1a1a] text-[14px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all"
+                  className="w-full px-3 py-2 bg-white border border-[#1E293B] rounded-lg text-[#0F172A] text-[14px] placeholder:text-[#64748B] focus:outline-none focus:border-[#6366F1] transition-all"
                 />
                 <div className="flex items-center gap-3">
-                  <label className="text-[12px] text-[#888888]">Color:</label>
+                  <label className="text-[12px] text-[#94A3B8]">Color:</label>
                   <div className="flex gap-2">
-                    {['#F97316', '#3b82f6', '#f59e0b', '#ff6b6b', '#3b82f6', '#ec4899'].map((color) => (
+                    {['#6366F1', '#06B6D4', '#f59e0b', '#EF4444', '#06B6D4', '#ec4899'].map((color) => (
                       <button
                         key={color}
                         onClick={() => setNewCategoryColor(color)}
                         className={`w-7 h-7 rounded-lg transition-all ${
                           newCategoryColor === color
-                            ? 'ring-2 ring-offset-2 ring-offset-[#111111] scale-110'
+                            ? 'ring-2 ring-offset-2 ring-offset-[#111827] scale-110'
                             : 'hover:scale-105'
                         }`}
                         style={{ backgroundColor: color, ringColor: color }}
@@ -163,13 +163,13 @@ export default function SaveItemDialog({
                 <div className="flex gap-2">
                   <button
                     onClick={handleCreateCategory}
-                    className="flex-1 px-3 py-2 bg-[#F97316] text-white rounded-lg text-[13px] font-medium hover:bg-[#6b4ee0] transition-colors"
+                    className="flex-1 px-3 py-2 bg-[#6366F1] text-white rounded-lg text-[13px] font-medium hover:bg-[#6366F1] transition-colors"
                   >
                     Create
                   </button>
                   <button
                     onClick={() => setShowNewCategory(false)}
-                    className="px-3 py-2 bg-[#1a1a1a] text-[#888888] rounded-lg text-[13px] hover:bg-[#2a2a2a] transition-colors"
+                    className="px-3 py-2 bg-[#1E293B] text-[#94A3B8] rounded-lg text-[13px] hover:bg-[#1E293B] transition-colors"
                   >
                     Cancel
                   </button>
@@ -183,8 +183,8 @@ export default function SaveItemDialog({
                     onClick={() => setCategoryId(cat.id)}
                     className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all ${
                       categoryId === cat.id
-                        ? 'bg-[#F97316] text-white'
-                        : 'bg-[#111111] text-[#888888] border border-[#2a2a2a] hover:border-[#F97316]/50'
+                        ? 'bg-[#6366F1] text-white'
+                        : 'bg-[#111827] text-[#94A3B8] border border-[#1E293B] hover:border-[#6366F1]/50'
                     }`}
                   >
                     <div
@@ -203,14 +203,14 @@ export default function SaveItemDialog({
         <div className="flex gap-3 mt-8">
           <button
             onClick={onClose}
-            className="flex-1 px-6 py-3 bg-[#1a1a1a] text-[#888888] rounded-xl font-medium text-[15px] hover:bg-[#2a2a2a] transition-all"
+            className="flex-1 px-6 py-3 bg-[#1E293B] text-[#94A3B8] rounded-xl font-medium text-[15px] hover:bg-[#1E293B] transition-all"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={!name.trim() || !categoryId}
-            className="flex-1 px-6 py-3 bg-gradient-to-r from-[#F97316] to-[#3b82f6] text-white rounded-xl font-medium text-[15px] hover:shadow-lg hover:shadow-orange-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 px-6 py-3 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white rounded-xl font-medium text-[15px] hover:shadow-lg hover:shadow-indigo-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Save {type === 'funnel' ? 'Funnel' : 'Page'}
           </button>

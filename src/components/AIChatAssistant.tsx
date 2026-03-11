@@ -185,24 +185,24 @@ export default function AIChatAssistant() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-br from-[#F97316] to-[#3b82f6] rounded-full shadow-2xl shadow-orange-500/20 flex items-center justify-center hover:scale-110 transition-all z-50 group"
+          className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] rounded-full shadow-2xl shadow-indigo-500/20 flex items-center justify-center hover:scale-110 transition-all z-50 group"
         >
           <MessageCircle className="w-6 h-6 text-white" />
-          <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#3b82f6] rounded-full animate-pulse border-2 border-black" />
+          <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#06B6D4] rounded-full animate-pulse border-2 border-black" />
 
           {/* Tooltip */}
-          <div className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-white border border-[#2a2a2a] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-xl">
-            <p className="text-[12px] text-[#1a1a1a] font-medium">Ask CRO AI Assistant</p>
-            <p className="text-[10px] text-[#666666]">Powered by Claude</p>
+          <div className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-white border border-[#1E293B] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-xl">
+            <p className="text-[12px] text-[#0F172A] font-medium">Ask CRO AI Assistant</p>
+            <p className="text-[10px] text-[#64748B]">Powered by Claude</p>
           </div>
         </button>
       )}
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-[420px] h-[650px] bg-white border-2 border-[#2a2a2a] rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden">
+        <div className="fixed bottom-6 right-6 w-[420px] h-[650px] bg-white border-2 border-[#1E293B] rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden">
           {/* Header */}
-          <div className="bg-gradient-to-r from-[#F97316] to-[#3b82f6] p-4 flex items-center justify-between">
+          <div className="bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
                 <Sparkles className="w-5 h-5 text-white" />
@@ -210,7 +210,7 @@ export default function AIChatAssistant() {
               <div>
                 <h3 className="text-[15px] font-semibold text-white">CRO AI Assistant</h3>
                 <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 bg-[#3b82f6] rounded-full animate-pulse"></div>
+                  <div className="w-2 h-2 bg-[#06B6D4] rounded-full animate-pulse"></div>
                   <p className="text-[11px] text-white/90">Online · Claude AI</p>
                 </div>
               </div>
@@ -233,19 +233,19 @@ export default function AIChatAssistant() {
                 <div
                   className={`max-w-[85%] rounded-2xl px-4 py-3 ${
                     message.type === 'user'
-                      ? 'bg-gradient-to-r from-[#F97316] to-[#3b82f6] text-white'
-                      : 'bg-[#f8f9fa] text-[#1a1a1a] border border-[#2a2a2a]'
+                      ? 'bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white'
+                      : 'bg-[#F8FAFC] text-[#0F172A] border border-[#1E293B]'
                   }`}
                 >
                   <p className="text-[14px] leading-relaxed whitespace-pre-wrap">{message.content}</p>
                   <div className={`flex items-center gap-2 mt-1 flex-wrap ${
-                    message.type === 'user' ? 'text-white/70' : 'text-[#666666]'
+                    message.type === 'user' ? 'text-white/70' : 'text-[#64748B]'
                   }`}>
                     <span className="text-[10px]">
                       {message.timestamp.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                     </span>
                     {message.type === 'assistant' && message.source && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#e0e0e0] text-[#888888]">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#E2E8F0] text-[#94A3B8]">
                         Source: {message.source === 'rag-cro' ? 'RAG' : 'Claude'}
                       </span>
                     )}
@@ -256,9 +256,9 @@ export default function AIChatAssistant() {
 
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-[#f8f9fa] border border-[#2a2a2a] rounded-2xl px-4 py-3 flex items-center gap-2">
-                  <Loader2 className="w-4 h-4 text-[#F97316] animate-spin" />
-                  <span className="text-[13px] text-[#888888]">Claude is thinking...</span>
+                <div className="bg-[#F8FAFC] border border-[#1E293B] rounded-2xl px-4 py-3 flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 text-[#6366F1] animate-spin" />
+                  <span className="text-[13px] text-[#94A3B8]">Claude is thinking...</span>
                 </div>
               </div>
             )}
@@ -269,13 +269,13 @@ export default function AIChatAssistant() {
           {/* Suggested Questions */}
           {messages.length === 1 && (
             <div className="px-4 pb-2">
-              <p className="text-[11px] text-[#666666] mb-2">Suggested questions:</p>
+              <p className="text-[11px] text-[#64748B] mb-2">Suggested questions:</p>
               <div className="space-y-2">
                 {getSuggestedQuestions().map((question, idx) => (
                   <button
                     key={idx}
                     onClick={() => setInput(question)}
-                    className="w-full text-left px-3 py-2 bg-[#f8f9fa] border border-[#2a2a2a] rounded-lg text-[12px] text-[#888888] hover:text-[#1a1a1a] hover:border-[#F97316]/50 transition-all"
+                    className="w-full text-left px-3 py-2 bg-[#F8FAFC] border border-[#1E293B] rounded-lg text-[12px] text-[#94A3B8] hover:text-[#0F172A] hover:border-[#6366F1]/50 transition-all"
                   >
                     {question}
                   </button>
@@ -285,7 +285,7 @@ export default function AIChatAssistant() {
           )}
 
           {/* Input */}
-          <div className="p-4 border-t border-[#2a2a2a] bg-white">
+          <div className="p-4 border-t border-[#1E293B] bg-white">
             <div className="flex items-end gap-2">
               <textarea
                 value={input}
@@ -293,17 +293,17 @@ export default function AIChatAssistant() {
                 onKeyPress={handleKeyPress}
                 placeholder="Ask about CRO, metrics, funnels, tests..."
                 rows={2}
-                className="flex-1 px-4 py-3 bg-[#f8f9fa] border border-[#2a2a2a] rounded-xl text-[#1a1a1a] text-[14px] placeholder:text-[#666666] focus:outline-none focus:border-[#F97316] transition-all resize-none"
+                className="flex-1 px-4 py-3 bg-[#F8FAFC] border border-[#1E293B] rounded-xl text-[#0F172A] text-[14px] placeholder:text-[#64748B] focus:outline-none focus:border-[#6366F1] transition-all resize-none"
               />
               <button
                 onClick={handleSend}
                 disabled={!input.trim() || isLoading}
-                className="w-12 h-12 bg-gradient-to-r from-[#F97316] to-[#3b82f6] rounded-xl flex items-center justify-center hover:shadow-lg hover:shadow-orange-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                className="w-12 h-12 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] rounded-xl flex items-center justify-center hover:shadow-lg hover:shadow-indigo-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
               >
                 <Send className="w-5 h-5 text-white" />
               </button>
             </div>
-            <p className="text-[10px] text-[#666666] mt-2 text-center">
+            <p className="text-[10px] text-[#64748B] mt-2 text-center">
               Powered by Claude AI · Real-time CRO Analysis
             </p>
           </div>

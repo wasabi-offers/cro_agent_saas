@@ -29,48 +29,48 @@ export default function StatisticalCalculator() {
   const daysNeeded = Math.ceil(totalSampleSize / currentTraffic);
 
   return (
-    <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6">
+    <div className="bg-[#0B0F19] border border-[#1E293B] rounded-2xl p-6">
       <div className="flex items-center gap-2 mb-6">
-        <Calculator className="w-5 h-5 text-[#F97316]" />
-        <h3 className="text-[16px] font-semibold text-[#fafafa]">Statistical Calculator</h3>
+        <Calculator className="w-5 h-5 text-[#6366F1]" />
+        <h3 className="text-[16px] font-semibold text-[#F8FAFC]">Statistical Calculator</h3>
       </div>
 
       {/* Inputs */}
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div>
-          <label className="block text-[12px] text-[#888888] mb-2">Daily Traffic</label>
+          <label className="block text-[12px] text-[#94A3B8] mb-2">Daily Traffic</label>
           <input
             type="number"
             value={currentTraffic}
             onChange={(e) => setCurrentTraffic(Number(e.target.value))}
-            className="w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[14px] focus:outline-none focus:border-[#F97316]"
+            className="w-full px-3 py-2 bg-[#111827] border border-[#1E293B] rounded-lg text-[#F8FAFC] text-[14px] focus:outline-none focus:border-[#6366F1]"
           />
         </div>
         <div>
-          <label className="block text-[12px] text-[#888888] mb-2">Current CR (%)</label>
+          <label className="block text-[12px] text-[#94A3B8] mb-2">Current CR (%)</label>
           <input
             type="number"
             step="0.1"
             value={currentCR}
             onChange={(e) => setCurrentCR(Number(e.target.value))}
-            className="w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[14px] focus:outline-none focus:border-[#F97316]"
+            className="w-full px-3 py-2 bg-[#111827] border border-[#1E293B] rounded-lg text-[#F8FAFC] text-[14px] focus:outline-none focus:border-[#6366F1]"
           />
         </div>
         <div>
-          <label className="block text-[12px] text-[#888888] mb-2">Expected Lift (%)</label>
+          <label className="block text-[12px] text-[#94A3B8] mb-2">Expected Lift (%)</label>
           <input
             type="number"
             value={expectedLift}
             onChange={(e) => setExpectedLift(Number(e.target.value))}
-            className="w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[14px] focus:outline-none focus:border-[#F97316]"
+            className="w-full px-3 py-2 bg-[#111827] border border-[#1E293B] rounded-lg text-[#F8FAFC] text-[14px] focus:outline-none focus:border-[#6366F1]"
           />
         </div>
         <div>
-          <label className="block text-[12px] text-[#888888] mb-2">Confidence (%)</label>
+          <label className="block text-[12px] text-[#94A3B8] mb-2">Confidence (%)</label>
           <select
             value={confidence}
             onChange={(e) => setConfidence(Number(e.target.value))}
-            className="w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-[#fafafa] text-[14px] focus:outline-none focus:border-[#F97316]"
+            className="w-full px-3 py-2 bg-[#111827] border border-[#1E293B] rounded-lg text-[#F8FAFC] text-[14px] focus:outline-none focus:border-[#6366F1]"
           >
             <option value="90">90%</option>
             <option value="95">95%</option>
@@ -81,30 +81,30 @@ export default function StatisticalCalculator() {
 
       {/* Results */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="bg-[#111111] rounded-lg p-4 text-center">
-          <Users className="w-5 h-5 text-[#F97316] mx-auto mb-2" />
-          <p className="text-[11px] text-[#888888] mb-1">Sample Size/Variant</p>
-          <p className="text-[18px] font-bold text-[#fafafa]">
+        <div className="bg-[#111827] rounded-lg p-4 text-center">
+          <Users className="w-5 h-5 text-[#6366F1] mx-auto mb-2" />
+          <p className="text-[11px] text-[#94A3B8] mb-1">Sample Size/Variant</p>
+          <p className="text-[18px] font-bold text-[#F8FAFC]">
             {sampleSizePerVariant.toLocaleString()}
           </p>
         </div>
-        <div className="bg-[#111111] rounded-lg p-4 text-center">
-          <TrendingUp className="w-5 h-5 text-[#3b82f6] mx-auto mb-2" />
-          <p className="text-[11px] text-[#888888] mb-1">Total Needed</p>
-          <p className="text-[18px] font-bold text-[#fafafa]">
+        <div className="bg-[#111827] rounded-lg p-4 text-center">
+          <TrendingUp className="w-5 h-5 text-[#06B6D4] mx-auto mb-2" />
+          <p className="text-[11px] text-[#94A3B8] mb-1">Total Needed</p>
+          <p className="text-[18px] font-bold text-[#F8FAFC]">
             {totalSampleSize.toLocaleString()}
           </p>
         </div>
-        <div className="bg-[#111111] rounded-lg p-4 text-center">
+        <div className="bg-[#111827] rounded-lg p-4 text-center">
           <Calendar className="w-5 h-5 text-[#f59e0b] mx-auto mb-2" />
-          <p className="text-[11px] text-[#888888] mb-1">Duration</p>
-          <p className="text-[18px] font-bold text-[#fafafa]">
+          <p className="text-[11px] text-[#94A3B8] mb-1">Duration</p>
+          <p className="text-[18px] font-bold text-[#F8FAFC]">
             {daysNeeded} days
           </p>
         </div>
       </div>
 
-      <p className="text-[11px] text-[#666666] mt-4 text-center">
+      <p className="text-[11px] text-[#64748B] mt-4 text-center">
         {confidence}% confidence level, 80% statistical power
       </p>
     </div>

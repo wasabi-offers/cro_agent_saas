@@ -71,8 +71,8 @@ export default function HeatmapsPage() {
         <Header title="Heatmaps" breadcrumb={["Dashboard", "Heatmaps"]} />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-10 h-10 border-2 border-[#F97316] border-t-transparent rounded-full animate-spin" />
-            <p className="text-[#1a1a1a] text-[14px]">Loading click data...</p>
+            <div className="w-10 h-10 border-2 border-[#6366F1] border-t-transparent rounded-full animate-spin" />
+            <p className="text-[#0F172A] text-[14px]">Loading click data...</p>
           </div>
         </div>
       </div>
@@ -84,12 +84,12 @@ export default function HeatmapsPage() {
       <div className="min-h-screen bg-white">
         <Header title="Heatmaps" breadcrumb={["Dashboard", "Heatmaps"]} />
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="flex flex-col items-center gap-4 p-6 bg-gradient-to-br from-[#ff6b6b]/20 to-[#ff6b6b]/5 border border-[#ff6b6b]/30 rounded-2xl">
-            <AlertCircle className="w-10 h-10 text-[#ff6b6b]" />
-            <p className="text-[#ff6b6b] text-[14px]">{error || 'No data available'}</p>
+          <div className="flex flex-col items-center gap-4 p-6 bg-gradient-to-br from-[#EF4444]/20 to-[#EF4444]/5 border border-[#EF4444]/30 rounded-2xl">
+            <AlertCircle className="w-10 h-10 text-[#EF4444]" />
+            <p className="text-[#EF4444] text-[14px]">{error || 'No data available'}</p>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-[#F97316] text-white rounded-lg text-sm hover:bg-[#6b4ee0] transition"
+              className="px-4 py-2 bg-[#6366F1] text-white rounded-lg text-sm hover:bg-[#6366F1] transition"
             >
               Retry
             </button>
@@ -121,14 +121,14 @@ export default function HeatmapsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-[24px] font-bold text-[#1a1a1a] mb-2">Click & Interaction Data</h1>
-            <p className="text-[14px] text-[#1a1a1a] font-semibold">
+            <h1 className="text-[24px] font-bold text-[#0F172A] mb-2">Click & Interaction Data</h1>
+            <p className="text-[14px] text-[#0F172A] font-semibold">
               User interaction patterns from Microsoft Clarity
             </p>
           </div>
           <Link
             href="/explore-ai"
-            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#F97316] to-[#3b82f6] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
+            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] text-white text-[14px] font-medium rounded-xl hover:opacity-90 transition-all"
           >
             <Brain className="w-4 h-4" />
             Analyze with AI
@@ -136,22 +136,22 @@ export default function HeatmapsPage() {
         </div>
 
         {/* Info Banner */}
-        <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-6 mb-8">
+        <div className="bg-gradient-to-br from-[#6366F1]/20 to-[#6366F1]/5 border border-[#6366F1]/30 rounded-2xl p-6 mb-8">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-[#F97316]/20 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Info className="w-6 h-6 text-[#F97316]" />
+            <div className="w-12 h-12 bg-[#6366F1]/20 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Info className="w-6 h-6 text-[#6366F1]" />
             </div>
             <div>
-              <h3 className="text-[16px] font-bold text-[#1a1a1a] mb-2">
+              <h3 className="text-[16px] font-bold text-[#0F172A] mb-2">
                 Clarity Click Insights
               </h3>
-              <p className="text-[14px] text-[#1a1a1a] mb-3">
+              <p className="text-[14px] text-[#0F172A] mb-3">
                 This data comes from Microsoft Clarity which tracks dead clicks, rage clicks, and other 
                 user frustration signals. For visual heatmaps, connect Crazy Egg or Hotjar in Data Sources.
               </p>
               <Link
                 href="/data-sources"
-                className="text-[13px] text-[#F97316] hover:text-[#a78bff] transition-colors font-semibold"
+                className="text-[13px] text-[#6366F1] hover:text-[#818CF8] transition-colors font-semibold"
               >
                 Configure Data Sources →
               </Link>
@@ -170,15 +170,15 @@ export default function HeatmapsPage() {
 
         {/* Device Filter */}
         <div className="flex items-center gap-2 mb-8">
-          <span className="text-[13px] text-[#888888] mr-2">Filter by device:</span>
+          <span className="text-[13px] text-[#94A3B8] mr-2">Filter by device:</span>
           {['all', 'mobile', 'desktop', 'tablet'].map((device) => (
             <button
               key={device}
               onClick={() => setSelectedDevice(device)}
               className={`px-4 py-2 rounded-lg text-[13px] font-medium transition-all capitalize ${
                 selectedDevice === device
-                  ? 'bg-[#F97316] text-white'
-                  : 'bg-white/60 text-[#1a1a1a] border border-[#F97316]/30 hover:bg-white/80'
+                  ? 'bg-[#6366F1] text-white'
+                  : 'bg-white/60 text-[#0F172A] border border-[#6366F1]/30 hover:bg-white/80'
               }`}
             >
               {device === 'all' ? 'All Devices' : device}
@@ -188,17 +188,17 @@ export default function HeatmapsPage() {
 
         {/* Overview Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-          <div className="bg-gradient-to-br from-[#ff6b6b]/20 to-[#ff6b6b]/5 border border-[#ff6b6b]/30 rounded-2xl p-6">
+          <div className="bg-gradient-to-br from-[#EF4444]/20 to-[#EF4444]/5 border border-[#EF4444]/30 rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-[#ff6b6b]/20 rounded-lg flex items-center justify-center">
-                <MousePointerClick className="w-5 h-5 text-[#ff6b6b]" />
+              <div className="w-10 h-10 bg-[#EF4444]/20 rounded-lg flex items-center justify-center">
+                <MousePointerClick className="w-5 h-5 text-[#EF4444]" />
               </div>
-              <span className="text-[13px] text-[#1a1a1a] font-bold">Dead Clicks</span>
+              <span className="text-[13px] text-[#0F172A] font-bold">Dead Clicks</span>
             </div>
-            <p className="text-[32px] font-bold text-[#1a1a1a]">
+            <p className="text-[32px] font-bold text-[#0F172A]">
               {summary.totalDeadClicks.toLocaleString()}
             </p>
-            <p className="text-[12px] text-[#1a1a1a] mt-1">
+            <p className="text-[12px] text-[#0F172A] mt-1">
               Clicks on non-interactive elements
             </p>
           </div>
@@ -208,42 +208,42 @@ export default function HeatmapsPage() {
               <div className="w-10 h-10 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center">
                 <Zap className="w-5 h-5 text-[#f59e0b]" />
               </div>
-              <span className="text-[13px] text-[#1a1a1a] font-bold">Rage Clicks</span>
+              <span className="text-[13px] text-[#0F172A] font-bold">Rage Clicks</span>
             </div>
-            <p className="text-[32px] font-bold text-[#1a1a1a]">
+            <p className="text-[32px] font-bold text-[#0F172A]">
               {summary.totalRageClicks.toLocaleString()}
             </p>
-            <p className="text-[12px] text-[#1a1a1a] mt-1">
+            <p className="text-[12px] text-[#0F172A] mt-1">
               Frustrated repeated clicking
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-6">
+          <div className="bg-gradient-to-br from-[#6366F1]/20 to-[#6366F1]/5 border border-[#6366F1]/30 rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-[#F97316]/20 rounded-lg flex items-center justify-center">
-                <ArrowDown className="w-5 h-5 text-[#F97316] rotate-180" />
+              <div className="w-10 h-10 bg-[#6366F1]/20 rounded-lg flex items-center justify-center">
+                <ArrowDown className="w-5 h-5 text-[#6366F1] rotate-180" />
               </div>
-              <span className="text-[13px] text-[#888888]">Quickbacks</span>
+              <span className="text-[13px] text-[#94A3B8]">Quickbacks</span>
             </div>
-            <p className="text-[32px] font-bold text-[#1a1a1a]">
+            <p className="text-[32px] font-bold text-[#0F172A]">
               {summary.totalQuickbacks.toLocaleString()}
             </p>
-            <p className="text-[12px] text-[#1a1a1a] mt-1">
+            <p className="text-[12px] text-[#0F172A] mt-1">
               Quick navigation back
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-[#3b82f6]/20 to-[#3b82f6]/5 border border-[#3b82f6]/30 rounded-2xl p-6">
+          <div className="bg-gradient-to-br from-[#06B6D4]/20 to-[#06B6D4]/5 border border-[#06B6D4]/30 rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-[#3b82f6]/20 rounded-lg flex items-center justify-center">
-                <Eye className="w-5 h-5 text-[#3b82f6]" />
+              <div className="w-10 h-10 bg-[#06B6D4]/20 rounded-lg flex items-center justify-center">
+                <Eye className="w-5 h-5 text-[#06B6D4]" />
               </div>
-              <span className="text-[13px] text-[#888888]">Scroll Depth</span>
+              <span className="text-[13px] text-[#94A3B8]">Scroll Depth</span>
             </div>
-            <p className="text-[32px] font-bold text-[#1a1a1a]">
+            <p className="text-[32px] font-bold text-[#0F172A]">
               {summary.avgScrollDepth.toFixed(0)}%
             </p>
-            <p className="text-[12px] text-[#1a1a1a] mt-1">
+            <p className="text-[12px] text-[#0F172A] mt-1">
               Average page scroll
             </p>
           </div>
@@ -252,38 +252,38 @@ export default function HeatmapsPage() {
         {/* Issues by Device */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
           {/* Dead Clicks */}
-          <div className="bg-[#0a0a0a] border border-[#d0d0d0] rounded-2xl overflow-hidden">
-            <div className="px-6 py-5 border-b border-[#d0d0d0] flex items-center justify-between">
+          <div className="bg-[#0B0F19] border border-[#CBD5E1] rounded-2xl overflow-hidden">
+            <div className="px-6 py-5 border-b border-[#CBD5E1] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#ff6b6b]/20 rounded-lg flex items-center justify-center">
-                  <MousePointerClick className="w-5 h-5 text-[#ff6b6b]" />
+                <div className="w-10 h-10 bg-[#EF4444]/20 rounded-lg flex items-center justify-center">
+                  <MousePointerClick className="w-5 h-5 text-[#EF4444]" />
                 </div>
                 <div>
-                  <h2 className="text-[16px] font-semibold text-[#1a1a1a]">Dead Clicks</h2>
-                  <p className="text-[12px] text-[#666666]">By device</p>
+                  <h2 className="text-[16px] font-semibold text-[#0F172A]">Dead Clicks</h2>
+                  <p className="text-[12px] text-[#64748B]">By device</p>
                 </div>
               </div>
             </div>
             <div className="p-6 space-y-3">
               {deadClicks.length > 0 ? deadClicks.map((issue, idx) => (
-                <div key={idx} className="flex items-center justify-between p-4 bg-white/60 rounded-xl border border-[#ff6b6b]/20">
+                <div key={idx} className="flex items-center justify-between p-4 bg-white/60 rounded-xl border border-[#EF4444]/20">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-[#ff6b6b]/20 rounded-lg flex items-center justify-center">
+                    <div className="w-8 h-8 bg-[#EF4444]/20 rounded-lg flex items-center justify-center">
                       {getDeviceIcon(issue.device)}
                     </div>
-                    <span className="text-[14px] font-medium text-[#1a1a1a]">{issue.device}</span>
+                    <span className="text-[14px] font-medium text-[#0F172A]">{issue.device}</span>
                   </div>
                   <div className="text-right">
-                    <p className="text-[16px] font-bold text-[#1a1a1a]">
+                    <p className="text-[16px] font-bold text-[#0F172A]">
                       {issue.sub_total.toLocaleString()}
                     </p>
-                    <p className="text-[11px] text-[#ff6b6b]">
+                    <p className="text-[11px] text-[#EF4444]">
                       {issue.sessions_with_metric_percentage}% of sessions
                     </p>
                   </div>
                 </div>
               )) : (
-                <p className="text-[14px] text-[#1a1a1a] text-center py-4">No data for selected filter</p>
+                <p className="text-[14px] text-[#0F172A] text-center py-4">No data for selected filter</p>
               )}
             </div>
           </div>
@@ -296,22 +296,22 @@ export default function HeatmapsPage() {
                   <Zap className="w-5 h-5 text-[#f59e0b]" />
                 </div>
                 <div>
-                  <h2 className="text-[16px] font-bold text-[#1a1a1a]">Rage Clicks</h2>
-                  <p className="text-[12px] text-[#1a1a1a] font-semibold">User frustration</p>
+                  <h2 className="text-[16px] font-bold text-[#0F172A]">Rage Clicks</h2>
+                  <p className="text-[12px] text-[#0F172A] font-semibold">User frustration</p>
                 </div>
               </div>
             </div>
             <div className="p-6 space-y-3">
               {rageClicks.length > 0 ? rageClicks.map((issue, idx) => (
-                <div key={idx} className="flex items-center justify-between p-4 bg-white/60 rounded-xl border border-[#ff6b6b]/20">
+                <div key={idx} className="flex items-center justify-between p-4 bg-white/60 rounded-xl border border-[#EF4444]/20">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center">
                       {getDeviceIcon(issue.device)}
                     </div>
-                    <span className="text-[14px] font-medium text-[#1a1a1a]">{issue.device}</span>
+                    <span className="text-[14px] font-medium text-[#0F172A]">{issue.device}</span>
                   </div>
                   <div className="text-right">
-                    <p className="text-[16px] font-bold text-[#1a1a1a]">
+                    <p className="text-[16px] font-bold text-[#0F172A]">
                       {issue.sub_total.toLocaleString()}
                     </p>
                     <p className="text-[11px] text-[#f59e0b]">
@@ -320,7 +320,7 @@ export default function HeatmapsPage() {
                   </div>
                 </div>
               )) : (
-                <p className="text-[14px] text-[#1a1a1a] text-center py-4">No data for selected filter</p>
+                <p className="text-[14px] text-[#0F172A] text-center py-4">No data for selected filter</p>
               )}
             </div>
           </div>
@@ -328,26 +328,26 @@ export default function HeatmapsPage() {
 
         {/* Script Errors Alert */}
         {scriptErrors.length > 0 && (
-          <div className="bg-gradient-to-r from-[#ff6b6b]/20 to-[#ff6b6b]/5 border border-[#ff6b6b]/30 rounded-2xl p-6 mb-10">
+          <div className="bg-gradient-to-r from-[#EF4444]/20 to-[#EF4444]/5 border border-[#EF4444]/30 rounded-2xl p-6 mb-10">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-[#ff6b6b]/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                <AlertTriangle className="w-6 h-6 text-[#ff6b6b]" />
+              <div className="w-12 h-12 bg-[#EF4444]/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="w-6 h-6 text-[#EF4444]" />
               </div>
               <div className="flex-1">
-                <h3 className="text-[16px] font-semibold text-[#1a1a1a] mb-2">
+                <h3 className="text-[16px] font-semibold text-[#0F172A] mb-2">
                   ⚠️ Script Errors Detected
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   {scriptErrors.map((err, idx) => (
-                    <div key={idx} className="bg-white/60 rounded-lg p-3 border border-[#F97316]/20">
+                    <div key={idx} className="bg-white/60 rounded-lg p-3 border border-[#6366F1]/20">
                       <div className="flex items-center gap-2 mb-1">
                         {getDeviceIcon(err.device)}
-                        <span className="text-[13px] font-medium text-[#1a1a1a]">{err.device}</span>
+                        <span className="text-[13px] font-medium text-[#0F172A]">{err.device}</span>
                       </div>
-                      <p className="text-[18px] font-bold text-[#ff6b6b]">
+                      <p className="text-[18px] font-bold text-[#EF4444]">
                         {err.sub_total.toLocaleString()} errors
                       </p>
-                      <p className="text-[11px] text-[#1a1a1a]">
+                      <p className="text-[11px] text-[#0F172A]">
                         {err.sessions_with_metric_percentage}% of sessions affected
                       </p>
                     </div>
@@ -355,7 +355,7 @@ export default function HeatmapsPage() {
                 </div>
                 <Link
                   href="/explore-ai"
-                  className="text-[13px] text-[#ff6b6b] hover:text-[#ff8080] transition-colors font-medium"
+                  className="text-[13px] text-[#EF4444] hover:text-[#ff8080] transition-colors font-medium"
                 >
                   Get AI recommendations to fix these errors →
                 </Link>
@@ -365,16 +365,16 @@ export default function HeatmapsPage() {
         )}
 
         {/* Traffic Distribution */}
-        <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-6">
-          <h2 className="text-[18px] font-semibold text-[#1a1a1a] mb-6">Traffic by Device</h2>
+        <div className="bg-gradient-to-br from-[#6366F1]/20 to-[#6366F1]/5 border border-[#6366F1]/30 rounded-2xl p-6">
+          <h2 className="text-[18px] font-semibold text-[#0F172A] mb-6">Traffic by Device</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {trafficByDevice.map((device) => {
               const percentage = (device.total_session_count / summary.totalSessions) * 100;
-              const color = device.device === 'Mobile' ? '#F97316' : 
-                           device.device === 'Desktop' || device.device === 'PC' ? '#3b82f6' : '#f59e0b';
+              const color = device.device === 'Mobile' ? '#6366F1' : 
+                           device.device === 'Desktop' || device.device === 'PC' ? '#06B6D4' : '#f59e0b';
               
               return (
-                <div key={device.device} className="p-6 bg-white/60 rounded-xl border border-[#F97316]/20">
+                <div key={device.device} className="p-6 bg-white/60 rounded-xl border border-[#6366F1]/20">
                   <div className="flex items-center gap-3 mb-4">
                     <div 
                       className="w-12 h-12 rounded-xl flex items-center justify-center"
@@ -383,23 +383,23 @@ export default function HeatmapsPage() {
                       <div style={{ color }}>{getDeviceIcon(device.device)}</div>
                     </div>
                     <div>
-                      <h3 className="text-[16px] font-semibold text-[#1a1a1a]">{device.device}</h3>
-                      <p className="text-[12px] text-[#1a1a1a]">{percentage.toFixed(1)}% of traffic</p>
+                      <h3 className="text-[16px] font-semibold text-[#0F172A]">{device.device}</h3>
+                      <p className="text-[12px] text-[#0F172A]">{percentage.toFixed(1)}% of traffic</p>
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="text-center p-3 bg-white/80 rounded-lg border border-[#F97316]/20">
-                      <p className="text-[18px] font-bold text-[#1a1a1a]">
+                    <div className="text-center p-3 bg-white/80 rounded-lg border border-[#6366F1]/20">
+                      <p className="text-[18px] font-bold text-[#0F172A]">
                         {device.total_session_count.toLocaleString()}
                       </p>
-                      <p className="text-[11px] text-[#1a1a1a] font-semibold">Sessions</p>
+                      <p className="text-[11px] text-[#0F172A] font-semibold">Sessions</p>
                     </div>
-                    <div className="text-center p-3 bg-white/80 rounded-lg border border-[#F97316]/20">
-                      <p className="text-[18px] font-bold text-[#1a1a1a]">
+                    <div className="text-center p-3 bg-white/80 rounded-lg border border-[#6366F1]/20">
+                      <p className="text-[18px] font-bold text-[#0F172A]">
                         {device.distinct_user_count.toLocaleString()}
                       </p>
-                      <p className="text-[11px] text-[#1a1a1a] font-semibold">Users</p>
+                      <p className="text-[11px] text-[#0F172A] font-semibold">Users</p>
                     </div>
                   </div>
                 </div>

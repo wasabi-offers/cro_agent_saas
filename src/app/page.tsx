@@ -60,10 +60,10 @@ interface AnalysisResult {
 type PipelineStep = "idle" | "gemini" | "gpt" | "claude" | "done" | "error";
 
 const impactConfig: Record<string, { color: string; bg: string; order: number }> = {
-  Critico: { color: "#ef4444", bg: "bg-[#ef4444]/10 border-[#ef4444]/30", order: 0 },
-  Alto: { color: "#F97316", bg: "bg-[#F97316]/10 border-[#F97316]/30", order: 1 },
-  Medio: { color: "#f59e0b", bg: "bg-[#f59e0b]/10 border-[#f59e0b]/30", order: 2 },
-  Basso: { color: "#3b82f6", bg: "bg-[#3b82f6]/10 border-[#3b82f6]/30", order: 3 },
+  Critico: { color: "#EF4444", bg: "bg-[#EF4444]/10 border-[#EF4444]/30", order: 0 },
+  Alto: { color: "#6366F1", bg: "bg-[#6366F1]/10 border-[#6366F1]/30", order: 1 },
+  Medio: { color: "#F59E0B", bg: "bg-[#F59E0B]/10 border-[#F59E0B]/30", order: 2 },
+  Basso: { color: "#06B6D4", bg: "bg-[#06B6D4]/10 border-[#06B6D4]/30", order: 3 },
 };
 
 export default function Home() {
@@ -198,13 +198,13 @@ export default function Home() {
     <div className="min-h-screen bg-white">
       <Header title="Dashboard" breadcrumb={["Dashboard"]} />
 
-      <div className="p-10 max-w-[1400px] mx-auto">
+      <div className="px-8 py-6 max-w-content mx-auto">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-[28px] font-bold text-[#1a1a1a] mb-2">
+          <h1 className="text-[24px] font-semibold text-[#0F172A] mb-2">
             {t("dashboard.title")}
           </h1>
-          <p className="text-[15px] text-[#888888]">
+          <p className="text-[15px] text-[#94A3B8]">
             {t("dashboard.subtitle")}
           </p>
         </div>
@@ -219,12 +219,12 @@ export default function Home() {
             }}
             onDragLeave={() => setIsDragging(false)}
             onDrop={handleDrop}
-            className={`relative border-2 border-dashed rounded-2xl transition-all min-h-[320px] flex items-center justify-center ${
+            className={`relative border-2 border-dashed rounded-2xl transition-all duration-150 min-h-[320px] flex items-center justify-center ${
               isDragging
-                ? "border-[#F97316] bg-[#F97316]/5"
+                ? "border-[#6366F1] bg-[#6366F1]/5"
                 : imagePreview
-                ? "border-[#e0e0e0] bg-[#f8f9fa]"
-                : "border-[#d0d0d0] bg-[#f8f9fa] hover:border-[#F97316]/50 hover:bg-[#F97316]/5 cursor-pointer"
+                ? "border-[#E2E8F0] bg-[#F8FAFC]"
+                : "border-[#CBD5E1] bg-[#F8FAFC] hover:border-[#6366F1]/50 hover:bg-[#6366F1]/5 cursor-pointer"
             }`}
             onClick={() => !imagePreview && fileInputRef.current?.click()}
           >
@@ -246,9 +246,9 @@ export default function Home() {
                     e.stopPropagation();
                     handleClear();
                   }}
-                  className="absolute top-2 right-2 z-10 w-8 h-8 bg-[#1a1a1a]/80 text-white rounded-full flex items-center justify-center hover:bg-[#ff6b6b] transition-colors"
+                  className="absolute top-2 right-2 z-10 w-8 h-8 bg-[#0F172A]/80 text-white rounded-full flex items-center justify-center hover:bg-[#EF4444] transition-colors duration-150"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-4 h-4" strokeWidth={1.5} />
                 </button>
                 <img
                   src={imagePreview}
@@ -258,13 +258,13 @@ export default function Home() {
               </div>
             ) : (
               <div className="text-center p-8">
-                <div className="w-16 h-16 bg-[#F97316]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Upload className="w-8 h-8 text-[#F97316]" />
+                <div className="w-16 h-16 bg-[#6366F1]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Upload className="w-8 h-8 text-[#6366F1]" strokeWidth={1.5} />
                 </div>
-                <p className="text-[16px] font-semibold text-[#1a1a1a] mb-2">
+                <p className="text-[16px] font-semibold text-[#0F172A] mb-2">
                   {t("dashboard.dropHere")}
                 </p>
-                <p className="text-[13px] text-[#888888] mb-4">
+                <p className="text-[13px] text-[#94A3B8] mb-4">
                   {t("dashboard.orClick")}
                 </p>
                 <button
@@ -272,9 +272,9 @@ export default function Home() {
                     e.stopPropagation();
                     fileInputRef.current?.click();
                   }}
-                  className="px-5 py-2.5 bg-[#F97316] text-white rounded-xl text-[14px] font-medium hover:bg-[#EA580C] transition-all"
+                  className="px-5 py-2.5 bg-[#6366F1] text-white rounded-xl text-[14px] font-medium hover:bg-[#4F46E5] transition-all duration-150"
                 >
-                  <ImageIcon className="w-4 h-4 inline mr-2" />
+                  <ImageIcon className="w-4 h-4 inline mr-2" strokeWidth={1.5} />
                   {t("dashboard.chooseFile")}
                 </button>
               </div>
@@ -285,7 +285,7 @@ export default function Home() {
           <div className="flex flex-col gap-4">
             {/* Context Input */}
             <div className="flex-1">
-              <label className="block text-[13px] font-semibold text-[#1a1a1a] mb-2">
+              <label className="block text-[13px] font-semibold text-[#0F172A] mb-2">
                 {t("dashboard.context")}
               </label>
               <textarea
@@ -293,13 +293,13 @@ export default function Home() {
                 onChange={(e) => setUserMessage(e.target.value)}
                 placeholder={t("dashboard.contextPlaceholder")}
                 rows={5}
-                className="w-full px-4 py-3 bg-white border border-[#e0e0e0] rounded-xl text-[14px] text-[#1a1a1a] placeholder:text-[#bbbbbb] focus:outline-none focus:border-[#F97316] transition-all resize-none"
+                className="w-full px-4 py-3 bg-white border border-[#E2E8F0] rounded-xl text-[14px] text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/20 transition-all duration-150 resize-none"
               />
             </div>
 
             {/* Pipeline Status */}
-            <div className="bg-[#f8f9fa] border border-[#e0e0e0] rounded-xl p-4">
-              <p className="text-[12px] font-bold text-[#888888] uppercase tracking-wider mb-3">
+            <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-4">
+              <p className="text-[12px] font-semibold text-[#94A3B8] uppercase tracking-wider mb-3">
                 {t("dashboard.aiPipeline")}
               </p>
               <div className="flex items-center gap-3">
@@ -318,34 +318,34 @@ export default function Home() {
                   return (
                     <div key={step.id} className="flex items-center gap-3 flex-1">
                       <div
-                        className={`flex items-center gap-2 px-3 py-2.5 rounded-xl flex-1 border transition-all ${
+                        className={`flex items-center gap-2 px-3 py-2.5 rounded-xl flex-1 border transition-all duration-150 ${
                           isActive
-                            ? "bg-[#F97316]/10 border-[#F97316]/40 shadow-sm"
+                            ? "bg-[#6366F1]/10 border-[#6366F1]/40 shadow-sm"
                             : isDone
-                            ? "bg-[#3b82f6]/10 border-[#3b82f6]/30"
-                            : "bg-white border-[#e0e0e0]"
+                            ? "bg-[#06B6D4]/10 border-[#06B6D4]/30"
+                            : "bg-white border-[#E2E8F0]"
                         }`}
                       >
                         {isActive ? (
-                          <Loader2 className="w-4 h-4 text-[#F97316] animate-spin shrink-0" />
+                          <Loader2 className="w-4 h-4 text-[#6366F1] animate-spin shrink-0" />
                         ) : isDone ? (
-                          <CheckCircle2 className="w-4 h-4 text-[#3b82f6] shrink-0" />
+                          <CheckCircle2 className="w-4 h-4 text-[#06B6D4] shrink-0" />
                         ) : (
-                          <StepIcon className="w-4 h-4 text-[#cccccc] shrink-0" />
+                          <StepIcon className="w-4 h-4 text-[#CBD5E1] shrink-0" strokeWidth={1.5} />
                         )}
                         <div className="min-w-0">
                           <p
-                            className={`text-[12px] font-bold ${
-                              isActive ? "text-[#F97316]" : isDone ? "text-[#3b82f6]" : "text-[#cccccc]"
+                            className={`text-[12px] font-semibold ${
+                              isActive ? "text-[#6366F1]" : isDone ? "text-[#06B6D4]" : "text-[#CBD5E1]"
                             }`}
                           >
                             {step.label}
                           </p>
-                          <p className="text-[10px] text-[#888888] truncate">{step.desc}</p>
+                          <p className="text-[10px] text-[#94A3B8] truncate">{step.desc}</p>
                         </div>
                       </div>
                       {idx < 2 && (
-                        <ArrowRight className={`w-3.5 h-3.5 shrink-0 ${isDone ? "text-[#3b82f6]" : "text-[#d0d0d0]"}`} />
+                        <ArrowRight className={`w-3.5 h-3.5 shrink-0 ${isDone ? "text-[#06B6D4]" : "text-[#CBD5E1]"}`} strokeWidth={1.5} />
                       )}
                     </div>
                   );
@@ -357,7 +357,7 @@ export default function Home() {
             <button
               onClick={handleAnalyze}
               disabled={!imageBase64 || isAnalyzing}
-              className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-[#F97316] to-[#3b82f6] text-white rounded-xl text-[16px] font-semibold hover:opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-[#F97316]/20"
+              className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[#6366F1] hover:bg-[#4F46E5] text-white rounded-xl text-[16px] font-semibold transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm hover:shadow-brand"
             >
               {isAnalyzing ? (
                 <>
@@ -366,7 +366,7 @@ export default function Home() {
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-5 h-5" />
+                  <Sparkles className="w-5 h-5" strokeWidth={1.5} />
                   {t("dashboard.startAnalysis")}
                 </>
               )}
@@ -374,9 +374,9 @@ export default function Home() {
 
             {/* Error */}
             {error && (
-              <div className="flex items-start gap-3 p-4 bg-[#ff6b6b]/10 border border-[#ff6b6b]/30 rounded-xl">
-                <AlertTriangle className="w-5 h-5 text-[#ff6b6b] shrink-0 mt-0.5" />
-                <p className="text-[13px] text-[#ff6b6b]">{error}</p>
+              <div className="flex items-start gap-3 p-4 bg-[#EF4444]/10 border border-[#EF4444]/30 rounded-xl">
+                <AlertTriangle className="w-5 h-5 text-[#EF4444] shrink-0 mt-0.5" strokeWidth={1.5} />
+                <p className="text-[13px] text-[#EF4444]">{error}</p>
               </div>
             )}
           </div>
@@ -386,33 +386,33 @@ export default function Home() {
         {result && (
           <div ref={resultsRef} className="space-y-6">
             {/* Gemini Raw Analysis (collapsible) */}
-            <div className="border border-[#e0e0e0] rounded-2xl overflow-hidden">
+            <div className="border border-[#E2E8F0] rounded-2xl overflow-hidden">
               <button
                 onClick={() => setShowGemini(!showGemini)}
-                className="w-full flex items-center justify-between px-6 py-4 bg-[#f8f9fa] hover:bg-[#f0f0f5] transition-colors"
+                className="w-full flex items-center justify-between px-6 py-4 bg-[#F8FAFC] hover:bg-[#F1F5F9] transition-colors duration-150"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-[#F97316]/10 rounded-lg flex items-center justify-center">
-                    <Eye className="w-4 h-4 text-[#F97316]" />
+                  <div className="w-8 h-8 bg-[#6366F1]/10 rounded-lg flex items-center justify-center">
+                    <Eye className="w-4 h-4 text-[#6366F1]" strokeWidth={1.5} />
                   </div>
                   <div className="text-left">
-                    <p className="text-[14px] font-semibold text-[#1a1a1a]">
+                    <p className="text-[14px] font-semibold text-[#0F172A]">
                       {t("dashboard.geminiRaw")}
                     </p>
-                    <p className="text-[12px] text-[#888888]">
+                    <p className="text-[12px] text-[#94A3B8]">
                       {t("dashboard.geminiRawDesc")}
                     </p>
                   </div>
                 </div>
                 {showGemini ? (
-                  <ChevronUp className="w-5 h-5 text-[#888888]" />
+                  <ChevronUp className="w-5 h-5 text-[#94A3B8]" strokeWidth={1.5} />
                 ) : (
-                  <ChevronDown className="w-5 h-5 text-[#888888]" />
+                  <ChevronDown className="w-5 h-5 text-[#94A3B8]" strokeWidth={1.5} />
                 )}
               </button>
               {showGemini && (
-                <div className="p-6 border-t border-[#e0e0e0] bg-white">
-                  <div className="prose max-w-none text-[13px] text-[#444444] leading-relaxed whitespace-pre-wrap">
+                <div className="p-6 border-t border-[#E2E8F0] bg-white">
+                  <div className="prose max-w-none text-[13px] text-[#334155] leading-relaxed whitespace-pre-wrap">
                     {result.geminiAnalysis}
                   </div>
                 </div>
@@ -420,17 +420,17 @@ export default function Home() {
             </div>
 
             {/* Main CRO Table */}
-            <div className="border border-[#e0e0e0] rounded-2xl overflow-hidden shadow-sm">
-              <div className="px-6 py-5 bg-gradient-to-r from-[#F97316]/10 to-[#3b82f6]/10 border-b border-[#e0e0e0] flex items-center justify-between">
+            <div className="border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-sm">
+              <div className="px-6 py-5 bg-gradient-to-r from-[#6366F1]/5 to-[#8B5CF6]/5 border-b border-[#E2E8F0] flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-[#F97316] to-[#3b82f6] rounded-xl flex items-center justify-center">
-                    <Table2 className="w-5 h-5 text-white" />
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] rounded-xl flex items-center justify-center">
+                    <Table2 className="w-5 h-5 text-white" strokeWidth={1.5} />
                   </div>
                   <div>
-                    <h2 className="text-[18px] font-bold text-[#1a1a1a]">
+                    <h2 className="text-[18px] font-semibold text-[#0F172A]">
                       {t("dashboard.croTable")}
                     </h2>
-                    <p className="text-[13px] text-[#888888]">
+                    <p className="text-[13px] text-[#94A3B8]">
                       {result.tableData.length} {t("dashboard.issuesFound")} — {t("dashboard.generatedBy")}
                     </p>
                   </div>
@@ -443,7 +443,7 @@ export default function Home() {
                     return (
                       <span
                         key={level}
-                        className={`px-2.5 py-1 rounded-full text-[11px] font-bold border ${cfg.bg}`}
+                        className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border ${cfg.bg}`}
                         style={{ color: cfg.color }}
                       >
                         {count} {level}
@@ -456,25 +456,25 @@ export default function Home() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-[#f8f9fa] border-b border-[#e0e0e0]">
-                      <th className="text-left px-5 py-3.5 text-[11px] font-bold text-[#888888] uppercase tracking-wider w-[140px]">
+                    <tr className="bg-[#F8FAFC] border-b border-[#E2E8F0]">
+                      <th className="text-left px-5 py-3.5 text-[11px] font-semibold text-[#94A3B8] uppercase tracking-wider w-[140px]">
                         {t("table.area")}
                       </th>
-                      <th className="text-left px-5 py-3.5 text-[11px] font-bold text-[#888888] uppercase tracking-wider">
+                      <th className="text-left px-5 py-3.5 text-[11px] font-semibold text-[#94A3B8] uppercase tracking-wider">
                         {t("table.problem")}
                       </th>
-                      <th className="text-center px-4 py-3.5 text-[11px] font-bold text-[#888888] uppercase tracking-wider w-[90px]">
+                      <th className="text-center px-4 py-3.5 text-[11px] font-semibold text-[#94A3B8] uppercase tracking-wider w-[90px]">
                         {t("table.impact")}
                       </th>
-                      <th className="text-left px-5 py-3.5 text-[11px] font-bold text-[#888888] uppercase tracking-wider">
+                      <th className="text-left px-5 py-3.5 text-[11px] font-semibold text-[#94A3B8] uppercase tracking-wider">
                         {t("table.whyReduces")}
                       </th>
-                      <th className="text-left px-5 py-3.5 text-[11px] font-bold text-[#888888] uppercase tracking-wider">
+                      <th className="text-left px-5 py-3.5 text-[11px] font-semibold text-[#94A3B8] uppercase tracking-wider">
                         {t("table.action")}
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#f0f0f0]">
+                  <tbody className="divide-y divide-[#F1F5F9]">
                     {result.tableData.map((row, idx) => {
                       const impact = impactConfig[row.impact] || impactConfig.Medio;
                       const correction = getCorrection(row.area);
@@ -483,58 +483,57 @@ export default function Home() {
                         <>
                           <tr
                             key={idx}
-                            className={`hover:bg-[#fafaff] transition-colors ${correction ? "bg-[#f59e0b]/5" : ""}`}
+                            className={`hover:bg-[#F8FAFC] transition-colors duration-150 ${correction ? "bg-[#F59E0B]/5" : ""}`}
                           >
                             <td className="px-5 py-4 align-top">
-                              <span className="text-[13px] font-bold text-[#1a1a1a]">
+                              <span className="text-[13px] font-semibold text-[#0F172A]">
                                 {row.area}
                               </span>
                             </td>
                             <td className="px-5 py-4 align-top">
-                              <span className="text-[13px] text-[#444444] leading-relaxed">
+                              <span className="text-[13px] text-[#334155] leading-relaxed">
                                 {row.problem}
                               </span>
                             </td>
                             <td className="px-4 py-4 align-top text-center">
                               <span
-                                className={`inline-block px-2.5 py-1 rounded-full text-[11px] font-bold border ${impact.bg}`}
+                                className={`inline-block px-2.5 py-1 rounded-full text-[11px] font-semibold border ${impact.bg}`}
                                 style={{ color: impact.color }}
                               >
                                 {row.impact}
                               </span>
                             </td>
                             <td className="px-5 py-4 align-top">
-                              <span className="text-[13px] text-[#666666] leading-relaxed">
+                              <span className="text-[13px] text-[#64748B] leading-relaxed">
                                 {row.why_reduces_conversion}
                               </span>
                             </td>
                             <td className="px-5 py-4 align-top">
-                              <span className="text-[13px] text-[#1a1a1a] leading-relaxed font-medium">
+                              <span className="text-[13px] text-[#0F172A] leading-relaxed font-medium">
                                 {row.action}
                               </span>
                             </td>
                           </tr>
-                          {/* Claude correction row */}
                           {correction && (
-                            <tr key={`correction-${idx}`} className="bg-gradient-to-r from-[#8b5cf6]/5 to-[#8b5cf6]/10">
+                            <tr key={`correction-${idx}`} className="bg-gradient-to-r from-[#8B5CF6]/5 to-[#8B5CF6]/10">
                               <td className="px-5 py-3 align-top" colSpan={2}>
                                 <div className="flex items-center gap-2">
-                                  <Brain className="w-3.5 h-3.5 text-[#8b5cf6] shrink-0" />
-                                  <span className="text-[11px] font-bold text-[#8b5cf6] uppercase tracking-wider">
+                                  <Brain className="w-3.5 h-3.5 text-[#8B5CF6] shrink-0" strokeWidth={1.5} />
+                                  <span className="text-[11px] font-semibold text-[#8B5CF6] uppercase tracking-wider">
                                     {t("dashboard.claudeReview")}
                                   </span>
                                 </div>
-                                <p className="text-[12px] text-[#888888] mt-1 italic">
+                                <p className="text-[12px] text-[#94A3B8] mt-1 italic">
                                   {correction.reason}
                                 </p>
                               </td>
                               <td className="px-4 py-3 align-top text-center">
-                                <span className="text-[10px] font-bold text-[#8b5cf6] bg-[#8b5cf6]/10 px-2 py-0.5 rounded-full">
+                                <span className="text-[10px] font-semibold text-[#8B5CF6] bg-[#8B5CF6]/10 px-2 py-0.5 rounded-full">
                                   {t("dashboard.upgrade")}
                                 </span>
                               </td>
                               <td className="px-5 py-3 align-top" colSpan={2}>
-                                <p className="text-[12px] text-[#8b5cf6] font-medium leading-relaxed">
+                                <p className="text-[12px] text-[#8B5CF6] font-medium leading-relaxed">
                                   {correction.improved_action}
                                 </p>
                               </td>
@@ -544,17 +543,16 @@ export default function Home() {
                       );
                     })}
 
-                    {/* Claude Additional Issues */}
                     {result.claudeReview?.additional_issues?.length > 0 && (
                       <>
-                        <tr className="bg-gradient-to-r from-[#8b5cf6]/10 to-[#8b5cf6]/5">
+                        <tr className="bg-gradient-to-r from-[#8B5CF6]/10 to-[#8B5CF6]/5">
                           <td colSpan={5} className="px-5 py-3">
                             <div className="flex items-center gap-2">
-                              <Brain className="w-4 h-4 text-[#8b5cf6]" />
-                              <span className="text-[13px] font-bold text-[#8b5cf6]">
+                              <Brain className="w-4 h-4 text-[#8B5CF6]" strokeWidth={1.5} />
+                              <span className="text-[13px] font-semibold text-[#8B5CF6]">
                                 {t("dashboard.additionalIssues")}
                               </span>
-                              <span className="text-[11px] text-[#8b5cf6]/70">
+                              <span className="text-[11px] text-[#8B5CF6]/70">
                                 — {result.claudeReview.additional_issues.length} {t("dashboard.missedBy")}
                               </span>
                             </div>
@@ -565,34 +563,34 @@ export default function Home() {
                           return (
                             <tr
                               key={`claude-${idx}`}
-                              className="bg-[#8b5cf6]/5 hover:bg-[#8b5cf6]/10 transition-colors"
+                              className="bg-[#8B5CF6]/5 hover:bg-[#8B5CF6]/10 transition-colors duration-150"
                             >
                               <td className="px-5 py-4 align-top">
                                 <div className="flex items-center gap-1.5">
-                                  <Brain className="w-3 h-3 text-[#8b5cf6] shrink-0" />
-                                  <span className="text-[13px] font-bold text-[#1a1a1a]">
+                                  <Brain className="w-3 h-3 text-[#8B5CF6] shrink-0" strokeWidth={1.5} />
+                                  <span className="text-[13px] font-semibold text-[#0F172A]">
                                     {row.area}
                                   </span>
                                 </div>
                               </td>
                               <td className="px-5 py-4 align-top">
-                                <span className="text-[13px] text-[#444444]">{row.problem}</span>
+                                <span className="text-[13px] text-[#334155]">{row.problem}</span>
                               </td>
                               <td className="px-4 py-4 align-top text-center">
                                 <span
-                                  className={`inline-block px-2.5 py-1 rounded-full text-[11px] font-bold border ${impact.bg}`}
+                                  className={`inline-block px-2.5 py-1 rounded-full text-[11px] font-semibold border ${impact.bg}`}
                                   style={{ color: impact.color }}
                                 >
                                   {row.impact}
                                 </span>
                               </td>
                               <td className="px-5 py-4 align-top">
-                                <span className="text-[13px] text-[#666666]">
+                                <span className="text-[13px] text-[#64748B]">
                                   {row.why_reduces_conversion}
                                 </span>
                               </td>
                               <td className="px-5 py-4 align-top">
-                                <span className="text-[13px] text-[#1a1a1a] font-medium">
+                                <span className="text-[13px] text-[#0F172A] font-medium">
                                   {row.action}
                                 </span>
                               </td>
@@ -605,16 +603,16 @@ export default function Home() {
                 </table>
               </div>
 
-              {/* Table Footer with totals */}
-              <div className="px-6 py-3 bg-[#f8f9fa] border-t border-[#e0e0e0] flex items-center justify-between">
-                <p className="text-[12px] text-[#888888]">
+              {/* Table Footer */}
+              <div className="px-6 py-3 bg-[#F8FAFC] border-t border-[#E2E8F0] flex items-center justify-between">
+                <p className="text-[12px] text-[#94A3B8]">
                   {result.tableData.length + (result.claudeReview?.additional_issues?.length || 0)} {t("dashboard.totalIssues")}
                 </p>
-                <div className="flex items-center gap-1.5 text-[12px] text-[#888888]">
+                <div className="flex items-center gap-1.5 text-[12px] text-[#94A3B8]">
                   <Eye className="w-3 h-3" /> Gemini
-                  <span className="text-[#d0d0d0] mx-1">→</span>
+                  <span className="text-[#CBD5E1] mx-1">→</span>
                   <Table2 className="w-3 h-3" /> GPT
-                  <span className="text-[#d0d0d0] mx-1">→</span>
+                  <span className="text-[#CBD5E1] mx-1">→</span>
                   <Brain className="w-3 h-3" /> Claude
                 </div>
               </div>
@@ -622,21 +620,21 @@ export default function Home() {
 
             {/* Claude Overall Verdict */}
             {result.claudeReview?.overall_verdict && (
-              <div className="bg-gradient-to-br from-[#8b5cf6]/10 to-[#8b5cf6]/5 border border-[#8b5cf6]/30 rounded-2xl p-6">
+              <div className="bg-gradient-to-br from-[#8B5CF6]/10 to-[#8B5CF6]/5 border border-[#8B5CF6]/20 rounded-2xl p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-[#8b5cf6]/20 rounded-xl flex items-center justify-center">
-                    <Brain className="w-5 h-5 text-[#8b5cf6]" />
+                  <div className="w-10 h-10 bg-[#8B5CF6]/15 rounded-xl flex items-center justify-center">
+                    <Brain className="w-5 h-5 text-[#8B5CF6]" strokeWidth={1.5} />
                   </div>
                   <div>
-                    <h3 className="text-[16px] font-bold text-[#1a1a1a]">
+                    <h3 className="text-[16px] font-semibold text-[#0F172A]">
                       {t("dashboard.claudeVerdict")}
                     </h3>
-                    <p className="text-[12px] text-[#888888]">
+                    <p className="text-[12px] text-[#94A3B8]">
                       {t("dashboard.claudeVerdictDesc")}
                     </p>
                   </div>
                 </div>
-                <p className="text-[14px] text-[#333333] leading-relaxed pl-[52px]">
+                <p className="text-[14px] text-[#334155] leading-relaxed pl-[52px]">
                   {result.claudeReview.overall_verdict}
                 </p>
               </div>

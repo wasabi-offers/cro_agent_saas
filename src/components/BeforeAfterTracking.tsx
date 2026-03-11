@@ -28,9 +28,9 @@ export default function BeforeAfterTracking({
 
   if (history.length === 0) {
     return (
-      <div className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-2xl p-8 text-center">
-        <Calendar className="w-12 h-12 text-[#333333] mx-auto mb-4" />
-        <p className="text-[14px] text-[#666666]">
+      <div className="bg-[#0B0F19] border border-[#1E293B] rounded-2xl p-8 text-center">
+        <Calendar className="w-12 h-12 text-[#334155] mx-auto mb-4" />
+        <p className="text-[14px] text-[#64748B]">
           No historical data available yet. Run multiple analyses to see improvement over time.
         </p>
       </div>
@@ -64,22 +64,22 @@ export default function BeforeAfterTracking({
   const scoreRange = maxScore - minScore;
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return "#3b82f6";
-    if (score >= 60) return "#F97316";
+    if (score >= 80) return "#06B6D4";
+    if (score >= 60) return "#6366F1";
     if (score >= 40) return "#f59e0b";
-    return "#ff6b6b";
+    return "#EF4444";
   };
 
   return (
-    <div className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-2xl overflow-hidden">
+    <div className="bg-[#0B0F19] border border-[#1E293B] rounded-2xl overflow-hidden">
       {/* Header */}
-      <div className="p-6 border-b border-[#2a2a2a]">
+      <div className="p-6 border-b border-[#1E293B]">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-[18px] font-semibold text-[#fafafa] mb-1">
+            <h3 className="text-[18px] font-semibold text-[#F8FAFC] mb-1">
               Before/After Score Tracking
             </h3>
-            <p className="text-[13px] text-[#888888]">
+            <p className="text-[13px] text-[#94A3B8]">
               Track improvements over time
             </p>
           </div>
@@ -87,7 +87,7 @@ export default function BeforeAfterTracking({
             <div className="text-[32px] font-bold" style={{ color: getScoreColor(latestScore) }}>
               {latestScore}
             </div>
-            <div className={`flex items-center gap-1.5 text-[13px] justify-end ${change >= 0 ? 'text-[#3b82f6]' : 'text-[#ff6b6b]'}`}>
+            <div className={`flex items-center gap-1.5 text-[13px] justify-end ${change >= 0 ? 'text-[#06B6D4]' : 'text-[#EF4444]'}`}>
               {change >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
               {Math.abs(parseFloat(changePercent))}% {change >= 0 ? 'improvement' : 'decrease'}
             </div>
@@ -102,8 +102,8 @@ export default function BeforeAfterTracking({
               onClick={() => setSelectedCategory(category.id as any)}
               className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all ${
                 selectedCategory === category.id
-                  ? "bg-[#F97316] text-white"
-                  : "bg-[#111111] text-[#888888] border border-[#2a2a2a] hover:border-[#F97316]/50"
+                  ? "bg-[#6366F1] text-white"
+                  : "bg-[#111827] text-[#94A3B8] border border-[#1E293B] hover:border-[#6366F1]/50"
               }`}
             >
               {category.label}
@@ -116,7 +116,7 @@ export default function BeforeAfterTracking({
       <div className="p-6">
         <div className="relative" style={{ height: '300px' }}>
           {/* Y-axis labels */}
-          <div className="absolute left-0 top-0 bottom-0 w-12 flex flex-col justify-between text-[11px] text-[#666666] pr-2">
+          <div className="absolute left-0 top-0 bottom-0 w-12 flex flex-col justify-between text-[11px] text-[#64748B] pr-2">
             <span>{maxScore}</span>
             <span>{Math.round((maxScore + minScore) / 2)}</span>
             <span>{minScore}</span>
@@ -129,7 +129,7 @@ export default function BeforeAfterTracking({
               {[0, 25, 50, 75, 100].map((line) => (
                 <div
                   key={line}
-                  className="absolute left-0 right-0 border-t border-[#1a1a1a]"
+                  className="absolute left-0 right-0 border-t border-[#1E293B]"
                   style={{ bottom: `${line}%` }}
                 />
               ))}
@@ -193,7 +193,7 @@ export default function BeforeAfterTracking({
                       cy={`${y}%`}
                       r="4"
                       fill={getScoreColor(score)}
-                      stroke="#0a0a0a"
+                      stroke="#0B0F19"
                       strokeWidth="2"
                     />
                     {item.changes && item.changes.length > 0 && (
@@ -202,7 +202,7 @@ export default function BeforeAfterTracking({
                         cy={`${y}%`}
                         r="8"
                         fill="none"
-                        stroke="#3b82f6"
+                        stroke="#06B6D4"
                         strokeWidth="2"
                         strokeDasharray="2,2"
                       />
@@ -214,7 +214,7 @@ export default function BeforeAfterTracking({
           </div>
 
           {/* X-axis labels */}
-          <div className="absolute left-12 right-0 bottom-0 h-8 flex justify-between items-end text-[11px] text-[#666666]">
+          <div className="absolute left-12 right-0 bottom-0 h-8 flex justify-between items-end text-[11px] text-[#64748B]">
             {history.map((item, index) => (
               <span key={index} className="text-center" style={{
                 position: 'absolute',
@@ -229,8 +229,8 @@ export default function BeforeAfterTracking({
       </div>
 
       {/* Timeline */}
-      <div className="p-6 border-t border-[#2a2a2a] space-y-4">
-        <h4 className="text-[14px] font-semibold text-[#fafafa] mb-4">Timeline & Changes</h4>
+      <div className="p-6 border-t border-[#1E293B] space-y-4">
+        <h4 className="text-[14px] font-semibold text-[#F8FAFC] mb-4">Timeline & Changes</h4>
 
         {history.slice().reverse().map((item, index) => {
           const score = getScoreForCategory(item);
@@ -254,14 +254,14 @@ export default function BeforeAfterTracking({
                   )}
                 </div>
                 {index < history.length - 1 && (
-                  <div className="w-0.5 h-full bg-[#2a2a2a] mt-2" style={{ minHeight: '40px' }}></div>
+                  <div className="w-0.5 h-full bg-[#1E293B] mt-2" style={{ minHeight: '40px' }}></div>
                 )}
               </div>
 
               {/* Content */}
               <div className="flex-1 pb-4">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[13px] text-[#888888]">
+                  <span className="text-[13px] text-[#94A3B8]">
                     {new Date(item.date).toLocaleDateString('en-US', {
                       month: 'long',
                       day: 'numeric',
@@ -270,7 +270,7 @@ export default function BeforeAfterTracking({
                   </span>
                   <div className="flex items-center gap-3">
                     {itemChange !== 0 && (
-                      <span className={`text-[12px] font-medium ${itemChange > 0 ? 'text-[#3b82f6]' : 'text-[#ff6b6b]'}`}>
+                      <span className={`text-[12px] font-medium ${itemChange > 0 ? 'text-[#06B6D4]' : 'text-[#EF4444]'}`}>
                         {itemChange > 0 ? '+' : ''}{itemChange}
                       </span>
                     )}
@@ -281,17 +281,17 @@ export default function BeforeAfterTracking({
                 </div>
 
                 {item.changes && item.changes.length > 0 && (
-                  <div className="bg-[#111111] border border-[#2a2a2a] rounded-lg p-3">
+                  <div className="bg-[#111827] border border-[#1E293B] rounded-lg p-3">
                     <div className="flex items-center gap-2 mb-2">
-                      <Target className="w-3.5 h-3.5 text-[#3b82f6]" />
-                      <span className="text-[12px] font-semibold text-[#3b82f6]">
+                      <Target className="w-3.5 h-3.5 text-[#06B6D4]" />
+                      <span className="text-[12px] font-semibold text-[#06B6D4]">
                         Changes Implemented
                       </span>
                     </div>
                     <ul className="space-y-1">
                       {item.changes.map((change, idx) => (
-                        <li key={idx} className="text-[12px] text-[#888888] flex items-start gap-2">
-                          <span className="text-[#F97316] mt-1">•</span>
+                        <li key={idx} className="text-[12px] text-[#94A3B8] flex items-start gap-2">
+                          <span className="text-[#6366F1] mt-1">•</span>
                           {change}
                         </li>
                       ))}

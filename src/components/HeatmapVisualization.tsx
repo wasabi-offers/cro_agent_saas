@@ -160,7 +160,7 @@ export default function HeatmapVisualization({
   const hasData = heatmapData && heatmapData[heatmapType]?.points?.length > 0;
 
   return (
-    <div className="bg-white border border-[#d0d0d0] rounded-2xl overflow-hidden">
+    <div className="bg-white border border-[#CBD5E1] rounded-2xl overflow-hidden">
       {/* Demo Data Warning */}
       {isDemoData && (
         <div className="bg-gradient-to-r from-[#f59e0b] to-[#ef4444] p-4 flex items-center gap-3">
@@ -177,12 +177,12 @@ export default function HeatmapVisualization({
       )}
 
       {/* Controls */}
-      <div className="p-4 border-b border-[#d0d0d0] flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-[14px] font-medium text-[#1a1a1a]">
+      <div className="p-4 border-b border-[#CBD5E1] flex flex-wrap items-center justify-between gap-3">
+        <h3 className="text-[14px] font-medium text-[#0F172A]">
           {stepName} - {heatmapType.charAt(0).toUpperCase() + heatmapType.slice(1)} Heatmap
         </h3>
         <div className="flex items-center gap-2">
-          <span className="text-[12px] text-[#666666]">Device:</span>
+          <span className="text-[12px] text-[#64748B]">Device:</span>
           {([
             { id: "mobile" as const, label: "Mobile", icon: Smartphone },
             { id: "desktop" as const, label: "Desktop", icon: Monitor },
@@ -195,8 +195,8 @@ export default function HeatmapVisualization({
                 onClick={() => setDevice(d.id)}
                 className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
                   isActive
-                    ? "bg-[#F97316] text-white"
-                    : "bg-[#f8f9fa] text-[#666666] hover:text-[#888888] border border-[#d0d0d0]"
+                    ? "bg-[#6366F1] text-white"
+                    : "bg-[#F8FAFC] text-[#64748B] hover:text-[#94A3B8] border border-[#CBD5E1]"
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -209,8 +209,8 @@ export default function HeatmapVisualization({
           onClick={() => setShowPage(!showPage)}
           className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all ${
             showPage
-              ? "bg-[#F97316] text-white"
-              : "bg-[#f8f9fa] text-[#666666] hover:text-[#888888]"
+              ? "bg-[#6366F1] text-white"
+              : "bg-[#F8FAFC] text-[#64748B] hover:text-[#94A3B8]"
           }`}
         >
           {showPage ? "Hide" : "Show"} Page
@@ -219,7 +219,7 @@ export default function HeatmapVisualization({
 
       {/* Heatmap - blocco adattivo alla pagina, niente scroll */}
       <div className="p-6">
-        <div className="relative bg-[#f8f9fa] rounded-xl border border-[#d0d0d0]">
+        <div className="relative bg-[#F8FAFC] rounded-xl border border-[#CBD5E1]">
           {/* Wrapper - dimensione uguale alla pagina reale */}
           <div
             className="relative mx-auto"
@@ -265,13 +265,13 @@ export default function HeatmapVisualization({
 
             {/* No Data */}
             {!isLoading && !hasData && (
-              <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center z-20 bg-[#f8f9fa]/95">
+              <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center z-20 bg-[#F8FAFC]/95">
                 <div className="text-center">
-                  <MousePointerClick className="w-16 h-16 text-[#F97316] mx-auto mb-4 opacity-50" />
-                  <p className="text-[16px] text-[#1a1a1a] font-semibold mb-2">
+                  <MousePointerClick className="w-16 h-16 text-[#6366F1] mx-auto mb-4 opacity-50" />
+                  <p className="text-[16px] text-[#0F172A] font-semibold mb-2">
                     NO REAL DATA AVAILABLE
                   </p>
-                  <p className="text-[14px] text-[#888888]">
+                  <p className="text-[14px] text-[#94A3B8]">
                     Install the tracking script from the &quot;Setup&quot; tab for: {stepName}
                   </p>
                 </div>
@@ -295,30 +295,30 @@ export default function HeatmapVisualization({
           <>
             <div className="mt-4 flex items-center justify-between px-4">
               <div className="flex items-center gap-4">
-                <span className="text-[12px] text-[#666666]">Intensity:</span>
+                <span className="text-[12px] text-[#64748B]">Intensity:</span>
                 <div className="flex items-center gap-2">
                   <div className="w-40 h-4 rounded-full bg-gradient-to-r from-blue-500 via-yellow-500 to-red-500" />
-                  <span className="text-[11px] text-[#888888]">Low → High</span>
+                  <span className="text-[11px] text-[#94A3B8]">Low → High</span>
                 </div>
               </div>
-              <div className="text-[11px] text-[#666666]">
+              <div className="text-[11px] text-[#64748B]">
                 {heatmapData[heatmapType]?.points.length || 0} data points
               </div>
             </div>
 
             {stats && (
               <div className="mt-4 grid grid-cols-3 gap-3">
-                <div className="bg-[#f8f9fa] rounded-xl p-3">
-                  <div className="text-[11px] text-[#666666] mb-1">Total Clicks</div>
-                  <div className="text-[16px] font-semibold text-[#1a1a1a]">{stats.totalClicks}</div>
+                <div className="bg-[#F8FAFC] rounded-xl p-3">
+                  <div className="text-[11px] text-[#64748B] mb-1">Total Clicks</div>
+                  <div className="text-[16px] font-semibold text-[#0F172A]">{stats.totalClicks}</div>
                 </div>
-                <div className="bg-[#f8f9fa] rounded-xl p-3">
-                  <div className="text-[11px] text-[#666666] mb-1">Mouse Movements</div>
-                  <div className="text-[16px] font-semibold text-[#1a1a1a]">{stats.totalMovements}</div>
+                <div className="bg-[#F8FAFC] rounded-xl p-3">
+                  <div className="text-[11px] text-[#64748B] mb-1">Mouse Movements</div>
+                  <div className="text-[16px] font-semibold text-[#0F172A]">{stats.totalMovements}</div>
                 </div>
-                <div className="bg-[#f8f9fa] rounded-xl p-3">
-                  <div className="text-[11px] text-[#666666] mb-1">Scroll Events</div>
-                  <div className="text-[16px] font-semibold text-[#1a1a1a]">{stats.totalScrolls}</div>
+                <div className="bg-[#F8FAFC] rounded-xl p-3">
+                  <div className="text-[11px] text-[#64748B] mb-1">Scroll Events</div>
+                  <div className="text-[16px] font-semibold text-[#0F172A]">{stats.totalScrolls}</div>
                 </div>
               </div>
             )}

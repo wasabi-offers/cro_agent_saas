@@ -190,57 +190,57 @@ export default function FunnelOverview({
     <div className="space-y-6">
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-[#3b82f6]/20 to-[#3b82f6]/5 border border-[#3b82f6]/30 rounded-xl p-5">
+        <div className="bg-gradient-to-br from-[#06B6D4]/20 to-[#06B6D4]/5 border border-[#06B6D4]/30 rounded-xl p-5">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-[#3b82f6]/20 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-[#3b82f6]" />
+            <div className="w-10 h-10 bg-[#06B6D4]/20 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-[#06B6D4]" />
             </div>
-            <span className="text-[12px] text-[#666666]">Conversion Rate</span>
+            <span className="text-[12px] text-[#64748B]">Conversion Rate</span>
           </div>
-          <p className="text-[24px] font-bold text-[#3b82f6]">
+          <p className="text-[24px] font-bold text-[#06B6D4]">
             {Number.isFinite(conversionRate) ? conversionRate.toFixed(1) : "0"}%
           </p>
         </div>
 
-        <div className="bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-xl p-5">
+        <div className="bg-gradient-to-br from-[#6366F1]/20 to-[#6366F1]/5 border border-[#6366F1]/30 rounded-xl p-5">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-[#F97316]/20 rounded-lg flex items-center justify-center">
-              <Users className="w-5 h-5 text-[#F97316]" />
+            <div className="w-10 h-10 bg-[#6366F1]/20 rounded-lg flex items-center justify-center">
+              <Users className="w-5 h-5 text-[#6366F1]" />
             </div>
-            <span className="text-[12px] text-[#666666]">Total Visitors</span>
+            <span className="text-[12px] text-[#64748B]">Total Visitors</span>
           </div>
-          <p className="text-[24px] font-bold text-[#1a1a1a]">
+          <p className="text-[24px] font-bold text-[#0F172A]">
             {(totalVisitors ?? firstStep?.visitors ?? 0).toLocaleString()}
           </p>
         </div>
 
-        <div className="bg-gradient-to-br from-[#3b82f6]/20 to-[#3b82f6]/5 border border-[#3b82f6]/30 rounded-xl p-5">
+        <div className="bg-gradient-to-br from-[#06B6D4]/20 to-[#06B6D4]/5 border border-[#06B6D4]/30 rounded-xl p-5">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-[#3b82f6]/20 rounded-lg flex items-center justify-center">
-              <Target className="w-5 h-5 text-[#3b82f6]" />
+            <div className="w-10 h-10 bg-[#06B6D4]/20 rounded-lg flex items-center justify-center">
+              <Target className="w-5 h-5 text-[#06B6D4]" />
             </div>
-            <span className="text-[12px] text-[#666666]">Conversions</span>
+            <span className="text-[12px] text-[#64748B]">Conversions</span>
           </div>
-          <p className="text-[24px] font-bold text-[#3b82f6]">
+          <p className="text-[24px] font-bold text-[#06B6D4]">
             {(goalStep?.visitors ?? 0).toLocaleString()}
           </p>
           {goalStep?.name && (
-            <p className="text-[11px] text-[#666666] mt-1">Goal: {goalStep.name}</p>
+            <p className="text-[11px] text-[#64748B] mt-1">Goal: {goalStep.name}</p>
           )}
         </div>
 
-        <div className="bg-gradient-to-br from-[#ff6b6b]/20 to-[#ff6b6b]/5 border border-[#ff6b6b]/30 rounded-xl p-5">
+        <div className="bg-gradient-to-br from-[#EF4444]/20 to-[#EF4444]/5 border border-[#EF4444]/30 rounded-xl p-5">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-[#ff6b6b]/20 rounded-lg flex items-center justify-center">
-              <AlertTriangle className="w-5 h-5 text-[#ff6b6b]" />
+            <div className="w-10 h-10 bg-[#EF4444]/20 rounded-lg flex items-center justify-center">
+              <AlertTriangle className="w-5 h-5 text-[#EF4444]" />
             </div>
-            <span className="text-[12px] text-[#666666]">Bottleneck</span>
+            <span className="text-[12px] text-[#64748B]">Bottleneck</span>
           </div>
-          <p className="text-[14px] font-bold text-[#1a1a1a] truncate" title={bottleneckStep?.name}>
+          <p className="text-[14px] font-bold text-[#0F172A] truncate" title={bottleneckStep?.name}>
             {bottleneckStep?.name || "-"}
           </p>
           {bottleneckStep?.dropoff ? (
-            <p className="text-[12px] text-[#ff6b6b]">{bottleneckStep.dropoff}% drop-off</p>
+            <p className="text-[12px] text-[#EF4444]">{bottleneckStep.dropoff}% drop-off</p>
           ) : null}
         </div>
       </div>
@@ -248,16 +248,16 @@ export default function FunnelOverview({
       {/* RAG Summary + Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* RAG Summary */}
-        <div className="lg:col-span-2 bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/5 border border-[#F97316]/30 rounded-2xl p-6">
+        <div className="lg:col-span-2 bg-gradient-to-br from-[#6366F1]/20 to-[#6366F1]/5 border border-[#6366F1]/30 rounded-2xl p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Brain className="w-5 h-5 text-[#F97316]" />
-              <h3 className="text-[16px] font-semibold text-[#1a1a1a]">RAG Insights</h3>
+              <Brain className="w-5 h-5 text-[#6366F1]" />
+              <h3 className="text-[16px] font-semibold text-[#0F172A]">RAG Insights</h3>
             </div>
             <button
               onClick={fetchRagSummary}
               disabled={isLoadingRag}
-              className="px-4 py-2 bg-[#F97316] hover:bg-[#6b4ce6] disabled:opacity-50 rounded-lg text-[13px] font-medium text-white flex items-center gap-2 transition-colors"
+              className="px-4 py-2 bg-[#6366F1] hover:bg-[#6366F1] disabled:opacity-50 rounded-lg text-[13px] font-medium text-white flex items-center gap-2 transition-colors"
             >
               {isLoadingRag ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -268,18 +268,18 @@ export default function FunnelOverview({
             </button>
           </div>
           {ragError && (
-            <p className="text-[13px] text-[#888888] italic">{ragError}</p>
+            <p className="text-[13px] text-[#94A3B8] italic">{ragError}</p>
           )}
           {ragSummary && (
             <>
-              <p className="text-[14px] text-[#1a1a1a] leading-relaxed whitespace-pre-wrap">
+              <p className="text-[14px] text-[#0F172A] leading-relaxed whitespace-pre-wrap">
                 {ragSummary}
               </p>
-              <p className="text-[11px] text-[#666666] mt-3">Source: RAG</p>
+              <p className="text-[11px] text-[#64748B] mt-3">Source: RAG</p>
             </>
           )}
           {!ragSummary && !ragError && !isLoadingRag && (
-            <p className="text-[13px] text-[#666666]">
+            <p className="text-[13px] text-[#64748B]">
               Click "Generate insights" to get a CRO summary based on funnel data.
             </p>
           )}
@@ -287,60 +287,60 @@ export default function FunnelOverview({
 
         {/* Quick Actions */}
         <div className="space-y-3">
-          <h3 className="text-[14px] font-semibold text-[#888888] mb-3">Quick Actions</h3>
+          <h3 className="text-[14px] font-semibold text-[#94A3B8] mb-3">Quick Actions</h3>
           <button
             onClick={onNavigateToAnalysis}
-            className="w-full flex items-center justify-between p-4 bg-white/60 hover:bg-white/80 border border-[#F97316]/30 hover:border-[#F97316]/50 rounded-xl text-left transition-all group"
+            className="w-full flex items-center justify-between p-4 bg-white/60 hover:bg-white/80 border border-[#6366F1]/30 hover:border-[#6366F1]/50 rounded-xl text-left transition-all group"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#F97316]/20 rounded-lg flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-[#F97316]" />
+              <div className="w-10 h-10 bg-[#6366F1]/20 rounded-lg flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-[#6366F1]" />
               </div>
-              <span className="text-[14px] font-medium text-[#1a1a1a]">CRO Analysis</span>
+              <span className="text-[14px] font-medium text-[#0F172A]">CRO Analysis</span>
             </div>
-            <ChevronRight className="w-5 h-5 text-[#666666] group-hover:text-[#F97316]" />
+            <ChevronRight className="w-5 h-5 text-[#64748B] group-hover:text-[#6366F1]" />
           </button>
           <button
             onClick={onNavigateToHeatmap}
-            className="w-full flex items-center justify-between p-4 bg-white/60 hover:bg-white/80 border border-[#F97316]/30 hover:border-[#F97316]/50 rounded-xl text-left transition-all group"
+            className="w-full flex items-center justify-between p-4 bg-white/60 hover:bg-white/80 border border-[#6366F1]/30 hover:border-[#6366F1]/50 rounded-xl text-left transition-all group"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#3b82f6]/20 rounded-lg flex items-center justify-center">
-                <MousePointerClick className="w-5 h-5 text-[#3b82f6]" />
+              <div className="w-10 h-10 bg-[#06B6D4]/20 rounded-lg flex items-center justify-center">
+                <MousePointerClick className="w-5 h-5 text-[#06B6D4]" />
               </div>
-              <span className="text-[14px] font-medium text-[#1a1a1a]">Heatmap</span>
+              <span className="text-[14px] font-medium text-[#0F172A]">Heatmap</span>
             </div>
-            <ChevronRight className="w-5 h-5 text-[#666666] group-hover:text-[#3b82f6]" />
+            <ChevronRight className="w-5 h-5 text-[#64748B] group-hover:text-[#06B6D4]" />
           </button>
           <button
             onClick={onNavigateToABTests}
-            className="w-full flex items-center justify-between p-4 bg-white/60 hover:bg-white/80 border border-[#F97316]/30 hover:border-[#F97316]/50 rounded-xl text-left transition-all group"
+            className="w-full flex items-center justify-between p-4 bg-white/60 hover:bg-white/80 border border-[#6366F1]/30 hover:border-[#6366F1]/50 rounded-xl text-left transition-all group"
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-[#f59e0b]/20 rounded-lg flex items-center justify-center">
                 <FlaskConical className="w-5 h-5 text-[#f59e0b]" />
               </div>
-              <span className="text-[14px] font-medium text-[#1a1a1a]">A/B Tests</span>
+              <span className="text-[14px] font-medium text-[#0F172A]">A/B Tests</span>
             </div>
-            <ChevronRight className="w-5 h-5 text-[#666666] group-hover:text-[#f59e0b]" />
+            <ChevronRight className="w-5 h-5 text-[#64748B] group-hover:text-[#f59e0b]" />
           </button>
         </div>
       </div>
 
       {/* Urgent Tasks – analysis based on funnel data and heatmap */}
-      <div className="bg-gradient-to-br from-[#ff6b6b]/20 to-[#ff6b6b]/5 border border-[#ff6b6b]/30 rounded-2xl p-6">
+      <div className="bg-gradient-to-br from-[#EF4444]/20 to-[#EF4444]/5 border border-[#EF4444]/30 rounded-2xl p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
           <div className="flex items-center gap-2">
-            <Zap className="w-5 h-5 text-[#ff6b6b]" />
-            <h3 className="text-[16px] font-semibold text-[#1a1a1a]">Urgent Tasks</h3>
+            <Zap className="w-5 h-5 text-[#EF4444]" />
+            <h3 className="text-[16px] font-semibold text-[#0F172A]">Urgent Tasks</h3>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex items-center gap-1.5">
-              <Filter className="w-4 h-4 text-[#666666]" />
+              <Filter className="w-4 h-4 text-[#64748B]" />
               <select
                 value={urgentFilterStep}
                 onChange={(e) => setUrgentFilterStep(e.target.value)}
-                className="bg-white/60 border border-[#ff6b6b]/30 rounded-lg px-3 py-1.5 text-[12px] text-[#1a1a1a] focus:outline-none focus:border-[#F97316]"
+                className="bg-white/60 border border-[#EF4444]/30 rounded-lg px-3 py-1.5 text-[12px] text-[#0F172A] focus:outline-none focus:border-[#6366F1]"
               >
                 <option value="all">All pages</option>
                 {steps.map((s) => (
@@ -353,7 +353,7 @@ export default function FunnelOverview({
             <select
               value={urgentFilterLevel}
               onChange={(e) => setUrgentFilterLevel(e.target.value)}
-              className="bg-[#f8f9fa] border border-[#2a2a2a] rounded-lg px-3 py-1.5 text-[12px] text-[#1a1a1a] focus:outline-none focus:border-[#F97316]"
+              className="bg-[#F8FAFC] border border-[#1E293B] rounded-lg px-3 py-1.5 text-[12px] text-[#0F172A] focus:outline-none focus:border-[#6366F1]"
             >
               <option value="all">All urgency</option>
               <option value="critical">Critical (≥80%)</option>
@@ -363,11 +363,11 @@ export default function FunnelOverview({
             </select>
           </div>
         </div>
-        <p className="text-[12px] text-[#666666] mb-4">
+        <p className="text-[12px] text-[#64748B] mb-4">
           Based on funnel drop-off data. Each task includes a mini analysis with tips and action items. Check the Heatmap tab for click patterns and CTA visibility.
         </p>
         {filteredUrgentTasks.length === 0 ? (
-          <p className="text-[13px] text-[#666666] py-4">
+          <p className="text-[13px] text-[#64748B] py-4">
             {urgentTasks.length === 0
               ? "No urgent tasks – all steps have low or no drop-off."
               : "No tasks match the current filters."}
@@ -379,33 +379,33 @@ export default function FunnelOverview({
                 key={`${task.stepName}-${i}`}
                 className={`flex items-start gap-4 p-4 rounded-xl border ${
                   task.urgency === "critical"
-                    ? "bg-[#ff6b6b]/10 border-[#ff6b6b]/30"
+                    ? "bg-[#EF4444]/10 border-[#EF4444]/30"
                     : task.urgency === "high"
                       ? "bg-[#f59e0b]/10 border-[#f59e0b]/30"
                       : task.urgency === "medium"
                         ? "bg-[#f59e0b]/5 border-[#f59e0b]/20"
-                        : "bg-white/60 border-[#F97316]/20"
+                        : "bg-white/60 border-[#6366F1]/20"
                 }`}
               >
                 <div className="flex-1 min-w-0">
-                  <p className="text-[14px] font-semibold text-[#1a1a1a]">{task.stepName}</p>
-                  <p className="text-[12px] text-[#888888] mt-1">{task.insight}</p>
-                  <div className="flex items-center gap-3 mt-2 text-[11px] text-[#666666]">
+                  <p className="text-[14px] font-semibold text-[#0F172A]">{task.stepName}</p>
+                  <p className="text-[12px] text-[#94A3B8] mt-1">{task.insight}</p>
+                  <div className="flex items-center gap-3 mt-2 text-[11px] text-[#64748B]">
                     <span>{task.dropoff}% drop-off</span>
                     <span>{task.visitorsLost.toLocaleString()} visitors lost</span>
                   </div>
                   {task.interventions.length > 0 && (
-                    <div className="mt-4 p-4 rounded-lg bg-[#3b82f6]/5 border border-[#3b82f6]/20">
+                    <div className="mt-4 p-4 rounded-lg bg-[#06B6D4]/5 border border-[#06B6D4]/20">
                       <div className="flex items-center gap-2 mb-3">
-                        <Lightbulb className="w-4 h-4 text-[#3b82f6]" />
-                        <p className="text-[13px] font-semibold text-[#3b82f6]">
+                        <Lightbulb className="w-4 h-4 text-[#06B6D4]" />
+                        <p className="text-[13px] font-semibold text-[#06B6D4]">
                           Mini Analysis – Tips & Action Items:
                         </p>
                       </div>
-                      <ul className="space-y-2 text-[13px] text-[#666666]">
+                      <ul className="space-y-2 text-[13px] text-[#64748B]">
                         {task.interventions.map((item, j) => (
                           <li key={j} className="flex items-start gap-2">
-                            <span className="text-[#3b82f6] flex-shrink-0 mt-0.5">✓</span>
+                            <span className="text-[#06B6D4] flex-shrink-0 mt-0.5">✓</span>
                             <span>{item}</span>
                           </li>
                         ))}
@@ -416,13 +416,13 @@ export default function FunnelOverview({
                 <div className="flex gap-2 flex-shrink-0">
                   <button
                     onClick={onNavigateToAnalysis}
-                    className="px-3 py-1.5 bg-[#F97316]/20 hover:bg-[#F97316]/30 text-[#F97316] rounded-lg text-[11px] font-medium"
+                    className="px-3 py-1.5 bg-[#6366F1]/20 hover:bg-[#6366F1]/30 text-[#6366F1] rounded-lg text-[11px] font-medium"
                   >
                     CRO Analysis
                   </button>
                   <button
                     onClick={onNavigateToHeatmap}
-                    className="px-3 py-1.5 bg-[#3b82f6]/20 hover:bg-[#3b82f6]/30 text-[#3b82f6] rounded-lg text-[11px] font-medium"
+                    className="px-3 py-1.5 bg-[#06B6D4]/20 hover:bg-[#06B6D4]/30 text-[#06B6D4] rounded-lg text-[11px] font-medium"
                   >
                     Heatmap
                   </button>

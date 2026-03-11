@@ -119,10 +119,10 @@ export default function AnomalyDetection({ anomalies }: AnomalyDetectionProps) {
     switch (severity) {
       case "critical":
         return {
-          bg: "bg-[#ff6b6b]/10",
-          border: "border-[#ff6b6b]/30",
-          text: "text-[#ff6b6b]",
-          icon: "#ff6b6b",
+          bg: "bg-[#EF4444]/10",
+          border: "border-[#EF4444]/30",
+          text: "text-[#EF4444]",
+          icon: "#EF4444",
         };
       case "warning":
         return {
@@ -133,10 +133,10 @@ export default function AnomalyDetection({ anomalies }: AnomalyDetectionProps) {
         };
       case "info":
         return {
-          bg: "bg-[#F97316]/10",
-          border: "border-[#F97316]/30",
-          text: "text-[#F97316]",
-          icon: "#F97316",
+          bg: "bg-[#6366F1]/10",
+          border: "border-[#6366F1]/30",
+          text: "text-[#6366F1]",
+          icon: "#6366F1",
         };
     }
   };
@@ -154,31 +154,31 @@ export default function AnomalyDetection({ anomalies }: AnomalyDetectionProps) {
   };
 
   return (
-    <div className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-2xl overflow-hidden mb-10">
+    <div className="bg-[#0B0F19] border border-[#1E293B] rounded-2xl overflow-hidden mb-10">
       {/* Header */}
-      <div className="p-6 border-b border-[#2a2a2a]">
+      <div className="p-6 border-b border-[#1E293B]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <AlertTriangle className="w-6 h-6 text-[#ff6b6b]" />
+            <AlertTriangle className="w-6 h-6 text-[#EF4444]" />
             <div>
-              <h3 className="text-[18px] font-semibold text-[#fafafa]">
+              <h3 className="text-[18px] font-semibold text-[#F8FAFC]">
                 Anomaly Detection
               </h3>
-              <p className="text-[13px] text-[#888888]">
+              <p className="text-[13px] text-[#94A3B8]">
                 Real-time alerts for unusual metric behavior
               </p>
             </div>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-[#ff6b6b]"></div>
-              <span className="text-[12px] text-[#888888]">
+              <div className="w-3 h-3 rounded-full bg-[#EF4444]"></div>
+              <span className="text-[12px] text-[#94A3B8]">
                 {displayAnomalies.filter(a => a.severity === 'critical').length} Critical
               </span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-[#f59e0b]"></div>
-              <span className="text-[12px] text-[#888888]">
+              <span className="text-[12px] text-[#94A3B8]">
                 {displayAnomalies.filter(a => a.severity === 'warning').length} Warning
               </span>
             </div>
@@ -187,14 +187,14 @@ export default function AnomalyDetection({ anomalies }: AnomalyDetectionProps) {
       </div>
 
       {/* Anomalies List */}
-      <div className="divide-y divide-[#2a2a2a]">
+      <div className="divide-y divide-[#1E293B]">
         {displayAnomalies.map((anomaly) => {
           const colors = getSeverityColor(anomaly.severity);
 
           return (
             <div
               key={anomaly.id}
-              className="p-6 hover:bg-[#111111]/50 transition-all cursor-pointer"
+              className="p-6 hover:bg-[#111827]/50 transition-all cursor-pointer"
               onClick={() => setSelectedAnomaly(anomaly)}
             >
               <div className="flex items-start gap-4">
@@ -208,14 +208,14 @@ export default function AnomalyDetection({ anomalies }: AnomalyDetectionProps) {
                   <div className="flex items-start justify-between mb-2">
                     <div>
                       <div className="flex items-center gap-3 mb-1">
-                        <h4 className="text-[16px] font-semibold text-[#fafafa]">
+                        <h4 className="text-[16px] font-semibold text-[#F8FAFC]">
                           {anomaly.metric}
                         </h4>
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${colors.bg} ${colors.text} border ${colors.border}`}>
                           {anomaly.severity}
                         </span>
                       </div>
-                      <p className="text-[14px] text-[#888888]">
+                      <p className="text-[14px] text-[#94A3B8]">
                         {anomaly.description}
                       </p>
                     </div>
@@ -223,26 +223,26 @@ export default function AnomalyDetection({ anomalies }: AnomalyDetectionProps) {
                       <div className={`text-[24px] font-bold ${colors.text}`}>
                         {anomaly.deviation > 0 ? '+' : ''}{anomaly.deviation.toFixed(1)}%
                       </div>
-                      <div className="text-[11px] text-[#666666]">deviation</div>
+                      <div className="text-[11px] text-[#64748B]">deviation</div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-6 mt-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-[12px] text-[#666666]">Current:</span>
-                      <span className="text-[13px] font-semibold text-[#fafafa]">
+                      <span className="text-[12px] text-[#64748B]">Current:</span>
+                      <span className="text-[13px] font-semibold text-[#F8FAFC]">
                         {anomaly.currentValue}{anomaly.metric.includes('Rate') ? '%' : anomaly.metric.includes('Time') ? 's' : ''}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[12px] text-[#666666]">Expected:</span>
-                      <span className="text-[13px] font-semibold text-[#888888]">
+                      <span className="text-[12px] text-[#64748B]">Expected:</span>
+                      <span className="text-[13px] font-semibold text-[#94A3B8]">
                         {anomaly.expectedValue}{anomaly.metric.includes('Rate') ? '%' : anomaly.metric.includes('Time') ? 's' : ''}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[12px] text-[#666666]">Detected:</span>
-                      <span className="text-[12px] text-[#888888]">
+                      <span className="text-[12px] text-[#64748B]">Detected:</span>
+                      <span className="text-[12px] text-[#94A3B8]">
                         {new Date(anomaly.detectedAt).toLocaleString('en-US', {
                           month: 'short',
                           day: 'numeric',
@@ -262,23 +262,23 @@ export default function AnomalyDetection({ anomalies }: AnomalyDetectionProps) {
       {/* Detail Modal */}
       {selectedAnomaly && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-          <div className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-auto">
+          <div className="bg-[#0B0F19] border border-[#1E293B] rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-auto">
             {/* Modal Header */}
-            <div className="sticky top-0 bg-[#0a0a0a] border-b border-[#2a2a2a] p-6">
+            <div className="sticky top-0 bg-[#0B0F19] border-b border-[#1E293B] p-6">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="text-[20px] font-semibold text-[#fafafa] mb-1">
+                  <h3 className="text-[20px] font-semibold text-[#F8FAFC] mb-1">
                     {selectedAnomaly.metric} Anomaly
                   </h3>
-                  <p className="text-[13px] text-[#888888]">
+                  <p className="text-[13px] text-[#94A3B8]">
                     Detected {new Date(selectedAnomaly.detectedAt).toLocaleString()}
                   </p>
                 </div>
                 <button
                   onClick={() => setSelectedAnomaly(null)}
-                  className="p-2 hover:bg-[#111111] rounded-lg transition-all"
+                  className="p-2 hover:bg-[#111827] rounded-lg transition-all"
                 >
-                  <AlertCircle className="w-5 h-5 text-[#888888]" />
+                  <AlertCircle className="w-5 h-5 text-[#94A3B8]" />
                 </button>
               </div>
             </div>
@@ -287,22 +287,22 @@ export default function AnomalyDetection({ anomalies }: AnomalyDetectionProps) {
             <div className="p-6 space-y-6">
               {/* Metrics */}
               <div className="grid grid-cols-3 gap-4">
-                <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-4">
-                  <div className="text-[11px] text-[#666666] uppercase mb-1">Current</div>
-                  <div className="text-[24px] font-bold text-[#ff6b6b]">
+                <div className="bg-[#111827] border border-[#1E293B] rounded-xl p-4">
+                  <div className="text-[11px] text-[#64748B] uppercase mb-1">Current</div>
+                  <div className="text-[24px] font-bold text-[#EF4444]">
                     {selectedAnomaly.currentValue}
                     {selectedAnomaly.metric.includes('Rate') ? '%' : ''}
                   </div>
                 </div>
-                <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-4">
-                  <div className="text-[11px] text-[#666666] uppercase mb-1">Expected</div>
-                  <div className="text-[24px] font-bold text-[#888888]">
+                <div className="bg-[#111827] border border-[#1E293B] rounded-xl p-4">
+                  <div className="text-[11px] text-[#64748B] uppercase mb-1">Expected</div>
+                  <div className="text-[24px] font-bold text-[#94A3B8]">
                     {selectedAnomaly.expectedValue}
                     {selectedAnomaly.metric.includes('Rate') ? '%' : ''}
                   </div>
                 </div>
-                <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-4">
-                  <div className="text-[11px] text-[#666666] uppercase mb-1">Deviation</div>
+                <div className="bg-[#111827] border border-[#1E293B] rounded-xl p-4">
+                  <div className="text-[11px] text-[#64748B] uppercase mb-1">Deviation</div>
                   <div className="text-[24px] font-bold text-[#f59e0b]">
                     {selectedAnomaly.deviation > 0 ? '+' : ''}{selectedAnomaly.deviation.toFixed(1)}%
                   </div>
@@ -311,14 +311,14 @@ export default function AnomalyDetection({ anomalies }: AnomalyDetectionProps) {
 
               {/* Possible Causes */}
               <div>
-                <h4 className="text-[14px] font-semibold text-[#fafafa] mb-3">
+                <h4 className="text-[14px] font-semibold text-[#F8FAFC] mb-3">
                   Possible Causes
                 </h4>
                 <div className="space-y-2">
                   {selectedAnomaly.possibleCauses.map((cause, idx) => (
-                    <div key={idx} className="flex items-start gap-3 bg-[#111111] border border-[#2a2a2a] rounded-lg p-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#F97316] mt-2 flex-shrink-0"></div>
-                      <p className="text-[13px] text-[#888888]">{cause}</p>
+                    <div key={idx} className="flex items-start gap-3 bg-[#111827] border border-[#1E293B] rounded-lg p-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#6366F1] mt-2 flex-shrink-0"></div>
+                      <p className="text-[13px] text-[#94A3B8]">{cause}</p>
                     </div>
                   ))}
                 </div>
@@ -326,11 +326,11 @@ export default function AnomalyDetection({ anomalies }: AnomalyDetectionProps) {
 
               {/* Recommendation */}
               <div>
-                <h4 className="text-[14px] font-semibold text-[#fafafa] mb-3">
+                <h4 className="text-[14px] font-semibold text-[#F8FAFC] mb-3">
                   Recommended Action
                 </h4>
-                <div className="bg-gradient-to-r from-[#F97316]/10 to-[#3b82f6]/10 border border-[#F97316]/30 rounded-xl p-4">
-                  <p className="text-[14px] text-[#fafafa] leading-relaxed">
+                <div className="bg-gradient-to-r from-[#6366F1]/10 to-[#06B6D4]/10 border border-[#6366F1]/30 rounded-xl p-4">
+                  <p className="text-[14px] text-[#F8FAFC] leading-relaxed">
                     {selectedAnomaly.recommendation}
                   </p>
                 </div>
@@ -338,10 +338,10 @@ export default function AnomalyDetection({ anomalies }: AnomalyDetectionProps) {
 
               {/* Actions */}
               <div className="flex items-center gap-3 pt-4">
-                <button className="flex-1 bg-gradient-to-r from-[#F97316] to-[#3b82f6] text-white px-4 py-3 rounded-xl text-[14px] font-medium hover:shadow-lg hover:shadow-orange-500/20 transition-all">
+                <button className="flex-1 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white px-4 py-3 rounded-xl text-[14px] font-medium hover:shadow-lg hover:shadow-indigo-500/20 transition-all">
                   Create Alert Rule
                 </button>
-                <button className="px-4 py-3 bg-[#111111] border border-[#2a2a2a] text-[#fafafa] rounded-xl text-[14px] font-medium hover:bg-[#1a1a1a] transition-all">
+                <button className="px-4 py-3 bg-[#111827] border border-[#1E293B] text-[#F8FAFC] rounded-xl text-[14px] font-medium hover:bg-[#1E293B] transition-all">
                   Investigate
                 </button>
               </div>

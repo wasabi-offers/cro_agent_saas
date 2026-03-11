@@ -1,5 +1,5 @@
 /**
- * CRO Quiz Funnel Tracker
+ * CRO Quiz Funnel Tracker v2
  *
  * Tracks user interactions in multi-step quiz funnels:
  *   - Step views and transitions
@@ -7,8 +7,23 @@
  *   - Hesitation detection (long pauses before answering)
  *   - Dropoff detection (abandonment, tab switch, exit intent)
  *   - Answer changes and back navigation
+ *   - Option hover analysis
+ *   - Scroll depth per step
+ *   - Session resume on page refresh
  *
- * Install:
+ * Sends to BOTH:
+ *   1. Next.js /api/track  (main CRO tracking pipeline — always works)
+ *   2. Supabase Edge Function /functions/v1/track-quiz-event (quiz-specific — optional)
+ *
+ * Install (minimal — only needs APP_URL):
+ *   <script>
+ *     window.quizConfig = {
+ *       funnelSlug: "weight-loss-quiz"
+ *     };
+ *   </script>
+ *   <script src="https://yoursite.com/cro-quiz-tracker.js"></script>
+ *
+ * Install (full — with Supabase for quiz-specific analytics):
  *   <script>
  *     window.quizConfig = {
  *       funnelSlug: "weight-loss-quiz",
@@ -24,14 +39,19 @@
  *   - Question text: [data-quiz-question] or first h2/h3 in step
  *   - Next/Back buttons: [data-quiz-next], [data-quiz-back]
  *   - Progress bar: [data-quiz-progress]
+ *   - Skip button: [data-quiz-skip]
+ *   - Complete trigger: [data-quiz-complete]
  *
  * Manual API:
+ *   window.QuizTracker.start(funnelSlug)
  *   window.QuizTracker.stepView(stepOrder, stepName)
  *   window.QuizTracker.answerClick(stepOrder, answerId, answerText, answerValue)
  *   window.QuizTracker.complete(score, result)
  *   window.QuizTracker.abandon(reason)
  *   window.QuizTracker.setFunnel(funnelSlug)
+ *   window.QuizTracker.getState()
  *   window.QuizTracker.getStats()
+ *   window.QuizTracker.flush()
  */
 (function () {
   'use strict';
@@ -49,29 +69,37 @@
   var SUPABASE_URL = quizConfig.supabaseUrl || window.croSupabaseUrl || '';
   var SUPABASE_KEY = quizConfig.supabaseKey || window.croSupabaseKey || '';
 
-  var APP_BASE_URL = '';
-  try {
-    var currentScriptSrc = '';
-    if (document.currentScript && document.currentScript.src) {
-      currentScriptSrc = document.currentScript.src;
-    } else {
-      var allScripts = document.getElementsByTagName('script');
-      for (var si = allScripts.length - 1; si >= 0; si--) {
-        if (allScripts[si].src && allScripts[si].src.indexOf('cro-quiz-tracker') > -1) {
-          currentScriptSrc = allScripts[si].src;
-          break;
+  // Auto-detect base URL from script src
+  var APP_BASE_URL = quizConfig.appUrl || '';
+  if (!APP_BASE_URL) {
+    try {
+      var currentScriptSrc = '';
+      if (document.currentScript && document.currentScript.src) {
+        currentScriptSrc = document.currentScript.src;
+      } else {
+        var allScripts = document.getElementsByTagName('script');
+        for (var si = allScripts.length - 1; si >= 0; si--) {
+          if (allScripts[si].src && allScripts[si].src.indexOf('cro-quiz-tracker') > -1) {
+            currentScriptSrc = allScripts[si].src;
+            break;
+          }
         }
       }
-    }
-    if (currentScriptSrc) {
-      APP_BASE_URL = new URL(currentScriptSrc).origin;
-    }
-  } catch (_) {}
+      if (currentScriptSrc) {
+        APP_BASE_URL = new URL(currentScriptSrc).origin;
+      }
+    } catch (_) {}
+  }
   if (!APP_BASE_URL) APP_BASE_URL = 'https://cro-agent.vercel.app';
 
+  var HAS_SUPABASE = !!(SUPABASE_URL && SUPABASE_KEY);
+
   var CONFIG = {
-    TRACK_ENDPOINT: SUPABASE_URL + '/functions/v1/track-quiz-event',
-    AI_ANALYZE_ENDPOINT: SUPABASE_URL + '/functions/v1/ai-quiz-analyze',
+    TRACK_API_ENDPOINT: APP_BASE_URL + '/api/track',
+    TRACK_QUIZ_ENDPOINT: APP_BASE_URL + '/api/track-quiz',
+    SUPABASE_QUIZ_ENDPOINT: HAS_SUPABASE
+      ? SUPABASE_URL + '/functions/v1/track-quiz-event'
+      : null,
 
     FUNNEL_SLUG: quizConfig.funnelSlug || null,
 
@@ -79,17 +107,15 @@
     USER_COOKIE_NAME: 'cro_uid',
     SESSION_STORAGE_KEY: 'cro_session_id',
     QUIZ_SESSION_KEY: 'cro_quiz_session',
+    ATTRIBUTION_KEY: 'cro_attribution',
 
     COOKIE_EXPIRY_DAYS: 730,
     BATCH_SIZE: 10,
     FLUSH_INTERVAL: 3000,
 
-    HESITATION_THRESHOLD_MS: 8000,
-    INACTIVITY_ABANDON_MS: 180000, // 3 minutes
-    TAB_SWITCH_TIMEOUT_MS: 60000,  // 1 minute tab away = abandon
-
-    AI_ENABLED: !!(SUPABASE_URL && SUPABASE_KEY),
-    AI_AUTO_ANALYZE: quizConfig.aiAutoAnalyze !== false
+    HESITATION_THRESHOLD_MS: quizConfig.hesitationThreshold || 8000,
+    INACTIVITY_ABANDON_MS: quizConfig.inactivityTimeout || 180000,
+    TAB_SWITCH_TIMEOUT_MS: quizConfig.tabSwitchTimeout || 60000
   };
 
   // ═══════════════════════════════════════════
@@ -164,7 +190,12 @@
     return {
       device_type: mob ? 'mobile' : tab ? 'tablet' : 'desktop',
       browser: browser(),
-      os: os()
+      os: os(),
+      screen_width: window.screen.width,
+      screen_height: window.screen.height,
+      viewport_width: window.innerWidth,
+      viewport_height: window.innerHeight,
+      language: navigator.language || 'unknown'
     };
   }
 
@@ -173,28 +204,87 @@
     return {
       source: p.get('utm_source') || 'direct',
       medium: p.get('utm_medium') || 'none',
-      campaign: p.get('utm_campaign') || null
+      campaign: p.get('utm_campaign') || null,
+      content: p.get('utm_content') || null,
+      term: p.get('utm_term') || null,
+      gclid: p.get('gclid') || null,
+      fbclid: p.get('fbclid') || null
     };
   }
 
+  function parseReferrer() {
+    var ref = document.referrer;
+    if (!ref) return { source: 'direct', medium: 'none', referrer: null };
+    try {
+      var h = new URL(ref).hostname.toLowerCase();
+      var map = [
+        [['facebook.com', 'fb.com'], 'facebook', 'social'],
+        [['instagram.com'], 'instagram', 'social'],
+        [['twitter.com', 'x.com'], 'twitter', 'social'],
+        [['tiktok.com'], 'tiktok', 'social'],
+        [['youtube.com'], 'youtube', 'social'],
+        [['google.'], 'google', 'organic'],
+        [['bing.com'], 'bing', 'organic'],
+        [['yahoo.com'], 'yahoo', 'organic']
+      ];
+      for (var i = 0; i < map.length; i++) {
+        for (var j = 0; j < map[i][0].length; j++) {
+          if (h.indexOf(map[i][0][j]) > -1) {
+            return { source: map[i][1], medium: map[i][2], referrer: ref };
+          }
+        }
+      }
+      return { source: h, medium: 'referral', referrer: ref };
+    } catch (_) { return { source: 'unknown', medium: 'referral', referrer: ref }; }
+  }
+
   // ═══════════════════════════════════════════
-  // STATE
+  // IDENTITY (shared with cro-tracking-attribution.js)
   // ═══════════════════════════════════════════
 
-  var userId = ls(CONFIG.USER_STORAGE_KEY) || getCookie(CONFIG.USER_COOKIE_NAME) || generateId('usr');
+  var userId = ls(CONFIG.USER_STORAGE_KEY) || getCookie(CONFIG.USER_COOKIE_NAME);
+  var isNewUser = !userId;
+  if (!userId) userId = generateId('usr');
   ls(CONFIG.USER_STORAGE_KEY, userId);
   setCookie(CONFIG.USER_COOKIE_NAME, userId, CONFIG.COOKIE_EXPIRY_DAYS);
 
-  var sessionId = ss(CONFIG.SESSION_STORAGE_KEY) || generateId('sess');
-  ss(CONFIG.SESSION_STORAGE_KEY, sessionId);
+  var sessionId = ss(CONFIG.SESSION_STORAGE_KEY);
+  var isNewSession = !sessionId;
+  if (!sessionId) { sessionId = generateId('sess'); ss(CONFIG.SESSION_STORAGE_KEY, sessionId); }
 
   var deviceInfo = detectDevice();
   var utmData = extractUTM();
+  var referrerData = parseReferrer();
+
+  // Build attribution (use UTM if present, else referrer)
+  var attribution = {
+    source: utmData.source !== 'direct' ? utmData.source : referrerData.source,
+    medium: utmData.medium !== 'none' ? utmData.medium : referrerData.medium,
+    campaign: utmData.campaign,
+    content: utmData.content,
+    term: utmData.term,
+    referrer: referrerData.referrer || document.referrer || null,
+    gclid: utmData.gclid,
+    fbclid: utmData.fbclid
+  };
+
+  // Load first-touch attribution
+  var firstTouch = null;
+  try { firstTouch = JSON.parse(ls(CONFIG.ATTRIBUTION_KEY) || 'null'); } catch (_) {}
+  if (!firstTouch) {
+    firstTouch = { source: attribution.source, medium: attribution.medium, campaign: attribution.campaign };
+    ls(CONFIG.ATTRIBUTION_KEY, JSON.stringify(firstTouch));
+  }
+
+  // ═══════════════════════════════════════════
+  // QUIZ STATE
+  // ═══════════════════════════════════════════
 
   var quizState = {
     funnelSlug: CONFIG.FUNNEL_SLUG,
     quizSessionId: null,
     currentStep: 0,
+    totalSteps: 0,
     startTime: null,
     stepStartTime: null,
     stepsViewed: [],
@@ -206,6 +296,7 @@
     lastActivityTime: Date.now()
   };
 
+  // Restore from sessionStorage if same funnel and still active
   var savedQuizSession = ss(CONFIG.QUIZ_SESSION_KEY);
   if (savedQuizSession) {
     try {
@@ -213,17 +304,17 @@
       if (parsed.funnelSlug === CONFIG.FUNNEL_SLUG && !parsed.isCompleted && !parsed.isAbandoned) {
         quizState = Object.assign(quizState, parsed);
         quizState.lastActivityTime = Date.now();
+        quizState.hesitationTimers = {};
       }
     } catch (_) {}
   }
-
-  var eventQueue = [];
 
   function saveState() {
     ss(CONFIG.QUIZ_SESSION_KEY, JSON.stringify({
       funnelSlug: quizState.funnelSlug,
       quizSessionId: quizState.quizSessionId,
       currentStep: quizState.currentStep,
+      totalSteps: quizState.totalSteps,
       startTime: quizState.startTime,
       stepsViewed: quizState.stepsViewed,
       answersGiven: quizState.answersGiven,
@@ -233,25 +324,27 @@
   }
 
   // ═══════════════════════════════════════════
-  // EVENT TRACKING CORE
+  // DUAL-ENDPOINT EVENT DISPATCH
   // ═══════════════════════════════════════════
+
+  var mainQueue = [];
+  var quizQueue = [];
 
   function trackQuizEvent(eventType, data) {
     quizState.lastActivityTime = Date.now();
 
     var timeSinceStart = quizState.startTime
-      ? (Date.now() - quizState.startTime) / 1000
-      : 0;
-
+      ? (Date.now() - quizState.startTime) / 1000 : 0;
     var timeOnStep = quizState.stepStartTime
-      ? (Date.now() - quizState.stepStartTime) / 1000
-      : 0;
+      ? (Date.now() - quizState.stepStartTime) / 1000 : 0;
 
-    var evt = {
+    var basePayload = {
       funnel_slug: quizState.funnelSlug,
       quiz_session_id: quizState.quizSessionId,
       user_id: userId,
       session_id: sessionId,
+      is_new_user: isNewUser,
+      is_new_session: isNewSession,
       event_type: eventType,
       step_order: quizState.currentStep,
       time_on_step_seconds: Math.round(timeOnStep * 100) / 100,
@@ -259,57 +352,170 @@
       device_type: deviceInfo.device_type,
       browser: deviceInfo.browser,
       os: deviceInfo.os,
-      source: utmData.source,
-      medium: utmData.medium,
-      campaign: utmData.campaign,
+      screen_width: deviceInfo.screen_width,
+      screen_height: deviceInfo.screen_height,
+      viewport_width: deviceInfo.viewport_width,
+      viewport_height: deviceInfo.viewport_height,
+      language: deviceInfo.language,
+      source: attribution.source,
+      medium: attribution.medium,
+      campaign: attribution.campaign,
+      content: attribution.content,
+      term: attribution.term,
+      referrer: attribution.referrer,
+      gclid: attribution.gclid,
+      fbclid: attribution.fbclid,
+      first_touch_source: firstTouch.source,
+      first_touch_medium: firstTouch.medium,
+      first_touch_campaign: firstTouch.campaign,
       url: window.location.href,
+      path: window.location.pathname,
+      title: document.title,
       timestamp: Date.now()
     };
 
     if (data) {
       var keys = Object.keys(data);
-      for (var i = 0; i < keys.length; i++) evt[keys[i]] = data[keys[i]];
+      for (var i = 0; i < keys.length; i++) basePayload[keys[i]] = data[keys[i]];
     }
 
-    eventQueue.push(evt);
-    if (eventQueue.length >= CONFIG.BATCH_SIZE) flushEvents();
+    // 1) Main CRO pipeline: map to standard event format for /api/track
+    var mainEvt = {
+      user_id: userId,
+      session_id: sessionId,
+      is_new_user: isNewUser,
+      is_new_session: isNewSession,
+      type: mapToMainEventType(eventType),
+      timestamp: basePayload.timestamp,
+      url: basePayload.url,
+      path: basePayload.path,
+      title: basePayload.title,
+      source: attribution.source,
+      medium: attribution.medium,
+      campaign: attribution.campaign,
+      content: attribution.content,
+      term: attribution.term,
+      referrer: attribution.referrer,
+      first_touch_source: firstTouch.source,
+      first_touch_medium: firstTouch.medium,
+      first_touch_campaign: firstTouch.campaign,
+      device_type: deviceInfo.device_type,
+      browser: deviceInfo.browser,
+      os: deviceInfo.os,
+      screen_width: deviceInfo.screen_width,
+      screen_height: deviceInfo.screen_height,
+      viewport_width: deviceInfo.viewport_width,
+      viewport_height: deviceInfo.viewport_height,
+      language: deviceInfo.language,
+      funnel_id: quizState.funnelSlug,
+      funnel_step_name: data && data.step_name ? data.step_name : 'Step ' + quizState.currentStep,
+      step_order: quizState.currentStep,
+      quiz_event_type: eventType,
+      quiz_session_id: quizState.quizSessionId
+    };
+
+    if (data) {
+      if (data.answer_id) mainEvt.element_text = data.answer_text || data.answer_id;
+      if (data.quiz_score !== undefined) mainEvt.conversion_value = data.quiz_score;
+      if (eventType === 'quiz_complete') {
+        mainEvt.is_conversion = true;
+        mainEvt.conversion_type = 'quiz_complete';
+        mainEvt.conversion_name = 'Quiz: ' + (quizState.funnelSlug || 'unknown');
+      }
+    }
+
+    mainQueue.push(mainEvt);
+
+    // 2) Quiz-specific pipeline (Supabase Edge Function or /api/track-quiz)
+    quizQueue.push(basePayload);
+
+    if (mainQueue.length >= CONFIG.BATCH_SIZE) flushMain();
+    if (quizQueue.length >= CONFIG.BATCH_SIZE) flushQuiz();
   }
 
-  function flushEvents() {
-    if (eventQueue.length === 0) return;
-    if (!CONFIG.AI_ENABLED) return;
+  function mapToMainEventType(quizEventType) {
+    var map = {
+      'quiz_start': 'funnel_step',
+      'step_view': 'funnel_step',
+      'answer_click': 'cta_click',
+      'answer_change': 'cta_click',
+      'quiz_complete': 'conversion',
+      'quiz_abandon': 'custom',
+      'hesitation': 'custom',
+      'step_back': 'custom',
+      'step_skip': 'custom',
+      'exit_intent_on_step': 'exit_intent',
+      'tab_switch_away': 'custom',
+      'tab_switch_back': 'custom',
+      'scroll_on_step': 'scroll',
+      'option_hover': 'custom'
+    };
+    return map[quizEventType] || 'custom';
+  }
 
-    var batch = eventQueue.slice();
-    eventQueue = [];
+  // ── Flush to /api/track (main CRO pipeline — always available)
+  function flushMain() {
+    if (mainQueue.length === 0) return;
+    var batch = mainQueue.slice();
+    mainQueue = [];
+    sendBatch(CONFIG.TRACK_API_ENDPOINT, batch, null, function () {
+      mainQueue = batch.concat(mainQueue);
+    });
+  }
 
+  // ── Flush to quiz endpoint (Supabase Edge Function or /api/track-quiz)
+  function flushQuiz() {
+    if (quizQueue.length === 0) return;
+    var batch = quizQueue.slice();
+    quizQueue = [];
+
+    var endpoint = CONFIG.SUPABASE_QUIZ_ENDPOINT || CONFIG.TRACK_QUIZ_ENDPOINT;
+    var headers = null;
+    if (CONFIG.SUPABASE_QUIZ_ENDPOINT) {
+      headers = {
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'apikey': SUPABASE_KEY
+      };
+    }
+
+    sendBatch(endpoint, batch, headers, function () {
+      quizQueue = batch.concat(quizQueue);
+    });
+  }
+
+  function sendBatch(endpoint, batch, extraHeaders, onError) {
     var payload = JSON.stringify({ events: batch });
+    var hdrs = { 'Content-Type': 'application/json' };
+    if (extraHeaders) {
+      var keys = Object.keys(extraHeaders);
+      for (var i = 0; i < keys.length; i++) hdrs[keys[i]] = extraHeaders[keys[i]];
+    }
 
     try {
-      fetch(CONFIG.TRACK_ENDPOINT, {
+      fetch(endpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + SUPABASE_KEY,
-          'apikey': SUPABASE_KEY
-        },
+        headers: hdrs,
         body: payload,
         keepalive: true
       }).then(function (r) {
-        if (!r.ok) eventQueue = batch.concat(eventQueue);
+        if (!r.ok && onError) onError();
       }).catch(function () {
-        eventQueue = batch.concat(eventQueue);
+        if (onError) onError();
       });
     } catch (_) {
       try {
         var blob = new Blob([payload], { type: 'application/json' });
-        navigator.sendBeacon(CONFIG.TRACK_ENDPOINT, blob);
+        if (!navigator.sendBeacon(endpoint, blob)) {
+          if (onError) onError();
+        }
       } catch (__) {
-        eventQueue = batch.concat(eventQueue);
+        if (onError) onError();
       }
     }
   }
 
-  setInterval(flushEvents, CONFIG.FLUSH_INTERVAL);
+  // Periodic flush
+  setInterval(function () { flushMain(); flushQuiz(); }, CONFIG.FLUSH_INTERVAL);
 
   // ═══════════════════════════════════════════
   // QUIZ LIFECYCLE
@@ -318,7 +524,7 @@
   function startQuiz(funnelSlug) {
     if (funnelSlug) quizState.funnelSlug = funnelSlug;
     if (!quizState.funnelSlug) {
-      console.warn('[QuizTracker] No funnel slug configured');
+      console.warn('[QuizTracker] No funnel slug configured — use QuizTracker.start("my-slug") or set window.quizConfig.funnelSlug');
       return;
     }
 
@@ -331,15 +537,23 @@
     quizState.isCompleted = false;
     quizState.isAbandoned = false;
 
+    // Detect total steps from DOM
+    var domSteps = document.querySelectorAll('[data-quiz-step]');
+    if (domSteps.length > 0) quizState.totalSteps = domSteps.length;
+
     trackQuizEvent('quiz_start', {
-      funnel_slug: quizState.funnelSlug
+      funnel_slug: quizState.funnelSlug,
+      total_steps: quizState.totalSteps
     });
 
     saveState();
+    resetInactivityTimer();
     console.log('[QuizTracker] Quiz started:', quizState.funnelSlug, '| Session:', quizState.quizSessionId);
   }
 
   function viewStep(stepOrder, stepName) {
+    if (!quizState.startTime) startQuiz(quizState.funnelSlug);
+
     quizState.currentStep = stepOrder;
     quizState.stepStartTime = Date.now();
 
@@ -350,10 +564,14 @@
     trackQuizEvent('step_view', {
       step_order: stepOrder,
       step_name: stepName || 'Step ' + stepOrder,
-      total_steps_viewed: quizState.stepsViewed.length
+      total_steps_viewed: quizState.stepsViewed.length,
+      total_steps: quizState.totalSteps,
+      completion_percentage: quizState.totalSteps > 0
+        ? Math.round((stepOrder / quizState.totalSteps) * 100) : 0
     });
 
     startHesitationTimer(stepOrder);
+    resetInactivityTimer();
     saveState();
   }
 
@@ -361,8 +579,7 @@
     clearHesitationTimer(stepOrder);
 
     var timeOnStep = quizState.stepStartTime
-      ? (Date.now() - quizState.stepStartTime) / 1000
-      : 0;
+      ? (Date.now() - quizState.stepStartTime) / 1000 : 0;
 
     var previousAnswer = quizState.answersGiven[stepOrder];
     var isChange = !!previousAnswer && previousAnswer.answerId !== answerId;
@@ -376,6 +593,7 @@
 
     trackQuizEvent(isChange ? 'answer_change' : 'answer_click', {
       step_order: stepOrder,
+      step_name: getStepName(stepOrder),
       answer_id: answerId,
       answer_text: answerText,
       answer_value: answerValue,
@@ -383,23 +601,25 @@
       time_on_step_seconds: Math.round(timeOnStep * 100) / 100,
       hesitation_detected: timeOnStep > (CONFIG.HESITATION_THRESHOLD_MS / 1000),
       hesitation_duration_ms: timeOnStep > (CONFIG.HESITATION_THRESHOLD_MS / 1000)
-        ? Math.round(timeOnStep * 1000)
-        : 0
+        ? Math.round(timeOnStep * 1000) : 0
     });
 
+    resetInactivityTimer();
     saveState();
   }
 
   function stepBack(fromStep, toStep) {
     trackQuizEvent('step_back', {
       step_order: fromStep,
-      target_step: toStep
+      target_step: toStep,
+      step_name: getStepName(fromStep)
     });
   }
 
   function stepSkip(stepOrder) {
     trackQuizEvent('step_skip', {
-      step_order: stepOrder
+      step_order: stepOrder,
+      step_name: getStepName(stepOrder)
     });
   }
 
@@ -408,16 +628,34 @@
     quizState.isCompleted = true;
     quizState.totalTimeMs = Date.now() - (quizState.startTime || Date.now());
 
+    var answersArr = [];
+    var stepKeys = Object.keys(quizState.answersGiven);
+    for (var i = 0; i < stepKeys.length; i++) {
+      var k = stepKeys[i];
+      var a = quizState.answersGiven[k];
+      answersArr.push({
+        step_order: parseInt(k),
+        answer_id: a.answerId,
+        answer_text: a.answerText,
+        time_seconds: a.timeSeconds
+      });
+    }
+
     trackQuizEvent('quiz_complete', {
       quiz_score: score || 0,
       quiz_result: result || null,
       total_time_seconds: Math.round(quizState.totalTimeMs / 1000),
-      total_steps_answered: Object.keys(quizState.answersGiven).length,
-      answers_summary: quizState.answersGiven
+      total_steps_answered: stepKeys.length,
+      total_steps_viewed: quizState.stepsViewed.length,
+      total_steps: quizState.totalSteps,
+      answers_summary: answersArr,
+      completion_percentage: 100
     });
 
-    flushEvents();
+    flushMain();
+    flushQuiz();
     saveState();
+    clearInactivityTimer();
     console.log('[QuizTracker] Quiz completed. Score:', score, '| Result:', result);
   }
 
@@ -426,19 +664,24 @@
     quizState.isAbandoned = true;
     quizState.totalTimeMs = Date.now() - (quizState.startTime || Date.now());
 
+    var answeredCount = Object.keys(quizState.answersGiven).length;
+
     trackQuizEvent('quiz_abandon', {
       dropoff_step: quizState.currentStep,
       dropoff_reason: reason || 'unknown',
+      dropoff_step_name: getStepName(quizState.currentStep),
       total_time_seconds: Math.round(quizState.totalTimeMs / 1000),
-      total_steps_answered: Object.keys(quizState.answersGiven).length,
+      total_steps_answered: answeredCount,
+      total_steps_viewed: quizState.stepsViewed.length,
       last_step_reached: quizState.currentStep,
-      completion_percentage: quizState.stepsViewed.length > 0
-        ? Math.round((Object.keys(quizState.answersGiven).length / quizState.stepsViewed.length) * 100)
-        : 0
+      completion_percentage: quizState.totalSteps > 0
+        ? Math.round((answeredCount / quizState.totalSteps) * 100) : 0
     });
 
-    flushEvents();
+    flushMain();
+    flushQuiz();
     saveState();
+    clearInactivityTimer();
     console.log('[QuizTracker] Quiz abandoned at step', quizState.currentStep, '| Reason:', reason);
   }
 
@@ -451,9 +694,11 @@
     quizState.hesitationTimers[stepOrder] = setTimeout(function () {
       trackQuizEvent('hesitation', {
         step_order: stepOrder,
+        step_name: getStepName(stepOrder),
         hesitation_detected: true,
         hesitation_duration_ms: CONFIG.HESITATION_THRESHOLD_MS,
-        time_on_step_seconds: (Date.now() - quizState.stepStartTime) / 1000
+        time_on_step_seconds: quizState.stepStartTime
+          ? (Date.now() - quizState.stepStartTime) / 1000 : 0
       });
     }, CONFIG.HESITATION_THRESHOLD_MS);
   }
@@ -472,20 +717,30 @@
   var inactivityTimer = null;
 
   function resetInactivityTimer() {
-    if (inactivityTimer) clearTimeout(inactivityTimer);
+    clearInactivityTimer();
     if (quizState.isCompleted || quizState.isAbandoned || !quizState.startTime) return;
-
     inactivityTimer = setTimeout(function () {
       abandonQuiz('timeout');
     }, CONFIG.INACTIVITY_ABANDON_MS);
   }
 
-  document.addEventListener('click', resetInactivityTimer);
-  document.addEventListener('scroll', resetInactivityTimer);
-  document.addEventListener('mousemove', function () {
-    quizState.lastActivityTime = Date.now();
+  function clearInactivityTimer() {
+    if (inactivityTimer) { clearTimeout(inactivityTimer); inactivityTimer = null; }
+  }
+
+  document.addEventListener('click', function () {
+    if (quizState.startTime && !quizState.isCompleted && !quizState.isAbandoned) {
+      resetInactivityTimer();
+    }
   });
 
+  document.addEventListener('scroll', function () {
+    if (quizState.startTime && !quizState.isCompleted && !quizState.isAbandoned) {
+      resetInactivityTimer();
+    }
+  });
+
+  // Tab switch detection
   var tabSwitchTime = null;
 
   document.addEventListener('visibilitychange', function () {
@@ -494,17 +749,19 @@
     if (document.hidden) {
       tabSwitchTime = Date.now();
       trackQuizEvent('tab_switch_away', {
-        step_order: quizState.currentStep
+        step_order: quizState.currentStep,
+        step_name: getStepName(quizState.currentStep)
       });
-      flushEvents();
+      flushMain();
+      flushQuiz();
     } else {
       if (tabSwitchTime) {
         var awayMs = Date.now() - tabSwitchTime;
         trackQuizEvent('tab_switch_back', {
           step_order: quizState.currentStep,
+          step_name: getStepName(quizState.currentStep),
           away_duration_ms: awayMs
         });
-
         if (awayMs > CONFIG.TAB_SWITCH_TIMEOUT_MS) {
           abandonQuiz('tab_switch');
         }
@@ -513,27 +770,40 @@
     }
   });
 
+  // Exit intent
   var exitIntentTracked = false;
   document.addEventListener('mouseout', function (e) {
     if (quizState.isCompleted || quizState.isAbandoned || !quizState.startTime) return;
     if (!exitIntentTracked && e.clientY < 0) {
       exitIntentTracked = true;
       trackQuizEvent('exit_intent_on_step', {
-        step_order: quizState.currentStep
+        step_order: quizState.currentStep,
+        step_name: getStepName(quizState.currentStep)
       });
       setTimeout(function () { exitIntentTracked = false; }, 10000);
     }
   });
 
+  // Page unload
   window.addEventListener('beforeunload', function () {
     if (quizState.startTime && !quizState.isCompleted && !quizState.isAbandoned) {
       abandonQuiz('navigation');
     }
-    flushEvents();
-    if (eventQueue.length > 0) {
+
+    // Force-flush remaining events via sendBeacon
+    if (mainQueue.length > 0) {
       try {
-        var blob = new Blob([JSON.stringify({ events: eventQueue })], { type: 'application/json' });
-        navigator.sendBeacon(CONFIG.TRACK_ENDPOINT, blob);
+        var blob = new Blob([JSON.stringify({ events: mainQueue })], { type: 'application/json' });
+        navigator.sendBeacon(CONFIG.TRACK_API_ENDPOINT, blob);
+        mainQueue = [];
+      } catch (_) {}
+    }
+    if (quizQueue.length > 0) {
+      var qEndpoint = CONFIG.SUPABASE_QUIZ_ENDPOINT || CONFIG.TRACK_QUIZ_ENDPOINT;
+      try {
+        var blob2 = new Blob([JSON.stringify({ events: quizQueue })], { type: 'application/json' });
+        navigator.sendBeacon(qEndpoint, blob2);
+        quizQueue = [];
       } catch (_) {}
     }
   });
@@ -547,35 +817,65 @@
     if (steps.length === 0) return;
 
     console.log('[QuizTracker] Auto-detected', steps.length, 'quiz steps');
+    quizState.totalSteps = steps.length;
 
     if (!quizState.startTime) {
       startQuiz(CONFIG.FUNNEL_SLUG);
     }
 
-    var observer = new MutationObserver(function () {
-      detectVisibleStep();
-    });
+    // Watch for step visibility changes (show/hide based quizzes)
+    var observer = new MutationObserver(function () { detectVisibleStep(); });
     observer.observe(document.body, { attributes: true, childList: true, subtree: true });
 
     for (var i = 0; i < steps.length; i++) {
       bindStepAnswers(steps[i]);
     }
 
+    // Next buttons
     var nextBtns = document.querySelectorAll('[data-quiz-next]');
     for (var n = 0; n < nextBtns.length; n++) {
-      nextBtns[n].addEventListener('click', function () {
-        var nextStep = parseInt(this.getAttribute('data-quiz-next')) || quizState.currentStep + 1;
-        viewStep(nextStep, getStepName(nextStep));
-      });
+      (function (btn) {
+        btn.addEventListener('click', function () {
+          var nextStep = parseInt(btn.getAttribute('data-quiz-next')) || quizState.currentStep + 1;
+          viewStep(nextStep, getStepName(nextStep));
+        });
+      })(nextBtns[n]);
     }
 
+    // Back buttons
     var backBtns = document.querySelectorAll('[data-quiz-back]');
     for (var b = 0; b < backBtns.length; b++) {
-      backBtns[b].addEventListener('click', function () {
-        var backTo = parseInt(this.getAttribute('data-quiz-back')) || quizState.currentStep - 1;
-        stepBack(quizState.currentStep, backTo);
-        viewStep(backTo, getStepName(backTo));
-      });
+      (function (btn) {
+        btn.addEventListener('click', function () {
+          var backTo = parseInt(btn.getAttribute('data-quiz-back')) || quizState.currentStep - 1;
+          stepBack(quizState.currentStep, backTo);
+          viewStep(backTo, getStepName(backTo));
+        });
+      })(backBtns[b]);
+    }
+
+    // Skip buttons
+    var skipBtns = document.querySelectorAll('[data-quiz-skip]');
+    for (var s = 0; s < skipBtns.length; s++) {
+      (function (btn) {
+        btn.addEventListener('click', function () {
+          stepSkip(quizState.currentStep);
+          var nextStep = parseInt(btn.getAttribute('data-quiz-skip')) || quizState.currentStep + 1;
+          viewStep(nextStep, getStepName(nextStep));
+        });
+      })(skipBtns[s]);
+    }
+
+    // Complete triggers
+    var completeBtns = document.querySelectorAll('[data-quiz-complete]');
+    for (var c = 0; c < completeBtns.length; c++) {
+      (function (btn) {
+        btn.addEventListener('click', function () {
+          var score = parseFloat(btn.getAttribute('data-quiz-score')) || 0;
+          var result = btn.getAttribute('data-quiz-result') || null;
+          completeQuiz(score, result);
+        });
+      })(completeBtns[c]);
     }
 
     detectVisibleStep();
@@ -598,6 +898,7 @@
         answerEl.addEventListener('mouseenter', function () {
           trackQuizEvent('option_hover', {
             step_order: stepOrder,
+            step_name: getStepName(stepOrder),
             answer_id: answerEl.getAttribute('data-quiz-answer'),
             answer_text: (answerEl.innerText || '').trim().substring(0, 200)
           });
@@ -652,7 +953,9 @@
     if (Math.abs(scrollPct - lastStepScroll) >= 25) {
       trackQuizEvent('scroll_on_step', {
         step_order: quizState.currentStep,
-        scroll_percentage: Math.min(100, scrollPct)
+        step_name: getStepName(quizState.currentStep),
+        scroll_percentage: Math.min(100, scrollPct),
+        scroll_depth: Math.round(window.scrollY)
       });
       lastStepScroll = scrollPct;
     }
@@ -684,7 +987,7 @@
     stepSkip: stepSkip,
     complete: completeQuiz,
     abandon: abandonQuiz,
-    flush: flushEvents,
+    flush: function () { flushMain(); flushQuiz(); },
 
     setFunnel: function (slug) {
       CONFIG.FUNNEL_SLUG = slug;
@@ -696,29 +999,38 @@
         funnelSlug: quizState.funnelSlug,
         quizSessionId: quizState.quizSessionId,
         currentStep: quizState.currentStep,
+        totalSteps: quizState.totalSteps,
         stepsViewed: quizState.stepsViewed.slice(),
-        answersGiven: Object.assign({}, quizState.answersGiven),
+        answersGiven: JSON.parse(JSON.stringify(quizState.answersGiven)),
         isCompleted: quizState.isCompleted,
         isAbandoned: quizState.isAbandoned,
         totalTimeSeconds: quizState.startTime
-          ? Math.round((Date.now() - quizState.startTime) / 1000)
-          : 0
+          ? Math.round((Date.now() - quizState.startTime) / 1000) : 0
       };
     },
 
     getStats: function () {
       var totalAnswered = Object.keys(quizState.answersGiven).length;
       var totalViewed = quizState.stepsViewed.length;
+      var avgTime = 0;
+      if (totalAnswered > 0) {
+        var totalTime = 0;
+        var answers = quizState.answersGiven;
+        var keys = Object.keys(answers);
+        for (var i = 0; i < keys.length; i++) totalTime += (answers[keys[i]].timeSeconds || 0);
+        avgTime = Math.round(totalTime / totalAnswered);
+      }
       return {
         totalStepsViewed: totalViewed,
+        totalSteps: quizState.totalSteps,
         totalAnswered: totalAnswered,
-        completionPct: totalViewed > 0 ? Math.round((totalAnswered / totalViewed) * 100) : 0,
-        avgTimePerStep: totalAnswered > 0
-          ? Math.round(Object.values(quizState.answersGiven).reduce(function (s, a) {
-              return s + (a.timeSeconds || 0);
-            }, 0) / totalAnswered)
-          : 0,
-        currentStep: quizState.currentStep
+        completionPct: quizState.totalSteps > 0
+          ? Math.round((totalAnswered / quizState.totalSteps) * 100)
+          : (totalViewed > 0 ? Math.round((totalAnswered / totalViewed) * 100) : 0),
+        avgTimePerStep: avgTime,
+        currentStep: quizState.currentStep,
+        isCompleted: quizState.isCompleted,
+        isAbandoned: quizState.isAbandoned
       };
     },
 
@@ -729,10 +1041,12 @@
 
   window.dispatchEvent(new Event('quiz-tracker-ready'));
 
-  console.log('[QuizTracker] Initialized');
+  console.log('[QuizTracker] v2 Initialized');
   console.log('[QuizTracker] User:', userId, '| Session:', sessionId);
-  console.log('[QuizTracker] Funnel:', CONFIG.FUNNEL_SLUG || 'NOT SET (use QuizTracker.setFunnel("slug"))');
-  console.log('[QuizTracker] AI:', CONFIG.AI_ENABLED ? 'ENABLED' : 'DISABLED');
+  console.log('[QuizTracker] Funnel:', CONFIG.FUNNEL_SLUG || 'NOT SET (use QuizTracker.start("slug"))');
+  console.log('[QuizTracker] Main API:', CONFIG.TRACK_API_ENDPOINT);
+  console.log('[QuizTracker] Quiz API:', CONFIG.SUPABASE_QUIZ_ENDPOINT || CONFIG.TRACK_QUIZ_ENDPOINT);
+  console.log('[QuizTracker] Supabase:', HAS_SUPABASE ? 'CONNECTED' : 'NOT CONFIGURED (using /api/track-quiz fallback)');
 
   } catch (err) {
     console.error('[QuizTracker] Init failed:', err);

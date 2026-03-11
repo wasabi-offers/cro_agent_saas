@@ -75,13 +75,13 @@ export default function SessionReplayTimeline({ session }: SessionReplayTimeline
   const getEventIcon = (type: SessionEvent["type"]) => {
     switch (type) {
       case "click":
-        return <MousePointerClick className="w-3.5 h-3.5 text-[#F97316]" />;
+        return <MousePointerClick className="w-3.5 h-3.5 text-[#6366F1]" />;
       case "scroll":
-        return <Eye className="w-3.5 h-3.5 text-[#3b82f6]" />;
+        return <Eye className="w-3.5 h-3.5 text-[#06B6D4]" />;
       case "pageview":
         return <Calendar className="w-3.5 h-3.5 text-[#f59e0b]" />;
       case "rage_click":
-        return <MousePointerClick className="w-3.5 h-3.5 text-[#ff6b6b]" />;
+        return <MousePointerClick className="w-3.5 h-3.5 text-[#EF4444]" />;
       case "dead_click":
         return <MousePointerClick className="w-3.5 h-3.5 text-[#f59e0b]" />;
     }
@@ -90,47 +90,47 @@ export default function SessionReplayTimeline({ session }: SessionReplayTimeline
   const getEventColor = (type: SessionEvent["type"]) => {
     switch (type) {
       case "click":
-        return "bg-[#F97316]/20 border-[#F97316]/30 text-[#F97316]";
+        return "bg-[#6366F1]/20 border-[#6366F1]/30 text-[#6366F1]";
       case "scroll":
-        return "bg-[#3b82f6]/20 border-[#3b82f6]/30 text-[#3b82f6]";
+        return "bg-[#06B6D4]/20 border-[#06B6D4]/30 text-[#06B6D4]";
       case "pageview":
         return "bg-[#f59e0b]/20 border-[#f59e0b]/30 text-[#f59e0b]";
       case "rage_click":
-        return "bg-[#ff6b6b]/20 border-[#ff6b6b]/30 text-[#ff6b6b]";
+        return "bg-[#EF4444]/20 border-[#EF4444]/30 text-[#EF4444]";
       case "dead_click":
         return "bg-[#f59e0b]/20 border-[#f59e0b]/30 text-[#f59e0b]";
     }
   };
 
   return (
-    <div className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-2xl overflow-hidden">
+    <div className="bg-[#0B0F19] border border-[#1E293B] rounded-2xl overflow-hidden">
       {/* Header */}
-      <div className="p-6 border-b border-[#2a2a2a]">
+      <div className="p-6 border-b border-[#1E293B]">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-[18px] font-semibold text-[#fafafa] mb-1">
+            <h3 className="text-[18px] font-semibold text-[#F8FAFC] mb-1">
               Session Replay
             </h3>
-            <p className="text-[13px] text-[#888888]">
+            <p className="text-[13px] text-[#94A3B8]">
               Session {displaySession.id} • {new Date(displaySession.startTime).toLocaleString()}
             </p>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <div className="text-[11px] text-[#666666] uppercase">Device</div>
-              <div className="text-[13px] text-[#fafafa] font-medium capitalize">
+              <div className="text-[11px] text-[#64748B] uppercase">Device</div>
+              <div className="text-[13px] text-[#F8FAFC] font-medium capitalize">
                 {displaySession.device}
               </div>
             </div>
             <div className="text-right">
-              <div className="text-[11px] text-[#666666] uppercase">Duration</div>
-              <div className="text-[13px] text-[#fafafa] font-medium">
+              <div className="text-[11px] text-[#64748B] uppercase">Duration</div>
+              <div className="text-[13px] text-[#F8FAFC] font-medium">
                 {formatTime(displaySession.duration)}
               </div>
             </div>
             <div className="text-right">
-              <div className="text-[11px] text-[#666666] uppercase">Converted</div>
-              <div className={`text-[13px] font-medium ${displaySession.converted ? 'text-[#3b82f6]' : 'text-[#ff6b6b]'}`}>
+              <div className="text-[11px] text-[#64748B] uppercase">Converted</div>
+              <div className={`text-[13px] font-medium ${displaySession.converted ? 'text-[#06B6D4]' : 'text-[#EF4444]'}`}>
                 {displaySession.converted ? 'Yes ✓' : 'No'}
               </div>
             </div>
@@ -139,17 +139,17 @@ export default function SessionReplayTimeline({ session }: SessionReplayTimeline
       </div>
 
       {/* Controls */}
-      <div className="p-6 border-b border-[#2a2a2a]">
+      <div className="p-6 border-b border-[#1E293B]">
         <div className="flex items-center gap-4">
           <button
             onClick={() => setCurrentTime(Math.max(0, currentTime - 10))}
-            className="p-2 bg-[#111111] border border-[#2a2a2a] rounded-lg hover:bg-[#1a1a1a] transition-all"
+            className="p-2 bg-[#111827] border border-[#1E293B] rounded-lg hover:bg-[#1E293B] transition-all"
           >
-            <SkipBack className="w-4 h-4 text-[#fafafa]" />
+            <SkipBack className="w-4 h-4 text-[#F8FAFC]" />
           </button>
           <button
             onClick={() => setIsPlaying(!isPlaying)}
-            className="p-3 bg-gradient-to-r from-[#F97316] to-[#3b82f6] rounded-lg hover:shadow-lg hover:shadow-orange-500/20 transition-all"
+            className="p-3 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] rounded-lg hover:shadow-lg hover:shadow-indigo-500/20 transition-all"
           >
             {isPlaying ? (
               <Pause className="w-5 h-5 text-white" />
@@ -159,17 +159,17 @@ export default function SessionReplayTimeline({ session }: SessionReplayTimeline
           </button>
           <button
             onClick={() => setCurrentTime(Math.min(displaySession.duration, currentTime + 10))}
-            className="p-2 bg-[#111111] border border-[#2a2a2a] rounded-lg hover:bg-[#1a1a1a] transition-all"
+            className="p-2 bg-[#111827] border border-[#1E293B] rounded-lg hover:bg-[#1E293B] transition-all"
           >
-            <SkipForward className="w-4 h-4 text-[#fafafa]" />
+            <SkipForward className="w-4 h-4 text-[#F8FAFC]" />
           </button>
 
           {/* Timeline Slider */}
           <div className="flex-1 flex items-center gap-3">
-            <span className="text-[13px] text-[#888888] font-mono">
+            <span className="text-[13px] text-[#94A3B8] font-mono">
               {formatTime(currentTime)}
             </span>
-            <div className="flex-1 relative h-2 bg-[#111111] rounded-full">
+            <div className="flex-1 relative h-2 bg-[#111827] rounded-full">
               <input
                 type="range"
                 min="0"
@@ -179,7 +179,7 @@ export default function SessionReplayTimeline({ session }: SessionReplayTimeline
                 className="absolute inset-0 w-full opacity-0 cursor-pointer z-10"
               />
               <div
-                className="h-full bg-gradient-to-r from-[#F97316] to-[#3b82f6] rounded-full transition-all"
+                className="h-full bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] rounded-full transition-all"
                 style={{ width: `${(currentTime / displaySession.duration) * 100}%` }}
               />
               {/* Event Markers */}
@@ -188,7 +188,7 @@ export default function SessionReplayTimeline({ session }: SessionReplayTimeline
                   key={idx}
                   className={`absolute top-0 w-1.5 h-2 rounded-full -translate-x-1/2 ${
                     event.type === 'rage_click' || event.type === 'dead_click'
-                      ? 'bg-[#ff6b6b]'
+                      ? 'bg-[#EF4444]'
                       : event.type === 'pageview'
                       ? 'bg-[#f59e0b]'
                       : 'bg-white/50'
@@ -197,7 +197,7 @@ export default function SessionReplayTimeline({ session }: SessionReplayTimeline
                 />
               ))}
             </div>
-            <span className="text-[13px] text-[#888888] font-mono">
+            <span className="text-[13px] text-[#94A3B8] font-mono">
               {formatTime(displaySession.duration)}
             </span>
           </div>
@@ -206,7 +206,7 @@ export default function SessionReplayTimeline({ session }: SessionReplayTimeline
 
       {/* Events Timeline */}
       <div className="p-6">
-        <h4 className="text-[14px] font-semibold text-[#fafafa] mb-4">
+        <h4 className="text-[14px] font-semibold text-[#F8FAFC] mb-4">
           Session Events
         </h4>
         <div className="space-y-3 max-h-[400px] overflow-y-auto">
@@ -216,33 +216,33 @@ export default function SessionReplayTimeline({ session }: SessionReplayTimeline
               className={`flex items-start gap-3 p-3 rounded-lg border transition-all ${
                 event.timestamp <= currentTime
                   ? getEventColor(event.type)
-                  : 'bg-[#111111] border-[#2a2a2a] opacity-50'
+                  : 'bg-[#111827] border-[#1E293B] opacity-50'
               }`}
             >
-              <div className="w-8 h-8 bg-[#0a0a0a] rounded-lg flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 bg-[#0B0F19] rounded-lg flex items-center justify-center flex-shrink-0">
                 {getEventIcon(event.type)}
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[13px] font-medium text-[#fafafa] capitalize">
+                  <span className="text-[13px] font-medium text-[#F8FAFC] capitalize">
                     {event.type.replace('_', ' ')}
                   </span>
-                  <span className="text-[11px] text-[#666666] font-mono">
+                  <span className="text-[11px] text-[#64748B] font-mono">
                     {formatTime(event.timestamp)}
                   </span>
                 </div>
                 {event.element && (
-                  <p className="text-[12px] text-[#888888]">
+                  <p className="text-[12px] text-[#94A3B8]">
                     Element: {event.element}
                   </p>
                 )}
                 {event.page && (
-                  <p className="text-[12px] text-[#888888]">
+                  <p className="text-[12px] text-[#94A3B8]">
                     Page: {event.page}
                   </p>
                 )}
                 {(event.type === 'rage_click' || event.type === 'dead_click') && (
-                  <p className="text-[11px] text-[#ff6b6b] mt-1">
+                  <p className="text-[11px] text-[#EF4444] mt-1">
                     ⚠️ User experienced frustration here
                   </p>
                 )}

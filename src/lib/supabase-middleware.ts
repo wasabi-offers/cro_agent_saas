@@ -32,9 +32,9 @@ export async function updateSession(request: NextRequest) {
   const isLoginPage = request.nextUrl.pathname === "/login";
   const isAuthCallback = request.nextUrl.pathname === "/auth/callback";
   const isApiRoute = request.nextUrl.pathname.startsWith("/api/");
-  const isTrackRoute = request.nextUrl.pathname === "/api/track";
+  const isTrackRoute = request.nextUrl.pathname === "/api/track" || request.nextUrl.pathname === "/api/track-quiz";
 
-  // Allow public access to: login page, auth callback, tracking API, and CORS preflight
+  // Allow public access to: login page, auth callback, tracking APIs, and CORS preflight
   if (isLoginPage || isAuthCallback || isTrackRoute || request.method === "OPTIONS") {
     return supabaseResponse;
   }

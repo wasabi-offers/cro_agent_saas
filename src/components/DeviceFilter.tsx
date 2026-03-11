@@ -27,8 +27,8 @@ export default function DeviceFilter({ value, onChange, className = "" }: Device
             onClick={() => onChange(device.id)}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[14px] font-medium transition-all ${
               isActive
-                ? "bg-[#F97316] text-white shadow-lg shadow-[#F97316]/20"
-                : "bg-[#f8f9fa] text-[#888888] border border-[#d0d0d0] hover:border-[#F97316]/50 hover:text-[#1a1a1a]"
+                ? "bg-[#6366F1] text-white shadow-lg shadow-[#6366F1]/20"
+                : "bg-[#F8FAFC] text-[#94A3B8] border border-[#CBD5E1] hover:border-[#6366F1]/50 hover:text-[#0F172A]"
             }`}
           >
             <Icon className="w-4 h-4" />

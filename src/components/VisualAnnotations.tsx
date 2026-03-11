@@ -33,13 +33,13 @@ export default function VisualAnnotations({
   const getAnnotationColor = (type: Annotation["type"]) => {
     switch (type) {
       case "critical":
-        return { bg: "bg-[#ff6b6b]", border: "border-[#ff6b6b]", text: "text-[#ff6b6b]" };
+        return { bg: "bg-[#EF4444]", border: "border-[#EF4444]", text: "text-[#EF4444]" };
       case "warning":
         return { bg: "bg-[#f59e0b]", border: "border-[#f59e0b]", text: "text-[#f59e0b]" };
       case "success":
-        return { bg: "bg-[#3b82f6]", border: "border-[#3b82f6]", text: "text-[#3b82f6]" };
+        return { bg: "bg-[#06B6D4]", border: "border-[#06B6D4]", text: "text-[#06B6D4]" };
       case "info":
-        return { bg: "bg-[#F97316]", border: "border-[#F97316]", text: "text-[#F97316]" };
+        return { bg: "bg-[#6366F1]", border: "border-[#6366F1]", text: "text-[#6366F1]" };
     }
   };
 
@@ -58,43 +58,43 @@ export default function VisualAnnotations({
 
   const getImpactBadge = (impact: Annotation["impact"]) => {
     const colors = {
-      high: "bg-[#ff6b6b]/20 text-[#ff6b6b] border-[#ff6b6b]/30",
+      high: "bg-[#EF4444]/20 text-[#EF4444] border-[#EF4444]/30",
       medium: "bg-[#f59e0b]/20 text-[#f59e0b] border-[#f59e0b]/30",
-      low: "bg-[#3b82f6]/20 text-[#3b82f6] border-[#3b82f6]/30",
+      low: "bg-[#06B6D4]/20 text-[#06B6D4] border-[#06B6D4]/30",
     };
     return colors[impact];
   };
 
   return (
-    <div className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-2xl overflow-hidden">
+    <div className="bg-[#0B0F19] border border-[#1E293B] rounded-2xl overflow-hidden">
       {/* Header */}
-      <div className="p-6 border-b border-[#2a2a2a]">
+      <div className="p-6 border-b border-[#1E293B]">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-[18px] font-semibold text-[#fafafa] mb-1">
+            <h3 className="text-[18px] font-semibold text-[#F8FAFC] mb-1">
               Visual Page Analysis
             </h3>
-            <p className="text-[13px] text-[#888888]">
+            <p className="text-[13px] text-[#94A3B8]">
               Click on markers to view detailed insights
             </p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setZoom(Math.max(50, zoom - 10))}
-              className="p-2 bg-[#111111] border border-[#2a2a2a] rounded-lg hover:bg-[#1a1a1a] transition-all"
+              className="p-2 bg-[#111827] border border-[#1E293B] rounded-lg hover:bg-[#1E293B] transition-all"
               disabled={zoom <= 50}
             >
-              <ZoomOut className="w-4 h-4 text-[#888888]" />
+              <ZoomOut className="w-4 h-4 text-[#94A3B8]" />
             </button>
-            <span className="text-[13px] text-[#888888] min-w-[60px] text-center">
+            <span className="text-[13px] text-[#94A3B8] min-w-[60px] text-center">
               {zoom}%
             </span>
             <button
               onClick={() => setZoom(Math.min(200, zoom + 10))}
-              className="p-2 bg-[#111111] border border-[#2a2a2a] rounded-lg hover:bg-[#1a1a1a] transition-all"
+              className="p-2 bg-[#111827] border border-[#1E293B] rounded-lg hover:bg-[#1E293B] transition-all"
               disabled={zoom >= 200}
             >
-              <ZoomIn className="w-4 h-4 text-[#888888]" />
+              <ZoomIn className="w-4 h-4 text-[#94A3B8]" />
             </button>
           </div>
         </div>
@@ -102,26 +102,26 @@ export default function VisualAnnotations({
         {/* Annotation Stats */}
         <div className="flex items-center gap-4 mt-4">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-[#ff6b6b]"></div>
-            <span className="text-[12px] text-[#888888]">
+            <div className="w-3 h-3 rounded-full bg-[#EF4444]"></div>
+            <span className="text-[12px] text-[#94A3B8]">
               {annotations.filter(a => a.type === 'critical').length} Critical
             </span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-[#f59e0b]"></div>
-            <span className="text-[12px] text-[#888888]">
+            <span className="text-[12px] text-[#94A3B8]">
               {annotations.filter(a => a.type === 'warning').length} Warnings
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-[#3b82f6]"></div>
-            <span className="text-[12px] text-[#888888]">
+            <div className="w-3 h-3 rounded-full bg-[#06B6D4]"></div>
+            <span className="text-[12px] text-[#94A3B8]">
               {annotations.filter(a => a.type === 'success').length} Good
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-[#F97316]"></div>
-            <span className="text-[12px] text-[#888888]">
+            <div className="w-3 h-3 rounded-full bg-[#6366F1]"></div>
+            <span className="text-[12px] text-[#94A3B8]">
               {annotations.filter(a => a.type === 'info').length} Info
             </span>
           </div>
@@ -129,7 +129,7 @@ export default function VisualAnnotations({
       </div>
 
       {/* Screenshot Container */}
-      <div className="relative bg-[#111111] overflow-auto" style={{ maxHeight: '800px' }}>
+      <div className="relative bg-[#111827] overflow-auto" style={{ maxHeight: '800px' }}>
         <div
           className="relative mx-auto transition-all duration-300"
           style={{
@@ -147,16 +147,16 @@ export default function VisualAnnotations({
           ) : pageUrl ? (
             <iframe
               src={`/api/proxy-page?url=${encodeURIComponent(pageUrl)}`}
-              className="w-full h-[800px] bg-white border border-[#2a2a2a]"
+              className="w-full h-[800px] bg-white border border-[#1E293B]"
               title="Page preview"
               referrerPolicy="no-referrer"
               sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
             />
           ) : (
-            <div className="w-full h-[800px] bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] flex items-center justify-center border border-[#2a2a2a]">
+            <div className="w-full h-[800px] bg-gradient-to-br from-[#1E293B] to-[#0B0F19] flex items-center justify-center border border-[#1E293B]">
               <div className="text-center">
                 <div className="text-[48px] mb-3">📄</div>
-                <p className="text-[14px] text-[#666666] mb-2">No URL provided</p>
+                <p className="text-[14px] text-[#64748B] mb-2">No URL provided</p>
                 <p className="text-[12px] text-[#555555] max-w-[300px]">
                   Enter a URL to preview the page
                 </p>
@@ -204,7 +204,7 @@ export default function VisualAnnotations({
 
                   {/* Quick Tooltip on Hover */}
                   {isHovered && !selectedAnnotation && (
-                    <div className="absolute top-10 left-1/2 transform -translate-x-1/2 bg-black/90 backdrop-blur-sm border border-[#2a2a2a] rounded-lg p-3 w-64 z-20 shadow-xl">
+                    <div className="absolute top-10 left-1/2 transform -translate-x-1/2 bg-black/90 backdrop-blur-sm border border-[#1E293B] rounded-lg p-3 w-64 z-20 shadow-xl">
                       <div className="flex items-start gap-2 mb-2">
                         <div className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${colors.bg} text-white`}>
                           {annotation.type}
@@ -213,10 +213,10 @@ export default function VisualAnnotations({
                           {annotation.impact} impact
                         </div>
                       </div>
-                      <p className="text-[13px] font-semibold text-[#fafafa] mb-1">
+                      <p className="text-[13px] font-semibold text-[#F8FAFC] mb-1">
                         {annotation.title}
                       </p>
-                      <p className="text-[11px] text-[#888888]">
+                      <p className="text-[11px] text-[#94A3B8]">
                         Click for details
                       </p>
                     </div>
@@ -231,9 +231,9 @@ export default function VisualAnnotations({
       {/* Annotation Detail Modal */}
       {selectedAnnotation && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-          <div className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-auto">
+          <div className="bg-[#0B0F19] border border-[#1E293B] rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-auto">
             {/* Modal Header */}
-            <div className="sticky top-0 bg-[#0a0a0a] border-b border-[#2a2a2a] p-6 flex items-start justify-between">
+            <div className="sticky top-0 bg-[#0B0F19] border-b border-[#1E293B] p-6 flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-3">
                   <div className={`px-2.5 py-1 rounded-lg border ${getAnnotationColor(selectedAnnotation.type).bg} text-white text-[11px] font-bold uppercase`}>
@@ -242,19 +242,19 @@ export default function VisualAnnotations({
                   <div className={`px-2.5 py-1 rounded-lg border text-[11px] font-medium ${getImpactBadge(selectedAnnotation.impact)}`}>
                     {selectedAnnotation.impact} impact
                   </div>
-                  <span className="text-[12px] text-[#666666]">
+                  <span className="text-[12px] text-[#64748B]">
                     {selectedAnnotation.category}
                   </span>
                 </div>
-                <h3 className="text-[20px] font-semibold text-[#fafafa]">
+                <h3 className="text-[20px] font-semibold text-[#F8FAFC]">
                   {selectedAnnotation.title}
                 </h3>
               </div>
               <button
                 onClick={() => setSelectedAnnotation(null)}
-                className="p-2 hover:bg-[#111111] rounded-lg transition-all"
+                className="p-2 hover:bg-[#111827] rounded-lg transition-all"
               >
-                <X className="w-5 h-5 text-[#888888]" />
+                <X className="w-5 h-5 text-[#94A3B8]" />
               </button>
             </div>
 
@@ -262,25 +262,25 @@ export default function VisualAnnotations({
             <div className="p-6 space-y-6">
               {/* Description */}
               <div>
-                <h4 className="text-[13px] font-semibold text-[#888888] uppercase tracking-wide mb-2">
+                <h4 className="text-[13px] font-semibold text-[#94A3B8] uppercase tracking-wide mb-2">
                   Issue Description
                 </h4>
-                <p className="text-[15px] text-[#fafafa] leading-relaxed">
+                <p className="text-[15px] text-[#F8FAFC] leading-relaxed">
                   {selectedAnnotation.description}
                 </p>
               </div>
 
               {/* Recommendation */}
               <div>
-                <h4 className="text-[13px] font-semibold text-[#888888] uppercase tracking-wide mb-2">
+                <h4 className="text-[13px] font-semibold text-[#94A3B8] uppercase tracking-wide mb-2">
                   Recommendation
                 </h4>
-                <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-4">
+                <div className="bg-[#111827] border border-[#1E293B] rounded-xl p-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-[#F97316] to-[#3b82f6] rounded-lg flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] rounded-lg flex items-center justify-center flex-shrink-0">
                       <TrendingUp className="w-4 h-4 text-white" />
                     </div>
-                    <p className="text-[14px] text-[#fafafa] leading-relaxed">
+                    <p className="text-[14px] text-[#F8FAFC] leading-relaxed">
                       {selectedAnnotation.recommendation}
                     </p>
                   </div>
@@ -289,10 +289,10 @@ export default function VisualAnnotations({
 
               {/* Action Buttons */}
               <div className="flex items-center gap-3 pt-4">
-                <button className="flex-1 bg-gradient-to-r from-[#F97316] to-[#3b82f6] text-white px-4 py-3 rounded-xl text-[14px] font-medium hover:shadow-lg hover:shadow-orange-500/20 transition-all">
+                <button className="flex-1 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white px-4 py-3 rounded-xl text-[14px] font-medium hover:shadow-lg hover:shadow-indigo-500/20 transition-all">
                   Create A/B Test
                 </button>
-                <button className="px-4 py-3 bg-[#111111] border border-[#2a2a2a] text-[#fafafa] rounded-xl text-[14px] font-medium hover:bg-[#1a1a1a] transition-all">
+                <button className="px-4 py-3 bg-[#111827] border border-[#1E293B] text-[#F8FAFC] rounded-xl text-[14px] font-medium hover:bg-[#1E293B] transition-all">
                   Add to Tasks
                 </button>
               </div>
